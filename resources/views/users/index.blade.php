@@ -1,0 +1,50 @@
+@extends('layouts.app')
+
+@section('content')
+    <div class="page-body">
+        <div class="container-xl">
+            <div class="row row-cards">
+                <div class="col-12">
+                    <h1>Xodimlar</h1>
+                    <a href="{{ route('users.create') }}" class="btn btn-primary mb-3">Yangi xodim qo‘shish</a>
+
+                    @if(session('success'))
+                        <div class="alert alert-success">{{ session('success') }}</div>
+                    @endif
+
+                    <table class="table table-bordered">
+                        <thead>
+                        <tr>
+                            <th>ID</th>
+                            <th>Ism</th>
+                            <th>Email</th>
+                            <th>Amallar</th>
+                        </tr>
+                        </thead>
+                        <tbody>
+                        @foreach($users as $user)
+                            <tr>
+                                <td>{{ $user->id }}</td>
+                                <td>{{ $user->name }}</td>
+                                <td>{{ $user->email }}</td>
+                                <td>
+                                    <a href="{{ route('users.show', $user->id) }}"
+                                       class="btn btn-info btn-sm">Batafsil</a>
+                                    <a href="{{ route('users.edit', $user->id) }}" class="btn btn-warning btn-sm">Tahrirlash</a>
+                                    <form action="{{ route('users.destroy', $user->id) }}" method="POST"
+                                          style="display:inline;">
+                                        @csrf @method('DELETE')
+                                        <button type="submit" class="btn btn-danger btn-sm">O‘chirish</button>
+                                    </form>
+                                </td>
+                            </tr>
+                        @endforeach
+                        </tbody>
+                    </table>
+
+                    {{ $users->links() }}
+                </div>
+            </div>
+        </div>
+    </div>
+@endsection
