@@ -4,10 +4,10 @@
             <div class="col">
                 <!-- Page pre-title -->
                 <div class="page-pretitle">
-                    Overview
+                    Elektron hisoblash
                 </div>
                 <h2 class="page-title">
-                    Fluid vertical layout
+                    eSuv.uz
                 </h2>
             </div>
             <!-- Page title actions -->
