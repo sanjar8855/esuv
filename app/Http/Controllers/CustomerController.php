@@ -18,12 +18,22 @@ class CustomerController extends Controller
         $streetId = request('street_id');
         $debtFilter = request('debt');
 
-        // **📌 Ko‘chalar ro‘yxatini olish (xatoni tuzatish)**
-        $streets = Street::whereHas('customers', function($query) use ($user) {
-            $query->where('company_id', $user->company->id);
-        })->get();
+        // **📌 Admin bo‘lsa barcha ko‘chalarni oladi, aks holda faqat o‘z kompaniyasidagi mijozlar ko‘chalarini**
+        if ($user->hasRole('admin')) {
+            $streets = Street::all(); // ✅ Admin barcha ko‘chalarni ko‘radi
+        } else {
+            // ✅ Agar admin bo‘lmasa, faqat o‘z kompaniyasidagi mijozlar joylashgan ko‘chalar
+            if ($user->company) {
+                $streets = Street::whereHas('customers', function($query) use ($user) {
+                    $query->where('company_id', $user->company->id);
+                })->get();
+            } else {
+                // ❌ Kompaniyasi yo‘q foydalanuvchilar uchun bo‘sh ro‘yxat
+                $streets = collect();
+            }
+        }
 
-        // Asosiy query
+        // **📌 Asosiy query**
         $query = Customer::with([
             'company',
             'street.neighborhood.city.region',
@@ -32,17 +42,17 @@ class CustomerController extends Controller
             }
         ])
             ->withSum('invoices as total_due', 'amount_due')
-            ->withSum('payments as total_paid', 'amount')
-            // Faqat joriy kompaniyaga qarashli mijozlarni tanlaymiz:
-            ->where('company_id', $user->company_id)
-            // Faqat aktiv mijozlar:
-            ->where('is_active', 1);
+            ->withSum('payments as total_paid', 'amount');
 
-        // 🔹 Xodim faqat o‘z kompaniyasidagi mijozlarni ko‘radi
-        if (!$user->hasRole('admin')) {
+        // **📌 Agar admin bo‘lmasa, faqat o‘z kompaniyasiga tegishli mijozlarni ko‘rsatamiz**
+        if (!$user->hasRole('admin') && $user->company) {
             $query->where('company_id', $user->company_id);
         }
 
+        // **📌 Faqat faol mijozlarni olish**
+        $query->where('is_active', 1);
+
+        // **📌 Qidiruv**
         if ($search) {
             $query->where(function($q) use ($search) {
                 $q->where('name', 'LIKE', "%{$search}%")
@@ -51,21 +61,22 @@ class CustomerController extends Controller
             });
         }
 
-        // 🔹 Ko‘cha bo‘yicha filtrlash
+        // **📌 Ko‘cha bo‘yicha filtrlash**
         if ($streetId) {
             $query->where('street_id', $streetId);
         }
 
-        // 🔹 Qarzdor mijozlarni chiqarish (HAVING ishlatilmoqda)
+        // **📌 Qarzdor mijozlarni chiqarish**
         if ($debtFilter == 'has_debt') {
             $query->havingRaw('total_due > total_paid');
         }
 
-        // 🔹 Sahifalash va query stringni saqlash
+        // **📌 Sahifalash va query stringni saqlash**
         $customers = $query->paginate(20)->withQueryString();
 
         return view('customers.index', compact('customers', 'streets'));
     }
+
 
     /**
      * Yangi mijoz qo‘shish formasi.
