@@ -6,7 +6,7 @@
     "license": "MIT",
     "require": {
         "php": "^8.1",
-        "irazasyed/telegram-bot-sdk": "^3.14",
+        "irazasyed/telegram-bot-sdk": "*",
         "laravel/framework": "^10.10",
         "laravel/sanctum": "^3.3",
         "spatie/laravel-permission": "^6.12"

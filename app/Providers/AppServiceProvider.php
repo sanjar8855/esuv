@@ -24,8 +24,9 @@ class AppServiceProvider extends ServiceProvider
         Schema::defaultStringLength(191);
 
         $telegram = new Api(env('TELEGRAM_BOT_TOKEN'));
+        $webhook = 'https://esuv.uz/api/telegram/webhook';
         $telegram->setWebhook([
-            'url' => 'https://esuv.uz'
+            'url' => 'https://api.telegram.org/bot'.env('TELEGRAM_BOT_TOKEN').'/setWebhook?url='.$webhook
         ]);
     }
 }

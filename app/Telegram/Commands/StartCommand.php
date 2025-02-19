@@ -11,6 +11,8 @@ class StartCommand extends Command
 
     public function handle()
     {
-        $this->reply("Salom! Botga xush kelibsiz.");
+        $this->replyWithMessage([
+            'text' => "Salom! Bu ESuv bot."
+        ]);
     }
 }
