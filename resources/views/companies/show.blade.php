@@ -12,10 +12,10 @@
                             <th>Nomi:</th>
                             <td>{{ $company->name }}</td>
                         </tr>
-                        <tr>
-                            <th>Email:</th>
-                            <td>{{ $company->email }}</td>
-                        </tr>
+{{--                        <tr>--}}
+{{--                            <th>Email:</th>--}}
+{{--                            <td>{{ $company->email }}</td>--}}
+{{--                        </tr>--}}
                         <tr>
                             <th>Telefon:</th>
                             <td>{{ $company->phone }}</td>

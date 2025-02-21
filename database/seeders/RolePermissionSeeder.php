@@ -21,11 +21,16 @@ class RolePermissionSeeder extends Seeder
 
         // 🎯 Ruxsatnomalar (Permissions)
         $permissions = [
+            'manage locations',
             'manage companies',
             'manage users',
+            'manage tariffs',
             'manage customers',
+            'manage water meter',
+            'manage meter reading',
             'manage invoices',
             'manage payments',
+            'manage notifications',
             'view audit logs',
         ];
 

@@ -59,10 +59,10 @@
                             <input type="text" name="address" class="form-control" value="{{ $customer->address }}">
                         </div>
 
-                        <div class="mb-3">
-                            <label class="form-label">Telegram Chat ID</label>
-                            <input type="text" name="telegram_chat_id" class="form-control" value="{{ $customer->telegram_chat_id }}">
-                        </div>
+{{--                        <div class="mb-3">--}}
+{{--                            <label class="form-label">Telegram Chat ID</label>--}}
+{{--                            <input type="text" name="telegram_chat_id" class="form-control" value="{{ $customer->telegram_chat_id }}">--}}
+{{--                        </div>--}}
 
                         <div class="mb-3">
                             <label class="form-label">Hisob raqami</label>

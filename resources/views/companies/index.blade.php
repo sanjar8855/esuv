@@ -17,7 +17,7 @@
                                 <tr>
                                     <th>N</th>
                                     <th>Nomi</th>
-                                    <th>Email</th>
+{{--                                    <th>Email</th>--}}
                                     <th>Telefon</th>
                                     <th>Plan</th>
                                     <th>Amallar</th>
@@ -35,7 +35,7 @@
                                                 <span class="badge bg-red text-red-fg">Nofaol</span>
                                             @endif
                                         </td>
-                                        <td class="text-secondary">{{ $company->email }}</td>
+{{--                                        <td class="text-secondary">{{ $company->email }}</td>--}}
                                         <td class="text-secondary">{{ $company->phone }}</td>
                                         <td class="text-secondary">{{ $company->plan }}</td>
                                         <td>
