@@ -29,7 +29,7 @@ class UserController extends Controller
         $user = auth()->user();
         if ($user->hasRole('admin')) {
             // Admin barcha foydalanuvchilarni ko‘radi
-            $companies = Company::all()->paginate(10);
+            $companies = Company::paginate(10);
         } else {
             // Oddiy foydalanuvchi faqat o‘z kompaniyasidagi userlarni ko‘radi
             $companies = Company::where('id', $user->company->id)->paginate(10);
