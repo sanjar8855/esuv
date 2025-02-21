@@ -12,7 +12,9 @@
                         <div class="alert alert-success">{{ session('success') }}</div>
                     @endif
 
-                    <table class="table table-bordered">
+                    <div class="card">
+                        <div class="table-responsive">
+                            <table class="table table-bordered table-vcenter card-table table-striped">
                         <thead>
                         <tr>
                             <th> N </th>
