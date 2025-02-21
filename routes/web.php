@@ -18,6 +18,12 @@ use App\Http\Controllers\MeterReadingController;
 use App\Http\Controllers\InvoiceController;
 use App\Http\Controllers\PaymentController;
 use App\Http\Controllers\NotificationController;
+use Telegram\Bot\Laravel\Facades\Telegram;
+
+
+Route::get('setwebhook', function () {
+    $response = Telegram::setWebhook(['url' =>'https://cc80-213-230-88-246.ngrok-free.app/api/telegram/webhook']);
+});
 
 Route::middleware('guest')->group(function () {
     Route::get('/login', [AuthController::class, 'showLogin'])->name('login');

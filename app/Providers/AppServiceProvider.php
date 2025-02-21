@@ -2,9 +2,9 @@
 
 namespace App\Providers;
 
+use Telegram\Bot\Api;
 use Illuminate\Support\ServiceProvider;
 use Illuminate\Support\Facades\Schema;
-use Telegram\Bot\Api;
 
 class AppServiceProvider extends ServiceProvider
 {
@@ -23,10 +23,15 @@ class AppServiceProvider extends ServiceProvider
     {
         Schema::defaultStringLength(191);
 
-        $telegram = new Api(env('TELEGRAM_BOT_TOKEN'));
-        $webhook = 'https://esuv.uz/api/telegram/webhook';
-        $telegram->setWebhook([
-            'url' => 'https://api.telegram.org/bot'.env('TELEGRAM_BOT_TOKEN').'/setWebhook?url='.$webhook
-        ]);
+//        if (app()->runningInConsole()) { // Faqat artisan buyrug‘i ishlaganda webhookni sozlash
+//            $telegram = new Api(env('TELEGRAM_BOT_TOKEN'));
+//
+//            $webhookUrl = env('TELEGRAM_WEBHOOK_URL');
+//            if ($webhookUrl) { // Faqat webhook URL mavjud bo‘lsa
+//                $telegram->setWebhook(['url' => $webhookUrl]);
+//            } else {
+//                \Log::error('TELEGRAM_WEBHOOK_URL mavjud emas. .env faylini tekshiring!');
+//            }
+//        }
     }
 }

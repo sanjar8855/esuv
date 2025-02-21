@@ -36,7 +36,7 @@ return [
 //            'certificate_path' => env('TELEGRAM_CERTIFICATE_PATH', 'YOUR-CERTIFICATE-PATH'),
             'allowed_updates' => null,
             'commands' => [
-                App\Telegram\Commands\StartCommand::class
+//                App\Telegram\Commands\StartCommand::class
             ],
         ],
 
@@ -126,7 +126,7 @@ return [
     |
     */
     'commands' => [
-        App\Telegram\Commands\StartCommand::class,
+//        App\Telegram\Commands\StartCommand::class,
         HelpCommand::class,
     ],
 

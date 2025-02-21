@@ -48,6 +48,11 @@ class Customer extends Model
         return $this->hasOne(WaterMeter::class);
     }
 
+    public function telegramAccounts()
+    {
+        return $this->hasMany(CustomerTelegramAccount::class);
+    }
+
     // 🔹 Jami qarzdorlikni hisoblash
     protected function totalDue(): Attribute
     {
