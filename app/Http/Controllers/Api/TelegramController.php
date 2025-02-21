@@ -126,16 +126,19 @@ class TelegramController extends Controller
         $this->sendMessage($chatId, "Noto‘g‘ri buyruq. /start bosing va hisob raqamingizni kiriting.");
     }
 
-
-
-
-
-    public function sendMessage($chatId, $text)
+    public function sendMessage($chatId, $text, $replyMarkup = null)
     {
-        Telegram::sendMessage([
+        $data = [
             'chat_id' => $chatId,
-            'text' => $text
-        ]);
+            'text' => $text,
+            'parse_mode' => 'HTML'
+        ];
+
+        if ($replyMarkup) {
+            $data['reply_markup'] = json_encode($replyMarkup);
+        }
+
+        Telegram::sendMessage($data);
     }
 
 }
