@@ -39,7 +39,7 @@ return new class extends Migration {
             $table->string('email')->unique()->nullable();
             $table->string('phone');
             $table->enum('plan', ['basic', 'premium']);
-            $table->text('address');
+            $table->text('address')->nullable();
             $table->boolean('is_active')->default(true);
             $table->timestamps();
         });
