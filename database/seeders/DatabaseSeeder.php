@@ -54,15 +54,6 @@ class DatabaseSeeder extends Seeder
             ],
         ]);
 
-        DB::table('users')->insert([
-            [
-                'company_id' => 1,
-                'name' => 'User',
-                'email' => 'user@mail.ru',
-                'password' => Hash::make('123456'),
-            ],
-        ]);
-
         DB::table('customers')->insert([
             [
                 'company_id' => 1,

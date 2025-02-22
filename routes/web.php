@@ -37,22 +37,44 @@ Route::middleware('guest')->group(function () {
 });
 
 Route::middleware('auth')->group(function () {
-    Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
-
     Route::post('/logout', [AuthController::class, 'logout'])->name('logout');
 
-    Route::resource('companies', CompanyController::class);
-    Route::resource('customers', CustomerController::class);
-    Route::resource('tariffs', TariffController::class);
-    Route::resource('invoices', InvoiceController::class);
-    Route::resource('payments', PaymentController::class);
-    Route::resource('regions', RegionController::class);
-    Route::resource('cities', CityController::class);
-    Route::resource('neighborhoods', NeighborhoodController::class);
-    Route::resource('streets', StreetController::class);
-    Route::resource('water_meters', WaterMeterController::class);
-    Route::resource('meter_readings', MeterReadingController::class);
-    Route::resource('users', UserController::class);
-    Route::resource('notifications', NotificationController::class);
+    Route::middleware('can:dashboard')->group(function () {
+        Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
+    });
+
+    Route::middleware('can:companies')->group(function () {
+        Route::resource('companies', CompanyController::class);
+    });
+    Route::middleware('can:customers')->group(function () {
+        Route::resource('customers', CustomerController::class);
+    });
+    Route::middleware('can:tariffs')->group(function () {
+        Route::resource('tariffs', TariffController::class);
+    });
+    Route::middleware('can:invoices')->group(function () {
+        Route::resource('invoices', InvoiceController::class);
+    });
+    Route::middleware('can:payments')->group(function () {
+        Route::resource('payments', PaymentController::class);
+    });
+    Route::middleware('can:locations')->group(function () {
+        Route::resource('regions', RegionController::class);
+        Route::resource('cities', CityController::class);
+        Route::resource('neighborhoods', NeighborhoodController::class);
+        Route::resource('streets', StreetController::class);
+    });
+    Route::middleware('can:water_meters')->group(function () {
+        Route::resource('water_meters', WaterMeterController::class);
+    });
+    Route::middleware('can:meter_readings')->group(function () {
+        Route::resource('meter_readings', MeterReadingController::class);
+    });
+    Route::middleware('can:users')->group(function () {
+        Route::resource('users', UserController::class);
+    });
+    Route::middleware('can:notifications')->group(function () {
+        Route::resource('notifications', NotificationController::class);
+    });
 });
 

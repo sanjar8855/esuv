@@ -21,17 +21,18 @@ class RolePermissionSeeder extends Seeder
 
         // 🎯 Ruxsatnomalar (Permissions)
         $permissions = [
-            'manage locations',
-            'manage companies',
-            'manage users',
-            'manage tariffs',
-            'manage customers',
-            'manage water meter',
-            'manage meter reading',
-            'manage invoices',
-            'manage payments',
-            'manage notifications',
-            'view audit logs',
+            'dashboard',
+            'locations',
+            'companies',
+            'users',
+            'tariffs',
+            'customers',
+            'water_meters',
+            'meter_readings',
+            'invoices',
+            'payments',
+            'notifications',
+            'audit_logs',
         ];
 
         foreach ($permissions as $permission) {
@@ -42,15 +43,28 @@ class RolePermissionSeeder extends Seeder
         $roles = [
             'admin' => Permission::all(), // Barcha ruxsatlar
             'company_owner' => Permission::whereIn('name', [
-                'manage customers',
-                'manage invoices',
-                'manage payments',
-                'view audit logs',
+                'dashboard',
+                'users',
+                'tariffs',
+                'customers',
+                'water_meter',
+                'meter_reading',
+                'invoices',
+                'payments',
+                'notifications',
+            ])->get(),
+            'employee' => Permission::whereIn('name', [
+                'tariffs',
+                'customers',
+                'water_meter',
+                'meter_reading',
+                'invoices',
+                'payments',
+                'notifications'
             ])->get(),
             'customer' => Permission::whereIn('name', [
-                'manage invoices',
-                'manage payments',
-            ])->get(),
+                'customer_info'
+            ])->get()
         ];
 
         foreach ($roles as $roleName => $perms) {
@@ -66,5 +80,14 @@ class RolePermissionSeeder extends Seeder
             'password' => bcrypt('123456'), // Xavfsizlik uchun real loyihada mustahkam parol ishlating
         ]);
         $superAdmin->assignRole('admin');
+
+        $user = User::create([
+            'company_id' => 1,
+            'name' => 'User',
+            'email' => 'user@mail.ru',
+            'password' => bcrypt('123456'),
+        ]);
+
+        $user->assignRole('company_owner');
     }
 }

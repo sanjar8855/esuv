@@ -38,6 +38,16 @@
                         </div>
 
                         <div class="mb-3">
+                            <label for="role">Lavozim:</label>
+                            <select name="role" id="role" class="form-select">
+                                @if(auth()->user()->hasRole('admin') || auth()->user()->hasRole('company_owner'))
+                                    <option value="company_owner">Direktor</option>
+                                @endif
+                                <option value="employee">Ishchi xodim</option>
+                            </select>
+                        </div>
+
+                        <div class="mb-3">
                             <label for="email">Email:</label>
                             <input type="email" name="email" class="form-control" value="{{ $user->email }}" required>
                         </div>

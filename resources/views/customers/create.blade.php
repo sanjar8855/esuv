@@ -37,7 +37,7 @@
                         </div>
 
                         <div class="mb-3">
-                            <label class="form-label">Mahalla</label>
+                            <label class="form-label">Ko'cha</label>
                             <select name="street_id" class="form-control" required>
                                 @foreach($streets as $street)
                                     <option value="{{ $street->id }}">{{ $street->name }}</option>

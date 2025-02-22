@@ -44,14 +44,17 @@ class UserController extends Controller
             'name' => 'required|string',
             'email' => 'required|email|unique:users',
             'password' => 'required|string|min:6',
+            'role' => 'required|in:company_owner,employee'
         ]);
 
-        User::create([
+        $user = User::create([
             'company_id' => $request->company_id,
             'name' => $request->name,
             'email' => $request->email,
             'password' => Hash::make($request->password),
         ]);
+
+        $user->assignRole($request->role);
 
         return redirect()->route('users.index')->with('success', 'Foydalanuvchi qo‘shildi!');
     }
@@ -80,6 +83,7 @@ class UserController extends Controller
             'company_id' => 'required|exists:companies,id',
             'name' => 'required|string',
             'email' => 'required|email|unique:users,email,' . $user->id,
+            'role' => 'required|in:company_owner,employee'
         ]);
 
         $user->update([
@@ -88,6 +92,8 @@ class UserController extends Controller
             'email' => $request->email,
             'password' => $request->password ? Hash::make($request->password) : $user->password,
         ]);
+
+        $user->assignRole($request->role);
 
         return redirect()->route('users.index')->with('success', 'Foydalanuvchi yangilandi!');
     }
