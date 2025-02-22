@@ -158,7 +158,9 @@ class TelegramController extends Controller
 
         $message = "💳 <b>To‘lovlar tarixi</b>\n";
         foreach ($customer->payments as $payment) {
-            $date = $payment->payment_date ? $payment->payment_date->format('d.m.Y') : "Sana mavjud emas";
+            $date = $payment->payment_date instanceof \Carbon\Carbon
+                ? $payment->payment_date->format('d.m.Y')
+                : date('d.m.Y', strtotime($payment->payment_date));
             $message .= "💵 <b>{$payment->amount} UZS</b>\n";
             $message .= "📅 Sana: <b>{$date}</b>\n";
             $message .= "💳 Usul: <b>{$payment->payment_method}</b>\n";
