@@ -15,6 +15,7 @@ return new class extends Migration
             $table->id();
             $table->foreignId('customer_id')->constrained()->onDelete('cascade'); // Mijoz bilan bog‘lanadi
             $table->bigInteger('telegram_chat_id')->unique(); // Har bir Telegram ID noyob bo‘lishi kerak
+            $table->bigInteger('username'); // Har bir Telegram ID noyob bo‘lishi kerak
             $table->timestamps();
         });
     }

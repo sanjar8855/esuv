@@ -57,6 +57,14 @@
                             </td>
                         </tr>
                         <tr>
+                            <th>Ulangan telegram akkauntlar</th>
+                            <td>
+                                @foreach($customer->telegramAccounts as $tg)
+                                    <a href="https://t.me/{{$tg->username}}" target="_blank">{{$tg->username}}</a>,
+                                @endforeach
+                            </td>
+                        </tr>
+                        <tr>
                             <th>Kompaniya</th>
                             <td>
                                 <a href="{{ route('companies.show', $customer->company->id) }}">

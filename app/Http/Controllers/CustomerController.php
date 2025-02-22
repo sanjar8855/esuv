@@ -147,6 +147,7 @@ class CustomerController extends Controller
                 // Oxirgi (eng so‘nggi) o‘qish reading_date yoki id bo‘yicha tartib:
                 $query->orderBy('reading_date', 'desc');
             },
+            'telegramAccounts'
         ]);
 
         return view('customers.show', compact('customer'));

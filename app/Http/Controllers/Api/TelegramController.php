@@ -17,20 +17,23 @@ class TelegramController extends Controller
         $userId = $update['message']['from']['id'] ?? null;
         $text = trim($update['message']['text'] ?? '');
 
-        // ✅ Callback tugmalar bosilganda
+        // ✅ Callback tugmalar bosilganda pagination bilan ishlash
         if (isset($update['callback_query'])) {
-            $callbackData = $update['callback_query']['data'];
+            $callbackData = explode(':', $update['callback_query']['data']);
+            $action = $callbackData[0] ?? null;
+            $page = isset($callbackData[1]) ? (int) $callbackData[1] : 1;
+
             $chatId = $update['callback_query']['message']['chat']['id'];
 
-            switch ($callbackData) {
+            switch ($action) {
                 case "info":
                     $this->sendCustomerInfo($chatId);
                     break;
                 case "invoices":
-                    $this->sendInvoices($chatId);
+                    $this->sendInvoices($chatId, $page);
                     break;
                 case "payments":
-                    $this->sendPayments($chatId);
+                    $this->sendPayments($chatId, $page);
                     break;
             }
             return;
@@ -74,18 +77,23 @@ class TelegramController extends Controller
             return;
         }
 
-        // Foydalanuvchi oldin bog‘langanmi?
+        $username = null;
+        if (isset(Telegram::getWebhookUpdate()['message']['from']['username'])) {
+            $username = Telegram::getWebhookUpdate()['message']['from']['username'];
+        }
+
         $exists = $customer->telegramAccounts()->where('telegram_chat_id', $userId)->exists();
 
         if (!$exists) {
-            // Yangi Telegram ID ni bog‘lash
-            $customer->telegramAccounts()->create(['telegram_chat_id' => $userId]);
+            $customer->telegramAccounts()->create([
+                'telegram_chat_id' => $userId,
+                'username' => $username
+            ]);
             $this->sendMessage($chatId, "✅ Hisobingiz bog‘landi! Quyidagi menyudan foydalaning.");
         } else {
             $this->sendMessage($chatId, "✅ Siz allaqachon ushbu hisobga bog‘langansiz.");
         }
 
-        // Asosiy menyuni chiqarish
         $this->sendMainMenu($chatId);
     }
 
@@ -122,52 +130,60 @@ class TelegramController extends Controller
         $this->sendMessage($chatId, $message);
     }
 
-    // ✅ Mijozning invoice ma'lumotlarini jo‘natish
-    private function sendInvoices($chatId)
+    // ✅ Hisob varaqalar uchun pagination
+    private function sendInvoices($chatId, $page = 1)
     {
         $customer = $this->getCustomerByChatId($chatId);
         if (!$customer) return;
 
-        if ($customer->invoices->isEmpty()) {
-            $this->sendMessage($chatId, "📑 Sizda invoyslar mavjud emas.");
-            return;
+        $perPage = 10;
+        $total = $customer->invoices->count();
+        $totalPages = ceil($total / $perPage);
+        $offset = ($page - 1) * $perPage;
+        $invoices = $customer->invoices->slice($offset, $perPage);
+
+        $message = "📑 <b>Hisob varaqalar</b> (Sahifa: {$page}/{$totalPages})\n";
+        foreach ($invoices as $invoice) {
+            $message .= "🔹 <b>Invoice #{$invoice->invoice_number}</b>\n💰 Summa: <b>{$invoice->amount_due} UZS</b>\n\n";
         }
 
-        $message = "📑 <b>Hisob varaqalar</b>\n";
-        foreach ($customer->invoices as $invoice) {
-            $status = $invoice->status == "paid" ? "✅ To‘langan" : "⏳ To‘lanmagan";
-            $message .= "🔹 <b>Invoice #{$invoice->invoice_number}</b>\n";
-            $message .= "🗓 Oy: <b>{$invoice->billing_period}</b>\n";
-            $message .= "💰 Summa: <b>{$invoice->amount_due} UZS</b>\n";
-            $message .= "📌 Status: <b>{$status}</b>\n\n";
-        }
-
-        $this->sendMessage($chatId, $message);
+        $this->sendPaginatedMessage($chatId, $message, 'invoices', $page, $totalPages);
     }
 
-    // ✅ Mijozning to‘lov ma'lumotlarini jo‘natish
-    private function sendPayments($chatId)
+    // ✅ To‘lovlar tarixi uchun pagination
+    private function sendPayments($chatId, $page = 1)
     {
         $customer = $this->getCustomerByChatId($chatId);
         if (!$customer) return;
 
-        if ($customer->payments->isEmpty()) {
-            $this->sendMessage($chatId, "💳 Sizda to‘lovlar mavjud emas.");
-            return;
+        $perPage = 10;
+        $total = $customer->payments->count();
+        $totalPages = ceil($total / $perPage);
+        $offset = ($page - 1) * $perPage;
+        $payments = $customer->payments->slice($offset, $perPage);
+
+        $message = "💳 <b>To‘lovlar tarixi</b> (Sahifa: {$page}/{$totalPages})\n";
+        foreach ($payments as $payment) {
+            $date = date('d.m.Y', strtotime($payment->payment_date));
+            $message .= "💵 <b>{$payment->amount} UZS</b>\n📅 Sana: <b>{$date}</b>\n\n";
         }
 
-        $message = "💳 <b>To‘lovlar tarixi</b>\n";
-        foreach ($customer->payments as $payment) {
-            $date = $payment->payment_date instanceof \Carbon\Carbon
-                ? $payment->payment_date->format('d.m.Y')
-                : date('d.m.Y', strtotime($payment->payment_date));
-            $message .= "💵 <b>{$payment->amount} UZS</b>\n";
-            $message .= "📅 Sana: <b>{$date}</b>\n";
-            $message .= "💳 Usul: <b>{$payment->payment_method}</b>\n";
-            $message .= "📌 Status: <b>{$payment->status}</b>\n\n";
+        $this->sendPaginatedMessage($chatId, $message, 'payments', $page, $totalPages);
+    }
+
+    // ✅ Pagination tugmalarini qo‘shib yuborish
+    private function sendPaginatedMessage($chatId, $message, $type, $page, $totalPages)
+    {
+        $buttons = [];
+        if ($page > 1) {
+            $buttons[] = ['text' => '⏮️ Oldingi', 'callback_data' => "{$type}:" . ($page - 1)];
+        }
+        if ($page < $totalPages) {
+            $buttons[] = ['text' => '⏭️ Keyingi', 'callback_data' => "{$type}:" . ($page + 1)];
         }
 
-        $this->sendMessage($chatId, $message);
+        $replyMarkup = ['inline_keyboard' => [$buttons]];
+        $this->sendMessage($chatId, $message, $replyMarkup);
     }
 
     // ✅ Telegram Chat ID bo‘yicha mijozni topish
