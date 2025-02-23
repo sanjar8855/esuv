@@ -32,6 +32,18 @@ class MeterReadingController extends Controller
             'confirmed' => 'required|boolean',
         ]);
 
+        // Oxirgi tasdiqlangan o'qishni tekshiramiz
+        $lastConfirmedReading = MeterReading::where('water_meter_id', $validated['water_meter_id'])
+            ->where('confirmed', true)
+            ->orderBy('reading_date', 'desc')
+            ->first();
+
+        if ($lastConfirmedReading && $validated['reading'] <= $lastConfirmedReading->reading) {
+            return redirect()->back()->withErrors([
+                'reading' => 'Hisoblagich raqami ' . $lastConfirmedReading->reading . ' dan katta bo‘lishi kerak.'
+            ])->withInput();
+        }
+
         $meterReading = MeterReading::create($validated);
         $customer = $meterReading->waterMeter->customer;
         $tariff = Tariff::where('company_id', $customer->company_id)

@@ -135,6 +135,7 @@
                     <form action="{{ route('payments.store') }}" method="POST">
                         @csrf
                         <input type="hidden" name="customer_id" value="{{ $customer->id }}">
+                        <input type="hidden" name="redirect_back" value="1">
 
                         <div class="mb-3">
                             <label for="amount">To‘lov summasi:</label>
@@ -157,7 +158,7 @@
                 <div class="col-md-4">
                     <h3>Mijozning Invoice va To‘lovlari</h3>
                     <ul class="list-group">
-                        @foreach($customer->invoices as $invoice)
+                        @foreach($invoices as $invoice)
                             <li class="list-group-item">
                                 <strong>Invoice #{{ $invoice->invoice_number }}</strong><br>
                                 <small>Oy: {{ $invoice->billing_period }}</small><br>
@@ -170,12 +171,16 @@
                             </li>
                         @endforeach
                     </ul>
+                    <div class="mt-3">
+                        {{ $invoices->appends(['payment_page' => request('payment_page')])->links() }}
+                    </div>
+
                 </div>
 
                 <div class="col-md-4">
                     <h3>To‘lovlar Tarixi</h3>
                     <ul class="list-group">
-                        @foreach($customer->payments as $payment)
+                        @foreach($payments as $payment)
                             <li class="list-group-item">
                                 <strong>To‘lov: {{ number_format($payment->amount, 2) }} UZS</strong><br>
                                 <small>Usul: {{ ucfirst($payment->payment_method) }}</small><br>
@@ -184,6 +189,9 @@
                             </li>
                         @endforeach
                     </ul>
+                    <div class="mt-3">
+                        {{ $payments->appends(['invoice_page' => request('invoice_page')])->links() }}
+                    </div>
                 </div>
             </div>
         </div>

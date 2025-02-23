@@ -8,6 +8,10 @@ use Illuminate\Foundation\Support\Providers\EventServiceProvider as ServiceProvi
 use Illuminate\Support\Facades\Event;
 use App\Models\Payment;
 use App\Observers\PaymentObserver;
+use App\Models\Invoice;
+use App\Observers\InvoiceObserver;
+use App\Models\MeterReading;
+use App\Observers\MeterReadingObserver;
 
 class EventServiceProvider extends ServiceProvider
 {
@@ -24,6 +28,8 @@ class EventServiceProvider extends ServiceProvider
 
     protected $observers = [
         Payment::class => [PaymentObserver::class],
+        Invoice::class => [InvoiceObserver::class],
+        MeterReading::class => [MeterReadingObserver::class],
     ];
 
     /**

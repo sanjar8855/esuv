@@ -39,7 +39,7 @@
 {{--                        </div>--}}
                         <div class="mb-3">
                             <label>Davr (masalan: 2024-02)</label>
-                            <input type="text" name="billing_period" class="form-control" value="{{old('billing_period')}}">
+                            <input type="text" name="billing_period" class="form-control" value="{{old('billing_period') ?? now()->format('Y-m')}}">
                         </div>
                         <div class="mb-3">
                             <label>Summa</label>

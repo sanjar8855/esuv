@@ -48,7 +48,21 @@
                                             @endif
                                         </td>
                                         <td>{{ $payment->amount }} UZS</td>
-                                        <td>{{ ucfirst($payment->payment_method) }}</td>
+                                        <td>
+                                            @switch($payment->payment_method)
+                                                @case('cash')
+                                                Naqd pul
+                                                @break
+                                                @case('card')
+                                                Plastik orqali
+                                                @break
+                                                @case('transfer')
+                                                Bank orqali
+                                                @break
+                                                @default
+                                                Noaniq
+                                            @endswitch
+                                        </td>
                                         <td>{{ $payment->payment_date }}</td>
                                         <td>
                                             <a href="{{ route('payments.show', $payment->id) }}"

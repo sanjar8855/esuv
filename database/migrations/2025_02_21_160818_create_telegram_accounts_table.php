@@ -11,11 +11,10 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('customer_telegram_accounts', function (Blueprint $table) {
-            $table->id();
-            $table->foreignId('customer_id')->constrained()->onDelete('cascade'); // Mijoz bilan bog‘lanadi
+        Schema::create('telegram_accounts', function (Blueprint $table) {
+            $table->bigIncrements('id');
             $table->bigInteger('telegram_chat_id')->unique(); // Har bir Telegram ID noyob bo‘lishi kerak
-            $table->bigInteger('username'); // Har bir Telegram ID noyob bo‘lishi kerak
+            $table->string('username')->unique()->nullable();
             $table->timestamps();
         });
     }
@@ -25,6 +24,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('customer_telegram_accounts');
+        Schema::dropIfExists('telegram_accounts');
     }
 };

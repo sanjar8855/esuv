@@ -2,14 +2,14 @@
 
 namespace App\Jobs;
 
+use Telegram\Bot\Laravel\Facades\Telegram;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Bus\Dispatchable;
 use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Queue\SerializesModels;
-use Telegram\Bot\Laravel\Facades\Telegram;
 
-class SendTelegramMessageJob implements ShouldQueue
+class SendMeterReadingNotificationJob implements ShouldQueue
 {
     use Dispatchable, InteractsWithQueue, Queueable, SerializesModels;
 
@@ -24,9 +24,12 @@ class SendTelegramMessageJob implements ShouldQueue
 
     public function handle()
     {
+        \Log::info('Job started for chat ID: ' . $this->chatId);
+
         Telegram::sendMessage([
             'chat_id' => $this->chatId,
-            'text' => $this->message
+            'text' => $this->message,
+            'parse_mode' => 'HTML'
         ]);
     }
 }

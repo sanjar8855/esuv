@@ -60,7 +60,6 @@ return new class extends Migration {
             $table->foreignId('street_id')->constrained()->onDelete('cascade');
             $table->string('name');
             $table->string('phone')->nullable();
-            $table->string('telegram_chat_id')->nullable();
             $table->text('address');
             $table->integer('balance')->default(0);
             $table->string('account_number')->unique();

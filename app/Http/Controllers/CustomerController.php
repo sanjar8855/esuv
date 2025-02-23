@@ -113,7 +113,6 @@ class CustomerController extends Controller
             'street_id' => 'required|exists:streets,id',
             'name' => 'required|string|max:255',
             'phone' => 'nullable|string|max:255',
-            'telegram_chat_id' => 'nullable|string|max:255',
             'address' => 'required|string',
             'account_number' => 'required|unique:customers,account_number',
             'family_members' => 'nullable|integer|min:1',
@@ -137,12 +136,6 @@ class CustomerController extends Controller
         $customer->load([
             'company',
             'street.neighborhood.city.region',
-            'invoices' => function ($query) {
-                $query->orderBy('billing_period', 'desc');
-            },
-            'payments' => function ($query) {
-                $query->orderBy('payment_date', 'desc');
-            },
             'waterMeter.readings' => function ($query) {
                 // Oxirgi (eng so‘nggi) o‘qish reading_date yoki id bo‘yicha tartib:
                 $query->orderBy('reading_date', 'desc');
@@ -150,7 +143,10 @@ class CustomerController extends Controller
             'telegramAccounts'
         ]);
 
-        return view('customers.show', compact('customer'));
+        $invoices = $customer->invoices()->orderBy('billing_period', 'desc')->paginate(5, ['*'], 'invoice_page');
+        $payments = $customer->payments()->orderBy('payment_date', 'desc')->paginate(5, ['*'], 'payment_page');
+
+        return view('customers.show', compact('customer', 'invoices', 'payments'));
     }
 
     /**
@@ -190,7 +186,6 @@ class CustomerController extends Controller
             'street_id' => 'required|exists:streets,id',
             'name' => 'required|string|max:255',
             'phone' => 'nullable|string|max:255',
-            'telegram_chat_id' => 'nullable|string|max:255',
             'address' => 'required|string',
             'account_number' => 'required|unique:customers,account_number,' . $customer->id,
             'family_members' => 'nullable|integer|min:1',

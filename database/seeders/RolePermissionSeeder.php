@@ -47,8 +47,8 @@ class RolePermissionSeeder extends Seeder
                 'users',
                 'tariffs',
                 'customers',
-                'water_meter',
-                'meter_reading',
+                'water_meters',
+                'meter_readings',
                 'invoices',
                 'payments',
                 'notifications',
@@ -56,8 +56,8 @@ class RolePermissionSeeder extends Seeder
             'employee' => Permission::whereIn('name', [
                 'tariffs',
                 'customers',
-                'water_meter',
-                'meter_reading',
+                'water_meters',
+                'meter_readings',
                 'invoices',
                 'payments',
                 'notifications'

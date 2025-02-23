@@ -14,7 +14,6 @@ class Customer extends Model
         'street_id',
         'name',
         'phone',
-        'telegram_chat_id',
         'address',
         'account_number',
         'has_water_meter',
@@ -50,7 +49,7 @@ class Customer extends Model
 
     public function telegramAccounts()
     {
-        return $this->hasMany(CustomerTelegramAccount::class);
+        return $this->belongsToMany(TelegramAccount::class, 'customer_telegram_account', 'customer_id', 'telegram_account_id');
     }
 
     // 🔹 Jami qarzdorlikni hisoblash

@@ -24,7 +24,10 @@ class InvoiceController extends Controller
      */
     public function create()
     {
-        $customers = Customer::where('is_active', true)->get();
+        $customers = Customer::where('is_active', true)
+            ->whereHas('waterMeter') // faqat hisoblagichi bor mijozlarni olish
+            ->get();
+
         $tariffs = Tariff::where('is_active', true)->get();
         return view('invoices.create', compact('customers', 'tariffs'));
     }

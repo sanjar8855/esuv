@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
 use App\Models\Customer;
+use App\Models\TelegramAccount;
 use Illuminate\Http\Request;
 use Telegram\Bot\Keyboard\Keyboard;
 use Telegram\Bot\Laravel\Facades\Telegram;
@@ -13,7 +14,7 @@ class TelegramController extends Controller
     public function handleWebhook(Request $request)
     {
         $update = Telegram::getWebhookUpdate();
-        $chatId = $update['message']['chat']['id'] ?? null;
+        $chatId = $update['message']['chat']['id'] ?? ($update['callback_query']['message']['chat']['id'] ?? null);
         $userId = $update['message']['from']['id'] ?? null;
         $text = trim($update['message']['text'] ?? '');
 
@@ -23,7 +24,11 @@ class TelegramController extends Controller
             $action = $callbackData[0] ?? null;
             $page = isset($callbackData[1]) ? (int) $callbackData[1] : 1;
 
-            $chatId = $update['callback_query']['message']['chat']['id'];
+            $chatId = $update['callback_query']['message']['chat']['id'] ?? null;
+            if (!$chatId) {
+                \Log::error("callback_query Error: chat_id is empty. Callback Data:", $callbackData);
+                return;
+            }
 
             switch ($action) {
                 case "info":
@@ -34,6 +39,25 @@ class TelegramController extends Controller
                     break;
                 case "payments":
                     $this->sendPayments($chatId, $page);
+                    break;
+                case "meter_history":
+                    $this->sendMeterHistory($chatId, $page);
+                    break;
+                case "settings":
+                    $this->sendSettingsMenu($chatId);
+                    break;
+                case "switch_account":
+                    $selectedCustomerId = isset($callbackData[1]) ? (int) $callbackData[1] : null;
+                    $this->switchAccount($chatId, $selectedCustomerId);
+
+                    Telegram::editMessageReplyMarkup([
+                        'chat_id' => $chatId,
+                        'message_id' => $update['callback_query']['message']['message_id'],
+                        'reply_markup' => json_encode(['inline_keyboard' => []], JSON_UNESCAPED_UNICODE),
+                    ]);
+                    break;
+                case "add_new_account":
+                    $this->sendMessage($chatId, "🔢 Yangi hisob raqamini kiriting:");
                     break;
             }
             return;
@@ -62,6 +86,12 @@ class TelegramController extends Controller
             case "💳 To‘lovlarim":
                 $this->sendPayments($chatId);
                 break;
+            case "📈 Hisoblagich tarixi":
+                $this->sendMeterHistory($chatId);
+                break;
+            case "⚙️ Sozlamalar": // ✅ Foydalanuvchi asosiy menyudan bosganda
+                $this->sendSettingsMenu($chatId);
+                break;
             default:
                 $this->sendMessage($chatId, "❌ Noto‘g‘ri buyruq. Iltimos, tugmalardan foydalaning.");
         }
@@ -74,25 +104,26 @@ class TelegramController extends Controller
 
         if (!$customer) {
             $this->sendMessage($chatId, "❌ Xatolik: Hisob raqami topilmadi. Qayta urinib ko‘ring.");
+            $this->sendMainMenu($chatId);
             return;
         }
 
-        $username = null;
-        if (isset(Telegram::getWebhookUpdate()['message']['from']['username'])) {
-            $username = Telegram::getWebhookUpdate()['message']['from']['username'];
+        $username = Telegram::getWebhookUpdate()['message']['from']['username'] ?? null;
+        $telegramAccount = TelegramAccount::firstOrCreate(
+            ['telegram_chat_id' => $userId],
+            ['username' => $username]
+        );
+
+        // ✅ Many-to-Many bog‘langanini tekshirish
+        if ($customer->telegramAccounts()->wherePivot('telegram_account_id', $telegramAccount->id)->exists()) {
+            $this->sendMessage($chatId, "⚠️ Bu hisob raqami allaqachon bog‘langan.");
+            return;
         }
 
-        $exists = $customer->telegramAccounts()->where('telegram_chat_id', $userId)->exists();
+        // ✅ Yangi bog‘lanishni saqlash
+        $customer->telegramAccounts()->attach($telegramAccount->id);
 
-        if (!$exists) {
-            $customer->telegramAccounts()->create([
-                'telegram_chat_id' => $userId,
-                'username' => $username
-            ]);
-            $this->sendMessage($chatId, "✅ Hisobingiz bog‘landi! Quyidagi menyudan foydalaning.");
-        } else {
-            $this->sendMessage($chatId, "✅ Siz allaqachon ushbu hisobga bog‘langansiz.");
-        }
+        $this->sendMessage($chatId, "✅ Yangi hisob bog‘landi! Siz hozir ushbu hisob bilan ishlayapsiz.");
 
         $this->sendMainMenu($chatId);
     }
@@ -107,9 +138,55 @@ class TelegramController extends Controller
                 Keyboard::button('📋 Ma\'lumotlarim'),
                 Keyboard::button('📑 Hisob varaqalar'),
                 Keyboard::button('💳 To‘lovlarim'),
+            ])
+            ->row([
+                Keyboard::button('📈 Hisoblagich tarixi'),
+                Keyboard::button('⚙️ Sozlamalar'),
             ]);
 
         $this->sendMessage($chatId, "📌 Asosiy menyu", $menu);
+    }
+
+    private function sendSettingsMenu($chatId)
+    {
+        $customerAccounts = Customer::whereHas('telegramAccounts', function ($query) use ($chatId) {
+            $query->where('telegram_chat_id', $chatId);
+        })->get();
+
+        if ($customerAccounts->isEmpty()) {
+            $this->sendMessage($chatId, "❌ Siz hech qanday hisob bog‘lamagansiz.");
+            return;
+        }
+
+        $buttons = [];
+        foreach ($customerAccounts as $customer) {
+            $buttons[] = [['text' => "🔹 {$customer->name}", 'callback_data' => "switch_account:{$customer->id}"]];
+        }
+
+        // Yangi hisob qo'shish tugmasini qo'shish
+        $buttons[] = [['text' => "➕ Yangi hisob qo‘shish", 'callback_data' => "add_new_account"]];
+
+        $replyMarkup = ['inline_keyboard' => $buttons];
+
+        $this->sendMessage($chatId, "⚙️ Sozlamalar: Qaysi hisobni ishlatmoqchisiz?", $replyMarkup);
+    }
+
+    private function switchAccount($chatId, $selectedCustomerId)
+    {
+        if (!$selectedCustomerId) {
+            $this->sendMessage($chatId, "❌ Xatolik: Hisobni almashtirish uchun mijozni tanlang.");
+            return;
+        }
+
+        // 🔄 Laravel Cache orqali saqlash
+        cache()->put("active_customer_id_{$chatId}", $selectedCustomerId, now()->addDays(30));
+
+        $customer = Customer::find($selectedCustomerId);
+        if ($customer) {
+            $this->sendMessage($chatId, "✅ Hisob muvaffaqiyatli o‘zgartirildi!\n📌 Yangi hisob: <b>{$customer->name}</b>", []);
+        } else {
+            $this->sendMessage($chatId, "❌ Xatolik: Tanlangan mijoz topilmadi.");
+        }
     }
 
     // ✅ Mijoz ma'lumotlarini jo‘natish
@@ -123,8 +200,16 @@ class TelegramController extends Controller
         $message = "🆔 <b>Hisob ma'lumotlaringiz</b>\n";
         $message .= "👤 Ism: <b>{$customer->name}</b>\n";
         $message .= "📞 Telefon: <b>{$customer->phone}</b>\n";
-        $message .= "🏠 Manzil: <b>{$customer->street->neighborhood->city->name}, {$customer->street->name}</b>\n";
+        $message .= "🏠 Manzil: <b>{$customer->street->neighborhood->city->region->name},{$customer->street->neighborhood->city->name},{$customer->street->neighborhood->name},{$customer->street->name}</b>\n";
         $message .= "💳 Hisob raqami: <b>{$customer->account_number}</b>\n";
+        $message .= "👫 Oila a'zolar soni: <b>{$customer->family_members}</b>\n";
+        $message .= "🔹 Telegram akkauntlar: <b>";
+
+        foreach ($customer->telegramAccounts as $tg) {
+            $message .= "<a href='https://t.me/{$tg->username}'>🆔 {$tg->username}</a>, ";
+        }
+        $message .= "</b> \n";
+
         $message .= "{$balanceText}";
 
         $this->sendMessage($chatId, $message);
@@ -144,7 +229,7 @@ class TelegramController extends Controller
 
         $message = "📑 <b>Hisob varaqalar</b> (Sahifa: {$page}/{$totalPages})\n";
         foreach ($invoices as $invoice) {
-            $message .= "🔹 <b>Invoice #{$invoice->invoice_number}</b>\n💰 Summa: <b>{$invoice->amount_due} UZS</b>\n\n";
+            $message .= "🔹 <b>Invoice #{$invoice->invoice_number}</b>\n 📆 Qaysi oy uchun: <b>{$invoice->billing_period}</b>\n 💰 Summa: <b>{$invoice->amount_due} UZS</b>\n\n";
         }
 
         $this->sendPaginatedMessage($chatId, $message, 'invoices', $page, $totalPages);
@@ -165,43 +250,104 @@ class TelegramController extends Controller
         $message = "💳 <b>To‘lovlar tarixi</b> (Sahifa: {$page}/{$totalPages})\n";
         foreach ($payments as $payment) {
             $date = date('d.m.Y', strtotime($payment->payment_date));
-            $message .= "💵 <b>{$payment->amount} UZS</b>\n📅 Sana: <b>{$date}</b>\n\n";
+            if($payment->payment_method=='cash'){
+                $payment_method = 'Naqd pul';
+            }
+            elseif($payment->payment_method=='card'){
+                $payment_method = 'Plastik orqali';
+            }
+            elseif($payment->payment_method=='transfer'){
+                $payment_method = 'Bank orqali';
+            }
+            else{
+                $payment_method = 'Noaniq';
+            }
+            $message .= "💳 Hisob raqami: <b>{$payment->customer->account_number}</b>\n";
+            $message .= "💵 Miqdori: <b>{$payment->amount} UZS</b>\n";
+            $message .= "💰 To'lov turi: <b>{$payment_method}</b>\n";
+            $message .= "📅 Sana: <b>{$date}</b>\n\n";
         }
 
         $this->sendPaginatedMessage($chatId, $message, 'payments', $page, $totalPages);
+    }
+
+    private function sendMeterHistory($chatId, $page = 1)
+    {
+        $customer = $this->getCustomerByChatId($chatId);
+
+        if (!$customer || !$customer->waterMeter) {
+            $this->sendMessage($chatId, "❌ Sizda hisoblagich mavjud emas yoki topilmadi.");
+            return;
+        }
+
+        $perPage = 10;
+        $readings = $customer->waterMeter->readings->sortByDesc('reading_date')->values();
+        $total = $readings->count();
+        $totalPages = ceil($total / $perPage);
+        $offset = ($page - 1) * $perPage;
+        $paginatedReadings = $readings->slice($offset, $perPage);
+
+        $message = "📈 <b>Hisoblagich tarixi</b> (Sahifa: {$page}/{$totalPages})\n";
+        foreach ($paginatedReadings as $reading) {
+            $date = date('d.m.Y', strtotime($reading->reading_date));
+            $message .= "📅 Sana: <b>{$date}</b>\n📏 Ko‘rsatkich: <b>{$reading->reading}</b>\n\n";
+        }
+
+        $this->sendPaginatedMessage($chatId, $message, 'meter_history', $page, $totalPages);
     }
 
     // ✅ Pagination tugmalarini qo‘shib yuborish
     private function sendPaginatedMessage($chatId, $message, $type, $page, $totalPages)
     {
         $buttons = [];
+
         if ($page > 1) {
-            $buttons[] = ['text' => '⏮️ Oldingi', 'callback_data' => "{$type}:" . ($page - 1)];
+            $buttons[] = [['text' => '⏮️ Oldingi', 'callback_data' => "{$type}:" . ($page - 1)]];
         }
         if ($page < $totalPages) {
-            $buttons[] = ['text' => '⏭️ Keyingi', 'callback_data' => "{$type}:" . ($page + 1)];
+            $buttons[] = [['text' => '⏭️ Keyingi', 'callback_data' => "{$type}:" . ($page + 1)]];
         }
 
-        $replyMarkup = ['inline_keyboard' => [$buttons]];
+        $replyMarkup = count($buttons) > 0 ? ['inline_keyboard' => $buttons] : null;
+
         $this->sendMessage($chatId, $message, $replyMarkup);
     }
 
     // ✅ Telegram Chat ID bo‘yicha mijozni topish
     private function getCustomerByChatId($chatId)
     {
+        // 🔄 Foydalanuvchining aktiv hisobini tekshirish
+        $activeCustomerId = cache()->get("active_customer_id_{$chatId}");
+
+        if ($activeCustomerId) {
+            return Customer::with(['company', 'street.neighborhood.city.region', 'invoices', 'payments'])
+                ->find($activeCustomerId);
+        }
+
+        // ❌ Agar aktiv hisob bo‘lmasa, eski metod orqali olish
         return Customer::whereHas('telegramAccounts', function ($query) use ($chatId) {
             $query->where('telegram_chat_id', $chatId);
         })->with(['company', 'street.neighborhood.city.region', 'invoices', 'payments'])->first();
     }
 
     // ✅ Xabar yuborish
-    private function sendMessage($chatId, $text, $replyMarkup = null)
+    private function sendMessage($chatId, $text, $replyMarkup = null, $disablePreview = true)
     {
-        Telegram::sendMessage([
+        if (!$chatId) {
+            \Log::error("sendMessage Error: chat_id is empty. Message: " . $text);
+            return;
+        }
+        $params = [
             'chat_id' => $chatId,
             'text' => $text,
             'parse_mode' => 'HTML',
-            'reply_markup' => $replyMarkup ? json_encode($replyMarkup) : null
-        ]);
+            'disable_web_page_preview' => $disablePreview,
+        ];
+
+        if (!empty($replyMarkup) && is_array($replyMarkup)) {
+            $params['reply_markup'] = json_encode($replyMarkup, JSON_UNESCAPED_UNICODE);
+        }
+
+        Telegram::sendMessage($params);
     }
 }

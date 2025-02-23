@@ -92,6 +92,11 @@ class PaymentController extends Controller
         // **📌 Balansni yangilash**
         $customer->updateBalance();
 
+        if ($request->has('redirect_back')) {
+            return redirect()->route('customers.show', $request->customer_id)
+                ->with('success', 'To‘lov muvaffaqiyatli qo‘shildi!');
+        }
+
         return redirect()->route('payments.index')->with('success', 'To‘lov muvaffaqiyatli qo‘shildi.');
     }
 
