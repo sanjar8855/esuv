@@ -21,9 +21,9 @@ use App\Http\Controllers\NotificationController;
 use Telegram\Bot\Laravel\Facades\Telegram;
 
 
-//Route::get('setwebhook', function () {
-//    $response = Telegram::setWebhook(['url' =>'https://cc80-213-230-88-246.ngrok-free.app/api/telegram/webhook']);
-//});
+Route::get('setwebhook', function () {
+    $response = Telegram::setWebhook(['url' =>'https://esuv.uz/api/telegram/webhook']);
+});
 
 Route::get('/', [HomeController::class, 'index'])->name('home');
 

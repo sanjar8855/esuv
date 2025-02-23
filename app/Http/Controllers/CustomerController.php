@@ -143,8 +143,8 @@ class CustomerController extends Controller
             'telegramAccounts'
         ]);
 
-        $invoices = $customer->invoices()->orderBy('billing_period', 'desc')->paginate(5, ['*'], 'invoice_page');
-        $payments = $customer->payments()->orderBy('payment_date', 'desc')->paginate(5, ['*'], 'payment_page');
+        $invoices = $customer->invoices()->orderBy('id', 'desc')->paginate(5, ['*'], 'invoice_page');
+        $payments = $customer->payments()->orderBy('id', 'desc')->paginate(5, ['*'], 'payment_page');
 
         return view('customers.show', compact('customer', 'invoices', 'payments'));
     }
