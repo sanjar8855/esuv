@@ -130,7 +130,7 @@ class TelegramController extends Controller
             Telegram::sendMessage([
                 'chat_id' => $chatId,
                 'text' => '📌 Asosiy menyu',
-                'reply_markup' => $menu
+                'reply_markup' => json_encode($menu)
             ]);
             return;
         }
@@ -163,7 +163,7 @@ class TelegramController extends Controller
         Telegram::sendMessage([
             'chat_id' => $chatId,
             'text' => '📌 Asosiy menyu',
-            'reply_markup' => $menu
+            'reply_markup' => json_encode($menu)
         ]);
 //        $this->sendMessage($chatId, "📌 Asosiy menyu", $menu);
     }
