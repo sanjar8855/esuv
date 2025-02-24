@@ -113,6 +113,7 @@ class TelegramController extends Controller
         // ✅ Many-to-Many bog‘langanini tekshirish
         if ($customer->telegramAccounts()->wherePivot('telegram_account_id', $telegramAccount->id)->exists()) {
             $this->sendMessage($chatId, "⚠️ Bu hisob raqami allaqachon bog‘langan.");
+            $this->sendMainMenu($chatId);
             return;
         }
 
