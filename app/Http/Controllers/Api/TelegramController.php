@@ -156,9 +156,14 @@ class TelegramController extends Controller
             return;
         }
 
+        $activeCustomerId = cache()->get("active_customer_id_{$chatId}");
         $buttons = [];
         foreach ($customerAccounts as $customer) {
-            $buttons[] = [['text' => "🔹 {$customer->name}", 'callback_data' => "switch_account:{$customer->id}"]];
+            $isActive = $customer->id == $activeCustomerId ? '✅ ' : '';
+            $buttons[] = [[
+                'text' => "{$isActive} {$customer->name}",
+                'callback_data' => "switch_account:{$customer->id}"
+            ]];
         }
 
         // Yangi hisob qo'shish tugmasini qo'shish
