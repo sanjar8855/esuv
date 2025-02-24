@@ -38,11 +38,11 @@ class RolePermissionSeeder extends Seeder
             'audit_logs',
         ];
 
-        foreach ($permissions as $permission) {
-            if (!Permission::where('name', $permission)->exists()) {
-                Permission::create(['name' => $permission]);
-            }
-        }
+//        foreach ($permissions as $permission) {
+//            if (!Permission::where('name', $permission)->exists()) {
+//                Permission::create(['name' => $permission]);
+//            }
+//        }
 
         // 🎯 Rollar (Roles)
         $roles = [
