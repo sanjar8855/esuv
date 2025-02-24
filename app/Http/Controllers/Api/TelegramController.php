@@ -142,7 +142,12 @@ class TelegramController extends Controller
             ])
             ->toArray();
 
-        $this->sendMessage($chatId, "📌 Asosiy menyu", $menu);
+        Telegram::sendMessage([
+            'chat_id' => $chatId,
+            'text' => '📌 Asosiy menyu',
+            'replyMarkup' => $menu
+        ]);
+//        $this->sendMessage($chatId, "📌 Asosiy menyu", $menu);
     }
 
     private function sendSettingsMenu($chatId)
