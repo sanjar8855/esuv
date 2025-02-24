@@ -164,7 +164,7 @@ class TelegramController extends Controller
         // Yangi hisob qo'shish tugmasini qo'shish
         $buttons[] = [['text' => "➕ Yangi hisob qo‘shish", 'callback_data' => "add_new_account"]];
 
-        $replyMarkup = ['inline_keyboard' => $buttons];
+        $replyMarkup = json_encode(['inline_keyboard' => $buttons]);
 
         $this->sendMessage($chatId, "⚙️ Sozlamalar: Qaysi hisobni ishlatmoqchisiz?", $replyMarkup);
     }
