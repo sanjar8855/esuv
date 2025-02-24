@@ -36,16 +36,14 @@ class RolePermissionSeeder extends Seeder
         ];
 
         foreach ($permissions as $permission) {
-            if (!Permission::where('name', $permission)->exists()) {
-                Permission::create(['name' => $permission]);
-            }
+            Permission::create(['name' => $permission]);
         }
 
         // 🎯 Rollar (Roles)
         $roles = [
             'admin' => Permission::all(), // Barcha ruxsatlar
             'company_owner' => Permission::whereIn('name', [
-                'dashboard',
+//                'dashboard',
                 'users',
                 'tariffs',
                 'customers',
