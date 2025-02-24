@@ -15,6 +15,9 @@ class RolePermissionSeeder extends Seeder
         // ⚡ Avval barcha rollar va ruxsatnomalarni tozalash
         app()[\Spatie\Permission\PermissionRegistrar::class]->forgetCachedPermissions();
         DB::statement('SET FOREIGN_KEY_CHECKS=0;');
+        DB::table('role_has_permissions')->truncate();
+        DB::table('model_has_roles')->truncate();
+        DB::table('model_has_permissions')->truncate();
         Permission::truncate();
         Role::truncate();
         DB::statement('SET FOREIGN_KEY_CHECKS=1;');
