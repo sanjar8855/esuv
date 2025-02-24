@@ -161,7 +161,7 @@ class TelegramController extends Controller
         foreach ($customerAccounts as $customer) {
             $isActive = $customer->id == $activeCustomerId ? '✅ ' : '';
             $buttons[] = [[
-                'text' => "{$isActive} {$customer->name}",
+                'text' => "{$isActive}{$customer->name}",
                 'callback_data' => "switch_account:{$customer->id}"
             ]];
         }
