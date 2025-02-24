@@ -25,10 +25,6 @@ class TelegramController extends Controller
             $page = isset($callbackData[1]) ? (int) $callbackData[1] : 1;
 
             $chatId = $update['callback_query']['message']['chat']['id'] ?? null;
-            if (!$chatId) {
-                \Log::error("callback_query Error: chat_id is empty. Callback Data:", $callbackData);
-                return;
-            }
 
             switch ($action) {
                 case "info":
@@ -334,11 +330,6 @@ class TelegramController extends Controller
     // ✅ Xabar yuborish
     private function sendMessage($chatId, $text, $replyMarkup = null, $disablePreview = true)
     {
-        if (!$chatId) {
-            \Log::error("sendMessage Error: chat_id is empty. Message: " . $text);
-            return;
-        }
-
         $params = [
             'chat_id' => $chatId,
             'text' => $text,
@@ -346,14 +337,6 @@ class TelegramController extends Controller
             'disable_web_page_preview' => $disablePreview,
         ];
 
-        if (!empty($replyMarkup) && is_array($replyMarkup)) {
-            $params['reply_markup'] = json_encode($replyMarkup, JSON_UNESCAPED_UNICODE);
-        }
-
-        try {
-            Telegram::sendMessage($params);
-        } catch (\Exception $e) {
-            \Log::error('Telegram sendMessage Error: ' . $e->getMessage());
-        }
+        Telegram::sendMessage($params);
     }
 }
