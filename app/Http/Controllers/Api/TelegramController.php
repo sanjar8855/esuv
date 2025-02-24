@@ -49,7 +49,7 @@ class TelegramController extends Controller
                     Telegram::editMessageReplyMarkup([
                         'chat_id' => $chatId,
                         'message_id' => $update['callback_query']['message']['message_id'],
-                        'reply_markup' => json_encode(['inline_keyboard' => []]),
+                        'reply_markup' => json_encode(['inline_keyboard' => []], JSON_UNESCAPED_UNICODE),
                     ]);
                     break;
                 case "add_new_account":
