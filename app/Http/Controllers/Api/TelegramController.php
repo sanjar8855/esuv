@@ -159,9 +159,9 @@ class TelegramController extends Controller
         $activeCustomerId = cache()->get("active_customer_id_{$chatId}");
         $buttons = [];
         foreach ($customerAccounts as $customer) {
-            $isActive = $customer->id == $activeCustomerId ? '✅ ' : '🔹'.$activeCustomerId;
+            $isActive = $customer->id == $activeCustomerId ? '✅ ' : '🔹';
             $buttons[] = [[
-                'text' => "{$isActive}{$customer->name}",
+                'text' => "{$activeCustomerId}{$customer->name}",
                 'callback_data' => "switch_account:{$customer->id}"
             ]];
         }
