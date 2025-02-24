@@ -49,7 +49,7 @@ class TelegramController extends Controller
                     Telegram::editMessageReplyMarkup([
                         'chat_id' => $chatId,
                         'message_id' => $update['callback_query']['message']['message_id'],
-                        'reply_markup' => json_encode(['inline_keyboard' => []], JSON_UNESCAPED_UNICODE),
+                        'reply_markup' => json_encode(['inline_keyboard' => []]),
                     ]);
                     break;
                 case "add_new_account":
@@ -328,13 +328,12 @@ class TelegramController extends Controller
     }
 
     // ✅ Xabar yuborish
-    private function sendMessage($chatId, $text, $replyMarkup = null, $disablePreview = true)
+    private function sendMessage($chatId, $text, $replyMarkup = null)
     {
         $params = [
             'chat_id' => $chatId,
             'text' => $text,
             'parse_mode' => 'HTML',
-            'disable_web_page_preview' => $disablePreview,
             'replyMarkup' => $replyMarkup
         ];
 
