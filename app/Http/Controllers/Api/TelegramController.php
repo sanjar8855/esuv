@@ -18,105 +18,83 @@ class TelegramController extends Controller
         $userId = $update['message']['from']['id'] ?? null;
         $text = trim($update['message']['text'] ?? '');
 
-        $menu = Keyboard::make()
-            ->setResizeKeyboard(true)
-            ->setOneTimeKeyboard(false)
-            ->row([
-                Keyboard::button('📋 Ma\'lumotlarim'),
-                Keyboard::button('📑 Hisob varaqalar'),
-                Keyboard::button('💳 To‘lovlarim'),
-            ])
-            ->row([
-                Keyboard::button('📈 Hisoblagich tarixi'),
-                Keyboard::button('⚙️ Sozlamalar'),
-            ]);
-        $params = [
-            'chat_id' => $chatId,
-            'text' => 'Asosiy menu',
-            'parse_mode' => 'HTML',
-            'disable_web_page_preview' => true,
-            'reply_markup' => $menu
-        ];
-
-        Telegram::sendMessage($params);
-
         // ✅ Callback tugmalar bosilganda pagination bilan ishlash
-//        if (isset($update['callback_query'])) {
-//            $callbackData = explode(':', $update['callback_query']['data']);
-//            $action = $callbackData[0] ?? null;
-//            $page = isset($callbackData[1]) ? (int) $callbackData[1] : 1;
-//
-//            $chatId = $update['callback_query']['message']['chat']['id'] ?? null;
-//            if (!$chatId) {
-//                \Log::error("callback_query Error: chat_id is empty. Callback Data:", $callbackData);
-//                return;
-//            }
-//
-//            switch ($action) {
-//                case "info":
-//                    $this->sendCustomerInfo($chatId);
-//                    break;
-//                case "invoices":
-//                    $this->sendInvoices($chatId, $page);
-//                    break;
-//                case "payments":
-//                    $this->sendPayments($chatId, $page);
-//                    break;
-//                case "meter_history":
-//                    $this->sendMeterHistory($chatId, $page);
-//                    break;
-//                case "settings":
-//                    $this->sendSettingsMenu($chatId);
-//                    break;
-//                case "switch_account":
-//                    $selectedCustomerId = isset($callbackData[1]) ? (int) $callbackData[1] : null;
-//                    $this->switchAccount($chatId, $selectedCustomerId);
-//
-//                    Telegram::editMessageReplyMarkup([
-//                        'chat_id' => $chatId,
-//                        'message_id' => $update['callback_query']['message']['message_id'],
-//                        'reply_markup' => json_encode(['inline_keyboard' => []], JSON_UNESCAPED_UNICODE),
-//                    ]);
-//                    break;
-//                case "add_new_account":
-//                    $this->sendMessage($chatId, "🔢 Yangi hisob raqamini kiriting:");
-//                    break;
-//            }
-//            return;
-//        }
+        if (isset($update['callback_query'])) {
+            $callbackData = explode(':', $update['callback_query']['data']);
+            $action = $callbackData[0] ?? null;
+            $page = isset($callbackData[1]) ? (int) $callbackData[1] : 1;
+
+            $chatId = $update['callback_query']['message']['chat']['id'] ?? null;
+            if (!$chatId) {
+                \Log::error("callback_query Error: chat_id is empty. Callback Data:", $callbackData);
+                return;
+            }
+
+            switch ($action) {
+                case "info":
+                    $this->sendCustomerInfo($chatId);
+                    break;
+                case "invoices":
+                    $this->sendInvoices($chatId, $page);
+                    break;
+                case "payments":
+                    $this->sendPayments($chatId, $page);
+                    break;
+                case "meter_history":
+                    $this->sendMeterHistory($chatId, $page);
+                    break;
+                case "settings":
+                    $this->sendSettingsMenu($chatId);
+                    break;
+                case "switch_account":
+                    $selectedCustomerId = isset($callbackData[1]) ? (int) $callbackData[1] : null;
+                    $this->switchAccount($chatId, $selectedCustomerId);
+
+                    Telegram::editMessageReplyMarkup([
+                        'chat_id' => $chatId,
+                        'message_id' => $update['callback_query']['message']['message_id'],
+                        'reply_markup' => json_encode(['inline_keyboard' => []], JSON_UNESCAPED_UNICODE),
+                    ]);
+                    break;
+                case "add_new_account":
+                    $this->sendMessage($chatId, "🔢 Yangi hisob raqamini kiriting:");
+                    break;
+            }
+            return;
+        }
 
         // ✅ Foydalanuvchi /start bosganda
-//        if (strcasecmp($text, "/start") === 0) {
-//            $this->sendMessage($chatId, "🔢 Iltimos, hisob raqamingizni kiriting:");
-//            return;
-//        }
+        if (strcasecmp($text, "/start") === 0) {
+            $this->sendMessage($chatId, "🔢 Iltimos, hisob raqamingizni kiriting:");
+            return;
+        }
 
         // ✅ Agar foydalanuvchi hisob raqam kiritayotgan bo‘lsa
-//        if (is_numeric($text)) {
-//            $this->linkAccount($chatId, $userId, $text);
-//            return;
-//        }
+        if (is_numeric($text)) {
+            $this->linkAccount($chatId, $userId, $text);
+            return;
+        }
 
         // ✅ Asosiy menyudan tugmalar bosilganda
-//        switch ($text) {
-//            case "📋 Ma'lumotlarim":
-//                $this->sendCustomerInfo($chatId);
-//                break;
-//            case "📑 Hisob varaqalar":
-//                $this->sendInvoices($chatId);
-//                break;
-//            case "💳 To‘lovlarim":
-//                $this->sendPayments($chatId);
-//                break;
-//            case "📈 Hisoblagich tarixi":
-//                $this->sendMeterHistory($chatId);
-//                break;
-//            case "⚙️ Sozlamalar": // ✅ Foydalanuvchi asosiy menyudan bosganda
-//                $this->sendSettingsMenu($chatId);
-//                break;
-//            default:
-//                $this->sendMessage($chatId, "❌ Noto‘g‘ri buyruq. Iltimos, tugmalardan foydalaning.");
-//        }
+        switch ($text) {
+            case "📋 Ma'lumotlarim":
+                $this->sendCustomerInfo($chatId);
+                break;
+            case "📑 Hisob varaqalar":
+                $this->sendInvoices($chatId);
+                break;
+            case "💳 To‘lovlarim":
+                $this->sendPayments($chatId);
+                break;
+            case "📈 Hisoblagich tarixi":
+                $this->sendMeterHistory($chatId);
+                break;
+            case "⚙️ Sozlamalar": // ✅ Foydalanuvchi asosiy menyudan bosganda
+                $this->sendSettingsMenu($chatId);
+                break;
+            default:
+                $this->sendMessage($chatId, "❌ Noto‘g‘ri buyruq. Iltimos, tugmalardan foydalaning.");
+        }
     }
 
     // ✅ Hisob raqamini Telegramga bog‘lash
@@ -164,7 +142,8 @@ class TelegramController extends Controller
             ->row([
                 Keyboard::button('📈 Hisoblagich tarixi'),
                 Keyboard::button('⚙️ Sozlamalar'),
-            ]);
+            ])
+            ->toArray();
 
         $this->sendMessage($chatId, "📌 Asosiy menyu", $menu);
     }
@@ -359,6 +338,7 @@ class TelegramController extends Controller
             \Log::error("sendMessage Error: chat_id is empty. Message: " . $text);
             return;
         }
+
         $params = [
             'chat_id' => $chatId,
             'text' => $text,
@@ -370,6 +350,10 @@ class TelegramController extends Controller
             $params['reply_markup'] = json_encode($replyMarkup, JSON_UNESCAPED_UNICODE);
         }
 
-        Telegram::sendMessage($params);
+        try {
+            Telegram::sendMessage($params);
+        } catch (\Exception $e) {
+            \Log::error('Telegram sendMessage Error: ' . $e->getMessage());
+        }
     }
 }
