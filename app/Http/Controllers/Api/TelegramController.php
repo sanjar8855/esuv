@@ -113,25 +113,7 @@ class TelegramController extends Controller
         // ✅ Many-to-Many bog‘langanini tekshirish
         if ($customer->telegramAccounts()->wherePivot('telegram_account_id', $telegramAccount->id)->exists()) {
             $this->sendMessage($chatId, "⚠️ Bu hisob raqami allaqachon bog‘langan.");
-            $menu = Keyboard::make()
-                ->setResizeKeyboard(true)
-                ->setOneTimeKeyboard(false)
-                ->row([
-                    Keyboard::button('📋 Ma\'lumotlarim'),
-                    Keyboard::button('📑 Hisob varaqalar'),
-                    Keyboard::button('💳 To‘lovlarim'),
-                ])
-                ->row([
-                    Keyboard::button('📈 Hisoblagich tarixi'),
-                    Keyboard::button('⚙️ Sozlamalar'),
-                ])
-                ->toArray();
-
-            Telegram::sendMessage([
-                'chat_id' => $chatId,
-                'text' => '📌 Asosiy menyu',
-                'reply_markup' => json_encode($menu)
-            ]);
+            $this->sendMainMenu($chatId);
             return;
         }
 
@@ -160,12 +142,7 @@ class TelegramController extends Controller
             ])
             ->toArray();
 
-        Telegram::sendMessage([
-            'chat_id' => $chatId,
-            'text' => '📌 Asosiy menyu',
-            'reply_markup' => json_encode($menu)
-        ]);
-//        $this->sendMessage($chatId, "📌 Asosiy menyu", $menu);
+        $this->sendMessage($chatId, "📌 Asosiy menyu", $menu);
     }
 
     private function sendSettingsMenu($chatId)
@@ -358,7 +335,7 @@ class TelegramController extends Controller
             'chat_id' => $chatId,
             'text' => $text,
             'parse_mode' => 'HTML',
-            'reply_markup' => $replyMarkup
+            'reply_markup' => json_encode($replyMarkup)
         ];
 
         Telegram::sendMessage($params);
