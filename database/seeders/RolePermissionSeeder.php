@@ -21,7 +21,7 @@ class RolePermissionSeeder extends Seeder
 
         // 🎯 Ruxsatnomalar (Permissions)
         $permissions = [
-//            'dashboard',
+            'dashboard',
             'locations',
             'companies',
             'users',
@@ -43,7 +43,7 @@ class RolePermissionSeeder extends Seeder
         $roles = [
             'admin' => Permission::all(), // Barcha ruxsatlar
             'company_owner' => Permission::whereIn('name', [
-//                'dashboard',
+                'dashboard',
                 'users',
                 'tariffs',
                 'customers',
