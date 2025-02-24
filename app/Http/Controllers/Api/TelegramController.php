@@ -120,6 +120,9 @@ class TelegramController extends Controller
         // ✅ Yangi bog‘lanishni saqlash
         $customer->telegramAccounts()->attach($telegramAccount->id);
 
+        // ✅ Yangi hisobni avtomatik active qilish
+        cache()->put("active_customer_id_{$chatId}", $customer->id, now()->addDays(30));
+
         $this->sendMessage($chatId, "✅ Yangi hisob bog‘landi! Siz hozir ushbu hisob bilan ishlayapsiz.");
 
         $this->sendMainMenu($chatId);
@@ -161,7 +164,7 @@ class TelegramController extends Controller
         foreach ($customerAccounts as $customer) {
             $isActive = $customer->id == $activeCustomerId ? '✅ ' : '🔹';
             $buttons[] = [[
-                'text' => "{$activeCustomerId}{$customer->name}",
+                'text' => "{$isActive}{$customer->name}",
                 'callback_data' => "switch_account:{$customer->id}"
             ]];
         }
