@@ -21,7 +21,7 @@ class RolePermissionSeeder extends Seeder
 
         // 🎯 Ruxsatnomalar (Permissions)
         $permissions = [
-            'dashboard',
+//            'dashboard',
             'locations',
             'companies',
             'users',
