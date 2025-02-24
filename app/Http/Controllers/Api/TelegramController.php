@@ -335,6 +335,7 @@ class TelegramController extends Controller
             'text' => $text,
             'parse_mode' => 'HTML',
             'disable_web_page_preview' => $disablePreview,
+            'replyMarkup' => $replyMarkup
         ];
 
         Telegram::sendMessage($params);
