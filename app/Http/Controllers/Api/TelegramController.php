@@ -130,7 +130,7 @@ class TelegramController extends Controller
             Telegram::sendMessage([
                 'chat_id' => $chatId,
                 'text' => '📌 Asosiy menyu',
-                'replyMarkup' => $menu
+                'reply_markup' => $menu
             ]);
             return;
         }
@@ -163,7 +163,7 @@ class TelegramController extends Controller
         Telegram::sendMessage([
             'chat_id' => $chatId,
             'text' => '📌 Asosiy menyu',
-            'replyMarkup' => $menu
+            'reply_markup' => $menu
         ]);
 //        $this->sendMessage($chatId, "📌 Asosiy menyu", $menu);
     }
@@ -358,7 +358,7 @@ class TelegramController extends Controller
             'chat_id' => $chatId,
             'text' => $text,
             'parse_mode' => 'HTML',
-            'replyMarkup' => $replyMarkup
+            'reply_markup' => $replyMarkup
         ];
 
         Telegram::sendMessage($params);
