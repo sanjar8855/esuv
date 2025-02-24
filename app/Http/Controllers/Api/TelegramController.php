@@ -140,7 +140,7 @@ class TelegramController extends Controller
                 Keyboard::button('📈 Hisoblagich tarixi'),
                 Keyboard::button('⚙️ Sozlamalar'),
             ])
-            ->toArray();
+            ->toJson();
 
         $this->sendMessage($chatId, "📌 Asosiy menyu", $menu);
     }
@@ -335,8 +335,11 @@ class TelegramController extends Controller
             'chat_id' => $chatId,
             'text' => $text,
             'parse_mode' => 'HTML',
-            'reply_markup' => json_encode($replyMarkup)
         ];
+
+        if ($replyMarkup) {
+            $params['reply_markup'] = $replyMarkup;
+        }
 
         Telegram::sendMessage($params);
     }
