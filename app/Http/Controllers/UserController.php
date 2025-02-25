@@ -15,10 +15,10 @@ class UserController extends Controller
 
         if ($user->hasRole('admin')) {
             // Admin barcha foydalanuvchilarni ko‘radi
-            $users = User::with('company')->paginate(10);
+            $users = User::with('company','roles')->paginate(10);
         } else {
             // Oddiy foydalanuvchi faqat o‘z kompaniyasidagi userlarni ko‘radi
-            $users = User::where('company_id', $user->company_id)->with('company')->paginate(10);
+            $users = User::where('company_id', $user->company_id)->with('company','roles')->paginate(10);
         }
 
         return view('users.index', compact('users'));

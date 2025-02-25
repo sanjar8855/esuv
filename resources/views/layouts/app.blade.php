@@ -33,7 +33,7 @@
             </button>
             <div class="navbar-brand navbar-brand-autodark">
                 <a href="{{ route('dashboard') }}">
-                    {{auth()->user()->company ? auth()->user()->company->name : 'Admin'}}
+                    eSuv.uz
                 </a>
             </div>
             {{--            <div class="navbar-nav flex-row d-lg-none">--}}

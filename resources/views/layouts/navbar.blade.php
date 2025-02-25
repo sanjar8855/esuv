@@ -7,7 +7,7 @@
                     Elektron hisoblash
                 </div>
                 <h2 class="page-title">
-                    eSuv.uz
+                    {{auth()->user()->company ? auth()->user()->company->name : 'Admin'}}
                 </h2>
             </div>
             <!-- Page title actions -->

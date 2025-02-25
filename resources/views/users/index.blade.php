@@ -19,6 +19,7 @@
                                 <tr>
                                     <th>ID</th>
                                     <th>Ism</th>
+                                    <th>Lavozim</th>
                                     <th>Email</th>
                                     <th>Amallar</th>
                                 </tr>
@@ -28,6 +29,11 @@
                                     <tr>
                                         <td>{{ $user->id }}</td>
                                         <td>{{ $user->name }}</td>
+                                        <td>
+                                            @foreach($user->roles as $role)
+                                                <span class="badge bg-primary">{{ $role->name }}</span>
+                                            @endforeach
+                                        </td>
                                         <td>{{ $user->email }}</td>
                                         <td>
                                             <a href="{{ route('users.show', $user->id) }}"
