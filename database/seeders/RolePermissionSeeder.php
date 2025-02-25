@@ -23,26 +23,26 @@ class RolePermissionSeeder extends Seeder
         DB::statement('SET FOREIGN_KEY_CHECKS=1;');
 
         // 🎯 Ruxsatnomalar (Permissions)
-        $permissions = [
-            'dashboard',
-            'locations',
-            'companies',
-            'users',
-            'tariffs',
-            'customers',
-            'water_meters',
-            'meter_readings',
-            'invoices',
-            'payments',
-            'notifications',
-            'audit_logs',
-        ];
+//        $permissions = [
+//            'dashboard',
+//            'locations',
+//            'companies',
+//            'users',
+//            'tariffs',
+//            'customers',
+//            'water_meters',
+//            'meter_readings',
+//            'invoices',
+//            'payments',
+//            'notifications',
+//            'audit_logs',
+//        ];
 
-//        foreach ($permissions as $permission) {
-//            if (!Permission::where('name', $permission)->exists()) {
-//                Permission::create(['name' => $permission]);
-//            }
-//        }
+        foreach ($permissions as $permission) {
+            if (!Permission::where('name', $permission)->exists()) {
+                Permission::create(['name' => $permission]);
+            }
+        }
 
         // 🎯 Rollar (Roles)
         $roles = [
