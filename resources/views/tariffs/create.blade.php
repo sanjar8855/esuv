@@ -24,7 +24,7 @@
                                 @if(auth()->user()->hasRole('admin'))
                                     <select name="company_id" id="company_id" class="form-select">
                                         @foreach($companies as $company)
-                                            <option value="{{ $company->id }}" {{ $tariff->company_id == $company->id ? 'selected' : '' }}>
+                                            <option value="{{ $company->id }}">
                                                 {{ $company->name }}
                                             </option>
                                         @endforeach
