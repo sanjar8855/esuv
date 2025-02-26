@@ -27,11 +27,8 @@
                         </div>
                         <div class="mb-3">
                             <label>Tarif</label>
-                            <select name="tariff_id" class="form-control">
-                                @foreach($tariffs as $tariff)
-                                    <option value="{{ $tariff->id }}">{{ $tariff->name }}</option>
-                                @endforeach
-                            </select>
+                            <input type="hidden" name="tariff_id" value="{{ $tariff->id }}">
+                            <input type="text" name="tariff_m3" value="m3={{ $tariff->price_per_m3 }}, 1 inson uchun {{$tariff->for_one_person}}" disabled class="form-control">
                         </div>
 {{--                        <div class="mb-3">--}}
 {{--                            <label>Hisob raqami</label>--}}

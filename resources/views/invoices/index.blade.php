@@ -37,11 +37,19 @@
                                                 <span class="badge badge-outline text-danger">Mijoz yo‘q</span>
                                             @endif
                                         </td>
-                                        <td>{{ $invoice->tariff->name }}</td>
+                                        <td>m3: {{ $invoice->tariff->price_per_m3 }}, 1 inson uchun: {{$invoice->tariff->for_one_person}}</td>
                                         <td>{{ $invoice->invoice_number }}</td>
                                         <td>{{ $invoice->billing_period }}</td>
                                         <td>{{ number_format($invoice->amount_due, 2) }} UZS</td>
-                                        <td>{{ ucfirst($invoice->status) }}</td>
+                                        <td>
+                                            @if($invoice->status == 'pending')
+                                                <span class="badge bg-yellow text-yellow-fg">To'liq to‘lanmagan</span>
+                                            @elseif($invoice->status == 'paid')
+                                                <span class="badge bg-green text-green-fg">To‘langan</span>
+                                            @elseif($invoice->status == 'overdue')
+                                                <span class="badge bg-red text-red-fg">Muddati o‘tgan</span>
+                                            @endif
+                                        </td>
                                         <td>
                                             <a href="{{ route('invoices.show', $invoice->id) }}"
                                                class="btn btn-info btn-sm">Ko‘rish</a>

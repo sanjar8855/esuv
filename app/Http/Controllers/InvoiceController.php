@@ -15,7 +15,28 @@ class InvoiceController extends Controller
      */
     public function index()
     {
-        $invoices = Invoice::with(['customer', 'tariff'])->latest()->paginate(10);
+        $user = auth()->user();
+
+        // Admin barcha tariflarni ko‘radi
+        if ($user->hasRole('admin')) {
+            $invoices = Invoice::with(['customer', 'tariff'])
+                ->orderBy('created_at', 'desc')
+                ->paginate(10);
+        } else {
+            // Xodim faqat o‘z kompaniyasining mijozlariga tegishli tariflarni ko‘radi
+            $customerIds = optional($user->company)->customers->pluck('id')->toArray();
+
+            if (empty($customerIds)) {
+                // Agar mijozlar yo‘q bo‘lsa, bo‘sh natija qaytariladi
+                $invoices = collect(); // Bo‘sh kolleksiya qaytarish
+            } else {
+                $invoices = Invoice::whereIn('customer_id', $customerIds)
+                    ->with(['customer', 'tariff'])
+                    ->orderBy('created_at', 'desc')
+                    ->paginate(10);
+            }
+        }
+
         return view('invoices.index', compact('invoices'));
     }
 
@@ -24,12 +45,35 @@ class InvoiceController extends Controller
      */
     public function create()
     {
-        $customers = Customer::where('is_active', true)
-            ->whereHas('waterMeter') // faqat hisoblagichi bor mijozlarni olish
-            ->get();
+        $user = auth()->user();
 
-        $tariffs = Tariff::where('is_active', true)->get();
-        return view('invoices.create', compact('customers', 'tariffs'));
+        // Admin bo'lsa, barcha aktiv mijozlarni olamiz
+        if ($user->hasRole('admin')) {
+            $customers = Customer::where('is_active', true)
+                ->orderBy('created_at', 'desc')
+                ->get();
+        } else {
+            // Foydalanuvchi kompaniyasi borligini tekshiramiz
+            $company = optional($user->company);
+
+            if (!$company) {
+                return back()->with('error', 'Siz hech qanday kompaniyaga bog‘lanmagansiz.');
+            }
+
+            // Ushbu kompaniyaga tegishli faqat aktiv mijozlarni olamiz
+            $customers = Customer::where('company_id', $company->id)
+                ->where('is_active', true)
+                ->orderBy('created_at', 'desc')
+                ->get();
+        }
+
+        // Foydalanuvchiga tegishli kompaniyaning eng so‘nggi aktiv tarifini olish
+        $tariff = Tariff::where('company_id', optional($user->company)->id)
+            ->where('is_active', true)
+            ->orderBy('valid_from', 'desc') // Eng yangi tarifni olish uchun
+            ->first();
+
+        return view('invoices.create', compact('customers', 'tariff'));
     }
 
     /**
@@ -56,6 +100,7 @@ class InvoiceController extends Controller
      */
     public function show(Invoice $invoice)
     {
+        $invoice->load(['customer', 'tariff']);
         return view('invoices.show', compact('invoice'));
     }
 
@@ -64,9 +109,8 @@ class InvoiceController extends Controller
      */
     public function edit(Invoice $invoice)
     {
-        $customers = Customer::where('is_active', true)->get();
-        $tariffs = Tariff::where('is_active', true)->get();
-        return view('invoices.edit', compact('invoice', 'customers', 'tariffs'));
+        $invoice->load(['customer', 'tariff']);
+        return view('invoices.edit', compact('invoice'));
     }
 
     /**

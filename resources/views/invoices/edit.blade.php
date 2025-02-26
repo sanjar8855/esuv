@@ -21,25 +21,13 @@
 
                         <div class="mb-3">
                             <label>Mijoz</label>
-                            <select name="customer_id" class="form-control">
-                                @foreach($customers as $customer)
-                                    <option
-                                        value="{{ $customer->id }}" {{ $invoice->customer_id == $customer->id ? 'selected' : '' }}>
-                                        {{ $customer->name }}
-                                    </option>
-                                @endforeach
-                            </select>
+                            <input type="hidden" name="customer_id" value="{{ $invoice->customer->id }}">
+                            <input type="text" name="customer_name" value="{{ $invoice->customer->name }}" disabled class="form-control">
                         </div>
                         <div class="mb-3">
                             <label>Tarif</label>
-                            <select name="tariff_id" class="form-control">
-                                @foreach($tariffs as $tariff)
-                                    <option
-                                        value="{{ $tariff->id }}" {{ $invoice->tariff_id == $tariff->id ? 'selected' : '' }}>
-                                        {{ $tariff->name }}
-                                    </option>
-                                @endforeach
-                            </select>
+                            <input type="hidden" name="tariff_id" value="{{ $invoice->tariff->id }}">
+                            <input type="text" name="tariff_m3" value="m3={{ $invoice->tariff->price_per_m3 }}, 1 inson uchun {{$invoice->tariff->for_one_person}}" disabled class="form-control">
                         </div>
 {{--                        <div class="mb-3">--}}
 {{--                            <label>Hisob raqami</label>--}}
@@ -48,8 +36,7 @@
 {{--                        </div>--}}
                         <div class="mb-3">
                             <label>Davr (masalan: 2024-02)</label>
-                            <input type="text" name="billing_period" class="form-control"
-                                   value="{{ $invoice->billing_period }}">
+                            <input type="text" name="billing_period" class="form-control" value="{{ $invoice->billing_period }}">
                         </div>
                         <div class="mb-3">
                             <label>Summa</label>
