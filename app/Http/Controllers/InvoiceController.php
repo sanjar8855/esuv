@@ -52,6 +52,9 @@ class InvoiceController extends Controller
             $customers = Customer::where('is_active', true)
                 ->orderBy('created_at', 'desc')
                 ->get();
+            $tariffs = Tariff::where('is_active', true)
+                ->orderBy('created_at', 'desc')
+                ->get();
         } else {
             // Foydalanuvchi kompaniyasi borligini tekshiramiz
             $company = optional($user->company);
@@ -65,15 +68,15 @@ class InvoiceController extends Controller
                 ->where('is_active', true)
                 ->orderBy('created_at', 'desc')
                 ->get();
+
+            // Foydalanuvchiga tegishli kompaniyaning eng so‘nggi aktiv tarifini olish
+            $tariffs = Tariff::where('company_id', optional($user->company)->id)
+                ->where('is_active', true)
+                ->orderBy('valid_from', 'desc') // Eng yangi tarifni olish uchun
+                ->get();
         }
 
-        // Foydalanuvchiga tegishli kompaniyaning eng so‘nggi aktiv tarifini olish
-        $tariff = Tariff::where('company_id', optional($user->company)->id)
-            ->where('is_active', true)
-            ->orderBy('valid_from', 'desc') // Eng yangi tarifni olish uchun
-            ->first();
-
-        return view('invoices.create', compact('customers', 'tariff'));
+        return view('invoices.create', compact('customers', 'tariffs'));
     }
 
     /**

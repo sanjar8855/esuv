@@ -47,7 +47,8 @@
 
                         <div class="mb-3">
                             <label class="form-label">Telefon</label>
-                            <input type="text" name="phone" class="form-control" value="{{ old('phone')}}">
+{{--                            <input type="text" name="phone" class="form-control" value="{{ old('phone')}}">--}}
+                            <input type="text" name="phone" class="form-control"  value="{{ old('phone')}}" data-mask="(00) 000-00-00" data-mask-visible="true" placeholder="(00) 000-00-00" autocomplete="off"/>
                         </div>
 
                         <div class="mb-3">
@@ -61,11 +62,16 @@
                         </div>
 
                         <div class="mb-3">
-                            <label class="form-check">
-                                <input type="checkbox" name="has_water_meter" id="has_water_meter" class="form-check-input"
-                                       value="1" {{ old('has_water_meter') ? 'checked' : '' }}>
+                            <label class="form-check form-switch form-switch-2">
+                                <input class="form-check-input" type="checkbox" id="has_water_meter" name="has_water_meter" value="1" {{ old('has_water_meter') ? 'checked' : '' }}>
                                 <span class="form-check-label">Suv hisoblagichi bormi?</span>
                             </label>
+
+{{--                            <label class="form-check">--}}
+{{--                                <input type="checkbox" name="has_water_meter" id="has_water_meter" class="form-check-input"--}}
+{{--                                       value="1" {{ old('has_water_meter') ? 'checked' : '' }}>--}}
+{{--                                <span class="form-check-label">Suv hisoblagichi bormi?</span>--}}
+{{--                            </label>--}}
                         </div>
 
                         <div class="mb-3" id="family_members_div">
@@ -75,10 +81,16 @@
                         </div>
 
                         <div class="mb-3">
-                            <label class="form-check">
-                                <input type="checkbox" name="is_active" class="form-check-input" {{ old('is_active', true) ? 'checked' : '' }}>
-                                <span class="form-check-label">Faol mijoz</span>
+{{--                            <div class="form-label">Single switch</div>--}}
+                            <label class="form-check form-switch form-switch-2">
+                                <input class="form-check-input" type="checkbox" name="is_active" {{ old('is_active', true) ? 'checked' : '' }}>
+                                <span class="form-check-label">Faol mijozmi?</span>
                             </label>
+
+{{--                            <label class="form-check">--}}
+{{--                                <input type="checkbox" name="is_active" class="form-check-input" {{ old('is_active', true) ? 'checked' : '' }}>--}}
+{{--                                <span class="form-check-label">Faol mijoz</span>--}}
+{{--                            </label>--}}
                         </div>
 
                         <button type="submit" class="btn btn-primary">Saqlash</button>

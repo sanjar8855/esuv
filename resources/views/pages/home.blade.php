@@ -107,13 +107,13 @@
                     <div id="carousel-controls" class="carousel slide" data-bs-ride="carousel" data-interval="4000">
                         <div class="carousel-inner">
                             <div class="carousel-item active">
-                                <img src="{{ asset('tabler/img/hero/samarali.webp') }}" alt="">
+                                <img src="{{ asset('tabler/img/hero/samarali.webp') }}" class="img d-block mx-auto" alt="">
                             </div>
                             <div class="carousel-item">
-                                <img src="{{ asset('tabler/img/hero/tezroq-qulayroq.webp') }}" alt="">
+                                <img src="{{ asset('tabler/img/hero/tezroq-qulayroq.webp') }}" class="img d-block mx-auto" alt="">
                             </div>
                             <div class="carousel-item">
-                                <img src="{{ asset('tabler/img/hero/tolovlarni-avtomatlashtirish.webp') }}" alt="">
+                                <img src="{{ asset('tabler/img/hero/tolovlarni-avtomatlashtirish.webp') }}" class="img d-block mx-auto" alt="">
                             </div>
                         </div>
                         <a class="carousel-control-prev text-secondary" href="#carousel-controls" role="button" data-bs-slide="prev">
@@ -163,28 +163,28 @@
                     <!-- Download SVG icon from http://tabler.io/icons/icon/devices -->
                     <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="icon icon-1"><path d="M13 9a1 1 0 0 1 1 -1h6a1 1 0 0 1 1 1v10a1 1 0 0 1 -1 1h-6a1 1 0 0 1 -1 -1v-10z" /><path d="M18 8v-3a1 1 0 0 0 -1 -1h-13a1 1 0 0 0 -1 1v12a1 1 0 0 0 1 1h9" /><path d="M16 9h2" /></svg>
                 </div>
-                <h2 class="h2">Mobile-optimized</h2>
-                <p class="text-muted">Our email templates are fully responsive, so you can be sure they will look great on any device and screen size.</p>
+                <h2 class="h2">Har qanday qurilmada qulay foydalanish</h2>
+                <p class="text-muted">Bizning tizim barcha qurilmalarga moslangan. Telefon, planshet yoki kompyuterdan to‘lov va hisob-kitoblarni boshqaring!</p>
             </div>
             <div class="col-md-6 col-lg">
                 <div class="shape shape-md mb-3">
-                    <!-- Download SVG icon from http://tabler.io/icons/icon/mailbox -->
-                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="icon icon-1"><path d="M10 21v-6.5a3.5 3.5 0 0 0 -7 0v6.5h18v-6a4 4 0 0 0 -4 -4h-10.5" /><path d="M12 11v-8h4l2 2l-2 2h-4" /><path d="M6 15h1" /></svg>
-                </div>
-                <h2 class="h2">Compatible with 90+ email clients</h2>
-                <p class="text-muted">Tested across 90+ email clients and devices, Tabler emails will help you make your email communication professional and reliable.</p>
+                    <!-- Download SVG icon from https://tabler.io/icons/icon/brand-telegram -->
+                    <svg  xmlns="http://www.w3.org/2000/svg"  width="24"  height="24"  viewBox="0 0 24 24"  fill="none"  stroke="currentColor"  stroke-width="2"  stroke-linecap="round"  stroke-linejoin="round"  class="icon icon-tabler icons-tabler-outline icon-tabler-brand-telegram"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M15 10l-4 4l6 6l4 -16l-18 7l4 2l2 6l3 -4" /></svg>                </div>
+                <h2 class="h2">Telegram bot bilan to‘liq integratsiya</h2>
+                <p class="text-muted">ESUV tizimi Telegram bot bilan sinxron ishlaydi. Mijozlaringiz istalgan vaqtda hisoblarini tekshirishi va avtomatik bildirishnomalarni qabul qilishi mumkin.</p>
             </div>
             <div class="col-md-6 col-lg">
                 <div class="shape shape-md mb-3">
                     <!-- Download SVG icon from http://tabler.io/icons/icon/palette -->
                     <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="icon icon-1"><path d="M12 21a9 9 0 0 1 0 -18c4.97 0 9 3.582 9 8c0 1.06 -.474 2.078 -1.318 2.828c-.844 .75 -1.989 1.172 -3.182 1.172h-2.5a2 2 0 0 0 -1 3.75a1.3 1.3 0 0 1 -1 2.25" /><path d="M8.5 10.5m-1 0a1 1 0 1 0 2 0a1 1 0 1 0 -2 0" /><path d="M12.5 7.5m-1 0a1 1 0 1 0 2 0a1 1 0 1 0 -2 0" /><path d="M16.5 10.5m-1 0a1 1 0 1 0 2 0a1 1 0 1 0 -2 0" /></svg>
                 </div>
-                <h2 class="h2">Unique, minimal design</h2>
-                <p class="text-muted">Draw recipients’ attention with beautiful, minimal email designs based on Bootstrap and Material Design principles.</p>
+                <h2 class="h2">Minimalistik va oson interfeys</h2>
+                <p class="text-muted">Toza va minimalistik dizayn orqali tizimdan foydalanish juda oson. Hech qanday ortiqcha tugmalar va murakkab sozlamalarsiz, suv ta’minotini samarali boshqaring!</p>
             </div>
         </div>
     </div>
 </section>
+
 <section class="section section-light">
     <div class="container">
         <div class="section-header">
@@ -339,190 +339,192 @@
         </div>
     </div>
 </section>
-<section class="section">
-    <div class="container">
-        <div class="section-header">
-            <h2 class="section-title">Trusted by hundreds</h2>
-            <p class="section-description">Our Users send us bunch of smilies with our services, and we love them 😍</p>
-        </div>
-        <div class="row g-6">
-            <div class="col-md-6 col-lg-4">
-                <div class="row g-6">
-                    <div class="col-12">
-                        <a href="#" class="card bg-light">
-                            <div class="card-body">
-                                <div class="row mb-3">
-                                    <div class="col-auto">
-                                        <span class="avatar avatar-md">JL</span>
-                                    </div>
-                                    <div class="col">
-                                        <h3 class="h3 m-0">Jeffie Lewzey</h3>
-                                        <div class="text-secondary">Chemical Engineer</div>
-                                    </div>
-                                </div>
-                                <p>
-                                    Ever since I started using Tabler, my HTML designing process has been significantly smoother. Its intuitive interface is a breath of fresh air!
-                                </p>
-                            </div>
-                        </a>
-                    </div>
-                    <div class="col-12">
-                        <a href="#" class="card bg-light">
-                            <div class="card-body">
-                                <div class="row mb-3">
-                                    <div class="col-auto">
-                                        <span class="avatar avatar-md" style="background-image: url({{ asset('tabler/static/avatars/002m.jpg') }})"></span>
-                                    </div>
-                                    <div class="col">
-                                        <h3 class="h3 m-0">Mallory Hulme</h3>
-                                        <div class="text-secondary">Geologist IV</div>
-                                    </div>
-                                </div>
-                                <p>
-                                    I'm beyond impressed with Tabler. This UI kit has transformed my workflow for the better. It's easy to use, streamlined, and remarkably efficient.
-                                </p>
-                            </div>
-                        </a>
-                    </div>
-                    <div class="col-12">
-                        <a href="#" class="card bg-light">
-                            <div class="card-body">
-                                <div class="row mb-3">
-                                    <div class="col-auto">
-                                        <span class="avatar avatar-md" style="background-image: url({{ asset('tabler/static/avatars/003m.jpg') }})"></span>
-                                    </div>
-                                    <div class="col">
-                                        <h3 class="h3 m-0">Dunn Slane</h3>
-                                        <div class="text-secondary">Research Nurse</div>
-                                    </div>
-                                </div>
-                                <p>
-                                    Tabler's feature-rich package has drastically improved my website design process. It's an absolute game-changer in the UI kit landscape.
-                                </p>
-                            </div>
-                        </a>
-                    </div>
-                </div>
-            </div>
-            <div class="col-md-6 col-lg-4">
-                <div class="row g-6">
-                    <div class="col-12">
-                        <a href="#" class="card bg-light">
-                            <div class="card-body">
-                                <div class="row mb-3">
-                                    <div class="col-auto">
-                                        <span class="avatar avatar-md" style="background-image: url({{ asset('tabler/static/avatars/000f.jpg') }})"></span>
-                                    </div>
-                                    <div class="col">
-                                        <h3 class="h3 m-0">Emmy Levet</h3>
-                                        <div class="text-secondary">VP Product Management</div>
-                                    </div>
-                                </div>
-                                <p>
-                                    Having used many UI kits in the past, I can confidently say that Tabler stands out. The level of customization it offers is unparalleled.
-                                </p>
-                            </div>
-                        </a>
-                    </div>
-                    <div class="col-12">
-                        <a href="#" class="card bg-light">
-                            <div class="card-body">
-                                <div class="row mb-3">
-                                    <div class="col-auto">
-                                        <span class="avatar avatar-md" style="background-image: url({{ asset('tabler/static/avatars/001f.jpg') }})"></span>
-                                    </div>
-                                    <div class="col">
-                                        <h3 class="h3 m-0">Maryjo Lebarree</h3>
-                                        <div class="text-secondary">Civil Engineer</div>
-                                    </div>
-                                </div>
-                                <p>
-                                    What I love about Tabler is its sleek design and ease of use. It's really simplified my HTML designing work. Five stars from me!
-                                </p>
-                            </div>
-                        </a>
-                    </div>
-                    <div class="col-12">
-                        <a href="#" class="card bg-light">
-                            <div class="card-body">
-                                <div class="row mb-3">
-                                    <div class="col-auto">
-                                        <span class="avatar avatar-md">EP</span>
-                                    </div>
-                                    <div class="col">
-                                        <h3 class="h3 m-0">Egan Poetz</h3>
-                                        <div class="text-secondary">Research Nurse</div>
-                                    </div>
-                                </div>
-                                <p>
-                                    I'd recommend Tabler to anyone, whether they're a seasoned pro or a beginner in HTML design. Its versatility and user-friendly nature make it a cut above the rest.
-                                </p>
-                            </div>
-                        </a>
-                    </div>
-                </div>
-            </div>
-            <div class="col-md-6 col-lg-4">
-                <div class="row g-6">
-                    <div class="col-12">
-                        <a href="#" class="card bg-light">
-                            <div class="card-body">
-                                <div class="row mb-3">
-                                    <div class="col-auto">
-                                        <span class="avatar avatar-md" style="background-image: url({{ asset('tabler/static/avatars/002f.jpg') }})"></span>
-                                    </div>
-                                    <div class="col">
-                                        <h3 class="h3 m-0">Kellie Skingley</h3>
-                                        <div class="text-secondary">Teacher</div>
-                                    </div>
-                                </div>
-                                <p>
-                                    Navigating through Tabler has been a breeze! Its intuitive layout helps me save time and focus more on the creative aspect of my work.
-                                </p>
-                            </div>
-                        </a>
-                    </div>
-                    <div class="col-12">
-                        <a href="#" class="card bg-light">
-                            <div class="card-body">
-                                <div class="row mb-3">
-                                    <div class="col-auto">
-                                        <span class="avatar avatar-md" style="background-image: url({{ asset('tabler/static/avatars/003f.jpg') }})"></span>
-                                    </div>
-                                    <div class="col">
-                                        <h3 class="h3 m-0">Christabel Charlwood</h3>
-                                        <div class="text-secondary">Tax Accountant</div>
-                                    </div>
-                                </div>
-                                <p>
-                                    With Tabler, designing HTML has never been more straightforward. The kit's sleek features and functionalities have taken my design work to new heights.
-                                </p>
-                            </div>
-                        </a>
-                    </div>
-                    <div class="col-12">
-                        <a href="#" class="card bg-light">
-                            <div class="card-body">
-                                <div class="row mb-3">
-                                    <div class="col-auto">
-                                        <span class="avatar avatar-md">HS</span>
-                                    </div>
-                                    <div class="col">
-                                        <h3 class="h3 m-0">Haskel Shelper</h3>
-                                        <div class="text-secondary">Staff Scientist</div>
-                                    </div>
-                                </div>
-                                <p>
-                                    Tabler has revolutionized the way I approach HTML design. Its array of tools and efficient interface make it a must-have for any designer.
-                                </p>
-                            </div>
-                        </a>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
-</section>
+
+{{--<section class="section">--}}
+{{--    <div class="container">--}}
+{{--        <div class="section-header">--}}
+{{--            <h2 class="section-title">Trusted by hundreds</h2>--}}
+{{--            <p class="section-description">Our Users send us bunch of smilies with our services, and we love them 😍</p>--}}
+{{--        </div>--}}
+{{--        <div class="row g-6">--}}
+{{--            <div class="col-md-6 col-lg-4">--}}
+{{--                <div class="row g-6">--}}
+{{--                    <div class="col-12">--}}
+{{--                        <a href="#" class="card bg-light">--}}
+{{--                            <div class="card-body">--}}
+{{--                                <div class="row mb-3">--}}
+{{--                                    <div class="col-auto">--}}
+{{--                                        <span class="avatar avatar-md">JL</span>--}}
+{{--                                    </div>--}}
+{{--                                    <div class="col">--}}
+{{--                                        <h3 class="h3 m-0">Jeffie Lewzey</h3>--}}
+{{--                                        <div class="text-secondary">Chemical Engineer</div>--}}
+{{--                                    </div>--}}
+{{--                                </div>--}}
+{{--                                <p>--}}
+{{--                                    Ever since I started using Tabler, my HTML designing process has been significantly smoother. Its intuitive interface is a breath of fresh air!--}}
+{{--                                </p>--}}
+{{--                            </div>--}}
+{{--                        </a>--}}
+{{--                    </div>--}}
+{{--                    <div class="col-12">--}}
+{{--                        <a href="#" class="card bg-light">--}}
+{{--                            <div class="card-body">--}}
+{{--                                <div class="row mb-3">--}}
+{{--                                    <div class="col-auto">--}}
+{{--                                        <span class="avatar avatar-md" style="background-image: url({{ asset('tabler/static/avatars/002m.jpg') }})"></span>--}}
+{{--                                    </div>--}}
+{{--                                    <div class="col">--}}
+{{--                                        <h3 class="h3 m-0">Mallory Hulme</h3>--}}
+{{--                                        <div class="text-secondary">Geologist IV</div>--}}
+{{--                                    </div>--}}
+{{--                                </div>--}}
+{{--                                <p>--}}
+{{--                                    I'm beyond impressed with Tabler. This UI kit has transformed my workflow for the better. It's easy to use, streamlined, and remarkably efficient.--}}
+{{--                                </p>--}}
+{{--                            </div>--}}
+{{--                        </a>--}}
+{{--                    </div>--}}
+{{--                    <div class="col-12">--}}
+{{--                        <a href="#" class="card bg-light">--}}
+{{--                            <div class="card-body">--}}
+{{--                                <div class="row mb-3">--}}
+{{--                                    <div class="col-auto">--}}
+{{--                                        <span class="avatar avatar-md" style="background-image: url({{ asset('tabler/static/avatars/003m.jpg') }})"></span>--}}
+{{--                                    </div>--}}
+{{--                                    <div class="col">--}}
+{{--                                        <h3 class="h3 m-0">Dunn Slane</h3>--}}
+{{--                                        <div class="text-secondary">Research Nurse</div>--}}
+{{--                                    </div>--}}
+{{--                                </div>--}}
+{{--                                <p>--}}
+{{--                                    Tabler's feature-rich package has drastically improved my website design process. It's an absolute game-changer in the UI kit landscape.--}}
+{{--                                </p>--}}
+{{--                            </div>--}}
+{{--                        </a>--}}
+{{--                    </div>--}}
+{{--                </div>--}}
+{{--            </div>--}}
+{{--            <div class="col-md-6 col-lg-4">--}}
+{{--                <div class="row g-6">--}}
+{{--                    <div class="col-12">--}}
+{{--                        <a href="#" class="card bg-light">--}}
+{{--                            <div class="card-body">--}}
+{{--                                <div class="row mb-3">--}}
+{{--                                    <div class="col-auto">--}}
+{{--                                        <span class="avatar avatar-md" style="background-image: url({{ asset('tabler/static/avatars/000f.jpg') }})"></span>--}}
+{{--                                    </div>--}}
+{{--                                    <div class="col">--}}
+{{--                                        <h3 class="h3 m-0">Emmy Levet</h3>--}}
+{{--                                        <div class="text-secondary">VP Product Management</div>--}}
+{{--                                    </div>--}}
+{{--                                </div>--}}
+{{--                                <p>--}}
+{{--                                    Having used many UI kits in the past, I can confidently say that Tabler stands out. The level of customization it offers is unparalleled.--}}
+{{--                                </p>--}}
+{{--                            </div>--}}
+{{--                        </a>--}}
+{{--                    </div>--}}
+{{--                    <div class="col-12">--}}
+{{--                        <a href="#" class="card bg-light">--}}
+{{--                            <div class="card-body">--}}
+{{--                                <div class="row mb-3">--}}
+{{--                                    <div class="col-auto">--}}
+{{--                                        <span class="avatar avatar-md" style="background-image: url({{ asset('tabler/static/avatars/001f.jpg') }})"></span>--}}
+{{--                                    </div>--}}
+{{--                                    <div class="col">--}}
+{{--                                        <h3 class="h3 m-0">Maryjo Lebarree</h3>--}}
+{{--                                        <div class="text-secondary">Civil Engineer</div>--}}
+{{--                                    </div>--}}
+{{--                                </div>--}}
+{{--                                <p>--}}
+{{--                                    What I love about Tabler is its sleek design and ease of use. It's really simplified my HTML designing work. Five stars from me!--}}
+{{--                                </p>--}}
+{{--                            </div>--}}
+{{--                        </a>--}}
+{{--                    </div>--}}
+{{--                    <div class="col-12">--}}
+{{--                        <a href="#" class="card bg-light">--}}
+{{--                            <div class="card-body">--}}
+{{--                                <div class="row mb-3">--}}
+{{--                                    <div class="col-auto">--}}
+{{--                                        <span class="avatar avatar-md">EP</span>--}}
+{{--                                    </div>--}}
+{{--                                    <div class="col">--}}
+{{--                                        <h3 class="h3 m-0">Egan Poetz</h3>--}}
+{{--                                        <div class="text-secondary">Research Nurse</div>--}}
+{{--                                    </div>--}}
+{{--                                </div>--}}
+{{--                                <p>--}}
+{{--                                    I'd recommend Tabler to anyone, whether they're a seasoned pro or a beginner in HTML design. Its versatility and user-friendly nature make it a cut above the rest.--}}
+{{--                                </p>--}}
+{{--                            </div>--}}
+{{--                        </a>--}}
+{{--                    </div>--}}
+{{--                </div>--}}
+{{--            </div>--}}
+{{--            <div class="col-md-6 col-lg-4">--}}
+{{--                <div class="row g-6">--}}
+{{--                    <div class="col-12">--}}
+{{--                        <a href="#" class="card bg-light">--}}
+{{--                            <div class="card-body">--}}
+{{--                                <div class="row mb-3">--}}
+{{--                                    <div class="col-auto">--}}
+{{--                                        <span class="avatar avatar-md" style="background-image: url({{ asset('tabler/static/avatars/002f.jpg') }})"></span>--}}
+{{--                                    </div>--}}
+{{--                                    <div class="col">--}}
+{{--                                        <h3 class="h3 m-0">Kellie Skingley</h3>--}}
+{{--                                        <div class="text-secondary">Teacher</div>--}}
+{{--                                    </div>--}}
+{{--                                </div>--}}
+{{--                                <p>--}}
+{{--                                    Navigating through Tabler has been a breeze! Its intuitive layout helps me save time and focus more on the creative aspect of my work.--}}
+{{--                                </p>--}}
+{{--                            </div>--}}
+{{--                        </a>--}}
+{{--                    </div>--}}
+{{--                    <div class="col-12">--}}
+{{--                        <a href="#" class="card bg-light">--}}
+{{--                            <div class="card-body">--}}
+{{--                                <div class="row mb-3">--}}
+{{--                                    <div class="col-auto">--}}
+{{--                                        <span class="avatar avatar-md" style="background-image: url({{ asset('tabler/static/avatars/003f.jpg') }})"></span>--}}
+{{--                                    </div>--}}
+{{--                                    <div class="col">--}}
+{{--                                        <h3 class="h3 m-0">Christabel Charlwood</h3>--}}
+{{--                                        <div class="text-secondary">Tax Accountant</div>--}}
+{{--                                    </div>--}}
+{{--                                </div>--}}
+{{--                                <p>--}}
+{{--                                    With Tabler, designing HTML has never been more straightforward. The kit's sleek features and functionalities have taken my design work to new heights.--}}
+{{--                                </p>--}}
+{{--                            </div>--}}
+{{--                        </a>--}}
+{{--                    </div>--}}
+{{--                    <div class="col-12">--}}
+{{--                        <a href="#" class="card bg-light">--}}
+{{--                            <div class="card-body">--}}
+{{--                                <div class="row mb-3">--}}
+{{--                                    <div class="col-auto">--}}
+{{--                                        <span class="avatar avatar-md">HS</span>--}}
+{{--                                    </div>--}}
+{{--                                    <div class="col">--}}
+{{--                                        <h3 class="h3 m-0">Haskel Shelper</h3>--}}
+{{--                                        <div class="text-secondary">Staff Scientist</div>--}}
+{{--                                    </div>--}}
+{{--                                </div>--}}
+{{--                                <p>--}}
+{{--                                    Tabler has revolutionized the way I approach HTML design. Its array of tools and efficient interface make it a must-have for any designer.--}}
+{{--                                </p>--}}
+{{--                            </div>--}}
+{{--                        </a>--}}
+{{--                    </div>--}}
+{{--                </div>--}}
+{{--            </div>--}}
+{{--        </div>--}}
+{{--    </div>--}}
+{{--</section>--}}
+
 <section class="section section-light">
     <div class="container">
         <div class="row justify-content-lg-center">

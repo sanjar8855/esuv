@@ -48,11 +48,11 @@
                                 <thead>
                                 <tr>
                                     <th>N</th>
-                                    <th>Ko‘cha</th>
-                                    <th>Ism</th>
                                     @if(auth()->user()->hasRole('admin'))
                                         <th>Kompaniya</th>
                                     @endif
+                                    <th>Ko‘cha</th>
+                                    <th>Ism</th>
                                     <th>Telefon</th>
                                     <th>Jami Qarzdorlik (UZS)</th>
                                     <th>Oxirgi ko'rsatkich</th>
@@ -64,6 +64,13 @@
                                 @foreach($customers as $customer)
                                     <tr>
                                         <td>{{ $loop->iteration }}</td>
+                                        @if(auth()->user()->hasRole('admin'))
+                                            <td>
+                                                <a href="{{ route('companies.show', $customer->company->id) }}">
+                                                    {{ $customer->company->name }}
+                                                </a>
+                                            </td>
+                                        @endif
                                         <td>
                                             <a href="{{ route('streets.show', $customer->street->id) }}">
                                                 {{ $customer->street->name }}
@@ -77,13 +84,6 @@
                                                 <span class="badge bg-red text-red-fg">Nofaol</span>
                                             @endif
                                         </td>
-                                        @if(auth()->user()->hasRole('admin'))
-                                            <td>
-                                                <a href="{{ route('companies.show', $customer->company->id) }}">
-                                                    {{ $customer->company->name }}
-                                                </a>
-                                            </td>
-                                        @endif
                                         <td>{{ $customer->phone }}</td>
                                         <td>
                                             @php
@@ -92,7 +92,7 @@
                                                 $balanceText = $balance < 0 ? 'Qarzdor' : ($balance > 0 ? 'Ortiqcha' : 'Nol');
                                             @endphp
                                             <span class="badge {{ $balanceClass }}">
-                                        {{ ($balance > 0 ? '+' : '-') . number_format(abs($balance), 2) }} UZS ({{ $balanceText }})
+                                        {{ ($balance > 0 ? '+' : '-') . number_format(abs($balance)) }} UZS ({{ $balanceText }})
                                     </span>
                                         </td>
                                         <td>
