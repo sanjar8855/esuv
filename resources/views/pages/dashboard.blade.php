@@ -1048,325 +1048,325 @@
             </div>
         </div>
 
-        <div class="col-md-12 col-lg-8">
-            <div class="card">
-                <div class="card-header">
-                    <h3 class="card-title">Most Visited Pages</h3>
-                </div>
-                <div class="card-table table-responsive">
-                    <table class="table table-vcenter">
-                        <thead>
-                        <tr>
-                            <th>Page name</th>
-                            <th>Visitors</th>
-                            <th>Unique</th>
-                            <th colspan="2">Bounce rate</th>
-                        </tr>
-                        </thead>
-                        <tr>
-                            <td>
-                                /
-                                <a href="#" class="ms-1" aria-label="Open website">
-                                    <!-- Download SVG icon from http://tabler.io/icons/icon/link -->
-                                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24"
-                                         viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
-                                         stroke-linecap="round" stroke-linejoin="round" class="icon icon-1">
-                                        <path d="M9 15l6 -6"/>
-                                        <path d="M11 6l.463 -.536a5 5 0 0 1 7.071 7.072l-.534 .464"/>
-                                        <path
-                                            d="M13 18l-.397 .534a5.068 5.068 0 0 1 -7.127 0a4.972 4.972 0 0 1 0 -7.071l.524 -.463"/>
-                                    </svg>
-                                </a>
-                            </td>
-                            <td class="text-secondary">4,896</td>
-                            <td class="text-secondary">3,654</td>
-                            <td class="text-secondary">82.54%</td>
-                            <td class="text-end w-1">
-                                <div class="chart-sparkline chart-sparkline-sm" id="sparkline-bounce-rate-1"></div>
-                                <script>
-                                    document.addEventListener("DOMContentLoaded", function () {
-                                        window.ApexCharts && (new ApexCharts(document.getElementById('sparkline-bounce-rate-1'), {
-                                            chart: {
-                                                type: "line",
-                                                fontFamily: 'inherit',
-                                                height: 24,
-                                                animations: {
-                                                    enabled: false
-                                                },
-                                                sparkline: {
-                                                    enabled: true
-                                                },
-                                            },
-                                            tooltip: {
-                                                enabled: false,
-                                            },
-                                            stroke: {
-                                                width: 2,
-                                                lineCap: "round",
-                                            },
-                                            series: [{
-                                                color: tabler.getColor("primary"),
-                                                data: [17, 24, 20, 10, 5, 1, 4, 18, 13]
-                                            }],
-                                        })).render();
-                                    });
-                                </script>
-                            </td>
-                        </tr>
-                        <tr>
-                            <td>
-                                /form-elements.html
-                                <a href="#" class="ms-1" aria-label="Open website">
-                                    <!-- Download SVG icon from http://tabler.io/icons/icon/link -->
-                                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24"
-                                         viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
-                                         stroke-linecap="round" stroke-linejoin="round" class="icon icon-1">
-                                        <path d="M9 15l6 -6"/>
-                                        <path d="M11 6l.463 -.536a5 5 0 0 1 7.071 7.072l-.534 .464"/>
-                                        <path
-                                            d="M13 18l-.397 .534a5.068 5.068 0 0 1 -7.127 0a4.972 4.972 0 0 1 0 -7.071l.524 -.463"/>
-                                    </svg>
-                                </a>
-                            </td>
-                            <td class="text-secondary">3,652</td>
-                            <td class="text-secondary">3,215</td>
-                            <td class="text-secondary">76.29%</td>
-                            <td class="text-end w-1">
-                                <div class="chart-sparkline chart-sparkline-sm" id="sparkline-bounce-rate-2"></div>
-                                <script>
-                                    document.addEventListener("DOMContentLoaded", function () {
-                                        window.ApexCharts && (new ApexCharts(document.getElementById('sparkline-bounce-rate-2'), {
-                                            chart: {
-                                                type: "line",
-                                                fontFamily: 'inherit',
-                                                height: 24,
-                                                animations: {
-                                                    enabled: false
-                                                },
-                                                sparkline: {
-                                                    enabled: true
-                                                },
-                                            },
-                                            tooltip: {
-                                                enabled: false,
-                                            },
-                                            stroke: {
-                                                width: 2,
-                                                lineCap: "round",
-                                            },
-                                            series: [{
-                                                color: tabler.getColor("primary"),
-                                                data: [13, 11, 19, 22, 12, 7, 14, 3, 21]
-                                            }],
-                                        })).render();
-                                    });
-                                </script>
-                            </td>
-                        </tr>
-                        <tr>
-                            <td>
-                                /index.html
-                                <a href="#" class="ms-1" aria-label="Open website">
-                                    <!-- Download SVG icon from http://tabler.io/icons/icon/link -->
-                                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24"
-                                         viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
-                                         stroke-linecap="round" stroke-linejoin="round" class="icon icon-1">
-                                        <path d="M9 15l6 -6"/>
-                                        <path d="M11 6l.463 -.536a5 5 0 0 1 7.071 7.072l-.534 .464"/>
-                                        <path
-                                            d="M13 18l-.397 .534a5.068 5.068 0 0 1 -7.127 0a4.972 4.972 0 0 1 0 -7.071l.524 -.463"/>
-                                    </svg>
-                                </a>
-                            </td>
-                            <td class="text-secondary">3,256</td>
-                            <td class="text-secondary">2,865</td>
-                            <td class="text-secondary">72.65%</td>
-                            <td class="text-end w-1">
-                                <div class="chart-sparkline chart-sparkline-sm" id="sparkline-bounce-rate-3"></div>
-                                <script>
-                                    document.addEventListener("DOMContentLoaded", function () {
-                                        window.ApexCharts && (new ApexCharts(document.getElementById('sparkline-bounce-rate-3'), {
-                                            chart: {
-                                                type: "line",
-                                                fontFamily: 'inherit',
-                                                height: 24,
-                                                animations: {
-                                                    enabled: false
-                                                },
-                                                sparkline: {
-                                                    enabled: true
-                                                },
-                                            },
-                                            tooltip: {
-                                                enabled: false,
-                                            },
-                                            stroke: {
-                                                width: 2,
-                                                lineCap: "round",
-                                            },
-                                            series: [{
-                                                color: tabler.getColor("primary"),
-                                                data: [10, 13, 10, 4, 17, 3, 23, 22, 19]
-                                            }],
-                                        })).render();
-                                    });
-                                </script>
-                            </td>
-                        </tr>
-                        <tr>
-                            <td>
-                                /icons.html
-                                <a href="#" class="ms-1" aria-label="Open website">
-                                    <!-- Download SVG icon from http://tabler.io/icons/icon/link -->
-                                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24"
-                                         viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
-                                         stroke-linecap="round" stroke-linejoin="round" class="icon icon-1">
-                                        <path d="M9 15l6 -6"/>
-                                        <path d="M11 6l.463 -.536a5 5 0 0 1 7.071 7.072l-.534 .464"/>
-                                        <path
-                                            d="M13 18l-.397 .534a5.068 5.068 0 0 1 -7.127 0a4.972 4.972 0 0 1 0 -7.071l.524 -.463"/>
-                                    </svg>
-                                </a>
-                            </td>
-                            <td class="text-secondary">986</td>
-                            <td class="text-secondary">865</td>
-                            <td class="text-secondary">44.89%</td>
-                            <td class="text-end w-1">
-                                <div class="chart-sparkline chart-sparkline-sm" id="sparkline-bounce-rate-4"></div>
-                                <script>
-                                    document.addEventListener("DOMContentLoaded", function () {
-                                        window.ApexCharts && (new ApexCharts(document.getElementById('sparkline-bounce-rate-4'), {
-                                            chart: {
-                                                type: "line",
-                                                fontFamily: 'inherit',
-                                                height: 24,
-                                                animations: {
-                                                    enabled: false
-                                                },
-                                                sparkline: {
-                                                    enabled: true
-                                                },
-                                            },
-                                            tooltip: {
-                                                enabled: false,
-                                            },
-                                            stroke: {
-                                                width: 2,
-                                                lineCap: "round",
-                                            },
-                                            series: [{
-                                                color: tabler.getColor("primary"),
-                                                data: [6, 15, 13, 13, 5, 7, 17, 20, 19]
-                                            }],
-                                        })).render();
-                                    });
-                                </script>
-                            </td>
-                        </tr>
-                        <tr>
-                            <td>
-                                /docs/
-                                <a href="#" class="ms-1" aria-label="Open website">
-                                    <!-- Download SVG icon from http://tabler.io/icons/icon/link -->
-                                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24"
-                                         viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
-                                         stroke-linecap="round" stroke-linejoin="round" class="icon icon-1">
-                                        <path d="M9 15l6 -6"/>
-                                        <path d="M11 6l.463 -.536a5 5 0 0 1 7.071 7.072l-.534 .464"/>
-                                        <path
-                                            d="M13 18l-.397 .534a5.068 5.068 0 0 1 -7.127 0a4.972 4.972 0 0 1 0 -7.071l.524 -.463"/>
-                                    </svg>
-                                </a>
-                            </td>
-                            <td class="text-secondary">912</td>
-                            <td class="text-secondary">822</td>
-                            <td class="text-secondary">41.12%</td>
-                            <td class="text-end w-1">
-                                <div class="chart-sparkline chart-sparkline-sm" id="sparkline-bounce-rate-5"></div>
-                                <script>
-                                    document.addEventListener("DOMContentLoaded", function () {
-                                        window.ApexCharts && (new ApexCharts(document.getElementById('sparkline-bounce-rate-5'), {
-                                            chart: {
-                                                type: "line",
-                                                fontFamily: 'inherit',
-                                                height: 24,
-                                                animations: {
-                                                    enabled: false
-                                                },
-                                                sparkline: {
-                                                    enabled: true
-                                                },
-                                            },
-                                            tooltip: {
-                                                enabled: false,
-                                            },
-                                            stroke: {
-                                                width: 2,
-                                                lineCap: "round",
-                                            },
-                                            series: [{
-                                                color: tabler.getColor("primary"),
-                                                data: [2, 11, 15, 14, 21, 20, 8, 23, 18, 14]
-                                            }],
-                                        })).render();
-                                    });
-                                </script>
-                            </td>
-                        </tr>
-                        <tr>
-                            <td>
-                                /accordion.html
-                                <a href="#" class="ms-1" aria-label="Open website">
-                                    <!-- Download SVG icon from http://tabler.io/icons/icon/link -->
-                                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24"
-                                         viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
-                                         stroke-linecap="round" stroke-linejoin="round" class="icon icon-1">
-                                        <path d="M9 15l6 -6"/>
-                                        <path d="M11 6l.463 -.536a5 5 0 0 1 7.071 7.072l-.534 .464"/>
-                                        <path
-                                            d="M13 18l-.397 .534a5.068 5.068 0 0 1 -7.127 0a4.972 4.972 0 0 1 0 -7.071l.524 -.463"/>
-                                    </svg>
-                                </a>
-                            </td>
-                            <td class="text-secondary">855</td>
-                            <td class="text-secondary">798</td>
-                            <td class="text-secondary">32.65%</td>
-                            <td class="text-end w-1">
-                                <div class="chart-sparkline chart-sparkline-sm" id="sparkline-bounce-rate-6"></div>
-                                <script>
-                                    document.addEventListener("DOMContentLoaded", function () {
-                                        window.ApexCharts && (new ApexCharts(document.getElementById('sparkline-bounce-rate-6'), {
-                                            chart: {
-                                                type: "line",
-                                                fontFamily: 'inherit',
-                                                height: 24,
-                                                animations: {
-                                                    enabled: false
-                                                },
-                                                sparkline: {
-                                                    enabled: true
-                                                },
-                                            },
-                                            tooltip: {
-                                                enabled: false,
-                                            },
-                                            stroke: {
-                                                width: 2,
-                                                lineCap: "round",
-                                            },
-                                            series: [{
-                                                color: tabler.getColor("primary"),
-                                                data: [22, 12, 7, 14, 3, 21, 8, 23, 18, 14]
-                                            }],
-                                        })).render();
-                                    });
-                                </script>
-                            </td>
-                        </tr>
-                    </table>
-                </div>
-            </div>
-        </div>
+{{--        <div class="col-md-12 col-lg-8">--}}
+{{--            <div class="card">--}}
+{{--                <div class="card-header">--}}
+{{--                    <h3 class="card-title">Most Visited Pages</h3>--}}
+{{--                </div>--}}
+{{--                <div class="card-table table-responsive">--}}
+{{--                    <table class="table table-vcenter">--}}
+{{--                        <thead>--}}
+{{--                        <tr>--}}
+{{--                            <th>Page name</th>--}}
+{{--                            <th>Visitors</th>--}}
+{{--                            <th>Unique</th>--}}
+{{--                            <th colspan="2">Bounce rate</th>--}}
+{{--                        </tr>--}}
+{{--                        </thead>--}}
+{{--                        <tr>--}}
+{{--                            <td>--}}
+{{--                                /--}}
+{{--                                <a href="#" class="ms-1" aria-label="Open website">--}}
+{{--                                    <!-- Download SVG icon from http://tabler.io/icons/icon/link -->--}}
+{{--                                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24"--}}
+{{--                                         viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"--}}
+{{--                                         stroke-linecap="round" stroke-linejoin="round" class="icon icon-1">--}}
+{{--                                        <path d="M9 15l6 -6"/>--}}
+{{--                                        <path d="M11 6l.463 -.536a5 5 0 0 1 7.071 7.072l-.534 .464"/>--}}
+{{--                                        <path--}}
+{{--                                            d="M13 18l-.397 .534a5.068 5.068 0 0 1 -7.127 0a4.972 4.972 0 0 1 0 -7.071l.524 -.463"/>--}}
+{{--                                    </svg>--}}
+{{--                                </a>--}}
+{{--                            </td>--}}
+{{--                            <td class="text-secondary">4,896</td>--}}
+{{--                            <td class="text-secondary">3,654</td>--}}
+{{--                            <td class="text-secondary">82.54%</td>--}}
+{{--                            <td class="text-end w-1">--}}
+{{--                                <div class="chart-sparkline chart-sparkline-sm" id="sparkline-bounce-rate-1"></div>--}}
+{{--                                <script>--}}
+{{--                                    document.addEventListener("DOMContentLoaded", function () {--}}
+{{--                                        window.ApexCharts && (new ApexCharts(document.getElementById('sparkline-bounce-rate-1'), {--}}
+{{--                                            chart: {--}}
+{{--                                                type: "line",--}}
+{{--                                                fontFamily: 'inherit',--}}
+{{--                                                height: 24,--}}
+{{--                                                animations: {--}}
+{{--                                                    enabled: false--}}
+{{--                                                },--}}
+{{--                                                sparkline: {--}}
+{{--                                                    enabled: true--}}
+{{--                                                },--}}
+{{--                                            },--}}
+{{--                                            tooltip: {--}}
+{{--                                                enabled: false,--}}
+{{--                                            },--}}
+{{--                                            stroke: {--}}
+{{--                                                width: 2,--}}
+{{--                                                lineCap: "round",--}}
+{{--                                            },--}}
+{{--                                            series: [{--}}
+{{--                                                color: tabler.getColor("primary"),--}}
+{{--                                                data: [17, 24, 20, 10, 5, 1, 4, 18, 13]--}}
+{{--                                            }],--}}
+{{--                                        })).render();--}}
+{{--                                    });--}}
+{{--                                </script>--}}
+{{--                            </td>--}}
+{{--                        </tr>--}}
+{{--                        <tr>--}}
+{{--                            <td>--}}
+{{--                                /form-elements.html--}}
+{{--                                <a href="#" class="ms-1" aria-label="Open website">--}}
+{{--                                    <!-- Download SVG icon from http://tabler.io/icons/icon/link -->--}}
+{{--                                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24"--}}
+{{--                                         viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"--}}
+{{--                                         stroke-linecap="round" stroke-linejoin="round" class="icon icon-1">--}}
+{{--                                        <path d="M9 15l6 -6"/>--}}
+{{--                                        <path d="M11 6l.463 -.536a5 5 0 0 1 7.071 7.072l-.534 .464"/>--}}
+{{--                                        <path--}}
+{{--                                            d="M13 18l-.397 .534a5.068 5.068 0 0 1 -7.127 0a4.972 4.972 0 0 1 0 -7.071l.524 -.463"/>--}}
+{{--                                    </svg>--}}
+{{--                                </a>--}}
+{{--                            </td>--}}
+{{--                            <td class="text-secondary">3,652</td>--}}
+{{--                            <td class="text-secondary">3,215</td>--}}
+{{--                            <td class="text-secondary">76.29%</td>--}}
+{{--                            <td class="text-end w-1">--}}
+{{--                                <div class="chart-sparkline chart-sparkline-sm" id="sparkline-bounce-rate-2"></div>--}}
+{{--                                <script>--}}
+{{--                                    document.addEventListener("DOMContentLoaded", function () {--}}
+{{--                                        window.ApexCharts && (new ApexCharts(document.getElementById('sparkline-bounce-rate-2'), {--}}
+{{--                                            chart: {--}}
+{{--                                                type: "line",--}}
+{{--                                                fontFamily: 'inherit',--}}
+{{--                                                height: 24,--}}
+{{--                                                animations: {--}}
+{{--                                                    enabled: false--}}
+{{--                                                },--}}
+{{--                                                sparkline: {--}}
+{{--                                                    enabled: true--}}
+{{--                                                },--}}
+{{--                                            },--}}
+{{--                                            tooltip: {--}}
+{{--                                                enabled: false,--}}
+{{--                                            },--}}
+{{--                                            stroke: {--}}
+{{--                                                width: 2,--}}
+{{--                                                lineCap: "round",--}}
+{{--                                            },--}}
+{{--                                            series: [{--}}
+{{--                                                color: tabler.getColor("primary"),--}}
+{{--                                                data: [13, 11, 19, 22, 12, 7, 14, 3, 21]--}}
+{{--                                            }],--}}
+{{--                                        })).render();--}}
+{{--                                    });--}}
+{{--                                </script>--}}
+{{--                            </td>--}}
+{{--                        </tr>--}}
+{{--                        <tr>--}}
+{{--                            <td>--}}
+{{--                                /index.html--}}
+{{--                                <a href="#" class="ms-1" aria-label="Open website">--}}
+{{--                                    <!-- Download SVG icon from http://tabler.io/icons/icon/link -->--}}
+{{--                                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24"--}}
+{{--                                         viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"--}}
+{{--                                         stroke-linecap="round" stroke-linejoin="round" class="icon icon-1">--}}
+{{--                                        <path d="M9 15l6 -6"/>--}}
+{{--                                        <path d="M11 6l.463 -.536a5 5 0 0 1 7.071 7.072l-.534 .464"/>--}}
+{{--                                        <path--}}
+{{--                                            d="M13 18l-.397 .534a5.068 5.068 0 0 1 -7.127 0a4.972 4.972 0 0 1 0 -7.071l.524 -.463"/>--}}
+{{--                                    </svg>--}}
+{{--                                </a>--}}
+{{--                            </td>--}}
+{{--                            <td class="text-secondary">3,256</td>--}}
+{{--                            <td class="text-secondary">2,865</td>--}}
+{{--                            <td class="text-secondary">72.65%</td>--}}
+{{--                            <td class="text-end w-1">--}}
+{{--                                <div class="chart-sparkline chart-sparkline-sm" id="sparkline-bounce-rate-3"></div>--}}
+{{--                                <script>--}}
+{{--                                    document.addEventListener("DOMContentLoaded", function () {--}}
+{{--                                        window.ApexCharts && (new ApexCharts(document.getElementById('sparkline-bounce-rate-3'), {--}}
+{{--                                            chart: {--}}
+{{--                                                type: "line",--}}
+{{--                                                fontFamily: 'inherit',--}}
+{{--                                                height: 24,--}}
+{{--                                                animations: {--}}
+{{--                                                    enabled: false--}}
+{{--                                                },--}}
+{{--                                                sparkline: {--}}
+{{--                                                    enabled: true--}}
+{{--                                                },--}}
+{{--                                            },--}}
+{{--                                            tooltip: {--}}
+{{--                                                enabled: false,--}}
+{{--                                            },--}}
+{{--                                            stroke: {--}}
+{{--                                                width: 2,--}}
+{{--                                                lineCap: "round",--}}
+{{--                                            },--}}
+{{--                                            series: [{--}}
+{{--                                                color: tabler.getColor("primary"),--}}
+{{--                                                data: [10, 13, 10, 4, 17, 3, 23, 22, 19]--}}
+{{--                                            }],--}}
+{{--                                        })).render();--}}
+{{--                                    });--}}
+{{--                                </script>--}}
+{{--                            </td>--}}
+{{--                        </tr>--}}
+{{--                        <tr>--}}
+{{--                            <td>--}}
+{{--                                /icons.html--}}
+{{--                                <a href="#" class="ms-1" aria-label="Open website">--}}
+{{--                                    <!-- Download SVG icon from http://tabler.io/icons/icon/link -->--}}
+{{--                                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24"--}}
+{{--                                         viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"--}}
+{{--                                         stroke-linecap="round" stroke-linejoin="round" class="icon icon-1">--}}
+{{--                                        <path d="M9 15l6 -6"/>--}}
+{{--                                        <path d="M11 6l.463 -.536a5 5 0 0 1 7.071 7.072l-.534 .464"/>--}}
+{{--                                        <path--}}
+{{--                                            d="M13 18l-.397 .534a5.068 5.068 0 0 1 -7.127 0a4.972 4.972 0 0 1 0 -7.071l.524 -.463"/>--}}
+{{--                                    </svg>--}}
+{{--                                </a>--}}
+{{--                            </td>--}}
+{{--                            <td class="text-secondary">986</td>--}}
+{{--                            <td class="text-secondary">865</td>--}}
+{{--                            <td class="text-secondary">44.89%</td>--}}
+{{--                            <td class="text-end w-1">--}}
+{{--                                <div class="chart-sparkline chart-sparkline-sm" id="sparkline-bounce-rate-4"></div>--}}
+{{--                                <script>--}}
+{{--                                    document.addEventListener("DOMContentLoaded", function () {--}}
+{{--                                        window.ApexCharts && (new ApexCharts(document.getElementById('sparkline-bounce-rate-4'), {--}}
+{{--                                            chart: {--}}
+{{--                                                type: "line",--}}
+{{--                                                fontFamily: 'inherit',--}}
+{{--                                                height: 24,--}}
+{{--                                                animations: {--}}
+{{--                                                    enabled: false--}}
+{{--                                                },--}}
+{{--                                                sparkline: {--}}
+{{--                                                    enabled: true--}}
+{{--                                                },--}}
+{{--                                            },--}}
+{{--                                            tooltip: {--}}
+{{--                                                enabled: false,--}}
+{{--                                            },--}}
+{{--                                            stroke: {--}}
+{{--                                                width: 2,--}}
+{{--                                                lineCap: "round",--}}
+{{--                                            },--}}
+{{--                                            series: [{--}}
+{{--                                                color: tabler.getColor("primary"),--}}
+{{--                                                data: [6, 15, 13, 13, 5, 7, 17, 20, 19]--}}
+{{--                                            }],--}}
+{{--                                        })).render();--}}
+{{--                                    });--}}
+{{--                                </script>--}}
+{{--                            </td>--}}
+{{--                        </tr>--}}
+{{--                        <tr>--}}
+{{--                            <td>--}}
+{{--                                /docs/--}}
+{{--                                <a href="#" class="ms-1" aria-label="Open website">--}}
+{{--                                    <!-- Download SVG icon from http://tabler.io/icons/icon/link -->--}}
+{{--                                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24"--}}
+{{--                                         viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"--}}
+{{--                                         stroke-linecap="round" stroke-linejoin="round" class="icon icon-1">--}}
+{{--                                        <path d="M9 15l6 -6"/>--}}
+{{--                                        <path d="M11 6l.463 -.536a5 5 0 0 1 7.071 7.072l-.534 .464"/>--}}
+{{--                                        <path--}}
+{{--                                            d="M13 18l-.397 .534a5.068 5.068 0 0 1 -7.127 0a4.972 4.972 0 0 1 0 -7.071l.524 -.463"/>--}}
+{{--                                    </svg>--}}
+{{--                                </a>--}}
+{{--                            </td>--}}
+{{--                            <td class="text-secondary">912</td>--}}
+{{--                            <td class="text-secondary">822</td>--}}
+{{--                            <td class="text-secondary">41.12%</td>--}}
+{{--                            <td class="text-end w-1">--}}
+{{--                                <div class="chart-sparkline chart-sparkline-sm" id="sparkline-bounce-rate-5"></div>--}}
+{{--                                <script>--}}
+{{--                                    document.addEventListener("DOMContentLoaded", function () {--}}
+{{--                                        window.ApexCharts && (new ApexCharts(document.getElementById('sparkline-bounce-rate-5'), {--}}
+{{--                                            chart: {--}}
+{{--                                                type: "line",--}}
+{{--                                                fontFamily: 'inherit',--}}
+{{--                                                height: 24,--}}
+{{--                                                animations: {--}}
+{{--                                                    enabled: false--}}
+{{--                                                },--}}
+{{--                                                sparkline: {--}}
+{{--                                                    enabled: true--}}
+{{--                                                },--}}
+{{--                                            },--}}
+{{--                                            tooltip: {--}}
+{{--                                                enabled: false,--}}
+{{--                                            },--}}
+{{--                                            stroke: {--}}
+{{--                                                width: 2,--}}
+{{--                                                lineCap: "round",--}}
+{{--                                            },--}}
+{{--                                            series: [{--}}
+{{--                                                color: tabler.getColor("primary"),--}}
+{{--                                                data: [2, 11, 15, 14, 21, 20, 8, 23, 18, 14]--}}
+{{--                                            }],--}}
+{{--                                        })).render();--}}
+{{--                                    });--}}
+{{--                                </script>--}}
+{{--                            </td>--}}
+{{--                        </tr>--}}
+{{--                        <tr>--}}
+{{--                            <td>--}}
+{{--                                /accordion.html--}}
+{{--                                <a href="#" class="ms-1" aria-label="Open website">--}}
+{{--                                    <!-- Download SVG icon from http://tabler.io/icons/icon/link -->--}}
+{{--                                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24"--}}
+{{--                                         viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"--}}
+{{--                                         stroke-linecap="round" stroke-linejoin="round" class="icon icon-1">--}}
+{{--                                        <path d="M9 15l6 -6"/>--}}
+{{--                                        <path d="M11 6l.463 -.536a5 5 0 0 1 7.071 7.072l-.534 .464"/>--}}
+{{--                                        <path--}}
+{{--                                            d="M13 18l-.397 .534a5.068 5.068 0 0 1 -7.127 0a4.972 4.972 0 0 1 0 -7.071l.524 -.463"/>--}}
+{{--                                    </svg>--}}
+{{--                                </a>--}}
+{{--                            </td>--}}
+{{--                            <td class="text-secondary">855</td>--}}
+{{--                            <td class="text-secondary">798</td>--}}
+{{--                            <td class="text-secondary">32.65%</td>--}}
+{{--                            <td class="text-end w-1">--}}
+{{--                                <div class="chart-sparkline chart-sparkline-sm" id="sparkline-bounce-rate-6"></div>--}}
+{{--                                <script>--}}
+{{--                                    document.addEventListener("DOMContentLoaded", function () {--}}
+{{--                                        window.ApexCharts && (new ApexCharts(document.getElementById('sparkline-bounce-rate-6'), {--}}
+{{--                                            chart: {--}}
+{{--                                                type: "line",--}}
+{{--                                                fontFamily: 'inherit',--}}
+{{--                                                height: 24,--}}
+{{--                                                animations: {--}}
+{{--                                                    enabled: false--}}
+{{--                                                },--}}
+{{--                                                sparkline: {--}}
+{{--                                                    enabled: true--}}
+{{--                                                },--}}
+{{--                                            },--}}
+{{--                                            tooltip: {--}}
+{{--                                                enabled: false,--}}
+{{--                                            },--}}
+{{--                                            stroke: {--}}
+{{--                                                width: 2,--}}
+{{--                                                lineCap: "round",--}}
+{{--                                            },--}}
+{{--                                            series: [{--}}
+{{--                                                color: tabler.getColor("primary"),--}}
+{{--                                                data: [22, 12, 7, 14, 3, 21, 8, 23, 18, 14]--}}
+{{--                                            }],--}}
+{{--                                        })).render();--}}
+{{--                                    });--}}
+{{--                                </script>--}}
+{{--                            </td>--}}
+{{--                        </tr>--}}
+{{--                    </table>--}}
+{{--                </div>--}}
+{{--            </div>--}}
+{{--        </div>--}}
 
         <div class="col-md-6 col-lg-4">
             <div class="card">

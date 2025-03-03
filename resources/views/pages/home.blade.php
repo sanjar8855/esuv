@@ -188,69 +188,77 @@
 <section class="section section-light">
     <div class="container">
         <div class="section-header">
-            <h2 class="section-title">Everything you need to deploy your app</h2>
-            <div class="section-description">Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.</div>
+            <h2 class="section-title">Mijozlaringizni boshqarish va to‘lovlarni nazorat qilish uchun qulay tizim!</h2>
+            <div class="section-description">
+                ESUV tizimi orqali mijozlaringizni ro‘yxatga oling, ularning hisob raqamlarini boshqaring va qarzdorlik holatini nazorat qiling. Qidiruv va filtrlar yordamida kerakli mijozlarni tezda toping va tezkor harakat tugmalari orqali ularning ma’lumotlarini ko‘rib chiqing, tahrirlang yoki o‘chirib tashlang.
+                <br>
+                ✅ Avtomatlashtirilgan qarzdorlik nazorati <br>
+                ✅ Mijozlarni qulay filtr orqali qidirish <br>
+                ✅ Oson boshqaruv va to‘lov jarayonlarini kuzatish
+            </div>
         </div>
         <div class="row g-10">
-            <div class="col-lg-6 mb-3 mb-lg-0">
-                <svg xmlns="http://www.w3.org/2000/svg" preserveAspectRatio="none" width="500" height="400" viewBox="0 0 500 400" fill="transparent" stroke="var(--tblr-border-color, #b8cef1)" style="width: 100%; height: auto">
-                    <rect x=".5" y=".5" width="499" height="399" rx="2"></rect>
-                    <line x1="0" y1="0" x2="500" y2="400"></line>
-                    <line x1="0" y1="400" x2="500" y2="0"></line>
-                </svg>
+            <div class="col-lg-12 mb-3 mb-lg-0 text-center">
+                <img src="{{ asset('tabler/img/hero/mijozlar.png') }}" alt="" class="img-fluid">
+{{--                <svg xmlns="http://www.w3.org/2000/svg" preserveAspectRatio="none" width="500" height="400" viewBox="0 0 500 400" fill="transparent" stroke="var(--tblr-border-color, #b8cef1)" style="width: 100%; height: auto">--}}
+{{--                    <rect x=".5" y=".5" width="499" height="399" rx="2"></rect>--}}
+{{--                    <line x1="0" y1="0" x2="500" y2="400"></line>--}}
+{{--                    <line x1="0" y1="400" x2="500" y2="0"></line>--}}
+{{--                </svg>--}}
             </div>
-            <div class="col-lg-6">
-                <div class="space-y-6">
-                    <div>
-                        <div class="row">
-                            <div class="col-auto">
-                                <div class="shape shape-md">
-                                    <!-- Download SVG icon from http://tabler.io/icons/icon/tools -->
-                                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="icon icon-1"><path d="M3 21h4l13 -13a1.5 1.5 0 0 0 -4 -4l-13 13v4" /><path d="M14.5 5.5l4 4" /><path d="M12 8l-5 -5l-4 4l5 5" /><path d="M7 8l-1.5 1.5" /><path d="M16 12l5 5l-4 4l-5 -5" /><path d="M16 17l-1.5 1.5" /></svg>
-                                </div>
-                            </div>
-                            <div class="col">
-                                <h3 class="h2 mb-2">Designed with users in mind</h3>
-                                <p class="text-muted m-0">
-                                    Tabler is fully responsive and compatible with all modern browsers. Thanks to its modern, user-friendly design you can create a fully functional interface that users will love. Every UI element has been created with
-                                    attention to detail to make your interface beautiful!
-                                </p>
-                            </div>
-                        </div>
-                    </div>
-                    <div>
-                        <div class="row">
-                            <div class="col-auto">
-                                <div class="shape shape-md">
-                                    <!-- Download SVG icon from http://tabler.io/icons/icon/brand-bootstrap -->
-                                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="icon icon-1"><path d="M2 12a2 2 0 0 0 2 -2v-4a2 2 0 0 1 2 -2h12a2 2 0 0 1 2 2v4a2 2 0 0 0 2 2" /><path d="M2 12a2 2 0 0 1 2 2v4a2 2 0 0 0 2 2h12a2 2 0 0 0 2 -2v-4a2 2 0 0 1 2 -2" /><path d="M9 16v-8h3.5a2 2 0 1 1 0 4h-3.5h4a2 2 0 1 1 0 4h-4z" /></svg>
-                                </div>
-                            </div>
-                            <div class="col">
-                                <h3 class="h2 mb-2">Built for developers</h3>
-                                <p class="text-muted m-0">
-                                    Having in mind what it takes to write high-quality code, we want to help you speed up the development process and keep your code clean. Based on Bootstrap 5, Tabler is a cutting-edge solution, compatible with all modern
-                                    browsers and fully responsive.
-                                </p>
-                            </div>
-                        </div>
-                    </div>
-                    <div>
-                        <div class="row">
-                            <div class="col-auto">
-                                <div class="shape shape-md">
-                                    <!-- Download SVG icon from http://tabler.io/icons/icon/paint -->
-                                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="icon icon-1"><path d="M5 3m0 2a2 2 0 0 1 2 -2h10a2 2 0 0 1 2 2v2a2 2 0 0 1 -2 2h-10a2 2 0 0 1 -2 -2z" /><path d="M19 6h1a2 2 0 0 1 2 2a5 5 0 0 1 -5 5l-5 0v2" /><path d="M10 15m0 1a1 1 0 0 1 1 -1h2a1 1 0 0 1 1 1v4a1 1 0 0 1 -1 1h-2a1 1 0 0 1 -1 -1z" /></svg>
-                                </div>
-                            </div>
-                            <div class="col">
-                                <h3 class="h2 mb-2">Fully customizable</h3>
-                                <p class="text-muted m-0">You can easily customize the UI elements to make them fit the needs of your project. And don’t worry if you don’t have much experience - Tabler is easy to get started!</p>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
+{{--            <div class="col-lg-6">--}}
+{{--                <div class="space-y-6">--}}
+{{--                    <div>--}}
+{{--                        <div class="row">--}}
+{{--                            <div class="col-auto">--}}
+{{--                                <div class="shape shape-md">--}}
+
+{{--                                    <!-- Download SVG icon from http://tabler.io/icons/icon/tools -->--}}
+{{--                                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="icon icon-1"><path d="M3 21h4l13 -13a1.5 1.5 0 0 0 -4 -4l-13 13v4" /><path d="M14.5 5.5l4 4" /><path d="M12 8l-5 -5l-4 4l5 5" /><path d="M7 8l-1.5 1.5" /><path d="M16 12l5 5l-4 4l-5 -5" /><path d="M16 17l-1.5 1.5" /></svg>--}}
+{{--                                </div>--}}
+{{--                            </div>--}}
+{{--                            <div class="col">--}}
+{{--                                <h3 class="h2 mb-2">Designed with users in mind</h3>--}}
+{{--                                <p class="text-muted m-0">--}}
+{{--                                    Tabler is fully responsive and compatible with all modern browsers. Thanks to its modern, user-friendly design you can create a fully functional interface that users will love. Every UI element has been created with--}}
+{{--                                    attention to detail to make your interface beautiful!--}}
+{{--                                </p>--}}
+{{--                            </div>--}}
+{{--                        </div>--}}
+{{--                    </div>--}}
+{{--                    <div>--}}
+{{--                        <div class="row">--}}
+{{--                            <div class="col-auto">--}}
+{{--                                <div class="shape shape-md">--}}
+{{--                                    <!-- Download SVG icon from http://tabler.io/icons/icon/brand-bootstrap -->--}}
+{{--                                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="icon icon-1"><path d="M2 12a2 2 0 0 0 2 -2v-4a2 2 0 0 1 2 -2h12a2 2 0 0 1 2 2v4a2 2 0 0 0 2 2" /><path d="M2 12a2 2 0 0 1 2 2v4a2 2 0 0 0 2 2h12a2 2 0 0 0 2 -2v-4a2 2 0 0 1 2 -2" /><path d="M9 16v-8h3.5a2 2 0 1 1 0 4h-3.5h4a2 2 0 1 1 0 4h-4z" /></svg>--}}
+{{--                                </div>--}}
+{{--                            </div>--}}
+{{--                            <div class="col">--}}
+{{--                                <h3 class="h2 mb-2">Built for developers</h3>--}}
+{{--                                <p class="text-muted m-0">--}}
+{{--                                    Having in mind what it takes to write high-quality code, we want to help you speed up the development process and keep your code clean. Based on Bootstrap 5, Tabler is a cutting-edge solution, compatible with all modern--}}
+{{--                                    browsers and fully responsive.--}}
+{{--                                </p>--}}
+{{--                            </div>--}}
+{{--                        </div>--}}
+{{--                    </div>--}}
+{{--                    <div>--}}
+{{--                        <div class="row">--}}
+{{--                            <div class="col-auto">--}}
+{{--                                <div class="shape shape-md">--}}
+{{--                                    <!-- Download SVG icon from http://tabler.io/icons/icon/paint -->--}}
+{{--                                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="icon icon-1"><path d="M5 3m0 2a2 2 0 0 1 2 -2h10a2 2 0 0 1 2 2v2a2 2 0 0 1 -2 2h-10a2 2 0 0 1 -2 -2z" /><path d="M19 6h1a2 2 0 0 1 2 2a5 5 0 0 1 -5 5l-5 0v2" /><path d="M10 15m0 1a1 1 0 0 1 1 -1h2a1 1 0 0 1 1 1v4a1 1 0 0 1 -1 1h-2a1 1 0 0 1 -1 -1z" /></svg>--}}
+{{--                                </div>--}}
+{{--                            </div>--}}
+{{--                            <div class="col">--}}
+{{--                                <h3 class="h2 mb-2">Fully customizable</h3>--}}
+{{--                                <p class="text-muted m-0">You can easily customize the UI elements to make them fit the needs of your project. And don’t worry if you don’t have much experience - Tabler is easy to get started!</p>--}}
+{{--                            </div>--}}
+{{--                        </div>--}}
+{{--                    </div>--}}
+{{--                </div>--}}
+{{--            </div>--}}
         </div>
     </div>
 </section>
@@ -270,72 +278,95 @@
         </div>
     </div>
 </section>
+
 <section class="section section-light">
     <div class="container">
-        <div class="section-header">
-            <h2 class="section-title">Everything you need to deploy your app</h2>
-            <div class="section-description">Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.</div>
+        <div class="container-narrow text-center">
+            <h2 class="section-title">Telegram orqali tezkor bog‘lanish!</h2>
+            <div class="section-description">
+                Mijozlar Telegram bot orqali tizimga osongina ulanadi va o‘z hisob raqamlarini bog‘lashlari mumkin. Hisob raqamida bo‘layotgan barcha o‘zgarishlar ularga SMS va Telegram xabarlari orqali avtomatik ravishda yetib boradi. <br>
+                <br>
+                <ul type="none">
+                    <li>
+                        ✅ Hisob bog‘lash va tekshirish – mijozlar o‘z hisoblarini bog‘lab, o‘z to‘lovlarini kuzatishi mumkin.
+                    </li>
+                    <li>
+                        ✅ Ko‘rsatkichlarni kiritish – mijozlar suv hisoblagich ko‘rsatkichlarini Telegram orqali kiritib borishi mumkin.
+                    </li>
+                    <li>
+                        ✅ To‘lov holatini kuzatish – qarzdorlik va to‘lov holati haqida avtomatik bildirishnomalar olinadi.
+                    </li>
+                    <li>
+                        ✅ Yangi hisob-fakturalar – har oy mijozlarga yangi hisob-fakturalar to‘g‘risida xabar yuboriladi.
+                    </li>
+                    <li>
+                        ✅ To‘lovlar haqida xabarnoma – to‘lov qabul qilingani yoki amalga oshmaganligi haqida mijozlar darhol xabardor qilinadi.
+                    </li>
+                </ul>
+            </div>
         </div>
         <div class="row g-10">
-            <div class="col-lg-6">
-                <div class="space-y-6">
-                    <div>
-                        <div class="row">
-                            <div class="col-auto">
-                                <div class="shape shape-md">
-                                    <!-- Download SVG icon from http://tabler.io/icons/icon/tools -->
-                                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="icon icon-1"><path d="M3 21h4l13 -13a1.5 1.5 0 0 0 -4 -4l-13 13v4" /><path d="M14.5 5.5l4 4" /><path d="M12 8l-5 -5l-4 4l5 5" /><path d="M7 8l-1.5 1.5" /><path d="M16 12l5 5l-4 4l-5 -5" /><path d="M16 17l-1.5 1.5" /></svg>
-                                </div>
-                            </div>
-                            <div class="col">
-                                <h3 class="h2 mb-2">Designed with users in mind</h3>
-                                <p class="text-muted m-0">
-                                    Tabler is fully responsive and compatible with all modern browsers. Thanks to its modern, user-friendly design you can create a fully functional interface that users will love. Every UI element has been created with
-                                    attention to detail to make your interface beautiful!
-                                </p>
-                            </div>
-                        </div>
-                    </div>
-                    <div>
-                        <div class="row">
-                            <div class="col-auto">
-                                <div class="shape shape-md">
-                                    <!-- Download SVG icon from http://tabler.io/icons/icon/brand-bootstrap -->
-                                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="icon icon-1"><path d="M2 12a2 2 0 0 0 2 -2v-4a2 2 0 0 1 2 -2h12a2 2 0 0 1 2 2v4a2 2 0 0 0 2 2" /><path d="M2 12a2 2 0 0 1 2 2v4a2 2 0 0 0 2 2h12a2 2 0 0 0 2 -2v-4a2 2 0 0 1 2 -2" /><path d="M9 16v-8h3.5a2 2 0 1 1 0 4h-3.5h4a2 2 0 1 1 0 4h-4z" /></svg>
-                                </div>
-                            </div>
-                            <div class="col">
-                                <h3 class="h2 mb-2">Built for developers</h3>
-                                <p class="text-muted m-0">
-                                    Having in mind what it takes to write high-quality code, we want to help you speed up the development process and keep your code clean. Based on Bootstrap 5, Tabler is a cutting-edge solution, compatible with all modern
-                                    browsers and fully responsive.
-                                </p>
-                            </div>
-                        </div>
-                    </div>
-                    <div>
-                        <div class="row">
-                            <div class="col-auto">
-                                <div class="shape shape-md">
-                                    <!-- Download SVG icon from http://tabler.io/icons/icon/paint -->
-                                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="icon icon-1"><path d="M5 3m0 2a2 2 0 0 1 2 -2h10a2 2 0 0 1 2 2v2a2 2 0 0 1 -2 2h-10a2 2 0 0 1 -2 -2z" /><path d="M19 6h1a2 2 0 0 1 2 2a5 5 0 0 1 -5 5l-5 0v2" /><path d="M10 15m0 1a1 1 0 0 1 1 -1h2a1 1 0 0 1 1 1v4a1 1 0 0 1 -1 1h-2a1 1 0 0 1 -1 -1z" /></svg>
-                                </div>
-                            </div>
-                            <div class="col">
-                                <h3 class="h2 mb-2">Fully customizable</h3>
-                                <p class="text-muted m-0">You can easily customize the UI elements to make them fit the needs of your project. And don’t worry if you don’t have much experience - Tabler is easy to get started!</p>
-                            </div>
-                        </div>
-                    </div>
-                </div>
+            <div class="col-lg-12 mt-3 mb-3 mb-lg-0 text-center">
+                <img src="{{ asset('tabler/img/hero/telegram.webp') }}" alt="" class="img-fluid" style="height: 100vh;">
+                {{--                <svg xmlns="http://www.w3.org/2000/svg" preserveAspectRatio="none" width="500" height="400" viewBox="0 0 500 400" fill="transparent" stroke="var(--tblr-border-color, #b8cef1)" style="width: 100%; height: auto">--}}
+                {{--                    <rect x=".5" y=".5" width="499" height="399" rx="2"></rect>--}}
+                {{--                    <line x1="0" y1="0" x2="500" y2="400"></line>--}}
+                {{--                    <line x1="0" y1="400" x2="500" y2="0"></line>--}}
+                {{--                </svg>--}}
             </div>
-            <div class="col-lg-6 mt-3 mt-lg-0">
-                <svg xmlns="http://www.w3.org/2000/svg" preserveAspectRatio="none" width="500" height="400" viewBox="0 0 500 400" fill="transparent" stroke="var(--tblr-border-color, #b8cef1)" style="width: 100%; height: auto">
-                    <rect x=".5" y=".5" width="499" height="399" rx="2"></rect>
-                    <line x1="0" y1="0" x2="500" y2="400"></line>
-                    <line x1="0" y1="400" x2="500" y2="0"></line>
-                </svg>
-            </div>
+            {{--            <div class="col-lg-6">--}}
+            {{--                <div class="space-y-6">--}}
+            {{--                    <div>--}}
+            {{--                        <div class="row">--}}
+            {{--                            <div class="col-auto">--}}
+            {{--                                <div class="shape shape-md">--}}
+
+            {{--                                    <!-- Download SVG icon from http://tabler.io/icons/icon/tools -->--}}
+            {{--                                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="icon icon-1"><path d="M3 21h4l13 -13a1.5 1.5 0 0 0 -4 -4l-13 13v4" /><path d="M14.5 5.5l4 4" /><path d="M12 8l-5 -5l-4 4l5 5" /><path d="M7 8l-1.5 1.5" /><path d="M16 12l5 5l-4 4l-5 -5" /><path d="M16 17l-1.5 1.5" /></svg>--}}
+            {{--                                </div>--}}
+            {{--                            </div>--}}
+            {{--                            <div class="col">--}}
+            {{--                                <h3 class="h2 mb-2">Designed with users in mind</h3>--}}
+            {{--                                <p class="text-muted m-0">--}}
+            {{--                                    Tabler is fully responsive and compatible with all modern browsers. Thanks to its modern, user-friendly design you can create a fully functional interface that users will love. Every UI element has been created with--}}
+            {{--                                    attention to detail to make your interface beautiful!--}}
+            {{--                                </p>--}}
+            {{--                            </div>--}}
+            {{--                        </div>--}}
+            {{--                    </div>--}}
+            {{--                    <div>--}}
+            {{--                        <div class="row">--}}
+            {{--                            <div class="col-auto">--}}
+            {{--                                <div class="shape shape-md">--}}
+            {{--                                    <!-- Download SVG icon from http://tabler.io/icons/icon/brand-bootstrap -->--}}
+            {{--                                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="icon icon-1"><path d="M2 12a2 2 0 0 0 2 -2v-4a2 2 0 0 1 2 -2h12a2 2 0 0 1 2 2v4a2 2 0 0 0 2 2" /><path d="M2 12a2 2 0 0 1 2 2v4a2 2 0 0 0 2 2h12a2 2 0 0 0 2 -2v-4a2 2 0 0 1 2 -2" /><path d="M9 16v-8h3.5a2 2 0 1 1 0 4h-3.5h4a2 2 0 1 1 0 4h-4z" /></svg>--}}
+            {{--                                </div>--}}
+            {{--                            </div>--}}
+            {{--                            <div class="col">--}}
+            {{--                                <h3 class="h2 mb-2">Built for developers</h3>--}}
+            {{--                                <p class="text-muted m-0">--}}
+            {{--                                    Having in mind what it takes to write high-quality code, we want to help you speed up the development process and keep your code clean. Based on Bootstrap 5, Tabler is a cutting-edge solution, compatible with all modern--}}
+            {{--                                    browsers and fully responsive.--}}
+            {{--                                </p>--}}
+            {{--                            </div>--}}
+            {{--                        </div>--}}
+            {{--                    </div>--}}
+            {{--                    <div>--}}
+            {{--                        <div class="row">--}}
+            {{--                            <div class="col-auto">--}}
+            {{--                                <div class="shape shape-md">--}}
+            {{--                                    <!-- Download SVG icon from http://tabler.io/icons/icon/paint -->--}}
+            {{--                                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="icon icon-1"><path d="M5 3m0 2a2 2 0 0 1 2 -2h10a2 2 0 0 1 2 2v2a2 2 0 0 1 -2 2h-10a2 2 0 0 1 -2 -2z" /><path d="M19 6h1a2 2 0 0 1 2 2a5 5 0 0 1 -5 5l-5 0v2" /><path d="M10 15m0 1a1 1 0 0 1 1 -1h2a1 1 0 0 1 1 1v4a1 1 0 0 1 -1 1h-2a1 1 0 0 1 -1 -1z" /></svg>--}}
+            {{--                                </div>--}}
+            {{--                            </div>--}}
+            {{--                            <div class="col">--}}
+            {{--                                <h3 class="h2 mb-2">Fully customizable</h3>--}}
+            {{--                                <p class="text-muted m-0">You can easily customize the UI elements to make them fit the needs of your project. And don’t worry if you don’t have much experience - Tabler is easy to get started!</p>--}}
+            {{--                            </div>--}}
+            {{--                        </div>--}}
+            {{--                    </div>--}}
+            {{--                </div>--}}
+            {{--            </div>--}}
         </div>
     </div>
 </section>

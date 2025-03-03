@@ -73,6 +73,12 @@
                             </td>
                         </tr>
                         <tr>
+                            <th>Manzil</th>
+                            <td>
+                                {{ $customer->address }}
+                            </td>
+                        </tr>
+                        <tr>
                             <th>Ko‘cha</th>
                             <td>
                                 <a href="{{ route('streets.show', $customer->street->id) }}">

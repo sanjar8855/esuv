@@ -57,6 +57,7 @@
                                     <th>Jami Qarzdorlik (UZS)</th>
                                     <th>Oxirgi ko'rsatkich</th>
                                     <th>Oila a'zolari soni</th>
+                                    <th>Manzil</th>
                                     <th>Amallar</th>
                                 </tr>
                                 </thead>
@@ -103,6 +104,7 @@
                                             @endif
                                         </td>
                                         <td>{{ $customer->family_members }}</td>
+                                        <td>{{ $customer->address }}</td>
                                         <td>
                                             <a href="{{ route('customers.show', $customer->id) }}"
                                                class="btn btn-info btn-sm">Ko‘rish</a>
