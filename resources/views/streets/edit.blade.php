@@ -26,7 +26,7 @@
                                 @foreach($neighborhoods as $neighborhood)
                                     <option
                                         value="{{ $neighborhood->id }}" {{ $street->neighborhood_id == $neighborhood->id ? 'selected' : '' }}>
-                                        {{ $neighborhood->name }}
+                                        {{ $neighborhood->name }} - {{$neighborhood->city->name}} - {{$neighborhood->city->region->name}}
                                     </option>
                                 @endforeach
                             </select>
