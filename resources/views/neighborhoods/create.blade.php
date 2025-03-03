@@ -23,7 +23,7 @@
                             <label for="city_id">Shahar tanlang:</label>
                             <select name="city_id" class="form-control" required>
                                 @foreach($cities as $city)
-                                    <option value="{{ $city->id }}">{{ $city->name }}</option>
+                                    <option value="{{ $city->id }}">{{ $city->name }} - {{$city->region->name}}</option>
                                 @endforeach
                             </select>
                         </div>

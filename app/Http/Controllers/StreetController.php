@@ -10,13 +10,13 @@ class StreetController extends Controller
 {
     public function index()
     {
-        $streets = Street::with('neighborhood')->paginate(10);
+        $streets = Street::with('neighborhood')->paginate(15);
         return view('streets.index', compact('streets'));
     }
 
     public function create()
     {
-        $neighborhoods = Neighborhood::all();
+        $neighborhoods = Neighborhood::orderBy('name', 'asc')->get();
         return view('streets.create', compact('neighborhoods'));
     }
 
@@ -38,7 +38,7 @@ class StreetController extends Controller
 
     public function edit(Street $street)
     {
-        $neighborhoods = Neighborhood::all();
+        $neighborhoods = Neighborhood::orderBy('name', 'asc')->get();
         return view('streets.edit', compact('street', 'neighborhoods'));
     }
 

@@ -23,7 +23,7 @@
                             <label for="neighborhood_id">Mahalla tanlang:</label>
                             <select name="neighborhood_id" class="form-control" required>
                                 @foreach($neighborhoods as $neighborhood)
-                                    <option value="{{ $neighborhood->id }}">{{ $neighborhood->name }}</option>
+                                    <option value="{{ $neighborhood->id }}">{{ $neighborhood->name }} - {{$neighborhood->city->name}} - {{$neighborhood->city->region->name}}</option>
                                 @endforeach
                             </select>
                         </div>

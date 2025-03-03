@@ -9,13 +9,13 @@ class CityController extends Controller
 {
     public function index()
     {
-        $cities = City::with('region')->paginate(10);
+        $cities = City::with('region')->orderBy('name', 'asc')->paginate(15);
         return view('cities.index', compact('cities'));
     }
 
     public function create()
     {
-        $regions = Region::all();
+        $regions = Region::orderBy('name', 'asc')->get();
         return view('cities.create', compact('regions'));
     }
 
@@ -37,7 +37,7 @@ class CityController extends Controller
 
     public function edit(City $city)
     {
-        $regions = Region::all();
+        $regions = Region::orderBy('name', 'asc')->get();
         return view('cities.edit', compact('city', 'regions'));
     }
 

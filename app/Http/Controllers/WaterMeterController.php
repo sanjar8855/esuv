@@ -14,7 +14,9 @@ class WaterMeterController extends Controller
             'customer',
             'readings' => function ($query) {
                 $query->orderBy('reading_date', 'desc');
-            }])->paginate(20);
+            }])
+            ->orderBy('meter_number', 'asc')
+            ->paginate(20);
         return view('water_meters.index', compact('waterMeters'));
     }
 
@@ -29,6 +31,7 @@ class WaterMeterController extends Controller
         $request->validate([
             'customer_id' => 'required|exists:customers,id',
             'meter_number' => 'required|numeric|unique:water_meters',
+            'validity_period' => 'required|numeric',
             'last_reading_date' => 'nullable|date',
             'installation_date' => 'nullable|date',
         ]);
@@ -56,6 +59,7 @@ class WaterMeterController extends Controller
         $request->validate([
             'customer_id' => 'required|exists:customers,id',
             'meter_number' => 'required|numeric|unique:water_meters,meter_number,' . $waterMeter->id,
+            'validity_period' => 'required|numeric',
             'last_reading_date' => 'nullable|date',
             'installation_date' => 'nullable|date',
         ]);

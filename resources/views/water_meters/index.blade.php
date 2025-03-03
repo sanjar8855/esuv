@@ -21,10 +21,11 @@
                                     <th>N</th>
                                     <th>Mijoz</th>
                                     <th>Hisoblagich unikal raqami</th>
-                                    <th>Oxirgi ko‘rsatkich</th>
                                     <th>O‘rnatilgan Sana</th>
+                                    <th>Amal qilish muddati</th>
                                     <th>Oxirgi O‘qish</th>
-                                    <th>Harakatlar</th>
+                                    <th>Oxirgi ko‘rsatkich</th>
+                                    <th>Amallar</th>
                                 </tr>
                                 </thead>
                                 <tbody>
@@ -42,6 +43,9 @@
                                             @endif
                                         </td>
                                         <td>{{ $waterMeter->meter_number }}</td>
+                                        <td>{{ $waterMeter->last_reading_date ?? 'Noma’lum' }}</td>
+                                        <td>{{ $waterMeter->validity_period ?? 'Noma’lum' }}</td>
+                                        <td>{{ $waterMeter->installation_date ?? 'Noma’lum' }}</td>
                                         <td>
                                             @if($waterMeter->readings->count())
                                                 {{ $waterMeter->readings->first()->reading }}
@@ -49,8 +53,6 @@
                                                 ---
                                             @endif
                                         </td>
-                                        <td>{{ $waterMeter->installation_date ?? 'Noma’lum' }}</td>
-                                        <td>{{ $waterMeter->last_reading_date ?? 'Noma’lum' }}</td>
                                         <td>
                                             <a href="{{ route('water_meters.show', $waterMeter->id) }}"
                                                class="btn btn-info btn-sm">Ko‘rish</a>

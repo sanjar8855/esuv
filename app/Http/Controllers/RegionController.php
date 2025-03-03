@@ -8,7 +8,7 @@ class RegionController extends Controller
 {
     public function index()
     {
-        $regions = Region::paginate(10);
+        $regions = Region::orderBy('name', 'asc')->get();
         return view('regions.index', compact('regions'));
     }
 

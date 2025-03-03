@@ -10,13 +10,13 @@ class NeighborhoodController extends Controller
 {
     public function index()
     {
-        $neighborhoods = Neighborhood::with('city')->paginate(10);
+        $neighborhoods = Neighborhood::orderBy('name', 'asc')->with('city')->paginate(15);
         return view('neighborhoods.index', compact('neighborhoods'));
     }
 
     public function create()
     {
-        $cities = City::all();
+        $cities = City::orderBy('name', 'asc')->get();
         return view('neighborhoods.create', compact('cities'));
     }
 
@@ -38,7 +38,7 @@ class NeighborhoodController extends Controller
 
     public function edit(Neighborhood $neighborhood)
     {
-        $cities = City::all();
+        $cities = City::orderBy('name', 'asc')->get();
         return view('neighborhoods.edit', compact('neighborhood', 'cities'));
     }
 
