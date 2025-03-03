@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\Street;
 use App\Models\Neighborhood;
 use Illuminate\Http\Request;
+use Illuminate\Validation\Rule;
 
 class StreetController extends Controller
 {
@@ -24,7 +25,13 @@ class StreetController extends Controller
     {
         $request->validate([
             'neighborhood_id' => 'required|exists:neighborhoods,id',
-            'name' => 'required|string|unique:streets',
+            'name' => [
+                'required',
+                'string',
+                Rule::unique('streets')->where(function ($query) use ($request) {
+                    return $query->where('neighborhood_id', $request->neighborhood_id);
+                })
+            ],
         ]);
 
         Street::create($request->all());
@@ -46,7 +53,13 @@ class StreetController extends Controller
     {
         $request->validate([
             'neighborhood_id' => 'required|exists:neighborhoods,id',
-            'name' => 'required|string|unique:streets,name,' . $street->id,
+            'name' => [
+                'required',
+                'string',
+                Rule::unique('streets')->where(function ($query) use ($request, $street) {
+                    return $query->where('neighborhood_id', $request->neighborhood_id);
+                })->ignore($street->id) // O‘zidan tashqari boshqalarga unikal bo‘lishi shart
+            ],
         ]);
 
         $street->update($request->all());

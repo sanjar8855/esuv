@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 use App\Models\City;
 use App\Models\Region;
 use Illuminate\Http\Request;
+use Illuminate\Validation\Rule;
 
 class CityController extends Controller
 {
@@ -23,7 +24,13 @@ class CityController extends Controller
     {
         $request->validate([
             'region_id' => 'required|exists:regions,id',
-            'name' => 'required|string|unique:cities',
+            'name' => [
+                'required',
+                'string',
+                Rule::unique('cities')->where(function ($query) use ($request) {
+                    return $query->where('region_id', $request->region_id);
+                })
+            ],
         ]);
 
         City::create($request->all());
@@ -45,7 +52,13 @@ class CityController extends Controller
     {
         $request->validate([
             'region_id' => 'required|exists:regions,id',
-            'name' => 'required|string|unique:cities,name,' . $city->id,
+            'name' => [
+                'required',
+                'string',
+                Rule::unique('cities')->where(function ($query) use ($request, $city) {
+                    return $query->where('region_id', $request->region_id);
+                })->ignore($city->id) // O‘zidan tashqari boshqalarga unikal bo‘lishi shart
+            ],
         ]);
 
         $city->update($request->all());

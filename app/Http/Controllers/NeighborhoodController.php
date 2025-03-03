@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\Neighborhood;
 use App\Models\City;
 use Illuminate\Http\Request;
+use Illuminate\Validation\Rule;
 
 class NeighborhoodController extends Controller
 {
@@ -24,7 +25,13 @@ class NeighborhoodController extends Controller
     {
         $request->validate([
             'city_id' => 'required|exists:cities,id',
-            'name' => 'required|string|unique:neighborhoods',
+            'name' => [
+                'required',
+                'string',
+                Rule::unique('neighborhoods')->where(function ($query) use ($request) {
+                    return $query->where('city_id', $request->city_id);
+                })
+            ],
         ]);
 
         Neighborhood::create($request->all());
@@ -46,12 +53,20 @@ class NeighborhoodController extends Controller
     {
         $request->validate([
             'city_id' => 'required|exists:cities,id',
-            'name' => 'required|string|unique:neighborhoods,name,' . $neighborhood->id,
+            'name' => [
+                'required',
+                'string',
+                Rule::unique('neighborhoods')->where(function ($query) use ($request, $neighborhood) {
+                    return $query->where('city_id', $request->city_id);
+                })->ignore($neighborhood->id) // O‘zidan tashqari boshqalarga unikal bo‘lishi shart
+            ],
         ]);
 
         $neighborhood->update($request->all());
+
         return redirect()->route('neighborhoods.index')->with('success', 'Mahalla muvaffaqiyatli yangilandi!');
     }
+
 
     public function destroy(Neighborhood $neighborhood)
     {
