@@ -45,7 +45,7 @@
                         </div>
                     </div>
 
-                    {{ $regions->links() }}
+{{--                    {{ $regions->links() }}--}}
                 </div>
             </div>
         </div>

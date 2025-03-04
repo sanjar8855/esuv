@@ -1,6 +1,9 @@
 @extends('layouts.app')
 
 @section('content')
+    <link href="https://cdn.jsdelivr.net/npm/tom-select@2.2.2/dist/css/tom-select.css" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/tom-select@2.2.2/dist/js/tom-select.complete.min.js"></script>
+
     <div class="page-body">
         <div class="container-xl">
             <div class="row row-cards">
@@ -22,7 +25,7 @@
 
                         <div class="mb-3">
                             <label for="neighborhood_id">Mahalla tanlang:</label>
-                            <select name="neighborhood_id" class="form-control" required>
+                            <select name="neighborhood_id" id="neighborhoodSelect" class="form-control" required>
                                 @foreach($neighborhoods as $neighborhood)
                                     <option
                                         value="{{ $neighborhood->id }}" {{ $street->neighborhood_id == $neighborhood->id ? 'selected' : '' }}>
@@ -43,4 +46,18 @@
             </div>
         </div>
     </div>
+
+    <script>
+        document.addEventListener("DOMContentLoaded", function() {
+            new TomSelect("#neighborhoodSelect", {
+                create: false,
+                sortField: {
+                    field: "text",
+                    direction: "asc"
+                },
+                placeholder: "Mahalla nomini yozing...",
+                allowEmptyOption: true
+            });
+        });
+    </script>
 @endsection
