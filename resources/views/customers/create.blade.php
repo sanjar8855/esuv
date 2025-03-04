@@ -42,6 +42,7 @@
                         <div class="mb-3">
                             <label class="form-label">Ko'cha</label>
                             <select name="street_id" id="StreetSelect" class="form-control" required>
+                                <option></option>
                                 @foreach($streets as $street)
                                     <option value="{{ $street->id }}">{{ $street->name }}</option>
                                 @endforeach

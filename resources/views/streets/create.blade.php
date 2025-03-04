@@ -23,8 +23,9 @@
                         @csrf
 
                         <div class="mb-3">
-                            <label for="neighborhood_id">Mahalla tanlang:</label>
+                            <label for="neighborhood_id">Mahalla kiritib tanlang:</label>
                             <select name="neighborhood_id" id="neighborhoodSelect" class="form-control" required>
+                                <option></option>
                                 @foreach($neighborhoods as $neighborhood)
                                     <option value="{{ $neighborhood->id }}">{{ $neighborhood->name }} - {{$neighborhood->city->name}} - {{$neighborhood->city->region->name}}</option>
                                 @endforeach

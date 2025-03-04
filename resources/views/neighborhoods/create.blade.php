@@ -25,6 +25,7 @@
                         <div class="mb-3">
                             <label for="city_id">Shahar/tuman ni tanlang:</label>
                             <select name="city_id" id="citySelect" class="form-control" required>
+                                <option></option>
                                 @foreach($cities as $city)
                                     <option value="{{ $city->id }}">{{ $city->name }} - {{$city->region->name}}</option>
                                 @endforeach
