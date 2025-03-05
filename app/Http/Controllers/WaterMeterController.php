@@ -34,6 +34,7 @@ class WaterMeterController extends Controller
             'validity_period' => 'required|numeric',
             'last_reading_date' => 'nullable|date',
             'installation_date' => 'nullable|date',
+            'expiration_date' => 'nullable|date',
         ]);
 
         WaterMeter::create($request->all());
@@ -62,6 +63,7 @@ class WaterMeterController extends Controller
             'validity_period' => 'required|numeric',
             'last_reading_date' => 'nullable|date',
             'installation_date' => 'nullable|date',
+            'expiration_date' => 'nullable|date',
         ]);
 
         $waterMeter->update($request->all());

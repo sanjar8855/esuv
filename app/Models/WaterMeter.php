@@ -9,7 +9,7 @@ class WaterMeter extends Model
 {
     use HasFactory;
 
-    protected $fillable = ['customer_id', 'meter_number', 'last_reading_date', 'installation_date', 'validity_period'];
+    protected $fillable = ['customer_id', 'meter_number', 'last_reading_date', 'installation_date', 'validity_period', 'expiration_date'];
 
     public function customer()
     {

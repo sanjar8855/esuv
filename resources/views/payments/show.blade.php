@@ -14,7 +14,7 @@
                         </tr>
                         <tr>
                             <th>Invoice raqami</th>
-                            <td>{{ $payment->invoice->invoice_number }}</td>
+                            <td>{{ $payment->invoice->invoice_number ?? 'Noma’lum' }}</td>
                         </tr>
                         <tr>
                             <th>To‘lov miqdori</th>
@@ -22,7 +22,21 @@
                         </tr>
                         <tr>
                             <th>To‘lov usuli</th>
-                            <td>{{ ucfirst($payment->payment_method) }}</td>
+                            <td>
+                                @switch($payment->payment_method)
+                                    @case('cash')
+                                    Naqd pul
+                                    @break
+                                    @case('card')
+                                    Plastik orqali
+                                    @break
+                                    @case('transfer')
+                                    Bank orqali
+                                    @break
+                                    @default
+                                    Noaniq
+                                @endswitch
+                            </td>
                         </tr>
                         <tr>
                             <th>To‘lov sanasi</th>

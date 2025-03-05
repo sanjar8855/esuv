@@ -22,7 +22,8 @@
                                     <th>Mijoz</th>
                                     <th>Hisoblagich unikal raqami</th>
                                     <th>O‘rnatilgan Sana</th>
-                                    <th>Amal qilish muddati</th>
+                                    <th>Amal qilish muddati yillarda</th>
+                                    <th>Tugash sanasi</th>
                                     <th>Oxirgi O‘qish</th>
                                     <th>Oxirgi ko‘rsatkich</th>
                                     <th>Amallar</th>
@@ -45,6 +46,7 @@
                                         <td>{{ $waterMeter->meter_number }}</td>
                                         <td>{{ $waterMeter->last_reading_date ?? 'Noma’lum' }}</td>
                                         <td>{{ $waterMeter->validity_period ?? 'Noma’lum' }}</td>
+                                        <td>{{ $waterMeter->expiration_date ?? 'Noma’lum' }}</td>
                                         <td>{{ $waterMeter->installation_date ?? 'Noma’lum' }}</td>
                                         <td>
                                             @if($waterMeter->readings->count())
