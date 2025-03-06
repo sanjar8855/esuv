@@ -5,6 +5,7 @@ use App\Models\Street;
 use Illuminate\Http\Request;
 use App\Models\Customer;
 use App\Models\Company;
+use Illuminate\Support\Facades\Storage;
 
 class CustomerController extends Controller
 {
@@ -116,7 +117,12 @@ class CustomerController extends Controller
             'address' => 'required|string',
             'account_number' => 'required|unique:customers,account_number',
             'family_members' => 'nullable|integer|min:1',
+            'pdf_file' => 'nullable|file|mimes:pdf|max:4096'
         ]);
+
+        if ($request->hasFile('pdf_file')) {
+            $validated['pdf_file'] = $request->file('pdf_file')->store('pdfs', 'public');
+        }
 
         // Oddiy foydalanuvchilar uchun kompaniyani avtomatik qo‘shish
         if (!$user->hasRole('admin')) {
@@ -125,6 +131,7 @@ class CustomerController extends Controller
 
         $validated['is_active'] = $request->has('is_active') ? 1 : 0;
         $validated['has_water_meter'] = $request->has('has_water_meter') ? 1 : 0;
+
 
         Customer::create($validated);
 
@@ -189,10 +196,20 @@ class CustomerController extends Controller
             'address' => 'required|string',
             'account_number' => 'required|unique:customers,account_number,' . $customer->id,
             'family_members' => 'nullable|integer|min:1',
+            'pdf_file' => 'nullable|mimes:pdf|max:2048',
         ]);
+
+        if ($request->hasFile('pdf_file')) {
+            if ($customer->pdf_file) {
+                Storage::disk('public')->delete($customer->pdf_file); // Eski PDFni o‘chirish
+            }
+            $customer->pdf_file = $request->file('pdf_file')->store('pdfs', 'public');
+        }
 
         $validated['is_active'] = $request->has('is_active') ? 1 : 0;
         $validated['has_water_meter'] = $request->has('has_water_meter') ? 1 : 0;
+        $validated['pdf_file'] = $customer->pdf_file;
+
 
         // Hisoblagich bo‘lsa, family_members null qilamiz
 //        if ($request->has('has_water_meter')) {
@@ -210,6 +227,9 @@ class CustomerController extends Controller
     public function destroy($id)
     {
         $customer = Customer::findOrFail($id);
+        if ($customer->pdf_file) {
+            Storage::disk('public')->delete($customer->pdf_file); // PDF faylni o‘chirish
+        }
         $customer->delete();
 
         return redirect()->route('customers.index')->with('success', 'Mijoz muvaffaqiyatli o‘chirildi!');

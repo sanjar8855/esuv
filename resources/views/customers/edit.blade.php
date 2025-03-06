@@ -68,6 +68,11 @@
                         </div>
 
                         <div class="mb-3">
+                            <label for="pdf_file" class="form-label">Shartnoma PDF</label>
+                            <input type="file" name="pdf_file" class="form-control">
+                        </div>
+
+                        <div class="mb-3">
                             <label class="form-check">
                                 <input type="checkbox" name="has_water_meter" id="has_water_meter" class="form-check-input"
                                        value="1" {{ $customer->has_water_meter ? 'checked' : '' }}>

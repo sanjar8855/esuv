@@ -14,6 +14,21 @@
                             <td>{{ $customer->name }}</td>
                         </tr>
                         <tr>
+                            <th>Shartnoma PDF</th>
+                            <td>
+                                @if($customer->pdf_file)
+                                    <a href="{{ asset('storage/' . $customer->pdf_file) }}" target="_blank" class="btn btn-sm btn-info">
+                                        PDF-ni ko‘rish
+                                    </a>
+                                    <a href="{{ asset('storage/' . $customer->pdf_file) }}" download class="btn btn-sm btn-success">
+                                        Yuklab olish
+                                    </a>
+                                @else
+                                    Fayl yo‘q
+                                @endif
+                            </td>
+                        </tr>
+                        <tr>
                             <th>Jami Qarzdorlik (UZS)</th>
                             <td>
                                 @php

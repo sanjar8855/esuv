@@ -18,7 +18,7 @@
                             </ul>
                         </div>
                     @endif
-                    <form action="{{ route('customers.store') }}" method="POST">
+                    <form action="{{ route('customers.store') }}" method="POST" enctype="multipart/form-data">
                         @csrf
                         <div class="mb-3">
                             <label class="form-label">Kompaniya</label>
@@ -63,6 +63,11 @@
                         <div class="mb-3">
                             <label class="form-label">Hisob raqami</label>
                             <input type="text" name="account_number" class="form-control" value="{{ old('account_number') }}" required>
+                        </div>
+
+                        <div class="mb-3">
+                            <label for="pdf_file" class="form-label">Shartnoma PDF</label>
+                            <input type="file" name="pdf_file" class="form-control">
                         </div>
 
                         <div class="mb-3">

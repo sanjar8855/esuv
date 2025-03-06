@@ -19,7 +19,8 @@ class Customer extends Model
         'has_water_meter',
         'family_members',
         'is_active',
-        'balance'
+        'balance',
+        'pdf_file'
     ];
 
     public function company()
