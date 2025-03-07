@@ -9,7 +9,7 @@ class MeterReading extends Model
 {
     use HasFactory;
 
-    protected $fillable = ['water_meter_id', 'reading', 'reading_date', 'photo_url', 'confirmed'];
+    protected $fillable = ['water_meter_id', 'reading', 'reading_date', 'photo_url', 'photo', 'confirmed'];
 
     protected $casts = [
         'confirmed' => 'boolean',

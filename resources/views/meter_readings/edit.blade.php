@@ -16,7 +16,7 @@
                         </div>
                     @endif
 
-                    <form action="{{ route('meter_readings.update', $meterReading->id) }}" method="POST">
+                    <form action="{{ route('meter_readings.update', $meterReading->id) }}" method="POST" enctype="multipart/form-data">
                         @csrf
                         @method('PUT')
 
@@ -48,6 +48,11 @@
                             <label for="photo_url">O‘qish rasmi URL:</label>
                             <input type="text" name="photo_url" class="form-control"
                                    value="{{ $meterReading->photo_url }}">
+                        </div>
+
+                        <div class="mb-3">
+                            <label for="photo" class="form-label">Rasm yuklash</label>
+                            <input type="file" name="photo" class="form-control">
                         </div>
 
                         <div class="mb-3">

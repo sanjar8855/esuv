@@ -13,7 +13,7 @@ class WaterMeterController extends Controller
         $waterMeters = WaterMeter::with([
             'customer',
             'readings' => function ($query) {
-                $query->orderBy('reading_date', 'desc');
+                $query->orderBy('id', 'desc')->where('confirmed',1);
             }])
             ->orderBy('meter_number', 'asc')
             ->paginate(20);
@@ -44,7 +44,9 @@ class WaterMeterController extends Controller
     public function show(WaterMeter $waterMeter)
     {
         $waterMeter->load(['readings' => function ($query) {
-            $query->orderBy('reading_date', 'desc');
+            $query->orderBy('reading_date', 'desc')
+                ->orderBy('reading', 'desc') // Eng katta o'qishni ham tartiblash
+                ->take(5); // Faqat oxirgi 5 ta o'qish
         }]);
         return view('water_meters.show', compact('waterMeter'));
     }

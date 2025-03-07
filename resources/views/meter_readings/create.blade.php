@@ -16,7 +16,7 @@
                         </div>
                     @endif
 
-                    <form action="{{ route('meter_readings.store') }}" method="POST">
+                    <form action="{{ route('meter_readings.store') }}" method="POST" enctype="multipart/form-data">
                         @csrf
 
                         <div class="mb-3">
@@ -63,6 +63,11 @@
                                     }));
                                 });
                             </script>
+                        </div>
+
+                        <div class="mb-3">
+                            <label for="photo" class="form-label">Rasm yuklash</label>
+                            <input type="file" name="photo" class="form-control">
                         </div>
 
                         <div class="mb-3">

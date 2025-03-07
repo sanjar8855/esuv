@@ -23,6 +23,7 @@
                                     <th>Hisoblagich raqami</th>
                                     <th>O‘qish</th>
                                     <th>O‘qish sanasi</th>
+                                    <th>Rasm</th>
                                     <th>Holat</th>
                                     <th>Harakatlar</th>
                                 </tr>
@@ -46,6 +47,15 @@
                                         <td>{{ $meterReading->reading }}</td>
                                         <td>{{ $meterReading->reading_date }}</td>
                                         <td>{{ $meterReading->confirmed ? 'Tasdiqlangan' : 'Tasdiqlanmagan' }}</td>
+                                        <td>
+                                            @if($meterReading->photo)
+                                                <a href="{{ asset('storage/' . $meterReading->photo) }}" target="_blank">
+                                                    <img src="{{ asset('storage/' . $meterReading->photo) }}" alt="Hisob o‘qish rasmi" width="50">
+                                                </a>
+                                            @else
+                                                Rasm yo‘q
+                                            @endif
+                                        </td>
                                         <td>
                                             <a href="{{ route('meter_readings.show', $meterReading->id) }}"
                                                class="btn btn-info btn-sm">Ko‘rish</a>

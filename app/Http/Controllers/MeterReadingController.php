@@ -7,6 +7,7 @@ use App\Models\MeterReading;
 use App\Models\Tariff;
 use App\Models\WaterMeter;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Storage;
 
 class MeterReadingController extends Controller
 {
@@ -27,12 +28,27 @@ class MeterReadingController extends Controller
         $validated = $request->validate([
             'water_meter_id' => 'required|exists:water_meters,id',
             'reading' => 'required|numeric|min:0',
-            'photo_url' => 'nullable|string',
             'reading_date' => 'required|date',
             'confirmed' => 'required|boolean',
+            'photo' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:4096'
         ]);
 
-        // Oxirgi tasdiqlangan o'qishni tekshiramiz
+        if ($request->hasFile('photo')) {
+            $validated['photo'] = $request->file('photo')->store('meter_readings', 'public');
+        }
+
+        // **1️⃣ Oxirgi kiritilgan istalgan o'qish (tasdiqlangan yoki tasdiqlanmagan)**
+        $lastReading = MeterReading::where('water_meter_id', $validated['water_meter_id'])
+            ->orderByRaw('reading_date DESC, reading DESC') // Oxirgi sana va eng katta qiymat
+            ->first();
+
+        if ($lastReading && $validated['reading'] <= $lastReading->reading) {
+            return redirect()->back()->withErrors([
+                'reading' => 'Yangi hisoblagich ko‘rsatkichi (' . $validated['reading'] . ') oxirgi kiritilgan (' . $lastReading->reading . ') dan katta bo‘lishi kerak.'
+            ])->withInput();
+        }
+
+        // **2️⃣ Oxirgi tasdiqlangan o'qishni tekshirish**
         $lastConfirmedReading = MeterReading::where('water_meter_id', $validated['water_meter_id'])
             ->where('confirmed', true)
             ->orderBy('reading_date', 'desc')
@@ -40,11 +56,14 @@ class MeterReadingController extends Controller
 
         if ($lastConfirmedReading && $validated['reading'] <= $lastConfirmedReading->reading) {
             return redirect()->back()->withErrors([
-                'reading' => 'Hisoblagich raqami ' . $lastConfirmedReading->reading . ' dan katta bo‘lishi kerak.'
+                'reading' => 'Hisoblagich raqami (' . $validated['reading'] . ') tasdiqlangan oxirgi o‘qish (' . $lastConfirmedReading->reading . ') dan katta bo‘lishi kerak.'
             ])->withInput();
         }
 
+        // **3️⃣ Ko'rsatkichni saqlash**
         $meterReading = MeterReading::create($validated);
+
+        // **4️⃣ To‘lovni hisoblash va invoice yaratish**
         $customer = $meterReading->waterMeter->customer;
         $tariff = Tariff::where('company_id', $customer->company_id)
             ->where('is_active', true)
@@ -72,7 +91,9 @@ class MeterReadingController extends Controller
             }
         }
 
-        return redirect()->route('meter_readings.index')->with('success', 'Hisoblagich o‘qilishi muvaffaqiyatli qo‘shildi!');
+        return redirect()->route('water_meters.show', $meterReading->water_meter_id)
+            ->with('success', 'Hisoblagich o‘qilishi muvaffaqiyatli qo‘shildi!');
+
     }
 
     public function show(MeterReading $meterReading)
@@ -88,20 +109,35 @@ class MeterReadingController extends Controller
 
     public function update(Request $request, MeterReading $meterReading)
     {
-        $request->validate([
+        $validated = $request->validate([
             'water_meter_id' => 'required|exists:water_meters,id',
             'reading' => 'required|numeric|min:0',
             'photo_url' => 'nullable|string',
             'reading_date' => 'required|date',
             'confirmed' => 'required|boolean',
+            'photo' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:4096'
         ]);
 
-        $meterReading->update($request->all());
+        if ($request->hasFile('photo')) {
+            // Eski rasmni o‘chirish
+            if ($meterReading->photo) {
+                Storage::disk('public')->delete($meterReading->photo);
+            }
+
+            // Yangi rasmni yuklash
+            $validated['photo'] = $request->file('photo')->store('meter_readings', 'public');
+        }
+
+        $meterReading->update($validated);
         return redirect()->route('meter_readings.index')->with('success', 'Hisoblagich o‘qilishi muvaffaqiyatli yangilandi!');
     }
 
     public function destroy(MeterReading $meterReading)
     {
+        if ($meterReading->photo) {
+            Storage::disk('public')->delete($meterReading->photo);
+        }
+
         $meterReading->delete();
         return redirect()->route('meter_readings.index')->with('success', 'Hisoblagich o‘qilishi muvaffaqiyatli o‘chirildi!');
     }
