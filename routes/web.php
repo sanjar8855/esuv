@@ -48,6 +48,8 @@ Route::middleware('auth')->group(function () {
     });
     Route::middleware('can:customers')->group(function () {
         Route::resource('customers', CustomerController::class);
+        Route::delete('/customers/{customer}/telegram/{telegram}', [CustomerController::class, 'detachTelegramAccount'])
+            ->name('customers.detachTelegram');
     });
     Route::middleware('can:tariffs')->group(function () {
         Route::resource('tariffs', TariffController::class);

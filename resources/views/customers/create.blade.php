@@ -59,7 +59,7 @@
                         </div>
 
                         <div class="mb-3">
-                            <label class="form-label">Manzil</label>
+                            <label class="form-label">Uy raqami</label>
                             <input type="text" name="address" class="form-control" value="{{ old('address') }}">
                         </div>
 
@@ -74,25 +74,25 @@
                             <input type="file" name="pdf_file" class="form-control">
                         </div>
 
-                        <div class="mb-3" id="family_members_div">
+                        <div class="mb-3">
                             <label class="form-label">Oila a'zolari soni</label>
                             <input type="number" name="family_members" id="family_members" class="form-control" min="1"
                                    value="{{ old('family_members') }}">
                         </div>
 
-{{--                        <div class="mb-3">--}}
-{{--                            <label class="form-check form-switch form-switch-2">--}}
-{{--                                <input class="form-check-input" type="checkbox" id="has_water_meter"--}}
-{{--                                       name="has_water_meter" value="1" {{ old('has_water_meter') ? 'checked' : '' }}>--}}
-{{--                                <span class="form-check-label">Suv hisoblagichi bormi?</span>--}}
-{{--                            </label>--}}
+                        {{--                        <div class="mb-3">--}}
+                        {{--                            <label class="form-check form-switch form-switch-2">--}}
+                        {{--                                <input class="form-check-input" type="checkbox" id="has_water_meter"--}}
+                        {{--                                       name="has_water_meter" value="1" {{ old('has_water_meter') ? 'checked' : '' }}>--}}
+                        {{--                                <span class="form-check-label">Suv hisoblagichi bormi?</span>--}}
+                        {{--                            </label>--}}
 
-                            {{--                            <label class="form-check">--}}
-                            {{--                                <input type="checkbox" name="has_water_meter" id="has_water_meter" class="form-check-input"--}}
-                            {{--                                       value="1" {{ old('has_water_meter') ? 'checked' : '' }}>--}}
-                            {{--                                <span class="form-check-label">Suv hisoblagichi bormi?</span>--}}
-                            {{--                            </label>--}}
-{{--                        </div>--}}
+                        {{--                            <label class="form-check">--}}
+                        {{--                                <input type="checkbox" name="has_water_meter" id="has_water_meter" class="form-check-input"--}}
+                        {{--                                       value="1" {{ old('has_water_meter') ? 'checked' : '' }}>--}}
+                        {{--                                <span class="form-check-label">Suv hisoblagichi bormi?</span>--}}
+                        {{--                            </label>--}}
+                        {{--                        </div>--}}
 
 
                         {{--                        <div class="mb-3">--}}
@@ -120,9 +120,15 @@
                             <div class="input-icon">
                                 <span class="input-icon-addon">
                                     <!-- Download SVG icon from http://tabler.io/icons/icon/calendar -->
-                                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="icon icon-1"><path d="M4 7a2 2 0 0 1 2 -2h12a2 2 0 0 1 2 2v12a2 2 0 0 1 -2 2h-12a2 2 0 0 1 -2 -2v-12z" /><path d="M16 3v4" /><path d="M8 3v4" /><path d="M4 11h16" /><path d="M11 15h1" /><path d="M12 15v3" /></svg>
+                                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24"
+                                         fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                                         stroke-linejoin="round" class="icon icon-1"><path
+                                            d="M4 7a2 2 0 0 1 2 -2h12a2 2 0 0 1 2 2v12a2 2 0 0 1 -2 2h-12a2 2 0 0 1 -2 -2v-12z"/><path
+                                            d="M16 3v4"/><path d="M8 3v4"/><path d="M4 11h16"/><path d="M11 15h1"/><path
+                                            d="M12 15v3"/></svg>
                                 </span>
-                                <input name="installation_date" class="form-control" placeholder="Sanani tanlang" id="datepicker-icon-prepend1"/>
+                                <input name="installation_date" class="form-control" placeholder="Sanani tanlang"
+                                       id="datepicker-icon-prepend1"/>
                             </div>
                             <script>
                                 document.addEventListener("DOMContentLoaded", function () {
@@ -201,7 +207,6 @@
     <script>
         document.addEventListener("DOMContentLoaded", function () {
             const hasWaterMeterCheckbox = document.getElementById("has_water_meter");
-            const familyMembersDiv = document.getElementById("family_members_div");
             const familyMembersInput = document.getElementById("family_members");
             const meterNumberDiv = document.getElementById("meter_number_div");
             const meterNumberInput = document.getElementById("meter_number");
@@ -213,7 +218,6 @@
                         meterNumberDiv.style.display = "block";
                         meterNumberInput.value = "AUTOGENERATED"; // Hisoblagich raqamini avtomatik yozish
                     }
-                    familyMembersDiv.style.display = "none";
                     familyMembersInput.value = ""; // Oiladagi odam soni olinmaydi
                 } else {
                     // Hisoblagich yo‘q bo‘lsa
@@ -221,7 +225,6 @@
                         meterNumberDiv.style.display = "none";
                         meterNumberInput.value = "";
                     }
-                    familyMembersDiv.style.display = "block";
                 }
             }
 

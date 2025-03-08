@@ -60,7 +60,7 @@
                                     <th>Jami Qarzdorlik (UZS)</th>
                                     <th>Oxirgi ko'rsatkich</th>
                                     <th>Oila a'zolari soni</th>
-                                    <th>Manzil</th>
+                                    <th>Uy raqami</th>
                                     <th>Amallar</th>
                                 </tr>
                                 </thead>

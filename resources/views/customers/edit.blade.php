@@ -58,7 +58,7 @@
                         </div>
 
                         <div class="mb-3">
-                            <label class="form-label">Manzil</label>
+                            <label class="form-label">Uy raqami</label>
                             <input type="text" name="address" class="form-control" value="{{ $customer->address }}">
                         </div>
 
@@ -80,7 +80,7 @@
                             </label>
                         </div>
 
-                        <div class="mb-3" id="family_members_div">
+                        <div class="mb-3">
                             <label class="form-label">Oila a'zolari soni</label>
                             <input type="number" name="family_members" id="family_members" class="form-control"
                                    value="{{ $customer->family_members }}" min="1">
@@ -101,25 +101,25 @@
         </div>
     </div>
 
-    <script>
-        document.addEventListener("DOMContentLoaded", function () {
-            const hasWaterMeterCheckbox = document.getElementById("has_water_meter");
-            const familyMembersDiv = document.getElementById("family_members_div");
-            const familyMembersInput = document.getElementById("family_members");
+{{--    <script>--}}
+{{--        document.addEventListener("DOMContentLoaded", function () {--}}
+{{--            const hasWaterMeterCheckbox = document.getElementById("has_water_meter");--}}
+{{--            const familyMembersDiv = document.getElementById("family_members_div");--}}
+{{--            const familyMembersInput = document.getElementById("family_members");--}}
 
-            function toggleFields() {
-                if (hasWaterMeterCheckbox.checked) {
-                    familyMembersDiv.style.display = "none";
-                    familyMembersInput.value = ""; // Oiladagi odam soni olinmaydi
-                } else {
-                    familyMembersDiv.style.display = "block";
-                }
-            }
+{{--            function toggleFields() {--}}
+{{--                if (hasWaterMeterCheckbox.checked) {--}}
+{{--                    familyMembersDiv.style.display = "none";--}}
+{{--                    familyMembersInput.value = ""; // Oiladagi odam soni olinmaydi--}}
+{{--                } else {--}}
+{{--                    familyMembersDiv.style.display = "block";--}}
+{{--                }--}}
+{{--            }--}}
 
-            hasWaterMeterCheckbox.addEventListener("change", toggleFields);
-            toggleFields(); // Sahifa yuklanganda avtomatik tekshirish
-        });
-    </script>
+{{--            hasWaterMeterCheckbox.addEventListener("change", toggleFields);--}}
+{{--            toggleFields(); // Sahifa yuklanganda avtomatik tekshirish--}}
+{{--        });--}}
+{{--    </script>--}}
     <script>
         document.addEventListener("DOMContentLoaded", function() {
             new TomSelect("#StreetSelect", {

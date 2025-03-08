@@ -75,7 +75,15 @@
                             <th>Ulangan telegram akkauntlar</th>
                             <td>
                                 @foreach($customer->telegramAccounts as $tg)
-                                    <a href="https://t.me/{{$tg->username}}" target="_blank">{{$tg->username}}</a>,
+                                    <a href="https://t.me/{{$tg->username}}" target="_blank">{{$tg->username}}</a>
+
+                                    <!-- O‘chirish tugmasi faqat adminlar uchun -->
+                                        <form action="{{ route('customers.detachTelegram', ['customer' => $customer->id, 'telegram' => $tg->id]) }}" method="POST" style="display:inline;">
+                                            @csrf
+                                            @method('DELETE')
+                                            <button type="submit" class="btn btn-danger btn-sm">❌</button>
+                                        </form>
+                                    <br>
                                 @endforeach
                             </td>
                         </tr>
@@ -88,7 +96,7 @@
                             </td>
                         </tr>
                         <tr>
-                            <th>Manzil</th>
+                            <th>Uy raqami</th>
                             <td>
                                 {{ $customer->address }}
                             </td>
@@ -154,16 +162,20 @@
                 </div>
 
                 <div class="col-md-4">
-                    <h3>Mijozning Invoice va To‘lovlari</h3>
+                    <h3>Invoyslar tarixi</h3>
                     <ul class="list-group">
                         @foreach($invoices as $invoice)
                             <li class="list-group-item">
-                                <strong>Invoice #{{ $invoice->invoice_number }}</strong><br>
+                                <strong>Invoys #{{ $invoice->invoice_number }}</strong><br>
                                 <small>Oy: {{ $invoice->billing_period }}</small><br>
                                 <small>Holat:
-                                    <span class="badge bg-{{ $invoice->status == 'paid' ? 'green-lt' : 'red-lt' }}">
-                                        {{ ucfirst($invoice->status) }}
-                                    </span>
+                                    @if($invoice->status == 'pending')
+                                        <span class="badge bg-yellow text-yellow-fg">To'liq to‘lanmagan</span>
+                                    @elseif($invoice->status == 'paid')
+                                        <span class="badge bg-green text-green-fg">To‘langan</span>
+                                    @elseif($invoice->status == 'overdue')
+                                        <span class="badge bg-red text-red-fg">Muddati o‘tgan</span>
+                                    @endif
                                 </small><br>
                                 <small>Summa: {{ number_format($invoice->amount_due, 2) }} UZS</small>
                             </li>

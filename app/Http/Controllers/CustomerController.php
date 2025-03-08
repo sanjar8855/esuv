@@ -259,4 +259,20 @@ class CustomerController extends Controller
 
         return redirect()->route('customers.index')->with('success', 'Mijoz muvaffaqiyatli o‘chirildi!');
     }
+
+    public function detachTelegramAccount(Request $request, $customerId, $telegramAccountId)
+    {
+        $customer = Customer::findOrFail($customerId);
+
+        // Faqat admin foydalanuvchilarga ruxsat
+        if (!auth()->user()->hasRole('admin')) {
+            return redirect()->back()->withErrors('Sizda bu amalni bajarish uchun ruxsat yo‘q.');
+        }
+
+        // Mijoz va Telegram akkaunt o‘rtasidagi bog‘liqlikni olib tashlash
+        $customer->telegramAccounts()->detach($telegramAccountId);
+
+        return redirect()->back()->with('success', 'Telegram akkaunt muvaffaqiyatli uzildi.');
+    }
+
 }
