@@ -1,7 +1,9 @@
 <?php
 namespace App\Http\Controllers;
 
+use App\Models\MeterReading;
 use App\Models\Street;
+use App\Models\WaterMeter;
 use Illuminate\Http\Request;
 use App\Models\Customer;
 use App\Models\Company;
@@ -117,7 +119,14 @@ class CustomerController extends Controller
             'address' => 'required|string',
             'account_number' => 'required|unique:customers,account_number',
             'family_members' => 'nullable|integer|min:1',
-            'pdf_file' => 'nullable|file|mimes:pdf|max:4096'
+            'pdf_file' => 'nullable|file|mimes:pdf|max:4096',
+
+            'meter_number' => 'required|numeric|unique:water_meters,meter_number',
+            'installation_date' => 'required|date',
+            'validity_period' => 'required|integer|min:1',
+
+            'initial_reading' => 'required|numeric|min:0',
+            'reading_date' => 'required|date',
         ]);
 
         if ($request->hasFile('pdf_file')) {
@@ -129,11 +138,27 @@ class CustomerController extends Controller
             $validated['company_id'] = $user->company->id;
         }
 
-        $validated['is_active'] = $request->has('is_active') ? 1 : 0;
-        $validated['has_water_meter'] = $request->has('has_water_meter') ? 1 : 0;
+//        $validated['is_active'] = $request->has('is_active') ? 1 : 0;
+        $validated['is_active'] = 1;
+//        $validated['has_water_meter'] = $request->has('has_water_meter') ? 1 : 0;
+        $validated['has_water_meter'] = 1;
 
+        $customer = Customer::create($validated);
 
-        Customer::create($validated);
+        $waterMeter = WaterMeter::create([
+            'customer_id' => $customer->id,
+            'meter_number' => $validated['meter_number'],
+            'installation_date' => $validated['installation_date'],
+            'validity_period' => $validated['validity_period'],
+            'expiration_date' => now()->parse($validated['installation_date'])->addYears($validated['validity_period']), // Amal qilish muddati
+        ]);
+
+        MeterReading::create([
+            'water_meter_id' => $waterMeter->id,
+            'reading' => $validated['initial_reading'],
+            'reading_date' => $validated['reading_date'],
+            'confirmed' => 1, // Birinchi o'qish avtomatik tasdiqlanadi
+        ]);
 
         return redirect()->route('customers.index')->with('success', 'Mijoz muvaffaqiyatli qo‘shildi!');
     }
