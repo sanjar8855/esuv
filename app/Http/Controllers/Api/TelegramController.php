@@ -61,21 +61,32 @@ class TelegramController extends Controller
 
         // ✅ Foydalanuvchi /start bosganda
         if (strcasecmp($text, "/start") === 0) {
-            // Eski bog‘langan akkauntni tekshirish
+            // 🔎 Foydalanuvchining oldingi bog‘langan akkaunti borligini tekshiramiz
             $existingAccount = TelegramAccount::where('telegram_chat_id', $userId)->first();
 
             if (!$existingAccount) {
-                // Eski bog‘langan akkaunt topilmasa, hisob raqamini so‘rash
-                $this->sendMessage($chatId, "🔢 Iltimos, hisob raqamingizni kiriting:");
+                // 🚨 Agar akkaunt topilmasa, hisob raqamini so‘raymiz va menyuni olib tashlaymiz
+                $this->sendMessage($chatId, "🔢 Iltimos, hisob raqamingizni kiriting:", json_encode(['remove_keyboard' => true]));
             } else {
-                // Agar akkaunt bor bo‘lsa, asosiy menyuga o'tish
+                // ✅ Agar akkaunt bor bo‘lsa, asosiy menyuni ochamiz
                 $this->sendMainMenu($chatId);
             }
             return;
         }
 
-        // ✅ Agar foydalanuvchi hisob raqam kiritayotgan bo‘lsa
-        if (is_numeric($text)) {
+        // 🔎 **Hisob bog‘lanmagan foydalanuvchilarga faqat raqam jo‘natishni talab qilish**
+        $linkedCustomer = Customer::whereHas('telegramAccounts', function ($query) use ($userId) {
+            $query->where('telegram_chat_id', $userId);
+        })->first();
+
+        if (!$linkedCustomer) {
+            // 🚨 Faqat raqam kiritish so‘raladi
+            if (!is_numeric($text)) {
+                $this->sendMessage($chatId, "❌ Noto‘g‘ri ma’lumot. 🔢 Iltimos, hisob raqamingizni kiriting:");
+                return;
+            }
+
+            // ✅ Agar raqam bo‘lsa, bog‘lashni harakat qiladi
             $this->linkAccount($chatId, $userId, $text);
             return;
         }
@@ -94,13 +105,14 @@ class TelegramController extends Controller
             case "📈 Hisoblagich tarixi":
                 $this->sendMeterHistory($chatId);
                 break;
-            case "⚙️ Sozlamalar": // ✅ Foydalanuvchi asosiy menyudan bosganda
+            case "⚙️ Sozlamalar":
                 $this->sendSettingsMenu($chatId);
                 break;
             default:
                 $this->sendMessage($chatId, "❌ Noto‘g‘ri buyruq. Iltimos, tugmalardan foydalaning.");
         }
     }
+
 
     // ✅ Hisob raqamini Telegramga bog‘lash
     private function linkAccount($chatId, $userId, $accountNumber)

@@ -292,8 +292,10 @@ class CustomerController extends Controller
     {
         Telegram::sendMessage([
             'chat_id' => $telegramChatId,
-            'text' => "🚨 Sizning <b>{$accountNumber}</b> hisob raqamingiz botdan o‘chirildi.\n🔢 Yangi hisob raqamini kiritib, qayta bog‘lang.",
+            'text' => "🚨 Sizning <b>{$accountNumber}</b> hisob raqamingiz botdan o‘chirildi.\n🔢 Yangi hisob raqamini kiriting.",
             'parse_mode' => 'HTML',
+            'reply_markup' => json_encode(['remove_keyboard' => true]), // ❌ Menyuni olib tashlash
         ]);
     }
+
 }
