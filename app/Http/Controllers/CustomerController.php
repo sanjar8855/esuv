@@ -269,7 +269,7 @@ class CustomerController extends Controller
             return redirect()->back()->withErrors('Sizda bu amalni bajarish uchun ruxsat yo‘q.');
         }
 
-        $telegramAccount = $customer->telegramAccounts()->where('id', $telegramAccountId)->first();
+        $telegramAccount = $customer->telegramAccounts()->where('telegram_accounts.id', $telegramAccountId)->first();
 
         if (!$telegramAccount) {
             return redirect()->back()->withErrors('Telegram akkaunt topilmadi.');
