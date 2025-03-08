@@ -264,15 +264,35 @@ class CustomerController extends Controller
     {
         $customer = Customer::findOrFail($customerId);
 
-        // Faqat admin foydalanuvchilarga ruxsat
         if (!auth()->user()->hasRole('admin')) {
             return redirect()->back()->withErrors('Sizda bu amalni bajarish uchun ruxsat yo‘q.');
         }
 
-        // Mijoz va Telegram akkaunt o‘rtasidagi bog‘liqlikni olib tashlash
+        $telegramAccount = $customer->telegramAccounts()->where('id', $telegramAccountId)->first();
+
+        if (!$telegramAccount) {
+            return redirect()->back()->withErrors('Telegram akkaunt topilmadi.');
+        }
+
+        // 🔴 Telegram akkauntni ajratish
         $customer->telegramAccounts()->detach($telegramAccountId);
+        cache()->forget("active_customer_id_{$telegramAccount->telegram_chat_id}");
+
+        // 📩 Telegram orqali bildirish yuborish
+        $this->notifyTelegramAccountDeleted($telegramAccount->telegram_chat_id, $customer->account_number);
 
         return redirect()->back()->with('success', 'Telegram akkaunt muvaffaqiyatli uzildi.');
     }
 
+    /**
+     * 📩 Telegram akkauntga hisob o‘chirilgani haqida bildirish
+     */
+    private function notifyTelegramAccountDeleted($telegramChatId, $accountNumber)
+    {
+        Telegram::sendMessage([
+            'chat_id' => $telegramChatId,
+            'text' => "🚨 Sizning <b>{$accountNumber}</b> hisob raqamingiz botdan o‘chirildi.\n🔢 Yangi hisob raqamini kiritib, qayta bog‘lang.",
+            'parse_mode' => 'HTML',
+        ]);
+    }
 }

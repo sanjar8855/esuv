@@ -22,7 +22,7 @@ class TelegramController extends Controller
         if (isset($update['callback_query'])) {
             $callbackData = explode(':', $update['callback_query']['data']);
             $action = $callbackData[0] ?? null;
-            $page = isset($callbackData[1]) ? (int) $callbackData[1] : 1;
+            $page = isset($callbackData[1]) ? (int)$callbackData[1] : 1;
 
             $chatId = $update['callback_query']['message']['chat']['id'] ?? null;
 
@@ -43,7 +43,7 @@ class TelegramController extends Controller
                     $this->sendSettingsMenu($chatId);
                     break;
                 case "switch_account":
-                    $selectedCustomerId = isset($callbackData[1]) ? (int) $callbackData[1] : null;
+                    $selectedCustomerId = isset($callbackData[1]) ? (int)$callbackData[1] : null;
                     $this->switchAccount($chatId, $selectedCustomerId);
 
                     Telegram::editMessageReplyMarkup([
@@ -61,7 +61,16 @@ class TelegramController extends Controller
 
         // ✅ Foydalanuvchi /start bosganda
         if (strcasecmp($text, "/start") === 0) {
-            $this->sendMessage($chatId, "🔢 Iltimos, hisob raqamingizni kiriting:");
+            // Eski bog‘langan akkauntni tekshirish
+            $existingAccount = TelegramAccount::where('telegram_chat_id', $userId)->first();
+
+            if (!$existingAccount) {
+                // Eski bog‘langan akkaunt topilmasa, hisob raqamini so‘rash
+                $this->sendMessage($chatId, "🔢 Iltimos, hisob raqamingizni kiriting:");
+            } else {
+                // Agar akkaunt bor bo‘lsa, asosiy menyuga o'tish
+                $this->sendMainMenu($chatId);
+            }
             return;
         }
 
@@ -105,6 +114,7 @@ class TelegramController extends Controller
         }
 
         $username = Telegram::getWebhookUpdate()['message']['from']['username'] ?? null;
+
         $telegramAccount = TelegramAccount::firstOrCreate(
             ['telegram_chat_id' => $userId],
             ['username' => $username]
@@ -256,16 +266,13 @@ class TelegramController extends Controller
         $message = "💳 <b>To‘lovlar tarixi</b> (Sahifa: {$page}/{$totalPages})\n";
         foreach ($payments as $payment) {
             $date = date('d.m.Y', strtotime($payment->payment_date));
-            if($payment->payment_method=='cash'){
+            if ($payment->payment_method == 'cash') {
                 $payment_method = 'Naqd pul';
-            }
-            elseif($payment->payment_method=='card'){
+            } elseif ($payment->payment_method == 'card') {
                 $payment_method = 'Plastik orqali';
-            }
-            elseif($payment->payment_method=='transfer'){
+            } elseif ($payment->payment_method == 'transfer') {
                 $payment_method = 'Bank orqali';
-            }
-            else{
+            } else {
                 $payment_method = 'Noaniq';
             }
             $message .= "💳 Hisob raqami: <b>{$payment->customer->account_number}</b>\n";
@@ -326,8 +333,18 @@ class TelegramController extends Controller
         $activeCustomerId = cache()->get("active_customer_id_{$chatId}");
 
         if ($activeCustomerId) {
-            return Customer::with(['company', 'street.neighborhood.city.region', 'invoices', 'payments'])
+            $customer = Customer::with(['company', 'street.neighborhood.city.region', 'invoices', 'payments'])
                 ->find($activeCustomerId);
+
+            // 🔴 Tekshiramiz: Bu mijoz hali Telegram akkaunt bilan bog‘langanmi?
+            if (!$customer || !$customer->telegramAccounts()->where('telegram_chat_id', $chatId)->exists()) {
+                // ❌ Mijoz endi bog‘langan bo‘lmasa, unga xabar yuboramiz
+                $this->sendMessage($chatId, "🚨 Hisobingiz botdan o‘chirildi! 🔢 Yangi hisob raqamini kiritib qayta bog‘lang.");
+                cache()->forget("active_customer_id_{$chatId}");
+                return null;
+            }
+
+            return $customer;
         }
 
         // ❌ Agar aktiv hisob bo‘lmasa, eski metod orqali olish
