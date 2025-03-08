@@ -59,48 +59,51 @@ class TelegramController extends Controller
             return;
         }
 
-        // ✅ Foydalanuvchi /start bosganda
+        // ✅ **Agar foydalanuvchi /start bossa**
         if (strcasecmp($text, "/start") === 0) {
-            // 🔎 Foydalanuvchining oldingi bog‘langan akkaunti borligini tekshiramiz
-            $existingAccount = TelegramAccount::where('telegram_chat_id', $userId)->first();
+            // 🔎 **Foydalanuvchining bog‘langan akkaunti bormi?**
+            $linkedCustomer = Customer::whereHas('telegramAccounts', function ($query) use ($userId) {
+                $query->where('telegram_chat_id', $userId);
+            })->first();
 
-            if (!$existingAccount) {
-                // 🚨 Agar akkaunt topilmasa, hisob raqamini so‘raymiz va menyuni olib tashlaymiz
+            if (!$linkedCustomer) {
+                // 🚨 **Agar akkaunt topilmasa, hisob raqamini so‘raymiz va menyuni olib tashlaymiz**
                 $this->sendMessage($chatId, "🔢 Iltimos, hisob raqamingizni kiriting:", json_encode(['remove_keyboard' => true]));
-            } else {
-                // ✅ Agar akkaunt bor bo‘lsa, asosiy menyuni ochamiz
-                $this->sendMainMenu($chatId);
+                return;
             }
+
+            // ✅ **Agar akkaunt topilsa, asosiy menyuni ko‘rsatamiz**
+            $this->sendMainMenu($chatId);
             return;
         }
 
-        // 🔎 **Hisob bog‘lanmagan foydalanuvchilarga faqat raqam jo‘natishni talab qilish**
+        // 🔎 **Foydalanuvchi bog‘langan hisobga ega bo‘lmasa, faqat raqam jo‘natishni talab qilish**
         $linkedCustomer = Customer::whereHas('telegramAccounts', function ($query) use ($userId) {
             $query->where('telegram_chat_id', $userId);
         })->first();
 
         if (!$linkedCustomer) {
-            // 🚨 Faqat raqam kiritish so‘raladi
+            // 🚨 **Faqat raqam kiritish so‘raladi**
             if (!is_numeric($text)) {
                 $this->sendMessage($chatId, "❌ Noto‘g‘ri ma’lumot. 🔢 Iltimos, hisob raqamingizni kiriting:");
                 return;
             }
 
-            // ✅ Agar raqam bo‘lsa, bog‘lashni harakat qiladi
+            // ✅ **Agar raqam bo‘lsa, bog‘lashni harakat qiladi**
             $customer = Customer::where('account_number', $text)->first();
 
             if (!$customer) {
-                // ❌ Hisob raqami topilmadi, menyuni ko‘rsatmaslik kerak
+                // ❌ **Hisob raqami topilmadi, menyuni ko‘rsatmaslik kerak**
                 $this->sendMessage($chatId, "❌ Xatolik: Hisob raqami topilmadi. Qayta urinib ko‘ring.");
                 return;
             }
 
-            // ✅ Agar hisob topilsa, bog‘laymiz
+            // ✅ **Agar hisob topilsa, bog‘laymiz**
             $this->linkAccount($chatId, $userId, $text);
             return;
         }
 
-        // ✅ Asosiy menyudan tugmalar bosilganda
+        // ✅ **Asosiy menyudan tugmalar bosilganda**
         switch ($text) {
             case "📋 Ma'lumotlarim":
                 $this->sendCustomerInfo($chatId);
@@ -121,6 +124,7 @@ class TelegramController extends Controller
                 $this->sendMessage($chatId, "❌ Noto‘g‘ri buyruq. Iltimos, tugmalardan foydalaning.");
         }
     }
+
 
     // ✅ Hisob raqamini Telegramga bog‘lash
     private function linkAccount($chatId, $userId, $accountNumber)
