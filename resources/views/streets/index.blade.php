@@ -34,11 +34,13 @@
                                                class="btn btn-info btn-sm">Ko‘rish</a>
                                             <a href="{{ route('streets.edit', $street->id) }}"
                                                class="btn btn-warning btn-sm">Tahrirlash</a>
+                                            @hasrole('admin')
                                             <form action="{{ route('streets.destroy', $street->id) }}" method="POST"
                                                   style="display:inline;">
                                                 @csrf @method('DELETE')
                                                 <button type="submit" class="btn btn-danger btn-sm">O‘chirish</button>
                                             </form>
+                                            @endhasrole
                                         </td>
                                     </tr>
                                 @endforeach

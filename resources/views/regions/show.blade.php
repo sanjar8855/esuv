@@ -33,6 +33,7 @@
                     <a href="{{ route('regions.index') }}" class="btn btn-secondary">Orqaga</a>
                     <a href="{{ route('regions.edit', $region->id) }}" class="btn btn-warning">Tahrirlash</a>
 
+                    @hasrole('admin')
                     <form action="{{ route('regions.destroy', $region->id) }}" method="POST" class="d-inline">
                         @csrf
                         @method('DELETE')
@@ -40,6 +41,7 @@
                                 onclick="return confirm('Haqiqatan ham o‘chirilsinmi?')">O‘chirish
                         </button>
                     </form>
+                    @endhasrole
                 </div>
             </div>
         </div>

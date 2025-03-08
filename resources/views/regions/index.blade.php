@@ -32,11 +32,13 @@
                                                class="btn btn-info btn-sm">Batafsil</a>
                                             <a href="{{ route('regions.edit', $region->id) }}"
                                                class="btn btn-warning btn-sm">Tahrirlash</a>
+                                            @hasrole('admin')
                                             <form action="{{ route('regions.destroy', $region->id) }}" method="POST"
                                                   style="display:inline;">
                                                 @csrf @method('DELETE')
                                                 <button type="submit" class="btn btn-danger btn-sm">O‘chirish</button>
                                             </form>
+                                            @endhasrole
                                         </td>
                                     </tr>
                                 @endforeach

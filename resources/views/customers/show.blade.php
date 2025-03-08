@@ -151,29 +151,6 @@
                                 onclick="return confirm('Haqiqatan ham o‘chirmoqchimisiz?')">O‘chirish
                         </button>
                     </form>
-
-                    <h3>Naqd to‘lov qabul qilish</h3>
-                    <form action="{{ route('payments.store') }}" method="POST">
-                        @csrf
-                        <input type="hidden" name="customer_id" value="{{ $customer->id }}">
-                        <input type="hidden" name="redirect_back" value="1">
-
-                        <div class="mb-3">
-                            <label for="amount">To‘lov summasi:</label>
-                            <input type="number" name="amount" class="form-control" required>
-                        </div>
-
-                        <div class="mb-3">
-                            <label for="payment_method">To‘lov usuli:</label>
-                            <select name="payment_method" class="form-control">
-                                <option value="cash">Naqd</option>
-                                <option value="card">Karta</option>
-                                <option value="transfer">Bank o'tkazmasi</option>
-                            </select>
-                        </div>
-
-                        <button type="submit" class="btn btn-success">To‘lovni kiritish</button>
-                    </form>
                 </div>
 
                 <div class="col-md-4">
@@ -213,6 +190,29 @@
                     <div class="mt-3">
                         {{ $payments->appends(['invoice_page' => request('invoice_page')])->links() }}
                     </div>
+
+                    <h3>To‘lov qabul qilish</h3>
+                    <form action="{{ route('payments.store') }}" method="POST">
+                        @csrf
+                        <input type="hidden" name="customer_id" value="{{ $customer->id }}">
+                        <input type="hidden" name="redirect_back" value="1">
+
+                        <div class="mb-3">
+                            <label for="amount">To‘lov summasi:</label>
+                            <input type="number" name="amount" class="form-control" required>
+                        </div>
+
+                        <div class="mb-3">
+                            <label for="payment_method">To‘lov usuli:</label>
+                            <select name="payment_method" class="form-control">
+                                <option value="cash">Naqd</option>
+                                <option value="card">Karta</option>
+                                <option value="transfer">Bank o'tkazmasi</option>
+                            </select>
+                        </div>
+
+                        <button type="submit" class="btn btn-success">To‘lovni kiritish</button>
+                    </form>
                 </div>
             </div>
         </div>

@@ -35,12 +35,14 @@
                                                class="btn btn-info btn-sm">Ko‘rish</a>
                                             <a href="{{ route('neighborhoods.edit', $neighborhood->id) }}"
                                                class="btn btn-warning btn-sm">Tahrirlash</a>
+                                            @hasrole('admin')
                                             <form action="{{ route('neighborhoods.destroy', $neighborhood->id) }}"
                                                   method="POST"
                                                   style="display:inline;">
                                                 @csrf @method('DELETE')
                                                 <button type="submit" class="btn btn-danger btn-sm">O‘chirish</button>
                                             </form>
+                                            @endhasrole
                                         </td>
                                     </tr>
                                 @endforeach
