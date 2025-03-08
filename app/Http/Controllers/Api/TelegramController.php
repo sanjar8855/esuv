@@ -87,6 +87,15 @@ class TelegramController extends Controller
             }
 
             // ✅ Agar raqam bo‘lsa, bog‘lashni harakat qiladi
+            $customer = Customer::where('account_number', $text)->first();
+
+            if (!$customer) {
+                // ❌ Hisob raqami topilmadi, menyuni ko‘rsatmaslik kerak
+                $this->sendMessage($chatId, "❌ Xatolik: Hisob raqami topilmadi. Qayta urinib ko‘ring.");
+                return;
+            }
+
+            // ✅ Agar hisob topilsa, bog‘laymiz
             $this->linkAccount($chatId, $userId, $text);
             return;
         }
@@ -112,7 +121,6 @@ class TelegramController extends Controller
                 $this->sendMessage($chatId, "❌ Noto‘g‘ri buyruq. Iltimos, tugmalardan foydalaning.");
         }
     }
-
 
     // ✅ Hisob raqamini Telegramga bog‘lash
     private function linkAccount($chatId, $userId, $accountNumber)
