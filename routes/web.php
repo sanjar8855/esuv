@@ -39,13 +39,14 @@ Route::middleware('guest')->group(function () {
 Route::middleware('auth')->group(function () {
     Route::post('/logout', [AuthController::class, 'logout'])->name('logout');
 
+    Route::middleware('can:companies')->group(function () {
+        Route::resource('companies', CompanyController::class);
+    });
+
     Route::middleware('can:dashboard')->group(function () {
         Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
     });
 
-    Route::middleware('can:companies')->group(function () {
-        Route::resource('companies', CompanyController::class);
-    });
     Route::middleware('can:customers')->group(function () {
         Route::resource('customers', CustomerController::class);
         Route::delete('/customers/{customer}/telegram/{telegram}', [CustomerController::class, 'detachTelegramAccount'])
