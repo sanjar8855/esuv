@@ -1,6 +1,8 @@
 @extends('layouts.app')
 
 @section('content')
+    <link href="https://cdn.jsdelivr.net/npm/tom-select@2.2.2/dist/css/tom-select.css" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/tom-select@2.2.2/dist/js/tom-select.complete.min.js"></script>
     <div class="page-body">
         <div class="container-xl">
             <div class="row row-cards">
@@ -21,7 +23,8 @@
 
                         <div class="mb-3">
                             <label for="customer_id">Mijoz tanlang:</label>
-                            <select name="customer_id" class="form-control" required>
+                            <select name="customer_id" id="customerSelect" class="form-control" required>
+                                <option></option>
                                 @foreach($customers as $customer)
                                     <option value="{{ $customer->id }}">{{ $customer->name }}</option>
                                 @endforeach
@@ -168,6 +171,19 @@
             // Hodisalarni tinglash
             installationDateInput.addEventListener("change", calculateExpirationDate);
             validityPeriodInput.addEventListener("input", calculateExpirationDate);
+        });
+    </script>
+    <script>
+        document.addEventListener("DOMContentLoaded", function() {
+            new TomSelect("#customerSelect", {
+                create: false,
+                sortField: {
+                    field: "text",
+                    direction: "asc"
+                },
+                placeholder: "Mijozni tanlang...",
+                allowEmptyOption: true
+            });
         });
     </script>
 @endsection
