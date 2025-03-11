@@ -19,7 +19,9 @@ use App\Http\Controllers\InvoiceController;
 use App\Http\Controllers\PaymentController;
 use App\Http\Controllers\NotificationController;
 use Telegram\Bot\Laravel\Facades\Telegram;
+use App\Http\Controllers\SubscriberController;
 
+Route::post('/subscribe', [SubscriberController::class, 'store'])->name('subscribe.store');
 
 //Route::get('setwebhook', function () {
 //    $response = Telegram::setWebhook(['url' =>'https://esuv.uz/api/telegram/webhook']);
