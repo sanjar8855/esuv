@@ -25,7 +25,7 @@ class SubscriberController extends Controller
 
     private function sendToTelegram($phone)
     {
-        $chatId = 1002465975679;
+        $chatId = -1002465975679;
 
         Telegram::sendMessage([
             'chat_id' => $chatId,
