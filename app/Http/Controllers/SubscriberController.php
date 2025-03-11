@@ -10,7 +10,7 @@ class SubscriberController extends Controller
     public function store(Request $request)
     {
         $request->validate([
-            'phone' => 'required|regex:/^\+?\d{9,15}$/|unique:subscribers,phone'
+            'phone' => 'required|regex:/^\+?\d{9,15}$/'
         ]);
 
         $subscriber = Subscriber::create([
