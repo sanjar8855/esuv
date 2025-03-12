@@ -26,11 +26,8 @@ class SubscriberController extends Controller
     private function sendToTelegram($phone)
     {
         $chatId = -1002465975679;
+        $botToken = "7846242410:AAGLghOB5RjC8Cn_6_-ICQjG5xanQHultnY";
 
-        Telegram::sendMessage([
-            'chat_id' => $chatId,
-            'text' => "📲 Yangi obunachi: <b>{$phone}</b>",
-            'parse_mode' => 'HTML',
-        ]);
+        file_get_contents("https://api.telegram.org/bot{$botToken}/sendMessage?chat_id={$chatId}&text=📲 Yangi obunachi: <b>{$phone}</b>&parse_mode=HTML");
     }
 }
