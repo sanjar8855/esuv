@@ -110,7 +110,7 @@
                                         <td>{{ $customer->address }}</td>
                                         <td>
                                             <a href="{{ route('customers.show', $customer->id) }}"
-                                               class="btn btn-info btn-sm">Ko‘rish</a>
+                                               class="btn btn-info btn-sm">Batafsil</a>
                                             <a href="{{ route('customers.edit', $customer->id) }}"
                                                class="btn btn-warning btn-sm">Tahrirlash</a>
                                             <form action="{{ route('customers.destroy', $customer->id) }}" method="POST"

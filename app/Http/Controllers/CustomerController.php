@@ -172,6 +172,7 @@ class CustomerController extends Controller
             'waterMeter.readings' => function ($query) {
                 // Oxirgi (eng so‘nggi) o‘qish reading_date yoki id bo‘yicha tartib:
                 $query->orderBy('reading_date', 'desc');
+                $query->orderBy('id', 'desc');
             },
             'telegramAccounts'
         ]);

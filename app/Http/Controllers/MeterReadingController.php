@@ -91,8 +91,18 @@ class MeterReadingController extends Controller
             }
         }
 
-        return redirect()->route('water_meters.show', $meterReading->water_meter_id)
-            ->with('success', 'Hisoblagich o‘qilishi muvaffaqiyatli qo‘shildi!');
+        $previousUrl = url()->previous(); // Oldingi sahifani olamiz
+
+        if (strpos($previousUrl, route('customers.show', $customer->id)) !== false) {
+            return redirect()->route('customers.show', $customer->id)
+                ->with('success', 'Hisoblagich o‘qilishi muvaffaqiyatli qo‘shildi!');
+        } elseif (strpos($previousUrl, route('meter_readings.create')) !== false) {
+            return redirect()->route('meter_readings.index')
+                ->with('success', 'Hisoblagich o‘qilishi muvaffaqiyatli qo‘shildi!');
+        } else {
+            return redirect()->route('water_meters.show', $meterReading->water_meter_id)
+                ->with('success', 'Hisoblagich o‘qilishi muvaffaqiyatli qo‘shildi!');
+        }
 
     }
 

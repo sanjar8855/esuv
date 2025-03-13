@@ -150,15 +150,77 @@
                         </tbody>
                     </table>
 
-                    <a href="{{ route('customers.index') }}" class="btn btn-secondary">Ortga</a>
-                    <a href="{{ route('customers.edit', $customer->id) }}" class="btn btn-warning">Tahrirlash</a>
-                    <form action="{{ route('customers.destroy', $customer->id) }}" method="POST" class="d-inline">
+                    <h1>Hisoblagich so'ngi ko'rsatgichlari:</h1>
+                    <ul class="list-group">
+                        @foreach($customer->waterMeter->readings as $reading)
+                            <li class="list-group-item">
+                                <small>Sana: {{ $reading->reading_date }}</small><br>
+                                <small>Ko'rsatgich: {{ $reading->reading }}</small><br>
+                                @if($reading->photo)
+                                    <a href="{{ asset('storage/' . $reading->photo) }}" target="_blank">
+                                        <img src="{{ asset('storage/' . $reading->photo) }}" alt="Ko'rsatkich rasmi"
+                                             width="50">
+                                    </a>
+                                @endif
+                            </li>
+                        @endforeach
+                    </ul>
+
+                    <h1>Yangi ko'rsatkich qo'shish:</h1>
+                    @if ($errors->any())
+                        <div class="alert alert-danger">
+                            <ul>
+                                @foreach ($errors->all() as $error)
+                                    <li>{{ $error }}</li>
+                                @endforeach
+                            </ul>
+                        </div>
+                    @endif
+                    <form action="{{ route('meter_readings.store') }}" method="POST" enctype="multipart/form-data">
                         @csrf
-                        @method('DELETE')
-                        <button type="submit" class="btn btn-danger"
-                                onclick="return confirm('Haqiqatan ham o‘chirmoqchimisiz?')">O‘chirish
-                        </button>
+
+                        <input type="hidden" name="water_meter_id" value="{{ $customer->waterMeter->id }}">
+
+                        <div class="mb-3">
+                            <label for="reading">Ko'rsatgich:</label>
+                            <input type="number" name="reading" class="form-control" required>
+                        </div>
+
+                        <div class="mb-3">
+                            <label class="form-label">O‘qish sanasi:</label>
+                            <div class="input-icon">
+                                <span class="input-icon-addon">
+                                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24"
+                                         fill="none"
+                                         stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                                         stroke-linejoin="round"
+                                         class="icon icon-1"><path
+                                            d="M4 7a2 2 0 0 1 2 -2h12a2 2 0 0 1 2 2v12a2 2 0 0 1 -2 2h-12a2 2 0 0 1 -2 -2v-12z"/><path
+                                            d="M16 3v4"/><path d="M8 3v4"/><path d="M4 11h16"/><path d="M11 15h1"/><path
+                                            d="M12 15v3"/></svg>
+                                </span>
+                                <input name="reading_date" class="form-control" placeholder="Sanani tanlang" required
+                                       value="{{ old('reading_date', now()->format('Y-m-d')) }}"
+                                       id="datepicker-icon-prepend"/>
+                            </div>
+                        </div>
+
+                        <div class="mb-3">
+                            <label for="photo" class="form-label">Rasm yuklash</label>
+                            <input type="file" name="photo" class="form-control">
+                        </div>
+
+                        <div class="mb-3">
+                            <label for="confirmed">Tasdiqlanganmi?</label>
+                            <select name="confirmed" class="form-control">
+                                <option value="1">Ha</option>
+                                <option value="0">Yo‘q</option>
+                            </select>
+                        </div>
+
+                        <button type="submit" class="btn btn-primary">Saqlash</button>
                     </form>
+
                 </div>
 
                 <div class="col-md-4">
@@ -204,7 +266,7 @@
                     </div>
 
                     <h3>To‘lov qabul qilish</h3>
-                    <form action="{{ route('payments.store') }}" method="POST">
+                    <form action="{{ route('payments.store') }}" method="POST" class="mb-3">
                         @csrf
                         <input type="hidden" name="customer_id" value="{{ $customer->id }}">
                         <input type="hidden" name="redirect_back" value="1">
@@ -224,6 +286,16 @@
                         </div>
 
                         <button type="submit" class="btn btn-success">To‘lovni kiritish</button>
+                    </form>
+
+                    <a href="{{ route('customers.index') }}" class="btn btn-secondary">Ortga</a>
+                    <a href="{{ route('customers.edit', $customer->id) }}" class="btn btn-warning">Tahrirlash</a>
+                    <form action="{{ route('customers.destroy', $customer->id) }}" method="POST" class="d-inline">
+                        @csrf
+                        @method('DELETE')
+                        <button type="submit" class="btn btn-danger"
+                                onclick="return confirm('Haqiqatan ham o‘chirmoqchimisiz?')">O‘chirish
+                        </button>
                     </form>
                 </div>
             </div>
