@@ -17,10 +17,12 @@
                             <th>Shartnoma PDF</th>
                             <td>
                                 @if($customer->pdf_file)
-                                    <a href="{{ asset('storage/' . $customer->pdf_file) }}" target="_blank" class="btn btn-sm btn-info">
+                                    <a href="{{ asset('storage/' . $customer->pdf_file) }}" target="_blank"
+                                       class="btn btn-sm btn-info">
                                         PDF-ni ko‘rish
                                     </a>
-                                    <a href="{{ asset('storage/' . $customer->pdf_file) }}" download class="btn btn-sm btn-success">
+                                    <a href="{{ asset('storage/' . $customer->pdf_file) }}" download
+                                       class="btn btn-sm btn-success">
                                         Yuklab olish
                                     </a>
                                 @else
@@ -78,11 +80,13 @@
                                     <a href="https://t.me/{{$tg->username}}" target="_blank">{{$tg->username}}</a>
 
                                     <!-- O‘chirish tugmasi faqat adminlar uchun -->
-                                        <form action="{{ route('customers.detachTelegram', ['customer' => $customer->id, 'telegram' => $tg->id]) }}" method="POST" style="display:inline;">
-                                            @csrf
-                                            @method('DELETE')
-                                            <button type="submit" class="btn btn-danger btn-sm">❌</button>
-                                        </form>
+                                    <form
+                                        action="{{ route('customers.detachTelegram', ['customer' => $customer->id, 'telegram' => $tg->id]) }}"
+                                        method="POST" style="display:inline;">
+                                        @csrf
+                                        @method('DELETE')
+                                        <button type="submit" class="btn btn-danger btn-sm">❌</button>
+                                    </form>
                                     <br>
                                 @endforeach
                             </td>
@@ -156,7 +160,11 @@
                             <li class="list-group-item">
                                 <small>Sana: {{ $reading->reading_date }}</small><br>
                                 <small>Ko'rsatgich: {{ $reading->reading }}</small><br>
-                                <small>Holat: {{ $reading->confirmed ? '<span class="badge bg-green text-green-fg">Tasdiqlangan</span>' : '<span class="badge bg-red text-red-fg">Tasdiqlanmagan</span>' }}</small><br>
+                                <small>
+                                    Holat: {!! $reading->confirmed
+                                        ? '<span class="badge bg-green text-green-fg">Tasdiqlangan</span>'
+                                        : '<span class="badge bg-red text-red-fg">Tasdiqlanmagan</span>'
+                                    !!}</small><br>
                                 @if($reading->photo)
                                     <a href="{{ asset('storage/' . $reading->photo) }}" target="_blank">
                                         <img src="{{ asset('storage/' . $reading->photo) }}" alt="Ko'rsatkich rasmi"
