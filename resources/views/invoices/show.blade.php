@@ -10,13 +10,21 @@
                         <div class="card-body">
                             <h4 class="card-title">Hisob-faktura № {{ $invoice->invoice_number }}</h4>
                             <ul class="list-group">
-                                <li class="list-group-item"><strong>Mijoz:</strong> {{ $invoice->customer->name }}</li>
-                                <li class="list-group-item"><strong>Tarif:</strong> m3: {{ $invoice->tariff->price_per_m3 }}, 1 inson uchun: {{$invoice->tariff->for_one_person}}</li>
+                                <li class="list-group-item"><strong>Mijoz:</strong>
+                                    <a href="{{ route('customers.show', $invoice->customer->id) }}"
+                                       class="badge badge-outline text-blue">
+                                        {{ $invoice->customer->name }}
+                                    </a>
+                                </li>
+                                <li class="list-group-item"><strong>Tarif:</strong>
+                                    m3: {{ $invoice->tariff->price_per_m3 }}, 1 inson
+                                    uchun: {{$invoice->tariff->for_one_person}}</li>
                                 <li class="list-group-item"><strong>Davr:</strong> {{ $invoice->billing_period }}</li>
                                 <li class="list-group-item">
                                     <strong>Summa:</strong> {{ number_format($invoice->amount_due, 2) }} UZS
                                 </li>
-                                <li class="list-group-item"><strong>To‘lov muddati:</strong> {{ $invoice->due_date }}</li>
+                                <li class="list-group-item"><strong>To‘lov muddati:</strong> {{ $invoice->due_date }}
+                                </li>
                                 <li class="list-group-item"><strong>Holat:</strong>
                                     @if($invoice->status == 'pending')
                                         <span class="badge bg-yellow text-yellow-fg">To'liq to‘lanmagan</span>

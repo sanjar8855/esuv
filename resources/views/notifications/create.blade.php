@@ -23,7 +23,12 @@
                             <label for="customer_id">Mijoz:</label>
                             <select name="customer_id" class="form-control" required>
                                 @foreach($customers as $customer)
-                                    <option value="{{ $customer->id }}">{{ $customer->name }}</option>
+                                    <option value="{{ $customer->id }}">
+                                        {{ $customer->name }}
+                                        @foreach($customer->telegramAccounts as $tg)
+                                           | {{$tg->username}}
+                                        @endforeach
+                                    </option>
                                 @endforeach
                             </select>
                         </div>
@@ -42,10 +47,10 @@
                             <textarea name="message" class="form-control" required></textarea>
                         </div>
 
-                        <div class="mb-3">
-                            <label for="sent_at">Yuborilgan Sana:</label>
-                            <input type="date" name="sent_at" class="form-control" required>
-                        </div>
+                        {{--                        <div class="mb-3">--}}
+                        {{--                            <label for="sent_at">Yuborilgan Sana:</label>--}}
+                        {{--                            <input type="date" name="sent_at" class="form-control" required>--}}
+                        {{--                        </div>--}}
 
                         <button type="submit" class="btn btn-primary">Saqlash</button>
                     </form>

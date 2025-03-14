@@ -52,11 +52,11 @@
                                       required>{{ $notification->message }}</textarea>
                         </div>
 
-                        <div class="mb-3">
-                            <label for="sent_at">Yuborilgan Sana:</label>
-                            <input type="date" name="sent_at" class="form-control" value="{{ $notification->sent_at }}"
-                                   required>
-                        </div>
+                        {{--                        <div class="mb-3">--}}
+                        {{--                            <label for="sent_at">Yuborilgan Sana:</label>--}}
+                        {{--                            <input type="date" name="sent_at" class="form-control" value="{{ $notification->sent_at }}"--}}
+                        {{--                                   required>--}}
+                        {{--                        </div>--}}
 
                         <button type="submit" class="btn btn-primary">Yangilash</button>
                     </form>

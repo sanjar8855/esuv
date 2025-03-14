@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\Notification;
 use App\Models\Customer;
 use Illuminate\Http\Request;
+use Telegram\Bot\Laravel\Facades\Telegram;
 
 class NotificationController extends Controller
 {
@@ -16,7 +17,9 @@ class NotificationController extends Controller
 
     public function create()
     {
-        $customers = Customer::all();
+        $customers = Customer::with('telegramAccounts')
+            ->whereHas('telegramAccounts')
+            ->get();
         return view('notifications.create', compact('customers'));
     }
 
@@ -26,10 +29,26 @@ class NotificationController extends Controller
             'customer_id' => 'required|exists:customers,id',
             'type' => 'required|in:reminder,alert,info',
             'message' => 'required|string',
-            'sent_at' => 'required|date',
+            'sent_at' => 'nullable|date',
         ]);
 
-        Notification::create($request->all());
+        $notification = Notification::create($request->all());
+
+        $customer = Customer::with('telegramAccounts')->findOrFail($request->customer_id);
+        $telegramAccounts = $customer->telegramAccounts;
+
+        // 3️⃣ Har bir Telegram akkauntga xabar yuborish
+        foreach ($telegramAccounts as $telegramAccount) {
+            try {
+                Telegram::sendMessage([
+                    'chat_id' => $telegramAccount->telegram_chat_id, // Mijozning Telegram ID'si
+                    'text' => "📢 <b>Yangi xabar:</b>\n" . e($request->message), // Xabar matni
+                    'parse_mode' => 'HTML',
+                ]);
+            } catch (\Exception $e) {
+                \Log::error("Telegramga xabar yuborishda xatolik: " . $e->getMessage());
+            }
+        }
         return redirect()->route('notifications.index')->with('success', 'Xabarnoma muvaffaqiyatli qo‘shildi!');
     }
 
@@ -50,7 +69,7 @@ class NotificationController extends Controller
             'customer_id' => 'required|exists:customers,id',
             'type' => 'required|in:reminder,alert,info',
             'message' => 'required|string',
-            'sent_at' => 'required|date',
+            'sent_at' => 'nullable|date',
         ]);
 
         $notification->update($request->all());

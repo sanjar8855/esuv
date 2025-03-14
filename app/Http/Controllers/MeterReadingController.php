@@ -40,6 +40,7 @@ class MeterReadingController extends Controller
         // **1️⃣ Oxirgi kiritilgan istalgan o'qish (tasdiqlangan yoki tasdiqlanmagan)**
         $lastReading = MeterReading::where('water_meter_id', $validated['water_meter_id'])
             ->orderByRaw('reading_date DESC, reading DESC') // Oxirgi sana va eng katta qiymat
+            ->where('confirmed',true)
             ->first();
 
         if ($lastReading && $validated['reading'] <= $lastReading->reading) {

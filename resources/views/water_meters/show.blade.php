@@ -6,7 +6,12 @@
             <div class="row row-cards">
                 <div class="col-md-4">
                     <h1>Hisoblagich Tafsilotlari</h1>
-                    <p><strong>Mijoz:</strong> {{ $waterMeter->customer->name }}</p>
+                    <p><strong>Mijoz:</strong>
+                        <a href="{{ route('customers.show', $waterMeter->customer->id) }}"
+                           class="badge badge-outline text-blue">
+                            {{ $waterMeter->customer->name }}
+                        </a>
+                    </p>
                     <p><strong>Hisoblagich Raqami:</strong> {{ $waterMeter->meter_number }}</p>
                     <p><strong>O‘rnatilgan Sana:</strong> {{ $waterMeter->installation_date ?? 'Noma’lum' }}</p>
                     <p><strong>Oxirgi tekshirilgan sana:</strong> {{ $waterMeter->last_reading_date ?? 'Noma’lum' }}</p>

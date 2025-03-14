@@ -33,7 +33,7 @@
                                         <td>{{ $notification->customer->name }}</td>
                                         <td>{{ ucfirst($notification->type) }}</td>
                                         <td>{{ $notification->message }}</td>
-                                        <td>{{ $notification->sent_at }}</td>
+                                        <td>{{ $notification->created_at }}</td>
                                         <td>
                                             <a href="{{ route('notifications.edit', $notification->id) }}"
                                                class="btn btn-warning btn-sm">Tahrirlash</a>

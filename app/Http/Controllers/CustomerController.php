@@ -1,4 +1,5 @@
 <?php
+
 namespace App\Http\Controllers;
 
 use App\Models\MeterReading;
@@ -28,7 +29,7 @@ class CustomerController extends Controller
         } else {
             // ✅ Agar admin bo‘lmasa, faqat o‘z kompaniyasidagi mijozlar joylashgan ko‘chalar
             if ($user->company) {
-                $streets = Street::whereHas('customers', function($query) use ($user) {
+                $streets = Street::whereHas('customers', function ($query) use ($user) {
                     $query->where('company_id', $user->company->id);
                 })->get();
             } else {
@@ -58,7 +59,7 @@ class CustomerController extends Controller
 
         // **📌 Qidiruv**
         if ($search) {
-            $query->where(function($q) use ($search) {
+            $query->where(function ($q) use ($search) {
                 $q->where('name', 'LIKE', "%{$search}%")
                     ->orWhere('phone', 'LIKE', "%{$search}%")
                     ->orWhere('account_number', 'LIKE', "%{$search}%");
