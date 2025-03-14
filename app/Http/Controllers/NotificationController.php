@@ -25,12 +25,14 @@ class NotificationController extends Controller
 
     public function store(Request $request)
     {
-        $request->validate([
+        $validated = $request->validate([
             'customer_id' => 'required|exists:customers,id',
             'type' => 'required|in:reminder,alert,info',
             'message' => 'required|string',
             'sent_at' => 'nullable|date',
         ]);
+
+        $validated['sent_at'] = now()->format('Y-m-d');
 
         $notification = Notification::create($request->all());
 
