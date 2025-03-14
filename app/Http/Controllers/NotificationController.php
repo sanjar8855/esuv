@@ -34,7 +34,7 @@ class NotificationController extends Controller
 
         $validated['sent_at'] = now()->format('Y-m-d');
 
-        $notification = Notification::create($request->all());
+        $notification = Notification::create($validated);
 
         $customer = Customer::with('telegramAccounts')->findOrFail($request->customer_id);
         $telegramAccounts = $customer->telegramAccounts;
