@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\Notification;
 use App\Models\Customer;
+use App\Models\Payment;
 use Illuminate\Http\Request;
 use Telegram\Bot\Laravel\Facades\Telegram;
 
@@ -38,13 +39,22 @@ class NotificationController extends Controller
 
         $customer = Customer::with('telegramAccounts')->findOrFail($request->customer_id);
         $telegramAccounts = $customer->telegramAccounts;
-
+        $type = null;
+        if($validated->type =='reminder'){
+            $type = 'Eslatma';
+        }
+        elseif($validated->type =='alert'){
+            $type = 'Ogohlantirish';
+        }
+        elseif($validated->type =='info'){
+            $type = 'Ma`lumot';
+        }
         // 3️⃣ Har bir Telegram akkauntga xabar yuborish
         foreach ($telegramAccounts as $telegramAccount) {
             try {
                 Telegram::sendMessage([
                     'chat_id' => $telegramAccount->telegram_chat_id, // Mijozning Telegram ID'si
-                    'text' => "📢 <b>Yangi xabar:</b>\n" . e($request->message), // Xabar matni
+                    'text' => "📢 <b>Yangi xabar, $type:</b>\n" . e($request->message), // Xabar matni
                     'parse_mode' => 'HTML',
                 ]);
             } catch (\Exception $e) {
