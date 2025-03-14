@@ -119,8 +119,6 @@ class TelegramController extends Controller
             return;
         }
 
-
-
         // ✅ **Asosiy menyudan tugmalar bosilganda**
         switch ($text) {
             case "📋 Ma'lumotlarim":
@@ -156,6 +154,7 @@ class TelegramController extends Controller
                 $this->sendMessage($chatId, "❌ Noto‘g‘ri buyruq. Iltimos, tugmalardan foydalaning.");
         }
 
+        // 🔎 Agar foydalanuvchi yangi ko‘rsatgich kiritayotgan bo‘lsa
         if (cache()->has("awaiting_meter_reading_{$chatId}")) {
             $customerId = cache()->get("awaiting_meter_reading_{$chatId}");
             $customer = Customer::find($customerId);
@@ -195,6 +194,10 @@ class TelegramController extends Controller
             $this->sendMessage($chatId, "✅ Hisoblagich uchun yangi ko‘rsatgich qo‘shildi. Admin tasdiqlaganidan keyin u hisobga olinadi.");
             return;
         }
+
+        //  **Agar yuqoridagi shartlar ishlamasa, shundagina noto‘g‘ri buyruq ekanligini bildiramiz**
+        $this->sendMessage($chatId, "❌ Noto‘g‘ri buyruq. Iltimos, tugmalardan foydalaning.");
+
     }
 
 
@@ -402,7 +405,7 @@ class TelegramController extends Controller
         $message = "📈 <b>Hisoblagich tarixi</b> (Sahifa: {$page}/{$totalPages})\n";
         foreach ($paginatedReadings as $reading) {
             $date = date('d.m.Y', strtotime($reading->reading_date));
-            $message .= "📅 Sana: <b>{$date}</b>\n📏 Ko‘rsatkich: <b>{$reading->reading}</b>\n\n";
+            $message .= "📅 Sana: <b>{$date}</b>\n📏 Ko‘rsatkich: <b>{$reading->reading}</b>\n Holat: <b>" . ($reading->confirmed ? '✅ Tasdiqlangan ' : '❌ Tasdiqlanmagan') . "</b> \n\n";
         }
 
         $this->sendPaginatedMessage($chatId, $message, 'meter_history', $page, $totalPages);
