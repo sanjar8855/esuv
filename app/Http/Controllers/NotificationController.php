@@ -40,13 +40,13 @@ class NotificationController extends Controller
         $customer = Customer::with('telegramAccounts')->findOrFail($request->customer_id);
         $telegramAccounts = $customer->telegramAccounts;
         $type = null;
-        if($validated->type =='reminder'){
+        if($notification->type =='reminder'){
             $type = 'Eslatma';
         }
-        elseif($validated->type =='alert'){
+        elseif($notification->type =='alert'){
             $type = 'Ogohlantirish';
         }
-        elseif($validated->type =='info'){
+        elseif($notification->type =='info'){
             $type = 'Ma`lumot';
         }
         // 3️⃣ Har bir Telegram akkauntga xabar yuborish
