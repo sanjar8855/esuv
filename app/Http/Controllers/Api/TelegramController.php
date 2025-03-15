@@ -239,7 +239,7 @@ class TelegramController extends Controller
         $customer = $this->getCustomerByChatId($chatId);
         if (!$customer) return;
 
-        $perPage = 10;
+        $perPage = 6;
         $total = $customer->invoices->count();
         $totalPages = ceil($total / $perPage);
         $offset = ($page - 1) * $perPage;
@@ -259,7 +259,7 @@ class TelegramController extends Controller
         $customer = $this->getCustomerByChatId($chatId);
         if (!$customer) return;
 
-        $perPage = 10;
+        $perPage = 6;
         $total = $customer->payments->count();
         $totalPages = ceil($total / $perPage);
         $offset = ($page - 1) * $perPage;
@@ -295,7 +295,7 @@ class TelegramController extends Controller
             return;
         }
 
-        $perPage = 10;
+        $perPage = 6;
         $readings = $customer->waterMeter->readings->sortByDesc('id')->sortByDesc('reading_date')->values();
         $total = $readings->count();
         $totalPages = ceil($total / $perPage);
