@@ -23,15 +23,30 @@
                 <div class="col-md-4">
                     <h1>Hisoblagich so'ngi ko'rsatgichlari:</h1>
                     <ul class="list-group">
-                        @foreach($waterMeter->readings as $reading)
+                        @foreach($readings as $reading)
                             <li class="list-group-item">
                                 <small>Sana: {{ $reading->reading_date }}</small><br>
                                 <small>Ko'rsatgich: {{ $reading->reading }}</small><br>
-                                <small>
-                                    Holat: {!! $reading->confirmed
-                                        ? '<span class="badge bg-green text-green-fg">Tasdiqlangan</span>'
-                                        : '<span class="badge bg-red text-red-fg">Tasdiqlanmagan</span>'
-                                    !!}</small><br>
+                                <small id="reading-status-{{ $reading->id }}">
+                                    @if($reading->confirmed)
+                                        <span class="badge bg-green text-green-fg">Tasdiqlangan</span>
+                                    @else
+                                        <span class="badge bg-red text-red-fg">Tasdiqlanmagan</span>
+                                        <form action="{{ route('meter_readings.confirm', $reading->id) }}" method="POST"
+                                              class="d-inline confirm-form" data-reading-id="{{ $reading->id }}">
+                                            @csrf
+                                            @method('PATCH')
+                                            <button type="submit" class="btn btn-sm btn-outline-primary confirm-btn">
+                                                Tasdiqlash
+                                            </button>
+                                        </form>
+                                    @endif
+                                    <a href="{{ route('meter_readings.show', $reading->id) }}"
+                                       class="badge badge-outline text-blue">
+                                        Batafsil
+                                    </a>
+                                </small>
+                                <br>
                                 @if($reading->photo)
                                     <a href="{{ asset('storage/' . $reading->photo) }}" target="_blank">
                                         <img src="{{ asset('storage/' . $reading->photo) }}" alt="Ko'rsatkich rasmi"
@@ -41,6 +56,9 @@
                             </li>
                         @endforeach
                     </ul>
+                    <div class="mt-3">
+                        {{ $readings->appends(['reading_page' => request('reading_page')])->links() }}
+                    </div>
                 </div>
                 <div class="col-md-4">
                     <h1>Yangi ko'rsatkich qo'shish:</h1>
@@ -126,4 +144,38 @@
             });
         });
     </script>
+
+    <script>
+        $(document).ready(function () {
+            $(document).on('submit', '.confirm-form', function (e) {
+                e.preventDefault();
+                let form = $(this);
+                let button = form.find('.confirm-btn');
+                let readingId = form.data('reading-id');
+                let statusContainer = $('#reading-status-' + readingId);
+
+                $.ajax({
+                    url: form.attr('action'),
+                    type: 'POST',
+                    data: form.serialize(),
+                    beforeSend: function () {
+                        button.prop('disabled', true).text('Tasdiqlanmoqda...');
+                    },
+                    success: function (response) {
+                        if (response.status === 'success') {
+                            statusContainer.html(response.html);
+                        } else {
+                            button.prop('disabled', false).text('Tasdiqlash');
+                            alert('Xatolik yuz berdi. Iltimos, qayta urinib ko‘ring.');
+                        }
+                    },
+                    error: function () {
+                        button.prop('disabled', false).text('Tasdiqlash');
+                        alert('Tarmoq xatosi. Iltimos, qayta urinib ko‘ring.');
+                    }
+                });
+            });
+        });
+    </script>
+
 @endsection

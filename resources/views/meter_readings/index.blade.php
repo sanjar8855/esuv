@@ -46,7 +46,6 @@
                                         </td>
                                         <td>{{ $meterReading->reading }}</td>
                                         <td>{{ $meterReading->reading_date }}</td>
-                                        <td>{{ $meterReading->confirmed ? 'Tasdiqlangan' : 'Tasdiqlanmagan' }}</td>
                                         <td>
                                             @if($meterReading->photo)
                                                 <a href="{{ asset('storage/' . $meterReading->photo) }}" target="_blank">
@@ -55,6 +54,10 @@
                                             @else
                                                 Rasm yo‘q
                                             @endif
+                                        </td>
+                                        <td>
+                                            {!! $meterReading->confirmed ? '<span class="badge bg-green text-green-fg">Tasdiqlangan</span>'
+                                                : '<span class="badge bg-red text-red-fg">Tasdiqlanmagan</span>' !!}
                                         </td>
                                         <td>
                                             <a href="{{ route('meter_readings.show', $meterReading->id) }}"

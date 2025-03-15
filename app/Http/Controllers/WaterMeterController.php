@@ -43,12 +43,12 @@ class WaterMeterController extends Controller
 
     public function show(WaterMeter $waterMeter)
     {
-        $waterMeter->load(['readings' => function ($query) {
-            $query->orderBy('reading_date', 'desc')
-                ->orderBy('reading', 'desc') // Eng katta o'qishni ham tartiblash
-                ->take(5); // Faqat oxirgi 5 ta o'qish
-        }]);
-        return view('water_meters.show', compact('waterMeter'));
+        $readings = $waterMeter->readings()
+            ->orderBy('reading_date', 'desc')
+            ->orderBy('reading', 'desc')
+            ->paginate(5, ['*'], 'reading_page'); // ✅ Sahifalash qo‘shildi
+
+        return view('water_meters.show', compact('waterMeter', 'readings'));
     }
 
     public function edit(WaterMeter $waterMeter)

@@ -42,6 +42,24 @@
                             <th>To‘lov sanasi</th>
                             <td>{{ $payment->payment_date }}</td>
                         </tr>
+                        <tr>
+                            <th>Holati</th>
+                            <td>
+                                @switch($payment->status)
+                                    @case('completed')
+                                    To'langan
+                                    @break
+                                    @case('failed')
+                                    Xatolik
+                                    @break
+                                    @case('pending')
+                                    To'lanmoqda
+                                    @break
+                                    @default
+                                    Noaniq
+                                @endswitch
+                            </td>
+                        </tr>
                     </table>
 
                     <a href="{{ route('payments.index') }}" class="btn btn-secondary">Orqaga</a>

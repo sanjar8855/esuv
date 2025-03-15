@@ -74,6 +74,7 @@ Route::middleware('auth')->group(function () {
     });
     Route::middleware('can:meter_readings')->group(function () {
         Route::resource('meter_readings', MeterReadingController::class);
+        Route::patch('/meter_readings/{id}/confirm', [MeterReadingController::class, 'confirm'])->name('meter_readings.confirm');
     });
     Route::middleware('can:users')->group(function () {
         Route::resource('users', UserController::class);

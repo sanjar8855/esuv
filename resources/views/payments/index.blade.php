@@ -23,6 +23,7 @@
                                     <th>Miqdori</th>
                                     <th>To‘lov usuli</th>
                                     <th>Sana</th>
+                                    <th>Holat</th>
                                     <th>Harakatlar</th>
                                 </tr>
                                 </thead>
@@ -64,6 +65,21 @@
                                             @endswitch
                                         </td>
                                         <td>{{ $payment->payment_date }}</td>
+                                        <td>
+                                            @switch($payment->status)
+                                                @case('completed')
+                                                To'langan
+                                                @break
+                                                @case('failed')
+                                                Xatolik
+                                                @break
+                                                @case('pending')
+                                                To'lanmoqda
+                                                @break
+                                                @default
+                                                Noaniq
+                                            @endswitch
+                                        </td>
                                         <td>
                                             <a href="{{ route('payments.show', $payment->id) }}"
                                                class="btn btn-info btn-sm">Ko'rish</a>

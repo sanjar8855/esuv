@@ -155,26 +155,33 @@
                     </table>
 
                     <h1>Hisoblagich so'ngi ko'rsatgichlari:</h1>
-                    <ul class="list-group">
-                        @foreach($customer->waterMeter->readings as $reading)
-                            <li class="list-group-item">
-                                <small>Sana: {{ $reading->reading_date }}</small><br>
-                                <small>Ko'rsatgich: {{ $reading->reading }}</small><br>
-                                <small>
-                                    Holat: {!! $reading->confirmed
-                                        ? '<span class="badge bg-green text-green-fg">Tasdiqlangan</span>'
-                                        : '<span class="badge bg-red text-red-fg">Tasdiqlanmagan</span>'
-                                    !!}</small><br>
-                                @if($reading->photo)
-                                    <a href="{{ asset('storage/' . $reading->photo) }}" target="_blank">
-                                        <img src="{{ asset('storage/' . $reading->photo) }}" alt="Ko'rsatkich rasmi"
-                                             width="50">
+                    <div id="pjax-readings">
+                        <ul class="list-group">
+                            @foreach($readings as $reading)
+                                <li class="list-group-item">
+                                    <small>Sana: {{ $reading->reading_date }}</small><br>
+                                    <small>Ko'rsatgich: {{ $reading->reading }}</small><br>
+                                    <small id="reading-status-{{ $reading->id }}">
+                                        @include('customers.partials.reading-status', ['reading' => $reading])
+                                    </small>
+                                    <br>
+                                    @if($reading->photo)
+                                        <a href="{{ asset('storage/' . $reading->photo) }}" target="_blank">
+                                            <img src="{{ asset('storage/' . $reading->photo) }}" alt="Ko'rsatkich rasmi"
+                                                 width="50">
+                                        </a>
+                                    @endif
+                                    <a href="{{ route('meter_readings.show', $reading->id) }}"
+                                       class="badge badge-outline text-blue">
+                                        Batafsil
                                     </a>
-                                @endif
-                            </li>
-                        @endforeach
-                    </ul>
-
+                                </li>
+                            @endforeach
+                        </ul>
+                        <div class="mt-3">
+                            {{ $readings->appends(['reading_page' => request('reading_page')])->links() }}
+                        </div>
+                    </div>
                     <h1>Yangi ko'rsatkich qo'shish:</h1>
                     @if ($errors->any())
                         <div class="alert alert-danger">
@@ -234,46 +241,62 @@
 
                 <div class="col-md-4">
                     <h3>Invoyslar tarixi</h3>
-                    <ul class="list-group">
-                        @foreach($invoices as $invoice)
-                            <li class="list-group-item">
-                                <strong>Invoys #{{ $invoice->invoice_number }}</strong><br>
-                                <small>Oy: {{ $invoice->billing_period }}</small><br>
-                                <small>Holat:
-                                    @if($invoice->status == 'pending')
-                                        <span class="badge bg-yellow text-yellow-fg">To'liq to‘lanmagan</span>
-                                    @elseif($invoice->status == 'paid')
-                                        <span class="badge bg-green text-green-fg">To‘langan</span>
-                                    @elseif($invoice->status == 'overdue')
-                                        <span class="badge bg-red text-red-fg">Muddati o‘tgan</span>
-                                    @endif
-                                </small><br>
-                                <small>Summa: {{ number_format($invoice->amount_due, 2) }} UZS</small>
-                            </li>
-                        @endforeach
-                    </ul>
-                    <div class="mt-3">
-                        {{ $invoices->appends(['payment_page' => request('payment_page')])->links() }}
+                    <div id="pjax-invoices">
+                        <ul class="list-group">
+                            @foreach($invoices as $invoice)
+                                <li class="list-group-item">
+                                    <strong>Invoys #{{ $invoice->invoice_number }}</strong><br>
+                                    <small>Oy: {{ $invoice->billing_period }}</small><br>
+                                    <small>Holat:
+                                        @if($invoice->status == 'pending')
+                                            <span class="badge bg-yellow text-yellow-fg">To'liq to‘lanmagan</span>
+                                        @elseif($invoice->status == 'paid')
+                                            <span class="badge bg-green text-green-fg">To‘langan</span>
+                                        @elseif($invoice->status == 'overdue')
+                                            <span class="badge bg-red text-red-fg">Muddati o‘tgan</span>
+                                        @endif
+                                    </small><br>
+                                    <small>Summa: {{ number_format($invoice->amount_due, 2) }} UZS</small>
+                                </li>
+                            @endforeach
+                        </ul>
+                        <div class="mt-3">
+                            {{ $invoices->appends(['payment_page' => request('payment_page')])->links() }}
+                        </div>
                     </div>
-
                 </div>
 
                 <div class="col-md-4">
                     <h3>To‘lovlar Tarixi</h3>
-                    <ul class="list-group">
-                        @foreach($payments as $payment)
-                            <li class="list-group-item">
-                                <strong>To‘lov: {{ number_format($payment->amount, 2) }} UZS</strong><br>
-                                <small>Usul: {{ ucfirst($payment->payment_method) }}</small><br>
-                                <small>Sana: {{ $payment->payment_date }}</small><br>
-                                <small>Status: {{ $payment->status }}</small>
-                            </li>
-                        @endforeach
-                    </ul>
-                    <div class="mt-3">
-                        {{ $payments->appends(['invoice_page' => request('invoice_page')])->links() }}
+                    <div id="pjax-payments">
+                        <ul class="list-group">
+                            @foreach($payments as $payment)
+                                <li class="list-group-item">
+                                    <strong>To‘lov: {{ number_format($payment->amount, 2) }} UZS</strong><br>
+                                    <small>Usul: {{ ucfirst($payment->payment_method) }}</small><br>
+                                    <small>Sana: {{ $payment->payment_date }}</small><br>
+                                    <small>Status:
+                                        @switch($payment->status)
+                                            @case('completed')
+                                            To'langan
+                                            @break
+                                            @case('failed')
+                                            Xatolik
+                                            @break
+                                            @case('pending')
+                                            To'lanmoqda
+                                            @break
+                                            @default
+                                            Noaniq
+                                        @endswitch
+                                    </small>
+                                </li>
+                            @endforeach
+                        </ul>
+                        <div class="mt-3">
+                            {{ $payments->appends(['invoice_page' => request('invoice_page')])->links() }}
+                        </div>
                     </div>
-
                     <h3>To‘lov qabul qilish</h3>
                     <form action="{{ route('payments.store') }}" method="POST" class="mb-3">
                         @csrf
@@ -296,18 +319,70 @@
 
                         <button type="submit" class="btn btn-success">To‘lovni kiritish</button>
                     </form>
+                </div>
 
+                <form action="{{ route('customers.destroy', $customer->id) }}" method="POST" class="d-inline mt-3">
                     <a href="{{ route('customers.index') }}" class="btn btn-secondary">Ortga</a>
                     <a href="{{ route('customers.edit', $customer->id) }}" class="btn btn-warning">Tahrirlash</a>
-                    <form action="{{ route('customers.destroy', $customer->id) }}" method="POST" class="d-inline">
-                        @csrf
-                        @method('DELETE')
-                        <button type="submit" class="btn btn-danger"
-                                onclick="return confirm('Haqiqatan ham o‘chirmoqchimisiz?')">O‘chirish
-                        </button>
-                    </form>
-                </div>
+                    @csrf
+                    @method('DELETE')
+                    <button type="submit" class="btn btn-danger"
+                            onclick="return confirm('Haqiqatan ham o‘chirmoqchimisiz?')">O‘chirish
+                    </button>
+                </form>
             </div>
         </div>
     </div>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery.pjax/2.0.1/jquery.pjax.min.js"></script>
+
+    <script>
+        $(document).ready(function () {
+            // Invoyslar tarixi uchun PJAX faqat kerakli qismni yuklaydi
+            $(document).pjax('#pjax-invoices .pagination a', '#pjax-invoices', {timeout: 2000});
+
+            // Yangi yuklangan ma'lumotlarni to'g'ri ishlash uchun indikator qo'shish
+            $(document).on('pjax:send', function () {
+                $('#pjax-invoices').css('opacity', '0.5'); // Yoqimli animatsiya
+            });
+
+            $(document).on('pjax:complete', function () {
+                $('#pjax-invoices').css('opacity', '1'); // Animatsiyani tiklash
+            });
+        });
+    </script>
+
+    <script>
+        $(document).ready(function () {
+            $(document).on('submit', '.confirm-form', function (e) {
+                e.preventDefault();
+                let form = $(this);
+                let button = form.find('.confirm-btn');
+                let readingId = form.data('reading-id');
+                let statusContainer = $('#reading-status-' + readingId);
+
+                $.ajax({
+                    url: form.attr('action'),
+                    type: 'POST',
+                    data: form.serialize(),
+                    beforeSend: function () {
+                        button.prop('disabled', true).text('Tasdiqlanmoqda...');
+                    },
+                    success: function (response) {
+                        if (response.status === 'success') {
+                            statusContainer.html(response.html);
+                        } else {
+                            button.prop('disabled', false).text('Tasdiqlash');
+                            alert('Xatolik yuz berdi. Iltimos, qayta urinib ko‘ring.');
+                        }
+                    },
+                    error: function () {
+                        button.prop('disabled', false).text('Tasdiqlash');
+                        alert('Tarmoq xatosi. Iltimos, qayta urinib ko‘ring.');
+                    }
+                });
+            });
+        });
+    </script>
+
 @endsection

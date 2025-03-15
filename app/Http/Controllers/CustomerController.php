@@ -170,18 +170,29 @@ class CustomerController extends Controller
         $customer->load([
             'company',
             'street.neighborhood.city.region',
-            'waterMeter.readings' => function ($query) {
-                // Oxirgi (eng so‘nggi) o‘qish reading_date yoki id bo‘yicha tartib:
-                $query->orderBy('reading_date', 'desc');
-                $query->orderBy('id', 'desc');
-            },
             'telegramAccounts'
         ]);
 
-        $invoices = $customer->invoices()->orderBy('id', 'desc')->paginate(5, ['*'], 'invoice_page');
-        $payments = $customer->payments()->orderBy('id', 'desc')->paginate(5, ['*'], 'payment_page');
+        $readings = $customer->waterMeter ? $customer->waterMeter->readings()->latest()->paginate(5, ['*'], 'reading_page') : collect([]);
+        $invoices = $customer->invoices()->latest()->paginate(5, ['*'], 'invoice_page');
+        $payments = $customer->payments()->latest()->paginate(5, ['*'], 'payment_page');
 
-        return view('customers.show', compact('customer', 'invoices', 'payments'));
+        // Agar PJAX orqali faqat readings so‘ralgan bo‘lsa
+        if (request()->has('reading_page')) {
+            return view('customers.partials.readings', compact('readings', 'customer'));
+        }
+
+        // Agar PJAX orqali faqat invoices so‘ralgan bo‘lsa
+        if (request()->has('invoice_page')) {
+            return view('customers.partials.invoices', compact('invoices', 'customer'));
+        }
+
+        // Agar PJAX orqali faqat payments so‘ralgan bo‘lsa
+        if (request()->has('payment_page')) {
+            return view('customers.partials.payments', compact('payments', 'customer'));
+        }
+
+        return view('customers.show', compact('customer', 'readings', 'invoices', 'payments'));
     }
 
     /**

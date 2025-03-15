@@ -13,7 +13,7 @@ class MeterReadingController extends Controller
 {
     public function index()
     {
-        $meterReadings = MeterReading::with('waterMeter.customer')->paginate(10);
+        $meterReadings = MeterReading::with('waterMeter.customer')->orderBy('id','desc')->paginate(10);
         return view('meter_readings.index', compact('meterReadings'));
     }
 
@@ -151,5 +151,20 @@ class MeterReadingController extends Controller
 
         $meterReading->delete();
         return redirect()->route('meter_readings.index')->with('success', 'Hisoblagich o‘qilishi muvaffaqiyatli o‘chirildi!');
+    }
+
+    public function confirm($id)
+    {
+        $reading = MeterReading::findOrFail($id);
+        $reading->update(['confirmed' => true]);
+
+        if (request()->ajax()) {
+            return response()->json([
+                'status' => 'success',
+                'html' => view('customers.partials.reading-status', compact('reading'))->render()
+            ]);
+        }
+
+        return back()->with('success', 'Ko‘rsatkich tasdiqlandi!');
     }
 }
