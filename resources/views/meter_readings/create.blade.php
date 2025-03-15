@@ -1,6 +1,8 @@
 @extends('layouts.app')
 
 @section('content')
+    <link href="https://cdn.jsdelivr.net/npm/tom-select@2.2.2/dist/css/tom-select.css" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/tom-select@2.2.2/dist/js/tom-select.complete.min.js"></script>
     <div class="page-body">
         <div class="container-xl">
             <div class="row row-cards">
@@ -21,7 +23,8 @@
 
                         <div class="mb-3">
                             <label for="water_meter_id">Hisoblagich tanlang:</label>
-                            <select name="water_meter_id" class="form-control" required>
+                            <select name="water_meter_id" id="WaterMeterSelect" class="form-control" required>
+                                <option></option>
                                 @foreach($waterMeters as $waterMeter)
                                     <option value="{{ $waterMeter->id }}">{{ $waterMeter->meter_number }}
                                         - {{ $waterMeter->customer->name }}</option>
@@ -93,5 +96,17 @@
     </div>
 
     <script src="{{ asset('tabler/libs/litepicker/dist/litepicker.js') }}" defer></script>
-
+    <script>
+        document.addEventListener("DOMContentLoaded", function() {
+            new TomSelect("#WaterMeterSelect", {
+                create: false,
+                sortField: {
+                    field: "text",
+                    direction: "asc"
+                },
+                placeholder: "Mijozni tanlang...",
+                allowEmptyOption: true
+            });
+        });
+    </script>
 @endsection
