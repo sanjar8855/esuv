@@ -111,13 +111,11 @@ class TelegramController extends Controller
                 return;
             }
 
-            // 🔄 Foydalanuvchi holatini saqlab qo‘yamiz
             cache()->put("awaiting_meter_reading_{$chatId}", $customer->id, now()->addMinutes(5));
-
-            // 📩 Foydalanuvchidan yangi ko‘rsatgichni kiritishni so‘raymiz
             $this->sendMessage($chatId, "🔢 Hisoblagichga yangi ko‘rsatgichni kiriting:");
             return;
         }
+
 
         // ✅ **Asosiy menyudan tugmalar bosilganda**
         switch ($text) {
@@ -165,8 +163,8 @@ class TelegramController extends Controller
                 return;
             }
 
-            // 🔢 Faqat raqamlar jo‘natilganligini tekshiramiz
-            if (!is_numeric($text) || $text < 0) {
+            // 🔢 Faqat son kiritilganligini tekshirish
+            if (!preg_match('/^\d+$/', $text)) {
                 $this->sendMessage($chatId, "❌ Noto‘g‘ri ma'lumot. 🔢 Iltimos, faqat son kiriting:");
                 return;
             }
@@ -182,16 +180,16 @@ class TelegramController extends Controller
                 return;
             }
 
-            // ✅ Ko‘rsatgichni saqlaymiz (tasdiqlanmagan holatda)
+            // ✅ Ko‘rsatgichni saqlash (tasdiqlanmagan holatda)
             $customer->waterMeter->readings()->create([
                 'reading' => $text,
                 'reading_date' => now(),
-                'confirmed' => false, // ❌ Yangi qo‘shilgan o‘qish tasdiqlanmagan bo‘ladi
+                'confirmed' => false,
             ]);
 
             cache()->forget("awaiting_meter_reading_{$chatId}");
 
-            $this->sendMessage($chatId, "✅ Hisoblagich uchun yangi ko‘rsatgich qo‘shildi. Admin tasdiqlaganidan keyin u hisobga olinadi.");
+            $this->sendMessage($chatId, "✅ Hisoblagich uchun yangi ko‘rsatgich qo‘shildi. Admin tasdiqlaganidan keyin hisobga olinadi.");
             return;
         }
 
