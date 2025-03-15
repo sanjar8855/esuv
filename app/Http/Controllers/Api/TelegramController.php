@@ -24,88 +24,69 @@ class TelegramController extends Controller
             $action = $callbackData[0] ?? null;
             $page = isset($callbackData[1]) ? (int)$callbackData[1] : 1;
 
-            $chatId = $update['callback_query']['message']['chat']['id'] ?? null;
-
             switch ($action) {
                 case "info":
                     $this->sendCustomerInfo($chatId);
-                    break;
+                    return;
                 case "invoices":
                     $this->sendInvoices($chatId, $page);
-                    break;
+                    return;
                 case "payments":
                     $this->sendPayments($chatId, $page);
-                    break;
+                    return;
                 case "meter_history":
                     $this->sendMeterHistory($chatId, $page);
-                    break;
+                    return;
                 case "settings":
                     $this->sendSettingsMenu($chatId);
-                    break;
-                case "switch_account":
-                    $selectedCustomerId = isset($callbackData[1]) ? (int)$callbackData[1] : null;
-                    $this->switchAccount($chatId, $selectedCustomerId);
-
-                    Telegram::editMessageReplyMarkup([
-                        'chat_id' => $chatId,
-                        'message_id' => $update['callback_query']['message']['message_id'],
-                        'reply_markup' => json_encode(['inline_keyboard' => []], JSON_UNESCAPED_UNICODE),
-                    ]);
-                    break;
-                case "add_new_account":
-                    $this->sendMessage($chatId, "🔢 Yangi hisob raqamini kiriting:");
-                    break;
+                    return;
             }
-            return;
         }
 
-        // ✅ **Agar foydalanuvchi /start bossa**
-        if (strcasecmp($text, "/start") === 0) {
-            // 🔎 **Foydalanuvchining bog‘langan akkaunti bormi?**
-            $linkedCustomer = Customer::whereHas('telegramAccounts', function ($query) use ($userId) {
-                $query->where('telegram_chat_id', $userId);
-            })->first();
-
-            if (!$linkedCustomer) {
-                // 🚨 **Agar akkaunt topilmasa, hisob raqamini so‘raymiz va menyuni olib tashlaymiz**
-                $this->sendMessage($chatId, "🔢 Iltimos, hisob raqamingizni kiriting:", json_encode(['remove_keyboard' => true]));
-                return;
-            }
-
-            // ✅ **Agar akkaunt topilsa, asosiy menyuni ko‘rsatamiz**
-            $this->sendMainMenu($chatId);
-            return;
-        }
-
-        // 🔎 **Foydalanuvchi bog‘langan hisobga ega bo‘lmasa, faqat raqam jo‘natishni talab qilish**
+        // ✅ Foydalanuvchi hisob raqamini bog‘laganligini tekshiramiz
         $linkedCustomer = Customer::whereHas('telegramAccounts', function ($query) use ($userId) {
             $query->where('telegram_chat_id', $userId);
         })->first();
 
         if (!$linkedCustomer) {
-            // 🚨 **Faqat raqam kiritish so‘raladi**
             if (!is_numeric($text)) {
                 $this->sendMessage($chatId, "❌ Noto‘g‘ri ma’lumot. 🔢 Iltimos, hisob raqamingizni kiriting:");
                 return;
             }
 
-            // ✅ **Agar raqam bo‘lsa, bog‘lashni harakat qiladi**
             $customer = Customer::where('account_number', $text)->first();
-
             if (!$customer) {
-                // ❌ **Hisob raqami topilmadi, menyuni ko‘rsatmaslik kerak**
                 $this->sendMessage($chatId, "❌ Xatolik: Hisob raqami topilmadi. Qayta urinib ko‘ring.");
                 return;
             }
 
-            // ✅ **Agar hisob topilsa, bog‘laymiz**
             $this->linkAccount($chatId, $userId, $text);
+            return;
+        }
+
+        // ✅ Agar foydalanuvchi ko‘rsatgich kiritayotgan bo‘lsa
+        if (cache()->has("awaiting_meter_reading_{$chatId}")) {
+            $this->processMeterReading($chatId, $text);
+            return;
+        }
+
+        // ✅ Asosiy menyudan tugmalar bosilganda
+        $knownCommands = [
+            "📋 Ma'lumotlarim" => "sendCustomerInfo",
+            "📑 Hisob varaqalar" => "sendInvoices",
+            "💳 To‘lovlarim" => "sendPayments",
+            "📈 Hisoblagich tarixi" => "sendMeterHistory",
+            "⚙️ Sozlamalar" => "sendSettingsMenu",
+        ];
+
+        if (array_key_exists($text, $knownCommands)) {
+            $method = $knownCommands[$text];
+            $this->$method($chatId);
             return;
         }
 
         if ($text === "➕ Hisoblagichga ko‘rsatgich qo‘shish") {
             $customer = $this->getCustomerByChatId($chatId);
-
             if (!$customer || !$customer->waterMeter) {
                 $this->sendMessage($chatId, "❌ Sizda hisoblagich mavjud emas yoki topilmadi.");
                 return;
@@ -116,51 +97,8 @@ class TelegramController extends Controller
             return;
         }
 
-
-        // ✅ **Asosiy menyudan tugmalar bosilganda**
-        switch ($text) {
-            case "📋 Ma'lumotlarim":
-                $this->sendCustomerInfo($chatId);
-                break;
-            case "📑 Hisob varaqalar":
-                $this->sendInvoices($chatId);
-                break;
-            case "💳 To‘lovlarim":
-                $this->sendPayments($chatId);
-                break;
-            case "📈 Hisoblagich tarixi":
-                $this->sendMeterHistory($chatId);
-                break;
-            case "⚙️ Sozlamalar":
-                $this->sendSettingsMenu($chatId);
-                break;
-            case "➕ Hisoblagichga ko‘rsatgich qo‘shish":
-                $customer = $this->getCustomerByChatId($chatId);
-                if (!$customer || !$customer->waterMeter) {
-                    $this->sendMessage($chatId, "❌ Sizda hisoblagich mavjud emas yoki topilmadi.");
-                    return;
-                }
-                cache()->put("awaiting_meter_reading_{$chatId}", $customer->id, now()->addMinutes(5));
-                $this->sendMessage($chatId, "🔢 Hisoblagichga yangi ko‘rsatgichni kiriting:");
-                return;
-        }
-
-
-        // 🔎 Agar foydalanuvchi yangi ko‘rsatgich kiritayotgan bo‘lsa
-        if (cache()->has("awaiting_meter_reading_{$chatId}")) {
-            // Agar foydalanuvchi ko‘rsatgich kiritayotgan bo‘lsa
-            $this->processMeterReading($chatId, $text);
-        } elseif (in_array($text, ["📋 Ma'lumotlarim", "📑 Hisob varaqalar", "💳 To‘lovlarim", "📈 Hisoblagich tarixi", "⚙️ Sozlamalar", "➕ Hisoblagichga ko‘rsatgich qo‘shish"])) {
-            // Foydalanuvchi mavjud tugmalarni bosgan bo‘lsa, tegishli metodlarni chaqiramiz
-            $this->handleMainMenuCommand($chatId, $text);
-        } else {
-            // Faqat haqiqatan ham noto‘g‘ri buyruq bo‘lsa chiqadi
-            $this->sendMessage($chatId, "❌ Noto‘g‘ri buyruq. Iltimos, menyudagi tugmalardan foydalaning.");
-        }
-
-        //  **Agar yuqoridagi shartlar ishlamasa, shundagina noto‘g‘ri buyruq ekanligini bildiramiz**
-        $this->sendMessage($chatId, "❌ Noto‘g‘ri buyruq. Iltimos, tugmalardan foydalaning.");
-
+        // ✅ Faqat haqiqatan ham noto‘g‘ri buyruq bo‘lsa, xabar chiqarish
+        $this->sendMessage($chatId, "❌ Noto‘g‘ri buyruq. Iltimos, menyudagi tugmalardan foydalaning.");
     }
 
     // ✅ Hisob raqamini Telegramga bog‘lash
