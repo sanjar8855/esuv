@@ -134,70 +134,34 @@ class TelegramController extends Controller
             case "⚙️ Sozlamalar":
                 $this->sendSettingsMenu($chatId);
                 break;
-            case "➕ Hisoblagichga ko‘rsatgich qo‘shish": // ✅ Yangi tugma
+            case "➕ Hisoblagichga ko‘rsatgich qo‘shish":
                 $customer = $this->getCustomerByChatId($chatId);
-
                 if (!$customer || !$customer->waterMeter) {
                     $this->sendMessage($chatId, "❌ Sizda hisoblagich mavjud emas yoki topilmadi.");
                     return;
                 }
-
-                // 🔄 Foydalanuvchi holatini saqlab qo‘yamiz
                 cache()->put("awaiting_meter_reading_{$chatId}", $customer->id, now()->addMinutes(5));
-
-                // 📩 Foydalanuvchidan yangi ko‘rsatgichni kiritishni so‘raymiz
                 $this->sendMessage($chatId, "🔢 Hisoblagichga yangi ko‘rsatgichni kiriting:");
                 return;
-            default:
-                $this->sendMessage($chatId, "❌ Noto‘g‘ri buyruq. Iltimos, tugmalardan foydalaning.");
         }
+
 
         // 🔎 Agar foydalanuvchi yangi ko‘rsatgich kiritayotgan bo‘lsa
         if (cache()->has("awaiting_meter_reading_{$chatId}")) {
-            $customerId = cache()->get("awaiting_meter_reading_{$chatId}");
-            $customer = Customer::find($customerId);
-
-            if (!$customer || !$customer->waterMeter) {
-                $this->sendMessage($chatId, "❌ Xatolik: Hisoblagich topilmadi.");
-                cache()->forget("awaiting_meter_reading_{$chatId}");
-                return;
-            }
-
-            // 🔢 Faqat son kiritilganligini tekshirish
-            if (!preg_match('/^\d+$/', $text)) {
-                $this->sendMessage($chatId, "❌ Noto‘g‘ri ma'lumot. 🔢 Iltimos, faqat son kiriting:");
-                return;
-            }
-
-            // 🔄 So‘nggi tasdiqlangan ko‘rsatgichni olamiz
-            $lastReading = $customer->waterMeter->readings()
-                ->where('confirmed', true)
-                ->orderBy('reading_date', 'desc')
-                ->first();
-
-            if ($lastReading && $text <= $lastReading->reading) {
-                $this->sendMessage($chatId, "❌ Xatolik: Yangi ko‘rsatgich ({$text}) oxirgi tasdiqlangan ({$lastReading->reading}) dan katta bo‘lishi kerak.");
-                return;
-            }
-
-            // ✅ Ko‘rsatgichni saqlash (tasdiqlanmagan holatda)
-            $customer->waterMeter->readings()->create([
-                'reading' => $text,
-                'reading_date' => now(),
-                'confirmed' => false,
-            ]);
-
-            cache()->forget("awaiting_meter_reading_{$chatId}");
-
-            $this->sendMessage($chatId, "✅ Hisoblagich uchun yangi ko‘rsatgich qo‘shildi. Admin tasdiqlaganidan keyin hisobga olinadi.");
-            return;
+            // Agar foydalanuvchi ko‘rsatgich kiritayotgan bo‘lsa
+            $this->processMeterReading($chatId, $text);
+        } elseif (in_array($text, ["📋 Ma'lumotlarim", "📑 Hisob varaqalar", "💳 To‘lovlarim", "📈 Hisoblagich tarixi", "⚙️ Sozlamalar", "➕ Hisoblagichga ko‘rsatgich qo‘shish"])) {
+            // Foydalanuvchi mavjud tugmalarni bosgan bo‘lsa, tegishli metodlarni chaqiramiz
+            $this->handleMainMenuCommand($chatId, $text);
+        } else {
+            // Faqat haqiqatan ham noto‘g‘ri buyruq bo‘lsa chiqadi
+            $this->sendMessage($chatId, "❌ Noto‘g‘ri buyruq. Iltimos, menyudagi tugmalardan foydalaning.");
         }
 
         //  **Agar yuqoridagi shartlar ishlamasa, shundagina noto‘g‘ri buyruq ekanligini bildiramiz**
         $this->sendMessage($chatId, "❌ Noto‘g‘ri buyruq. Iltimos, tugmalardan foydalaning.");
 
     }
-
 
     // ✅ Hisob raqamini Telegramga bog‘lash
     private function linkAccount($chatId, $userId, $accountNumber)
@@ -468,4 +432,76 @@ class TelegramController extends Controller
 
         Telegram::sendMessage($params);
     }
+
+    private function processMeterReading($chatId, $text)
+    {
+        $customerId = cache()->get("awaiting_meter_reading_{$chatId}");
+        $customer = Customer::find($customerId);
+
+        if (!$customer || !$customer->waterMeter) {
+            $this->sendMessage($chatId, "❌ Xatolik: Hisoblagich topilmadi.");
+            cache()->forget("awaiting_meter_reading_{$chatId}");
+            return;
+        }
+
+        // 🔢 Faqat raqamlar jo‘natilganligini tekshirish
+        if (!preg_match('/^\d+$/', $text)) {
+            $this->sendMessage($chatId, "❌ Noto‘g‘ri ma'lumot. 🔢 Iltimos, faqat son kiriting:");
+            return;
+        }
+
+        // 🔄 So‘nggi tasdiqlangan ko‘rsatgichni olamiz
+        $lastReading = $customer->waterMeter->readings()
+            ->where('confirmed', true)
+            ->orderBy('reading_date', 'desc')
+            ->first();
+
+        if ($lastReading && $text <= $lastReading->reading) {
+            $this->sendMessage($chatId, "❌ Xatolik: Yangi ko‘rsatgich ({$text}) oxirgi tasdiqlangan ({$lastReading->reading}) dan katta bo‘lishi kerak.");
+            return;
+        }
+
+        // ✅ Ko‘rsatgichni saqlash
+        $customer->waterMeter->readings()->create([
+            'reading' => $text,
+            'reading_date' => now(),
+            'confirmed' => false, // Yangi qo‘shilgan o‘qish tasdiqlanmagan bo‘ladi
+        ]);
+
+        cache()->forget("awaiting_meter_reading_{$chatId}");
+
+        $this->sendMessage($chatId, "✅ Hisoblagich uchun yangi ko‘rsatgich qo‘shildi. Admin tasdiqlaganidan keyin hisobga olinadi.");
+    }
+
+    private function handleMainMenuCommand($chatId, $text)
+    {
+        switch ($text) {
+            case "📋 Ma'lumotlarim":
+                $this->sendCustomerInfo($chatId);
+                break;
+            case "📑 Hisob varaqalar":
+                $this->sendInvoices($chatId);
+                break;
+            case "💳 To‘lovlarim":
+                $this->sendPayments($chatId);
+                break;
+            case "📈 Hisoblagich tarixi":
+                $this->sendMeterHistory($chatId);
+                break;
+            case "⚙️ Sozlamalar":
+                $this->sendSettingsMenu($chatId);
+                break;
+            case "➕ Hisoblagichga ko‘rsatgich qo‘shish":
+                $customer = $this->getCustomerByChatId($chatId);
+                if (!$customer || !$customer->waterMeter) {
+                    $this->sendMessage($chatId, "❌ Sizda hisoblagich mavjud emas yoki topilmadi.");
+                    return;
+                }
+                cache()->put("awaiting_meter_reading_{$chatId}", $customer->id, now()->addMinutes(5));
+                $this->sendMessage($chatId, "🔢 Hisoblagichga yangi ko‘rsatgichni kiriting:");
+                return;
+        }
+    }
+
+
 }
