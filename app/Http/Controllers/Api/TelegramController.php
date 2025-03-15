@@ -296,7 +296,7 @@ class TelegramController extends Controller
         }
 
         $perPage = 10;
-        $readings = $customer->waterMeter->readings->sortByDesc('reading_date')->values();
+        $readings = $customer->waterMeter->readings->sortByDesc('id')->sortByDesc('reading_date')->values();
         $total = $readings->count();
         $totalPages = ceil($total / $perPage);
         $offset = ($page - 1) * $perPage;
