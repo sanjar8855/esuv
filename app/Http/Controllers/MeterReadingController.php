@@ -104,7 +104,6 @@ class MeterReadingController extends Controller
             return redirect()->route('water_meters.show', $meterReading->water_meter_id)
                 ->with('success', 'Hisoblagich o‘qilishi muvaffaqiyatli qo‘shildi!');
         }
-
     }
 
     public function show(MeterReading $meterReading)
@@ -139,9 +138,50 @@ class MeterReadingController extends Controller
             $validated['photo'] = $request->file('photo')->store('meter_readings', 'public');
         }
 
+        // Oldingi tasdiqlash holatini saqlab qolamiz
+        $wasUnconfirmed = !$meterReading->confirmed;
+
+        // Yangilash
         $meterReading->update($validated);
+
+        // Agar oldin tasdiqlanmagan bo‘lib, hozir tasdiqlangan bo‘lsa
+        if ($wasUnconfirmed && $meterReading->confirmed) {
+            $customer = $meterReading->waterMeter->customer;
+            $tariff = Tariff::where('company_id', $customer->company_id)
+                ->where('is_active', true)
+                ->latest()
+                ->first();
+
+            if ($tariff) {
+                $previousReading = MeterReading::where('water_meter_id', $meterReading->water_meter_id)
+                    ->where('reading_date', '<', $meterReading->reading_date)
+                    ->where('confirmed', true)
+                    ->orderBy('reading_date', 'desc')
+                    ->first();
+
+                if ($previousReading) {
+                    $consumption = $meterReading->reading - $previousReading->reading;
+                    $amount_due = $consumption * $tariff->price_per_m3;
+
+                    // Yangi invoice yaratish
+                    Invoice::create([
+                        'customer_id'    => $customer->id,
+                        'tariff_id'      => $tariff->id,
+                        'billing_period' => now()->format('Y-m'),
+                        'amount_due'     => $amount_due,
+                        'due_date'       => now()->endOfMonth(),
+                        'status'         => 'pending',
+                    ]);
+
+                    // 📩 Telegram xabari yuborish
+                    $this->sendTelegramNotification($customer, $amount_due, $meterReading->reading);
+                }
+            }
+        }
+
         return redirect()->route('meter_readings.index')->with('success', 'Hisoblagich o‘qilishi muvaffaqiyatli yangilandi!');
     }
+
 
     public function destroy(MeterReading $meterReading)
     {
