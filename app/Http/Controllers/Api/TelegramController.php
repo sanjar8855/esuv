@@ -20,7 +20,11 @@ class TelegramController extends Controller
 
         // ✅ Callback tugmalar bosilganda pagination bilan ishlash
         if (isset($update['callback_query'])) {
-            $callbackData = explode(':', $update['callback_query']['data']);
+            if (is_string($update['callback_query']['data'])) {
+                $callbackData = explode(':', $update['callback_query']['data']);
+            } else {
+                $callbackData = [];
+            }
             $action = $callbackData[0] ?? null;
             $page = isset($callbackData[1]) ? (int)$callbackData[1] : 1;
 
@@ -224,7 +228,11 @@ class TelegramController extends Controller
         $message .= "🔹 Telegram akkauntlar: <b>";
 
         foreach ($customer->telegramAccounts as $tg) {
-            $message .= "<a href='https://t.me/{$tg->username}'>🆔 {$tg->username}</a>, ";
+            if (is_array($tg->username)) {
+                $message .= "<a href='https://t.me/" . implode(', ', $tg->username) . "'>🆔 " . implode(', ', $tg->username) . "</a>, ";
+            } else {
+                $message .= "<a href='https://t.me/{$tg->username}'>🆔 {$tg->username}</a>, ";
+            }
         }
         $message .= "</b> \n";
 
@@ -365,7 +373,7 @@ class TelegramController extends Controller
         ];
 
         if ($replyMarkup) {
-            $params['reply_markup'] = $replyMarkup;
+            $params['reply_markup'] = json_encode($replyMarkup);
         }
 
         Telegram::sendMessage($params);
