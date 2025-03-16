@@ -17,27 +17,24 @@ class InvoiceController extends Controller
     {
         $user = auth()->user();
 
-        // Admin barcha tariflarni ko‘radi
-        if ($user->hasRole('admin')) {
-            $invoices = Invoice::with(['customer', 'tariff'])
-                ->orderBy('created_at', 'desc')
-                ->paginate(10);
-        } else {
-            // Xodim faqat o‘z kompaniyasining mijozlariga tegishli tariflarni ko‘radi
-            $customerIds = optional($user->company)->customers->pluck('id')->toArray();
+        // **📌 Asosiy query**
+        $invoicesQuery = Invoice::with(['customer', 'tariff'])
+            ->orderBy('created_at', 'desc');
 
-            if (empty($customerIds)) {
-                // Agar mijozlar yo‘q bo‘lsa, bo‘sh natija qaytariladi
-                $invoices = collect(); // Bo‘sh kolleksiya qaytarish
-            } else {
-                $invoices = Invoice::whereIn('customer_id', $customerIds)
-                    ->with(['customer', 'tariff'])
-                    ->orderBy('created_at', 'desc')
-                    ->paginate(10);
-            }
+        // **📌 Admin bo‘lmasa, faqat o‘z kompaniyasiga tegishli invoicelarni olish**
+        if (!$user->hasRole('admin') && $user->company) {
+            $invoicesQuery->whereHas('customer', function ($query) use ($user) {
+                $query->where('company_id', $user->company_id);
+            });
         }
 
-        return view('invoices.index', compact('invoices'));
+        // **📌 Jami invoice'lar sonini olish**
+        $invoicesCount = (clone $invoicesQuery)->count();
+
+        // **📌 Sahifalash (pagination)**
+        $invoices = $invoicesQuery->paginate(20)->withQueryString();
+
+        return view('invoices.index', compact('invoices', 'invoicesCount'));
     }
 
     /**

@@ -13,8 +13,27 @@ class MeterReadingController extends Controller
 {
     public function index()
     {
-        $meterReadings = MeterReading::with('waterMeter.customer')->orderBy('id','desc')->paginate(10);
-        return view('meter_readings.index', compact('meterReadings'));
+        $user = auth()->user();
+
+        // **📌 Asosiy query**
+        $meterReadingsQuery = MeterReading::with([
+            'waterMeter.customer'
+        ])->orderBy('id', 'desc');
+
+        // **📌 Admin bo‘lmasa, faqat o‘z kompaniyasiga tegishli o‘qishlarni olish**
+        if (!$user->hasRole('admin') && $user->company) {
+            $meterReadingsQuery->whereHas('waterMeter.customer', function ($query) use ($user) {
+                $query->where('company_id', $user->company_id);
+            });
+        }
+
+        // **📌 Jami o‘qishlar sonini olish**
+        $meterReadingsCount = (clone $meterReadingsQuery)->count();
+
+        // **📌 Sahifalash (pagination)**
+        $meterReadings = $meterReadingsQuery->paginate(20)->withQueryString();
+
+        return view('meter_readings.index', compact('meterReadings', 'meterReadingsCount'));
     }
 
     public function create()

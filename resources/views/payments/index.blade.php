@@ -5,7 +5,7 @@
         <div class="container-xl">
             <div class="row row-cards">
                 <div class="col-12">
-                    <h1>To‘lovlar Ro‘yxati</h1>
+                    <h1>To‘lovlar Ro‘yxati, {{$paymentsCount}} ta</h1>
                     <a href="{{ route('payments.create') }}" class="btn btn-primary mb-3">Yangi To‘lov Qo‘shish</a>
 
                     @if(session('success'))
@@ -14,7 +14,7 @@
 
                     <div class="card">
                         <div class="table-responsive">
-                            <table class="table table-bordered table-vcenter card-table table-striped">
+                            <table class="table table-sm table-bordered table-vcenter card-table table-striped">
                                 <thead>
                                 <tr>
                                     <th>N</th>
@@ -22,7 +22,7 @@
                                     <th>Invoice</th>
                                     <th>Miqdori</th>
                                     <th>To‘lov usuli</th>
-                                    <th>Sana</th>
+                                    <th>To‘lov vaqti</th>
                                     <th>Holat</th>
                                     <th>Harakatlar</th>
                                 </tr>
@@ -64,21 +64,22 @@
                                                 Noaniq
                                             @endswitch
                                         </td>
-                                        <td>{{ $payment->payment_date }}</td>
+                                        <td>{{ $payment->created_at }}</td>
                                         <td>
                                             @switch($payment->status)
                                                 @case('completed')
-                                                To'langan
+                                                <span class="badge bg-green text-green-fg">To'langan</span>
                                                 @break
                                                 @case('failed')
-                                                Xatolik
+                                                <span class="badge bg-red text-red-fg">Xatolik</span>
                                                 @break
                                                 @case('pending')
-                                                To'lanmoqda
+                                                <span class="badge bg-yellow text-yellow-fg">To'lanmoqda</span>
                                                 @break
                                                 @default
-                                                Noaniq
+                                                <span class="badge bg-secondary text-secondary-fg">Noaniq</span>
                                             @endswitch
+
                                         </td>
                                         <td>
                                             <a href="{{ route('payments.show', $payment->id) }}"

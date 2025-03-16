@@ -39,8 +39,8 @@
                             </td>
                         </tr>
                         <tr>
-                            <th>To‘lov sanasi</th>
-                            <td>{{ $payment->payment_date }}</td>
+                            <th>To‘lov vaqti</th>
+                            <td>{{ $payment->created_at }}</td>
                         </tr>
                         <tr>
                             <th>Holati</th>

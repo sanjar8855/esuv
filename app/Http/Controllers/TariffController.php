@@ -11,20 +11,17 @@ class TariffController extends Controller
     {
         $user = auth()->user();
 
-        // Admin barcha tariflarni ko‘radi
-        if ($user->hasRole('admin')) {
-            $tariffs = Tariff::with('company')->orderBy('created_at', 'desc')->paginate(10);
-        } else {
-            // Xodim faqat o‘z kompaniyasining tariflarini ko‘radi
-            $tariffs = Tariff::where('company_id', $user->company_id)
-                ->with('company')
-                ->orderBy('created_at', 'desc')
-                ->paginate(10);
+        $tariffsQuery = Tariff::with('company')->orderBy('created_at', 'desc');
+
+        if (!$user->hasRole('admin')) {
+            $tariffsQuery->where('company_id', $user->company_id);
         }
 
-        return view('tariffs.index', compact('tariffs'));
-    }
+        $tariffsCount = (clone $tariffsQuery)->count();
+        $tariffs = $tariffsQuery->paginate(10);
 
+        return view('tariffs.index', compact('tariffs', 'tariffsCount'));
+    }
 
     public function create()
     {

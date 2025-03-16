@@ -5,11 +5,11 @@
         <div class="container-xl">
             <div class="row row-cards">
                 <div class="col-12">
-                    <h2>Hisob-fakturalar</h2>
+                    <h2>Hisob-fakturalar, {{$invoicesCount}} ta</h2>
                     <a href="{{ route('invoices.create') }}" class="btn btn-primary mb-3">Yangi hisob-faktura</a>
                     <div class="card">
                         <div class="table-responsive">
-                            <table class="table table-bordered table-vcenter card-table table-striped">
+                            <table class="table table-sm table-bordered table-vcenter card-table table-striped">
                                 <thead>
                                 <tr>
                                     <th>N</th>

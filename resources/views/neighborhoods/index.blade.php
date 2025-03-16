@@ -15,7 +15,7 @@
 
                     <div class="card">
                         <div class="table-responsive">
-                            <table class="table table-bordered table-vcenter card-table table-striped">
+                            <table class="table table-sm table-bordered table-vcenter card-table table-striped">
                                 <thead>
                                 <tr>
                                     <th>N</th>

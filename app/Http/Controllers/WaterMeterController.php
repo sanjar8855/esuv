@@ -10,15 +10,32 @@ class WaterMeterController extends Controller
 {
     public function index()
     {
-        $waterMeters = WaterMeter::with([
+        $user = auth()->user();
+
+        // **📌 Asosiy query**
+        $waterMetersQuery = WaterMeter::with([
             'customer',
             'readings' => function ($query) {
-                $query->orderBy('id', 'desc')->where('confirmed',1);
-            }])
-            ->orderBy('meter_number', 'asc')
-            ->paginate(20);
-        return view('water_meters.index', compact('waterMeters'));
+                $query->orderBy('id', 'desc')->where('confirmed', 1);
+            }
+        ])->orderBy('meter_number', 'asc');
+
+        // **📌 Admin bo‘lmasa, faqat o‘z kompaniyasidagi mijozlarning hisoblagichlarini olish**
+        if (!$user->hasRole('admin') && $user->company) {
+            $waterMetersQuery->whereHas('customer', function ($query) use ($user) {
+                $query->where('company_id', $user->company_id);
+            });
+        }
+
+        // **📌 Jami hisoblagichlar sonini olish**
+        $waterMetersCount = (clone $waterMetersQuery)->count();
+
+        // **📌 Sahifalash (pagination)**
+        $waterMeters = $waterMetersQuery->paginate(20)->withQueryString();
+
+        return view('water_meters.index', compact('waterMeters', 'waterMetersCount'));
     }
+
 
     public function create()
     {

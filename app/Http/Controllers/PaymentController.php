@@ -11,9 +11,28 @@ class PaymentController extends Controller
 {
     public function index()
     {
-        $payments = Payment::with('customer')->latest()->paginate(20);
-        return view('payments.index', compact('payments'));
+        $user = auth()->user();
+
+        // **📌 Asosiy query**
+        $paymentsQuery = Payment::with(['customer', 'invoice'])
+            ->orderBy('payment_date', 'desc');
+
+        // **📌 Admin bo‘lmasa, faqat o‘z kompaniyasiga tegishli to‘lovlarni olish**
+        if (!$user->hasRole('admin') && $user->company) {
+            $paymentsQuery->whereHas('customer', function ($query) use ($user) {
+                $query->where('company_id', $user->company_id);
+            });
+        }
+
+        // **📌 Jami to‘lovlar sonini olish**
+        $paymentsCount = (clone $paymentsQuery)->count();
+
+        // **📌 Sahifalash (pagination)**
+        $payments = $paymentsQuery->paginate(20)->withQueryString();
+
+        return view('payments.index', compact('payments', 'paymentsCount'));
     }
+
 
     public function create()
     {

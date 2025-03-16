@@ -8,7 +8,7 @@
         <div class="container-xl">
             <div class="row row-cards">
                 <div class="col-12">
-                    <h2>Mijozlar</h2>
+                    <h2>Mijozlar, {{$customersCount}} ta</h2>
                     <a href="{{ route('customers.create') }}" class="btn btn-primary mb-3">Yangi mijoz qo‘shish</a>
                     <form method="GET" class="mb-3">
                         <div class="input-group">
@@ -47,7 +47,7 @@
 
                     <div class="card">
                         <div class="table-responsive">
-                            <table class="table table-bordered table-vcenter card-table table-striped">
+                            <table class="table table-sm table-bordered table-vcenter card-table table-striped">
                                 <thead>
                                 <tr>
                                     <th>N</th>

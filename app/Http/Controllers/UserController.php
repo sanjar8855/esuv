@@ -13,15 +13,17 @@ class UserController extends Controller
     {
         $user = auth()->user();
 
-        if ($user->hasRole('admin')) {
-            // Admin barcha foydalanuvchilarni ko‘radi
-            $users = User::with('company','roles')->paginate(10);
-        } else {
-            // Oddiy foydalanuvchi faqat o‘z kompaniyasidagi userlarni ko‘radi
-            $users = User::where('company_id', $user->company_id)->with('company','roles')->paginate(10);
+        $usersQuery = User::with('company','roles')->orderBy('id', 'desc');
+
+        if (!$user->hasRole('admin')) {
+            $usersQuery->where('company_id', $user->company_id);
         }
 
-        return view('users.index', compact('users'));
+        $usersCount = (clone $usersQuery)->count();
+
+        $users = $usersQuery->paginate(10);
+
+        return view('users.index', compact('users', 'usersCount'));
     }
 
     public function create()

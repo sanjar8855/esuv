@@ -5,7 +5,7 @@
         <div class="container-xl">
             <div class="row row-cards">
                 <div class="col-12">
-                    <h1>Hisoblagichlar</h1>
+                    <h1>Hisoblagichlar, {{$waterMetersCount}} ta</h1>
                     <a href="{{ route('water_meters.create') }}" class="btn btn-primary mb-3">Yangi Hisoblagich
                         Qo‘shish</a>
 
@@ -15,7 +15,7 @@
 
                     <div class="card">
                         <div class="table-responsive">
-                            <table class="table table-bordered table-vcenter card-table table-striped">
+                            <table class="table table-sm table-bordered table-vcenter card-table table-striped">
                                 <thead>
                                 <tr>
                                     <th>N</th>

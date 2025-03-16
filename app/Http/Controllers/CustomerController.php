@@ -23,19 +23,15 @@ class CustomerController extends Controller
         $streetId = request('street_id');
         $debtFilter = request('debt');
 
-        // **📌 Admin bo‘lsa barcha ko‘chalarni oladi, aks holda faqat o‘z kompaniyasidagi mijozlar ko‘chalarini**
+        // **📌 Ko‘chalar ro‘yxatini olish**
         if ($user->hasRole('admin')) {
             $streets = Street::all(); // ✅ Admin barcha ko‘chalarni ko‘radi
         } else {
-            // ✅ Agar admin bo‘lmasa, faqat o‘z kompaniyasidagi mijozlar joylashgan ko‘chalar
-            if ($user->company) {
-                $streets = Street::whereHas('customers', function ($query) use ($user) {
+            $streets = $user->company
+                ? Street::whereHas('customers', function ($query) use ($user) {
                     $query->where('company_id', $user->company->id);
-                })->get();
-            } else {
-                // ❌ Kompaniyasi yo‘q foydalanuvchilar uchun bo‘sh ro‘yxat
-                $streets = collect();
-            }
+                })->get()
+                : collect(); // ❌ Kompaniyasi yo‘q foydalanuvchilar uchun bo‘sh ro‘yxat
         }
 
         // **📌 Asosiy query**
@@ -47,15 +43,13 @@ class CustomerController extends Controller
             }
         ])
             ->withSum('invoices as total_due', 'amount_due')
-            ->withSum('payments as total_paid', 'amount');
+            ->withSum('payments as total_paid', 'amount')
+            ->where('is_active', 1); // **📌 Faqat faol mijozlarni olish**
 
-        // **📌 Agar admin bo‘lmasa, faqat o‘z kompaniyasiga tegishli mijozlarni ko‘rsatamiz**
+        // **📌 Admin bo‘lmasa, faqat o‘z kompaniyasidagi mijozlarni olish**
         if (!$user->hasRole('admin') && $user->company) {
             $query->where('company_id', $user->company_id);
         }
-
-        // **📌 Faqat faol mijozlarni olish**
-        $query->where('is_active', 1);
 
         // **📌 Qidiruv**
         if ($search) {
@@ -76,12 +70,14 @@ class CustomerController extends Controller
             $query->havingRaw('total_due > total_paid');
         }
 
-        // **📌 Sahifalash va query stringni saqlash**
+        // **📌 Jami mijozlar sonini olish**
+        $customersCount = (clone $query)->count();
+
+        // **📌 Sahifalash (pagination)**
         $customers = $query->paginate(20)->withQueryString();
 
-        return view('customers.index', compact('customers', 'streets'));
+        return view('customers.index', compact('customers', 'streets', 'customersCount'));
     }
-
 
     /**
      * Yangi mijoz qo‘shish formasi.
