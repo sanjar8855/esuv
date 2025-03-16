@@ -257,6 +257,10 @@
                                         @endif
                                     </small><br>
                                     <small>Summa: {{ number_format($invoice->amount_due, 2) }} UZS</small>
+                                    <a href="{{ route('invoices.show', $invoice->id) }}"
+                                       class="badge badge-outline text-blue">
+                                        Batafsil
+                                    </a>
                                 </li>
                             @endforeach
                         </ul>
@@ -272,8 +276,23 @@
                         <ul class="list-group">
                             @foreach($payments as $payment)
                                 <li class="list-group-item">
-                                    <strong>To‘lov: {{ number_format($payment->amount, 2) }} UZS</strong><br>
-                                    <small>Usul: {{ ucfirst($payment->payment_method) }}</small><br>
+                                    <strong>To‘lov: {{ number_format($payment->amount) }} UZS</strong><br>
+                                    <small>
+                                        Usul:
+                                        @switch($payment->payment_method)
+                                            @case('cash')
+                                            Naqd pul
+                                            @break
+                                            @case('card')
+                                            Plastik orqali
+                                            @break
+                                            @case('transfer')
+                                            Bank orqali
+                                            @break
+                                            @default
+                                            Noaniq
+                                        @endswitch
+                                    </small><br>
                                     <small>Sana: {{ $payment->payment_date }}</small><br>
                                     <small>Status:
                                         @switch($payment->status)
@@ -290,6 +309,10 @@
                                             Noaniq
                                         @endswitch
                                     </small>
+                                    <a href="{{ route('payments.show', $payment->id) }}"
+                                       class="badge badge-outline text-blue">
+                                        Batafsil
+                                    </a>
                                 </li>
                             @endforeach
                         </ul>
