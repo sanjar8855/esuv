@@ -59,7 +59,7 @@ class MeterReadingController extends Controller
         // **Oxirgi tasdiqlangan o'qishni olish**
         $lastConfirmedReading = MeterReading::where('water_meter_id', $validated['water_meter_id'])
             ->where('confirmed', true)
-            ->orderBy('reading_date', 'desc')
+            ->orderBy('id', 'desc')
             ->first();
 
         if ($lastConfirmedReading && $validated['reading'] <= $lastConfirmedReading->reading) {
@@ -167,23 +167,27 @@ class MeterReadingController extends Controller
             $previousConfirmedReading = MeterReading::where('water_meter_id', $meterReading->water_meter_id)
                 ->where('reading_date', '<', $meterReading->reading_date)
                 ->where('confirmed', true)
-                ->orderBy('reading_date', 'desc')
+                ->orderBy('id', 'desc')
                 ->first();
 
             if ($previousConfirmedReading) {
-                // **Suv iste'moli farqini hisoblash**
+                // **Suv iste'moli farqini hisoblash (yangi - oxirgi tasdiqlangan)**
                 $consumption = $meterReading->reading - $previousConfirmedReading->reading;
-                $amount_due = $consumption * $tariff->price_per_m3;
 
-                // **Yangi invoice yaratish**
-                Invoice::create([
-                    'customer_id'    => $customer->id,
-                    'tariff_id'      => $tariff->id,
-                    'billing_period' => now()->format('Y-m'),
-                    'amount_due'     => $amount_due,
-                    'due_date'       => now()->endOfMonth(),
-                    'status'         => 'pending',
-                ]);
+                // **Manfiy qiymat oldini olish (odatda bu xato bo‘lmasligi kerak)**
+                if ($consumption > 0) {
+                    $amount_due = $consumption * $tariff->price_per_m3;
+
+                    // **Yangi invoice yaratish**
+                    Invoice::create([
+                        'customer_id'    => $customer->id,
+                        'tariff_id'      => $tariff->id,
+                        'billing_period' => now()->format('Y-m'),
+                        'amount_due'     => $amount_due,
+                        'due_date'       => now()->endOfMonth(),
+                        'status'         => 'pending',
+                    ]);
+                }
             }
         }
     }
