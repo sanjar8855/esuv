@@ -80,6 +80,7 @@ class MeterReadingController extends Controller
             ->with('success', 'Hisoblagich o‘qilishi muvaffaqiyatli qo‘shildi!');
     }
 
+
     public function show(MeterReading $meterReading)
     {
         return view('meter_readings.show', compact('meterReading'));
@@ -165,9 +166,9 @@ class MeterReadingController extends Controller
         if ($tariff) {
             // **Oxirgi tasdiqlangan ko‘rsatkichni olish**
             $previousConfirmedReading = MeterReading::where('water_meter_id', $meterReading->water_meter_id)
-                ->where('reading_date', '<', $meterReading->reading_date)
                 ->where('confirmed', true)
-                ->orderBy('id', 'desc')
+                ->where('id', '<', $meterReading->id) // Faqat undan oldingi o'qishlarni olish
+                ->orderBy('id', 'desc') // Eng oxirgi tasdiqlanganini olish
                 ->first();
 
             if ($previousConfirmedReading) {
@@ -191,5 +192,6 @@ class MeterReadingController extends Controller
             }
         }
     }
+
 
 }
