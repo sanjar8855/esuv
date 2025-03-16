@@ -71,10 +71,14 @@ class MeterReadingController extends Controller
         // **Ko'rsatkichni saqlash**
         $meterReading = MeterReading::create($validated);
 
+        // **Agar avtomatik tasdiqlangan bo‘lsa (`confirmed = true`), invoice yaratish**
+        if ($meterReading->confirmed) {
+            $this->createInvoice($meterReading);
+        }
+
         return redirect()->route('meter_readings.index')
             ->with('success', 'Hisoblagich o‘qilishi muvaffaqiyatli qo‘shildi!');
     }
-
 
     public function show(MeterReading $meterReading)
     {
@@ -108,15 +112,15 @@ class MeterReadingController extends Controller
             $validated['photo'] = $request->file('photo')->store('meter_readings', 'public');
         }
 
-        // **Oldingi tasdiqlash holatini saqlab qolamiz**
+        // **Avval tasdiqlanmaganligini tekshirish**
         $wasUnconfirmed = !$meterReading->confirmed;
 
         // **Yangilash**
         $meterReading->update($validated);
 
-        // **Agar oldin tasdiqlanmagan bo‘lib, hozir tasdiqlangan bo‘lsa, invoice yaratish**
+        // **Agar oldin tasdiqlanmagan bo‘lsa va hozir tasdiqlansa, invoice yaratish**
         if ($wasUnconfirmed && $meterReading->confirmed) {
-            return $this->confirm($meterReading->id);
+            $this->createInvoice($meterReading);
         }
 
         return redirect()->route('meter_readings.index')->with('success', 'Hisoblagich o‘qilishi muvaffaqiyatli yangilandi!');
@@ -144,7 +148,14 @@ class MeterReadingController extends Controller
         // **Tasdiqlash**
         $meterReading->update(['confirmed' => true]);
 
-        // **Hisob yaratish jarayoni**
+        // **Tasdiqlangandan keyin invoice yaratish**
+        $this->createInvoice($meterReading);
+
+        return back()->with('success', 'Ko‘rsatkich tasdiqlandi va invoice yaratildi!');
+    }
+
+    private function createInvoice(MeterReading $meterReading)
+    {
         $customer = $meterReading->waterMeter->customer;
         $tariff = Tariff::where('company_id', $customer->company_id)
             ->where('is_active', true)
@@ -175,7 +186,6 @@ class MeterReadingController extends Controller
                 ]);
             }
         }
-
-        return back()->with('success', 'Ko‘rsatkich tasdiqlandi va invoice yaratildi!');
     }
+
 }
