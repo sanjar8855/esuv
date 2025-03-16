@@ -164,13 +164,6 @@
                                     <small id="reading-status-{{ $reading->id }}">
                                         @include('customers.partials.reading-status', ['reading' => $reading])
                                     </small>
-                                    <br>
-                                    @if($reading->photo)
-                                        <a href="{{ asset('storage/' . $reading->photo) }}" target="_blank">
-                                            <img src="{{ asset('storage/' . $reading->photo) }}" alt="Ko'rsatkich rasmi"
-                                                 width="50">
-                                        </a>
-                                    @endif
                                     <a href="{{ route('meter_readings.show', $reading->id) }}"
                                        class="badge badge-outline text-blue">
                                         Batafsil
