@@ -193,7 +193,7 @@ class MeterReadingController extends Controller
                     ]);
 
                     // 📩 Telegram xabari yuborish
-                    $this->sendTelegramNotification($customer, $amount_due, $meterReading->reading);
+//                    $this->sendTelegramNotification($customer, $amount_due, $meterReading->reading);
                 }
             }
         }
