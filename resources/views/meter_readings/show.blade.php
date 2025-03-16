@@ -18,6 +18,14 @@
                     <p><strong>Holat:</strong> {{ $meterReading->confirmed ? 'Tasdiqlangan' : 'Tasdiqlanmagan' }}</p>
 
                     <a href="{{ route('meter_readings.index') }}" class="btn btn-secondary">Ortga</a>
+                    <a href="{{ route('meter_readings.edit', $meterReading->id) }}"
+                       class="btn btn-warning">Tahrirlash</a>
+                    <form action="{{ route('meter_readings.destroy', $meterReading->id) }}"
+                          method="POST" style="display:inline;">
+                        @csrf @method('DELETE')
+                        <button type="submit" class="btn btn-danger">O‘chirish</button>
+                    </form>
+
                 </div>
             </div>
         </div>

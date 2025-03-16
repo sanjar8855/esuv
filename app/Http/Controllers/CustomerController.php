@@ -40,6 +40,7 @@ class CustomerController extends Controller
             'street.neighborhood.city.region',
             'waterMeter.readings' => function ($q) {
                 $q->orderBy('reading_date', 'desc');
+                $q->orderBy('id', 'desc');
             }
         ])
             ->withSum('invoices as total_due', 'amount_due')

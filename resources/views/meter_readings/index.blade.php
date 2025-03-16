@@ -61,7 +61,7 @@
                                         </td>
                                         <td>
                                             <a href="{{ route('meter_readings.show', $meterReading->id) }}"
-                                               class="btn btn-info btn-sm">Ko‘rish</a>
+                                               class="btn btn-info btn-sm">Batafsil</a>
                                             <a href="{{ route('meter_readings.edit', $meterReading->id) }}"
                                                class="btn btn-warning btn-sm">Tahrirlash</a>
                                             <form action="{{ route('meter_readings.destroy', $meterReading->id) }}"
