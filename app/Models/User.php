@@ -11,7 +11,7 @@ class User extends Authenticatable
 {
     use HasApiTokens, HasFactory, HasRoles;
 
-    protected $fillable = ['company_id', 'name', 'email', 'password'];
+    protected $fillable = ['company_id', 'name', 'email', 'password', 'rank', 'files', 'work_start'];
 
     public function company()
     {

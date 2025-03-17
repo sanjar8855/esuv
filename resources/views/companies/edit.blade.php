@@ -50,6 +50,26 @@
                         </div>
 
                         <div class="mb-3">
+                            <label for="logo">Logo:</label>
+                            <input type="file" name="logo" class="form-control" required>
+                        </div>
+
+                        <div class="mb-3">
+                            <label class="form-label">Hisob raqam:</label>
+                            <input type="number" name="schet" value="{{$company->schet}}" class="form-control">
+                        </div>
+
+                        <div class="mb-3">
+                            <label class="form-label">INN:</label>
+                            <input type="number" name="inn" value="{{$company->inn}}" class="form-control">
+                        </div>
+
+                        <div class="mb-3">
+                            <label class="form-label">Izoh:</label>
+                            <textarea name="description" class="form-control">{{$company->description}}</textarea>
+                        </div>
+
+                        <div class="mb-3">
                             <label class="form-check">
                                 <input type="checkbox" name="is_active" class="form-check-input" value="1"
                                     {{ old('is_active', $company->is_active) ? 'checked' : '' }}>

@@ -15,7 +15,7 @@
                             </ul>
                         </div>
                     @endif
-                    <form action="{{ route('companies.store') }}" method="POST">
+                    <form action="{{ route('companies.store') }}" method="POST" enctype="multipart/form-data">
                         @csrf
                         <div class="mb-3">
                             <label class="form-label">Nomi</label>
@@ -29,6 +29,7 @@
                             <label class="form-label">Telefon</label>
                             <input type="text" name="phone" class="form-control" value="{{old('phone')}}" required>
                         </div>
+
                         <div class="mb-3">
                             <label class="form-label">Plan</label>
                             <select name="plan" id="plan" class="form-control" >
@@ -36,10 +37,32 @@
                                 <option value="premium">Premium</option>
                             </select>
                         </div>
+
                         <div class="mb-3">
                             <label class="form-label">Manzil</label>
                             <input type="text" name="address" value="{{old('address')}}" class="form-control">
                         </div>
+
+                        <div class="mb-3">
+                            <label for="logo">Logo:</label>
+                            <input type="file" name="logo" class="form-control" required>
+                        </div>
+
+                        <div class="mb-3">
+                            <label class="form-label">Hisob raqam:</label>
+                            <input type="number" name="schet" value="{{old('schet')}}" class="form-control">
+                        </div>
+
+                        <div class="mb-3">
+                            <label class="form-label">INN:</label>
+                            <input type="number" name="inn" value="{{old('inn')}}" class="form-control">
+                        </div>
+
+                        <div class="mb-3">
+                            <label class="form-label">Izoh:</label>
+                            <textarea name="description" class="form-control">{{old('description')}}</textarea>
+                        </div>
+
                         <div class="mb-3">
                             <label class="form-check">
                                 <input type="checkbox" name="is_active" value="1" class="form-check-input"

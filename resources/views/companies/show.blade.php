@@ -29,6 +29,24 @@
                             <td>{{ $company->address ?? 'Ko‘rsatilmagan' }}</td>
                         </tr>
                         <tr>
+                            <th>Hisob raqam:</th>
+                            <td>{{ $company->schet ?? 'Ko‘rsatilmagan' }}</td>
+                        </tr>
+                        <tr>
+                            <th>INN:</th>
+                            <td>{{ $company->inn ?? 'Ko‘rsatilmagan' }}</td>
+                        </tr>
+                        <tr>
+                            <th>Izoh:</th>
+                            <td>{{ $company->description ?? 'Ko‘rsatilmagan' }}</td>
+                        </tr>
+                        <tr>
+                            <th>Logo:</th>
+                            <td>
+                                <img src="{{ asset('tabler/img/hero/'.$company->logo) }}" alt="">
+                            </td>
+                        </tr>
+                        <tr>
                             <th>Holati:</th>
                             <td>
                                 @if($company->is_active)

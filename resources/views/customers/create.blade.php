@@ -65,8 +65,7 @@
 
                         <div class="mb-3">
                             <label class="form-label">Hisob raqami</label>
-                            <input type="text" name="account_number" class="form-control"
-                                   value="{{ old('account_number') }}" required>
+                            <input type="text" name="account_number" class="form-control" value="{{ old('account_number') }}" required>
                         </div>
 
                         <div class="mb-3">
@@ -76,8 +75,8 @@
 
                         <div class="mb-3">
                             <label class="form-label">Oila a'zolari soni</label>
-                            <input type="number" name="family_members" id="family_members" class="form-control" min="1"
-                                   value="{{ old('family_members') }}">
+                            <input type="number" name="family_members" id="family_members" class="form-control"
+                                   value="{{ old('family_members') }}" min="1">
                         </div>
 
                         {{--                        <div class="mb-3">--}}
@@ -107,7 +106,7 @@
                         {{--                                <span class="form-check-label">Faol mijoz</span>--}}
                         {{--                            </label>--}}
                         {{--                        </div>--}}
-
+5
                         <h3>Hisoblagich ma’lumotlari</h3>
                         <div class="mb-3">
                             <label class="form-label">Hisoblagich Raqami</label>
@@ -151,6 +150,7 @@
                                 });
                             </script>
                         </div>
+
                         <div class="mb-3">
                             <label class="form-label">Hisoblagich Amal Qilish Muddati (yil)</label>
                             <input type="number" name="validity_period" class="form-control" required>

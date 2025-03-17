@@ -42,7 +42,7 @@
                         </div>
 
                         <div class="mb-3">
-                            <label class="form-label">Mahalla</label>
+                            <label class="form-label">Ko'cha</label>
                             <select name="street_id" id="StreetSelect" class="form-control" required>
                                 @foreach($streets as $street)
                                     <option value="{{ $street->id }}" {{ $customer->street_id == $street->id ? 'selected' : '' }}>
@@ -54,7 +54,9 @@
 
                         <div class="mb-3">
                             <label class="form-label">Telefon</label>
-                            <input type="text" name="phone" class="form-control" value="{{ $customer->phone }}">
+                            <input type="text" name="phone" class="form-control" value="{{ $customer->phone }}"
+                                   data-mask="(00) 000-00-00" data-mask-visible="true" placeholder="(00) 000-00-00"
+                                   autocomplete="off"/>
                         </div>
 
                         <div class="mb-3">

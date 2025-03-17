@@ -19,8 +19,10 @@
                                 <tr>
                                     <th>ID</th>
                                     <th>Ism</th>
-                                    <th>Lavozim</th>
+                                    <th>Foydalanuvchi</th>
                                     <th>Email</th>
+                                    <th>Lavozim</th>
+                                    <th>Ishga kirgan sana</th>
                                     <th>Amallar</th>
                                 </tr>
                                 </thead>
@@ -35,6 +37,8 @@
                                             @endforeach
                                         </td>
                                         <td>{{ $user->email }}</td>
+                                        <td>{{ $user->rank }}</td>
+                                        <td>{{ $user->work_start }}</td>
                                         <td>
                                             <a href="{{ route('users.show', $user->id) }}"
                                                class="btn btn-info btn-sm">Batafsil</a>
