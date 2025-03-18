@@ -14,7 +14,7 @@
                         <span class="badge bg-red text-red-fg">Muddati o‘tgan</span>
                     @endif
                 </small><br>
-                <small>Summa: {{ number_format($invoice->amount_due, 2) }} UZS</small>
+                <small>Summa: {{ number_format($invoice->amount_due, 0, '.', ' ') }} UZS</small>
             </li>
         @endforeach
     </ul>

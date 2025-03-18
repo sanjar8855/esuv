@@ -39,7 +39,7 @@
                                     $balanceText = $balance < 0 ? 'Qarzdor' : ($balance > 0 ? 'Ortiqcha' : 'Nol');
                                 @endphp
                                 <span class="badge {{ $balanceClass }}">
-                                    {{ ($balance > 0 ? '+' : '-') . number_format(abs($balance), 2) }} UZS ({{ $balanceText }})
+                                    {{ ($balance > 0 ? '+' : '-') . number_format(abs($balance), 0, '.', ' ') }} UZS ({{ $balanceText }})
                                 </span>
                             </td>
                         </tr>
@@ -66,7 +66,7 @@
                             <td>
                                 @if($customer->waterMeter)
                                     <a href="{{ route('water_meters.show', $customer->waterMeter->id) }}">
-                                        {{ $customer->waterMeter->meter_number }}
+                                        {{ number_format($customer->waterMeter->meter_number, 0, '.', ' ') }}
                                     </a>
                                 @else
                                     Hisoblagich o'rnatilmagan
@@ -139,7 +139,7 @@
                         </tr>
                         <tr>
                             <th>Hisob Raqami</th>
-                            <td>{{ $customer->account_number }}</td>
+                            <td>{{ number_format($customer->account_number, 0, '.', ' ') }}</td>
                         </tr>
                         <tr>
                             <th>Faollik</th>
@@ -155,26 +155,25 @@
                     </table>
 
                     <h1>Hisoblagich so'ngi ko'rsatgichlari:</h1>
-                    <div id="pjax-readings">
-                        <ul class="list-group">
-                            @foreach($readings as $reading)
-                                <li class="list-group-item">
-                                    <small>Sana: {{ $reading->reading_date }}</small><br>
-                                    <small>Ko'rsatgich: {{ $reading->reading }}</small><br>
-                                    <small id="reading-status-{{ $reading->id }}">
-                                        @include('customers.partials.reading-status', ['reading' => $reading])
-                                    </small>
-                                    <a href="{{ route('meter_readings.show', $reading->id) }}"
-                                       class="badge badge-outline text-blue">
-                                        Batafsil
-                                    </a>
-                                </li>
-                            @endforeach
-                        </ul>
-                        <div class="mt-3">
-                            {{ $readings->appends(['reading_page' => request('reading_page')])->links() }}
-                        </div>
+                    <ul class="list-group">
+                        @foreach($readings as $reading)
+                            <li class="list-group-item">
+                                <small>Sana: {{ $reading->reading_date }}</small><br>
+                                <small>Ko'rsatgich: {{ $reading->reading }}</small><br>
+                                <small id="reading-status-{{ $reading->id }}">
+                                    @include('customers.partials.reading-status', ['reading' => $reading])
+                                </small>
+                                <a href="{{ route('meter_readings.show', $reading->id) }}"
+                                   class="badge badge-outline text-blue">
+                                    Batafsil
+                                </a>
+                            </li>
+                        @endforeach
+                    </ul>
+                    <div class="mt-3">
+                        {{ $readings->appends(['reading_page' => request('reading_page')])->links() }}
                     </div>
+
                     <h1>Yangi ko'rsatkich qo'shish:</h1>
                     @if ($errors->any())
                         <div class="alert alert-danger">
@@ -234,171 +233,168 @@
 
                 <div class="col-md-4">
                     <h3>Invoyslar tarixi</h3>
-                    <div id="pjax-invoices">
-                        <ul class="list-group">
-                            @foreach($invoices as $invoice)
-                                <li class="list-group-item">
-                                    <strong>Invoys #{{ $invoice->invoice_number }}</strong><br>
-                                    <small>Oy: {{ $invoice->billing_period }}</small><br>
-                                    <small>Holat:
-                                        @if($invoice->status == 'pending')
-                                            <span class="badge bg-yellow text-yellow-fg">To'liq to‘lanmagan</span>
-                                        @elseif($invoice->status == 'paid')
-                                            <span class="badge bg-green text-green-fg">To‘langan</span>
-                                        @elseif($invoice->status == 'overdue')
-                                            <span class="badge bg-red text-red-fg">Muddati o‘tgan</span>
-                                        @endif
-                                    </small><br>
-                                    <small>Summa: {{ number_format($invoice->amount_due, 2) }} UZS</small>
-                                    <a href="{{ route('invoices.show', $invoice->id) }}"
-                                       class="badge badge-outline text-blue">
-                                        Batafsil
-                                    </a>
-                                </li>
-                            @endforeach
-                        </ul>
-                        <div class="mt-3">
-                            {{ $invoices->appends(['payment_page' => request('payment_page')])->links() }}
-                        </div>
+                    <ul class="list-group">
+                        @foreach($invoices as $invoice)
+                            <li class="list-group-item">
+                                <strong>Invoys #{{ $invoice->invoice_number }}</strong><br>
+                                <small>Oy: {{ $invoice->billing_period }}</small><br>
+                                <small>Holat:
+                                    @if($invoice->status == 'pending')
+                                        <span class="badge bg-yellow text-yellow-fg">To'liq to‘lanmagan</span>
+                                    @elseif($invoice->status == 'paid')
+                                        <span class="badge bg-green text-green-fg">To‘langan</span>
+                                    @elseif($invoice->status == 'overdue')
+                                        <span class="badge bg-red text-red-fg">Muddati o‘tgan</span>
+                                    @endif
+                                </small><br>
+                                <small>Summa: {{ number_format($invoice->amount_due, 0, '.', ' ') }} UZS</small>
+                                <a href="{{ route('invoices.show', $invoice->id) }}"
+                                   class="badge badge-outline text-blue">
+                                    Batafsil
+                                </a>
+                            </li>
+                        @endforeach
+                    </ul>
+                    <div class="mt-3">
+                        {{ $invoices->appends(['payment_page' => request('payment_page')])->links() }}
                     </div>
                 </div>
 
                 <div class="col-md-4">
                     <h3>To‘lovlar Tarixi</h3>
-                    <div id="pjax-payments">
-                        <ul class="list-group">
-                            @foreach($payments as $payment)
-                                <li class="list-group-item">
-                                    <strong>To‘lov: {{ number_format($payment->amount) }} UZS</strong><br>
-                                    <small>
-                                        Usul:
-                                        @switch($payment->payment_method)
-                                            @case('cash')
-                                            Naqd pul
-                                            @break
-                                            @case('card')
-                                            Plastik orqali
-                                            @break
-                                            @case('transfer')
-                                            Bank orqali
-                                            @break
-                                            @default
-                                            Noaniq
-                                        @endswitch
-                                    </small><br>
-                                    <small>Sana: {{ $payment->payment_date }}</small><br>
-                                    <small>Status:
-                                        @switch($payment->status)
-                                            @case('completed')
-                                            To'langan
-                                            @break
-                                            @case('failed')
-                                            Xatolik
-                                            @break
-                                            @case('pending')
-                                            To'lanmoqda
-                                            @break
-                                            @default
-                                            Noaniq
-                                        @endswitch
-                                    </small>
-                                    <a href="{{ route('payments.show', $payment->id) }}"
-                                       class="badge badge-outline text-blue">
-                                        Batafsil
-                                    </a>
-                                </li>
-                            @endforeach
-                        </ul>
-                        <div class="mt-3">
-                            {{ $payments->appends(['invoice_page' => request('invoice_page')])->links() }}
-                        </div>
+                    <ul class="list-group">
+                        @foreach($payments as $payment)
+                            <li class="list-group-item">
+                                <strong>To‘lov: {{ number_format($payment->amount, 0, '.', ' ') }} UZS</strong><br>
+                                <small>
+                                    Usul:
+                                    @switch($payment->payment_method)
+                                        @case('cash')
+                                        Naqd pul
+                                        @break
+                                        @case('card')
+                                        Plastik orqali
+                                        @break
+                                        @case('transfer')
+                                        Bank orqali
+                                        @break
+                                        @default
+                                        Noaniq
+                                    @endswitch
+                                </small><br>
+                                <small>Sana: {{ $payment->created_at }}</small><br>
+                                <small>Status:
+                                    @switch($payment->status)
+                                        @case('completed')
+                                        To'langan
+                                        @break
+                                        @case('failed')
+                                        Xatolik
+                                        @break
+                                        @case('pending')
+                                        To'lanmoqda
+                                        @break
+                                        @default
+                                        Noaniq
+                                    @endswitch
+                                </small>
+                                <a href="{{ route('payments.show', $payment->id) }}"
+                                   class="badge badge-outline text-blue">
+                                    Batafsil
+                                </a>
+                            </li>
+                        @endforeach
+                    </ul>
+                    <div class="mt-3">
+                        {{ $payments->appends(['invoice_page' => request('invoice_page')])->links() }}
+
+
+                        <h3>To‘lov qabul qilish</h3>
+                        <form action="{{ route('payments.store') }}" method="POST" class="mb-3">
+                            @csrf
+                            <input type="hidden" name="customer_id" value="{{ $customer->id }}">
+                            <input type="hidden" name="redirect_back" value="1">
+
+                            <div class="mb-3">
+                                <label for="amount">To‘lov summasi:</label>
+                                <input type="number" name="amount" class="form-control" required>
+                            </div>
+
+                            <div class="mb-3">
+                                <label for="payment_method">To‘lov usuli:</label>
+                                <select name="payment_method" class="form-control">
+                                    <option value="cash">Naqd</option>
+                                    <option value="card">Karta</option>
+                                    <option value="transfer">Bank o'tkazmasi</option>
+                                </select>
+                            </div>
+
+                            <button type="submit" class="btn btn-success">To‘lovni kiritish</button>
+                        </form>
                     </div>
-                    <h3>To‘lov qabul qilish</h3>
-                    <form action="{{ route('payments.store') }}" method="POST" class="mb-3">
+
+                    <form action="{{ route('customers.destroy', $customer->id) }}" method="POST" class="d-inline mt-3">
+                        <a href="{{ route('customers.index') }}" class="btn btn-secondary">Ortga</a>
+                        <a href="{{ route('customers.edit', $customer->id) }}" class="btn btn-warning">Tahrirlash</a>
                         @csrf
-                        <input type="hidden" name="customer_id" value="{{ $customer->id }}">
-                        <input type="hidden" name="redirect_back" value="1">
-
-                        <div class="mb-3">
-                            <label for="amount">To‘lov summasi:</label>
-                            <input type="number" name="amount" class="form-control" required>
-                        </div>
-
-                        <div class="mb-3">
-                            <label for="payment_method">To‘lov usuli:</label>
-                            <select name="payment_method" class="form-control">
-                                <option value="cash">Naqd</option>
-                                <option value="card">Karta</option>
-                                <option value="transfer">Bank o'tkazmasi</option>
-                            </select>
-                        </div>
-
-                        <button type="submit" class="btn btn-success">To‘lovni kiritish</button>
+                        @method('DELETE')
+                        <button type="submit" class="btn btn-danger"
+                                onclick="return confirm('Haqiqatan ham o‘chirmoqchimisiz?')">O‘chirish
+                        </button>
                     </form>
                 </div>
-
-                <form action="{{ route('customers.destroy', $customer->id) }}" method="POST" class="d-inline mt-3">
-                    <a href="{{ route('customers.index') }}" class="btn btn-secondary">Ortga</a>
-                    <a href="{{ route('customers.edit', $customer->id) }}" class="btn btn-warning">Tahrirlash</a>
-                    @csrf
-                    @method('DELETE')
-                    <button type="submit" class="btn btn-danger"
-                            onclick="return confirm('Haqiqatan ham o‘chirmoqchimisiz?')">O‘chirish
-                    </button>
-                </form>
             </div>
         </div>
-    </div>
 
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery.pjax/2.0.1/jquery.pjax.min.js"></script>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery.pjax/2.0.1/jquery.pjax.min.js"></script>
 
-    <script>
-        $(document).ready(function () {
-            // Invoyslar tarixi uchun PJAX faqat kerakli qismni yuklaydi
-            $(document).pjax('#pjax-invoices .pagination a', '#pjax-invoices', {timeout: 2000});
+        <script>
+            $(document).ready(function () {
+                // Invoyslar tarixi uchun PJAX faqat kerakli qismni yuklaydi
+                $(document).pjax('#pjax-invoices .pagination a', '#pjax-invoices', {timeout: 2000});
 
-            // Yangi yuklangan ma'lumotlarni to'g'ri ishlash uchun indikator qo'shish
-            $(document).on('pjax:send', function () {
-                $('#pjax-invoices').css('opacity', '0.5'); // Yoqimli animatsiya
-            });
+                // Yangi yuklangan ma'lumotlarni to'g'ri ishlash uchun indikator qo'shish
+                $(document).on('pjax:send', function () {
+                    $('#pjax-invoices').css('opacity', '0.5'); // Yoqimli animatsiya
+                });
 
-            $(document).on('pjax:complete', function () {
-                $('#pjax-invoices').css('opacity', '1'); // Animatsiyani tiklash
-            });
-        });
-    </script>
-
-    <script>
-        $(document).ready(function () {
-            $(document).on('submit', '.confirm-form', function (e) {
-                e.preventDefault();
-                let form = $(this);
-                let button = form.find('.confirm-btn');
-                let readingId = form.data('reading-id');
-                let statusContainer = $('#reading-status-' + readingId);
-
-                $.ajax({
-                    url: form.attr('action'),
-                    type: 'POST',
-                    data: form.serialize(),
-                    beforeSend: function () {
-                        button.prop('disabled', true).text('Tasdiqlanmoqda...');
-                    },
-                    success: function (response) {
-                        if (response.status === 'success') {
-                            statusContainer.html(response.html);
-                        } else {
-                            button.prop('disabled', false).text('Tasdiqlash');
-                            alert('Xatolik yuz berdi. Iltimos, qayta urinib ko‘ring.');
-                        }
-                    },
-                    error: function () {
-                        button.prop('disabled', false).text('Tasdiqlash');
-                        alert('Tarmoq xatosi. Iltimos, qayta urinib ko‘ring.');
-                    }
+                $(document).on('pjax:complete', function () {
+                    $('#pjax-invoices').css('opacity', '1'); // Animatsiyani tiklash
                 });
             });
-        });
-    </script>
+        </script>
+
+        <script>
+            $(document).ready(function () {
+                $(document).on('submit', '.confirm-form', function (e) {
+                    e.preventDefault();
+                    let form = $(this);
+                    let button = form.find('.confirm-btn');
+                    let readingId = form.data('reading-id');
+                    let statusContainer = $('#reading-status-' + readingId);
+
+                    $.ajax({
+                        url: form.attr('action'),
+                        type: 'POST',
+                        data: form.serialize(),
+                        beforeSend: function () {
+                            button.prop('disabled', true).text('Tasdiqlanmoqda...');
+                        },
+                        success: function (response) {
+                            if (response.status === 'success') {
+                                statusContainer.html(response.html);
+                            } else {
+                                button.prop('disabled', false).text('Tasdiqlash');
+                                alert('Xatolik yuz berdi. Iltimos, qayta urinib ko‘ring.');
+                            }
+                        },
+                        error: function () {
+                            button.prop('disabled', false).text('Tasdiqlash');
+                            alert('Tarmoq xatosi. Iltimos, qayta urinib ko‘ring.');
+                        }
+                    });
+                });
+            });
+        </script>
 
 @endsection

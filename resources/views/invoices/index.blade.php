@@ -37,10 +37,10 @@
                                                 <span class="badge badge-outline text-danger">Mijoz yo‘q</span>
                                             @endif
                                         </td>
-                                        <td>m3: {{ $invoice->tariff->price_per_m3 }}, 1 inson uchun: {{$invoice->tariff->for_one_person}}</td>
+                                        <td>m3: {{ number_format($invoice->tariff->price_per_m3, 0, '.', ' ') }}, Meyoriy bir kishiga: {{number_format($invoice->tariff->for_one_person, 0, '.', ' ') }}</td>
                                         <td>{{ $invoice->invoice_number }}</td>
                                         <td>{{ $invoice->billing_period }}</td>
-                                        <td>{{ number_format($invoice->amount_due, 2) }} UZS</td>
+                                        <td>{{ number_format($invoice->amount_due, 0, '.', ' ') }} UZS</td>
                                         <td>
                                             @if($invoice->status == 'pending')
                                                 <span class="badge bg-yellow text-yellow-fg">To'liq to‘lanmagan</span>

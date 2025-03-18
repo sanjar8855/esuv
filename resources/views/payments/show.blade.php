@@ -14,11 +14,11 @@
                         </tr>
                         <tr>
                             <th>Invoice raqami</th>
-                            <td>{{ $payment->invoice->invoice_number ?? 'Noma’lum' }}</td>
+                            <td>{{ number_format($payment->invoice->invoice_number, 0, '.', ' ') ?? 'Noma’lum' }}</td>
                         </tr>
                         <tr>
                             <th>To‘lov miqdori</th>
-                            <td>{{ $payment->amount }} UZS</td>
+                            <td>{{ number_format($payment->amount, 0, '.', ' ') }} UZS</td>
                         </tr>
                         <tr>
                             <th>To‘lov usuli</th>

@@ -48,7 +48,7 @@
                                                 <span class="badge badge-outline text-danger">Invoice yo‘q</span>
                                             @endif
                                         </td>
-                                        <td>{{ $payment->amount }} UZS</td>
+                                        <td>{{ number_format($payment->amount, 0, '.', ' ') }} UZS</td>
                                         <td>
                                             @switch($payment->payment_method)
                                                 @case('cash')

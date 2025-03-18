@@ -23,7 +23,7 @@
                                         <th>Kompaniya</th>
                                     @endif
                                     <th>1m³ narxi (UZS)</th>
-                                    <th>Bir kishiga (UZS)</th>
+                                    <th>Meyoriy bir kishiga (UZS)</th>
                                     <th>Boshlanish sanasi</th>
                                     <th>Tugash sanasi</th>
                                     {{--                            <th>Holat</th>--}}
@@ -39,8 +39,8 @@
                                                 <a href="{{ route('companies.show', $tariff->company->id) }}">{{$tariff->company->name}}</a>
                                             </td> @endif
                                         {{--                                <td>{{ $tariff->name }}</td>--}}
-                                        <td>{{ $tariff->price_per_m3 }}</td>
-                                        <td>{{ $tariff->for_one_person }}</td>
+                                        <td>{{ number_format($tariff->price_per_m3, 0, '.', ' ') }}</td>
+                                        <td>{{ number_format($tariff->for_one_person, 0, '.', ' ') }}</td>
                                         <td>{{ $tariff->valid_from }}</td>
                                         <td>{{ $tariff->valid_to ?? 'Cheklanmagan' }}</td>
                                         {{--                                <td>--}}

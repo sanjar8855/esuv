@@ -46,7 +46,7 @@
                                 <input type="number" step="1" name="price_per_m3" class="form-control" value="{{ $tariff->price_per_m3 }}" required>
                             </div>
                             <div class="mb-3">
-                                <label>Bir kishiga (UZS)</label>
+                                <label>Meyoriy bir kishiga (UZS)</label>
                                 <input type="number" step="1" name="for_one_person" class="form-control" value="{{ $tariff->price_per_m3 }}" required>
                             </div>
 

@@ -41,10 +41,10 @@
                                         <td>
                                             <a href="{{ route('water_meters.show', $meterReading->waterMeter->id) }}"
                                                class="badge badge-outline text-blue">
-                                                {{ $meterReading->waterMeter->meter_number }}
+                                                {{ number_format($meterReading->waterMeter->meter_number, 0, '.', ' ') }}
                                             </a>
                                         </td>
-                                        <td>{{ $meterReading->reading }}</td>
+                                        <td>{{ number_format($meterReading->reading, 0, '.', ' ') }}</td>
                                         <td>{{ $meterReading->reading_date }}</td>
                                         <td>
                                             @if($meterReading->photo)

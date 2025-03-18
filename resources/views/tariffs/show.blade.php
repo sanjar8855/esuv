@@ -10,8 +10,8 @@
                     <div class="card">
                         <div class="card-body">
 {{--                            <h4 class="card-title">{{ $tariff->name }}</h4>--}}
-                            <h4>1m³ narxi: {{ number_format($tariff->price_per_m3, 2) }} UZS</h4>
-                            <h4>Bir kishiga: {{ number_format($tariff->for_one_person, 2) }} UZS</h4>
+                            <h4>1m³ narxi: {{ number_format($tariff->price_per_m3, 0, '.', ' ') }} UZS</h4>
+                            <h4>Meyoriy bir kishiga: {{ number_format($tariff->for_one_person, 0, '.', ' ') }} UZS</h4>
                             <p><strong>Kompaniya:</strong> {{ $tariff->company->name }}</p>
                             <p><strong>Boshlanish sanasi:</strong> {{ $tariff->valid_from }}</p>
                             <p><strong>Tugash sanasi:</strong> {{ $tariff->valid_to ?? 'Cheklanmagan' }}</p>

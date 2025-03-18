@@ -174,20 +174,20 @@ class CustomerController extends Controller
         $invoices = $customer->invoices()->latest()->paginate(5, ['*'], 'invoice_page');
         $payments = $customer->payments()->latest()->paginate(5, ['*'], 'payment_page');
 
-        // Agar PJAX orqali faqat readings so‘ralgan bo‘lsa
-        if (request()->has('reading_page')) {
-            return view('customers.partials.readings', compact('readings', 'customer'));
-        }
-
-        // Agar PJAX orqali faqat invoices so‘ralgan bo‘lsa
-        if (request()->has('invoice_page')) {
-            return view('customers.partials.invoices', compact('invoices', 'customer'));
-        }
-
-        // Agar PJAX orqali faqat payments so‘ralgan bo‘lsa
-        if (request()->has('payment_page')) {
-            return view('customers.partials.payments', compact('payments', 'customer'));
-        }
+//        // Agar PJAX orqali faqat readings so‘ralgan bo‘lsa
+//        if (request()->has('reading_page')) {
+//            return view('customers.partials.readings', compact('readings', 'customer'));
+//        }
+//
+//        // Agar PJAX orqali faqat invoices so‘ralgan bo‘lsa
+//        if (request()->has('invoice_page')) {
+//            return view('customers.partials.invoices', compact('invoices', 'customer'));
+//        }
+//
+//        // Agar PJAX orqali faqat payments so‘ralgan bo‘lsa
+//        if (request()->has('payment_page')) {
+//            return view('customers.partials.payments', compact('payments', 'customer'));
+//        }
 
         return view('customers.show', compact('customer', 'readings', 'invoices', 'payments'));
     }

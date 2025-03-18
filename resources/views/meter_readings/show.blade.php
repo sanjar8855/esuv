@@ -12,8 +12,8 @@
                             {{ $meterReading->waterMeter->customer->name }}
                         </a>
                     </p>
-                    <p><strong>Hisoblagich:</strong> {{ $meterReading->waterMeter->meter_number }}</p>
-                    <p><strong>O‘qish:</strong> {{ $meterReading->reading }}</p>
+                    <p><strong>Hisoblagich:</strong> {{ number_format($meterReading->waterMeter->meter_number, 0, '.', ' ') }}</p>
+                    <p><strong>O‘qish:</strong> {{ number_format($meterReading->reading, 0, '.', ' ') }}</p>
                     <p><strong>O‘qish sanasi:</strong> {{ $meterReading->reading_date }}</p>
                     <p><strong>Holat:</strong> {{ $meterReading->confirmed ? 'Tasdiqlangan' : 'Tasdiqlanmagan' }}</p>
 

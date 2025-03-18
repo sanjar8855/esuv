@@ -3,7 +3,7 @@
         @foreach($readings as $reading)
             <li class="list-group-item">
                 <small>Sana: {{ $reading->reading_date }}</small><br>
-                <small>Ko'rsatgich: {{ $reading->reading }}</small><br>
+                <small>Ko'rsatgich: {{ number_format($reading->reading, 0, '.', ' ') }}</small><br>
                 <small>Holat: {!! $reading->confirmed
                         ? '<span class="badge bg-green text-green-fg">Tasdiqlangan</span>'
                         : '<span class="badge bg-red text-red-fg">Tasdiqlanmagan</span>'

@@ -3,7 +3,7 @@
     <ul class="list-group">
         @foreach($payments as $payment)
             <li class="list-group-item">
-                <strong>To‘lov: {{ number_format($payment->amount, 2) }} UZS</strong><br>
+                <strong>To‘lov: {{ number_format($payment->amount, 0, '.', ' ') }} UZS</strong><br>
                 <small>Usul: {{ ucfirst($payment->payment_method) }}</small><br>
                 <small>Sana: {{ $payment->payment_date }}</small><br>
                 <small>Status: {{ $payment->status }}</small>

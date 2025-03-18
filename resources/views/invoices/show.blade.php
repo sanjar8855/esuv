@@ -16,12 +16,14 @@
                                         {{ $invoice->customer->name }}
                                     </a>
                                 </li>
-                                <li class="list-group-item"><strong>Tarif:</strong>
-                                    m3: {{ $invoice->tariff->price_per_m3 }}, 1 inson
-                                    uchun: {{$invoice->tariff->for_one_person}}</li>
+                                <li class="list-group-item">
+                                    <strong>Tarif:</strong>
+                                    m3: {{ $invoice->tariff->price_per_m3 }},
+                                    meyoriy 1 kishiga: {{$invoice->tariff->for_one_person}}
+                                </li>
                                 <li class="list-group-item"><strong>Davr:</strong> {{ $invoice->billing_period }}</li>
                                 <li class="list-group-item">
-                                    <strong>Summa:</strong> {{ number_format($invoice->amount_due, 2) }} UZS
+                                    <strong>Summa:</strong> {{ number_format($invoice->amount_due, 0, '.', ' ') }} UZS
                                 </li>
                                 <li class="list-group-item"><strong>To‘lov muddati:</strong> {{ $invoice->due_date }}
                                 </li>
