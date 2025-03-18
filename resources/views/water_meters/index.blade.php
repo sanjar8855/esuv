@@ -44,10 +44,10 @@
                                             @endif
                                         </td>
                                         <td>{{ number_format($waterMeter->meter_number, 0, '.', ' ') }}</td>
-                                        <td>{{ $waterMeter->last_reading_date ?? 'Noma’lum' }}</td>
+                                        <td>{{ $waterMeter->installation_date ?? 'Noma’lum' }}</td>
                                         <td>{{ $waterMeter->validity_period ?? 'Noma’lum' }}</td>
                                         <td>{{ $waterMeter->expiration_date ?? 'Noma’lum' }}</td>
-                                        <td>{{ $waterMeter->installation_date ?? 'Noma’lum' }}</td>
+                                        <td>{{ $waterMeter->last_reading_date ?? 'Noma’lum' }}</td>
                                         <td>
                                             @if($waterMeter->readings->count())
                                                 {{ number_format($waterMeter->readings->first()->reading, 0, '.', ' ') }}
