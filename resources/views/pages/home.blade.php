@@ -140,7 +140,7 @@
                     to‘lov jarayonlarini osonlashtiring. Barcha ma’lumotlar bir joyda!</p>
                 <div class="mt-2">
                     <div class="row justify-content-center">
-                        <div class="col-auto"><a href="#" class="btn btn-lg btn-primary">Hoziroq sinab ko‘ring</a></div>
+                        <div class="col-auto"><a href="https://t.me/sanjar_asrorov" class="btn btn-lg btn-primary">Hoziroq sinab ko‘ring</a></div>
 {{--                        <div class="col-auto"><a href="#" class="btn btn-lg">Obuna bo‘lish</a></div>--}}
                     </div>
                 </div>
@@ -874,7 +874,7 @@
                     </div>
                 </div>
                 <div class="col-lg">
-                    © 2025. Made by <a href="https://t.me/sanjar_asrorov">Sanjar</a>
+                    © 2025. Sayt tuzuvchi: <a href="https://t.me/sanjar_asrorov">Sanjar</a>
                 </div>
             </div>
         </div>
