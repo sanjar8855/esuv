@@ -45,7 +45,7 @@
                             <select name="street_id" id="StreetSelect" class="form-control" required>
                                 <option></option>
                                 @foreach($streets as $street)
-                                    <option value="{{ $street->id }}">{{ $street->name }}</option>
+                                    <option value="{{ $street->id }}">{{ $street->name }} ko'cha, {{ $street->neighborhood->name }} mahalla, {{ $street->neighborhood->city->name }}, {{ $street->neighborhood->city->region->name }} viloyat</option>
                                 @endforeach
                             </select>
                         </div>

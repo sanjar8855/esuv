@@ -33,7 +33,8 @@
             </button>
             <div class="navbar-brand navbar-brand-autodark">
                 <a href="{{ route('dashboard') }}">
-                    eSuv.uz
+{{--                    eSuv.uz--}}
+                    <img src="{{ asset('tabler/img/logo/full-white.png') }}" alt="" width="100">
                 </a>
             </div>
             {{--            <div class="navbar-nav flex-row d-lg-none">--}}
