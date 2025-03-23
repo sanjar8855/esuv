@@ -333,14 +333,6 @@
 {{--                            </div>--}}
 {{--                        </div>--}}
                         <div id="chart-new-clients" class="chart-sm"></div>
-                        <div class="card">
-                            <div class="card-header">
-                                <h3 class="card-title">Invoyslar va To'lovlar (Kundalik)</h3>
-                            </div>
-                            <div class="card-body">
-                                <div id="chart-new-clients"></div>
-                            </div>
-                        </div>
 
                         <script>
                             document.addEventListener("DOMContentLoaded", function () {
