@@ -187,7 +187,11 @@
                     <form action="{{ route('meter_readings.store') }}" method="POST" enctype="multipart/form-data">
                         @csrf
 
-                        <input type="hidden" name="water_meter_id" value="{{ $customer->waterMeter->id }}">
+                        @if($customer->waterMeter)
+                            <input type="hidden" name="water_meter_id" value="{{ $customer->waterMeter->id }}">
+                        @else
+                            <div class="alert alert-warning">Mijozga hisoblagich o‘rnatilmagan. Ko‘rsatkich qo‘shib bo‘lmaydi.</div>
+                        @endif
 
                         <div class="mb-3">
                             <label for="reading">Ko'rsatgich:</label>

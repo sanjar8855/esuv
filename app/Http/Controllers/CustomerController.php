@@ -8,6 +8,7 @@ use App\Models\WaterMeter;
 use Illuminate\Http\Request;
 use App\Models\Customer;
 use App\Models\Company;
+use Illuminate\Pagination\LengthAwarePaginator;
 use Illuminate\Support\Facades\Storage;
 use Telegram\Bot\Laravel\Facades\Telegram;
 
@@ -170,7 +171,9 @@ class CustomerController extends Controller
             'telegramAccounts'
         ]);
 
-        $readings = $customer->waterMeter ? $customer->waterMeter->readings()->latest()->paginate(5, ['*'], 'reading_page') : collect([]);
+        $readings = $customer->waterMeter
+            ? $customer->waterMeter->readings()->latest()->paginate(5, ['*'], 'reading_page')
+            : new LengthAwarePaginator([], 0, 5, 1, ['path' => request()->url(), 'pageName' => 'reading_page']);
         $invoices = $customer->invoices()->latest()->paginate(5, ['*'], 'invoice_page');
         $payments = $customer->payments()->latest()->paginate(5, ['*'], 'payment_page');
 

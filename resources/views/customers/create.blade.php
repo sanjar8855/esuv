@@ -106,7 +106,7 @@
                         {{--                                <span class="form-check-label">Faol mijoz</span>--}}
                         {{--                            </label>--}}
                         {{--                        </div>--}}
-5
+
                         <h3>Hisoblagich ma’lumotlari</h3>
                         <div class="mb-3">
                             <label class="form-label">Hisoblagich Raqami</label>

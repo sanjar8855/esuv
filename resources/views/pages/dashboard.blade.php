@@ -40,7 +40,7 @@
                             <div class="card-body">
                                 <div class="row align-items-center">
                                     <div class="col-auto">
-                                    <span class="bg-green text-white avatar">
+                                    <span class="bg-facebook text-white avatar">
                                         <!-- Download SVG icon from http://tabler.io/icons/icon/shopping-cart -->
                                         <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24"
                                              viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
@@ -70,19 +70,22 @@
                             <div class="card-body">
                                 <div class="row align-items-center">
                                     <div class="col-auto">
-                                    <span class="bg-x text-white avatar">
-                                        <!-- Download SVG icon from http://tabler.io/icons/icon/brand-x -->
+                                    <span class="bg-red text-white avatar">
+                                        <!-- Download SVG icon from http://tabler.io/icons/icon/shopping-cart -->
                                         <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24"
-                                             viewBox="0 0 24 24" fill="none" stroke="currentColor"
-                                             stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
-                                             class="icon icon-1"><path
-                                                d="M4 4l11.733 16h4.267l-11.733 -16z"/><path
-                                                d="M4 20l6.768 -6.768m2.46 -2.46l6.772 -6.772"/></svg>
+                                             viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                                             stroke-linecap="round" stroke-linejoin="round"
+                                             class="icon icon-tabler icons-tabler-outline icon-tabler-user-dollar"><path
+                                                stroke="none" d="M0 0h24v24H0z" fill="none"/><path
+                                                d="M8 7a4 4 0 1 0 8 0a4 4 0 0 0 -8 0"/><path
+                                                d="M6 21v-2a4 4 0 0 1 4 -4h3"/><path
+                                                d="M21 15h-2.5a1.5 1.5 0 0 0 0 3h1a1.5 1.5 0 0 1 0 3h-2.5"/><path
+                                                d="M19 21v1m0 -8v1"/></svg>
                                     </span>
                                     </div>
                                     <div class="col">
                                         <div class="font-weight-medium">
-                                            623 Shares
+                                            Jami: {{ $debtorsCount }} ta mijoz, {{ number_format($totalDebt, 0, ',', ' ') }} UZS
                                         </div>
                                         <div class="text-secondary">
                                             Qarzdoz mijozlar
@@ -97,18 +100,22 @@
                             <div class="card-body">
                                 <div class="row align-items-center">
                                     <div class="col-auto">
-                                    <span class="bg-facebook text-white avatar">
-                                        <!-- Download SVG icon from http://tabler.io/icons/icon/brand-facebook -->
+                                    <span class="bg-green text-white avatar">
+                                        <!-- Download SVG icon from http://tabler.io/icons/icon/shopping-cart -->
                                         <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24"
-                                             viewBox="0 0 24 24" fill="none" stroke="currentColor"
-                                             stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
-                                             class="icon icon-1"><path
-                                                d="M7 10v4h3v7h4v-7h3l1 -4h-4v-2a1 1 0 0 1 1 -1h3v-4h-3a5 5 0 0 0 -5 5v2h-3"/></svg>
+                                             viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                                             stroke-linecap="round" stroke-linejoin="round"
+                                             class="icon icon-tabler icons-tabler-outline icon-tabler-user-dollar"><path
+                                                stroke="none" d="M0 0h24v24H0z" fill="none"/><path
+                                                d="M8 7a4 4 0 1 0 8 0a4 4 0 0 0 -8 0"/><path
+                                                d="M6 21v-2a4 4 0 0 1 4 -4h3"/><path
+                                                d="M21 15h-2.5a1.5 1.5 0 0 0 0 3h1a1.5 1.5 0 0 1 0 3h-2.5"/><path
+                                                d="M19 21v1m0 -8v1"/></svg>
                                     </span>
                                     </div>
                                     <div class="col">
                                         <div class="font-weight-medium">
-                                            132 Likes
+                                            Jami: {{ $profitCustomersCount }} ta mijoz, {{ number_format($totalProfit, 0, ',', ' ') }} UZS
                                         </div>
                                         <div class="text-secondary">
                                             Haqdor mijozlar
@@ -120,165 +127,15 @@
                     </div>
                 </div>
             </div>
-{{--            <div class="col-sm-6 col-lg-3">--}}
-{{--                <div class="card">--}}
-{{--                    <div class="card-body">--}}
-{{--                        <div class="d-flex align-items-center">--}}
-{{--                            <div class="subheader">Qarzi yo'q mijozlar</div>--}}
-{{--                            --}}{{--                        <div class="ms-auto lh-1">--}}
-{{--                            --}}{{--                            <div class="dropdown">--}}
-{{--                            --}}{{--                                <a class="dropdown-toggle text-secondary" href="#" data-bs-toggle="dropdown"--}}
-{{--                            --}}{{--                                   aria-haspopup="true" aria-expanded="false">Last 7 days</a>--}}
-{{--                            --}}{{--                                <div class="dropdown-menu dropdown-menu-end">--}}
-{{--                            --}}{{--                                    <a class="dropdown-item active" href="#">Last 7 days</a>--}}
-{{--                            --}}{{--                                    <a class="dropdown-item" href="#">Last 30 days</a>--}}
-{{--                            --}}{{--                                    <a class="dropdown-item" href="#">Last 3 months</a>--}}
-{{--                            --}}{{--                                </div>--}}
-{{--                            --}}{{--                            </div>--}}
-{{--                            --}}{{--                        </div>--}}
-{{--                        </div>--}}
-{{--                        <div class="h1 mb-3">75%</div>--}}
-{{--                        <div class="d-flex mb-2">--}}
-{{--                            <div>Conversion rate</div>--}}
-{{--                            <div class="ms-auto">--}}
-{{--                            <span class="text-green d-inline-flex align-items-center lh-1">--}}
-{{--                               7%--}}
-{{--                                <!-- Download SVG icon from http://tabler.io/icons/icon/trending-up -->--}}
-{{--                                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24"--}}
-{{--                                     fill="none" stroke="currentColor"--}}
-{{--                                     stroke-width="2" stroke-linecap="round" stroke-linejoin="round"--}}
-{{--                                     class="icon ms-1 icon-2"><path--}}
-{{--                                        d="M3 17l6 -6l4 4l8 -8"/><path d="M14 7l7 0l0 7"/></svg>--}}
-{{--                            </span>--}}
-{{--                            </div>--}}
-{{--                        </div>--}}
-{{--                        <div class="progress progress-sm">--}}
-{{--                            <div class="progress-bar bg-primary" style="width: 75%" role="progressbar"--}}
-{{--                                 aria-valuenow="75" aria-valuemin="0" aria-valuemax="100" aria-label="75% Complete">--}}
-{{--                                <span class="visually-hidden">75% Complete</span>--}}
-{{--                            </div>--}}
-{{--                        </div>--}}
-{{--                    </div>--}}
-{{--                </div>--}}
-{{--            </div>--}}
-{{--            <div class="col-sm-6 col-lg-3">--}}
-{{--                <div class="card">--}}
-{{--                    <div class="card-body">--}}
-{{--                        <div class="d-flex align-items-center">--}}
-{{--                            <div class="subheader">Revenue</div>--}}
-{{--                            --}}{{--                        <div class="ms-auto lh-1">--}}
-{{--                            --}}{{--                            <div class="dropdown">--}}
-{{--                            --}}{{--                                <a class="dropdown-toggle text-secondary" href="#" data-bs-toggle="dropdown"--}}
-{{--                            --}}{{--                                   aria-haspopup="true" aria-expanded="false">Last 7 days</a>--}}
-{{--                            --}}{{--                                <div class="dropdown-menu dropdown-menu-end">--}}
-{{--                            --}}{{--                                    <a class="dropdown-item active" href="#">Last 7 days</a>--}}
-{{--                            --}}{{--                                    <a class="dropdown-item" href="#">Last 30 days</a>--}}
-{{--                            --}}{{--                                    <a class="dropdown-item" href="#">Last 3 months</a>--}}
-{{--                            --}}{{--                                </div>--}}
-{{--                            --}}{{--                            </div>--}}
-{{--                            --}}{{--                        </div>--}}
-{{--                        </div>--}}
-{{--                        <div class="d-flex align-items-baseline">--}}
-{{--                            <div class="h1 mb-0 me-2">$4,300</div>--}}
-{{--                            <div class="me-auto">--}}
-{{--                            <span class="text-green d-inline-flex align-items-center lh-1">--}}
-{{--                               8%--}}
-{{--                                <!-- Download SVG icon from http://tabler.io/icons/icon/trending-up -->--}}
-{{--                                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24"--}}
-{{--                                     fill="none" stroke="currentColor"--}}
-{{--                                     stroke-width="2" stroke-linecap="round" stroke-linejoin="round"--}}
-{{--                                     class="icon ms-1 icon-2"><path--}}
-{{--                                        d="M3 17l6 -6l4 4l8 -8"/><path d="M14 7l7 0l0 7"/></svg>--}}
-{{--                            </span>--}}
-{{--                            </div>--}}
-{{--                        </div>--}}
-{{--                    </div>--}}
-{{--                    <div id="chart-revenue-bg" class="chart-sm"></div>--}}
-{{--                    <script>--}}
-{{--                        document.addEventListener("DOMContentLoaded", function () {--}}
-{{--                            window.ApexCharts && (new ApexCharts(document.getElementById('chart-revenue-bg'), {--}}
-{{--                                chart: {--}}
-{{--                                    type: "area",--}}
-{{--                                    fontFamily: 'inherit',--}}
-{{--                                    height: 40,--}}
-{{--                                    sparkline: {--}}
-{{--                                        enabled: true--}}
-{{--                                    },--}}
-{{--                                    animations: {--}}
-{{--                                        enabled: false--}}
-{{--                                    },--}}
-{{--                                },--}}
-{{--                                dataLabels: {--}}
-{{--                                    enabled: false,--}}
-{{--                                },--}}
-{{--                                fill: {--}}
-{{--                                    opacity: .16,--}}
-{{--                                    type: 'solid'--}}
-{{--                                },--}}
-{{--                                stroke: {--}}
-{{--                                    width: 2,--}}
-{{--                                    lineCap: "round",--}}
-{{--                                    curve: "smooth",--}}
-{{--                                },--}}
-{{--                                series: [{--}}
-{{--                                    name: "Profits",--}}
-{{--                                    data: [37, 35, 44, 28, 36, 24, 65, 31, 37, 39, 62, 51, 35, 41, 35, 27, 93, 53, 61, 27, 54, 43, 19, 46, 39, 62, 51, 35, 41, 67]--}}
-{{--                                }],--}}
-{{--                                tooltip: {--}}
-{{--                                    theme: 'dark'--}}
-{{--                                },--}}
-{{--                                grid: {--}}
-{{--                                    strokeDashArray: 4,--}}
-{{--                                },--}}
-{{--                                xaxis: {--}}
-{{--                                    labels: {--}}
-{{--                                        padding: 0,--}}
-{{--                                    },--}}
-{{--                                    tooltip: {--}}
-{{--                                        enabled: false--}}
-{{--                                    },--}}
-{{--                                    axisBorder: {--}}
-{{--                                        show: false,--}}
-{{--                                    },--}}
-{{--                                    type: 'datetime',--}}
-{{--                                },--}}
-{{--                                yaxis: {--}}
-{{--                                    labels: {--}}
-{{--                                        padding: 4--}}
-{{--                                    },--}}
-{{--                                },--}}
-{{--                                labels: [--}}
-{{--                                    '2020-06-20', '2020-06-21', '2020-06-22', '2020-06-23', '2020-06-24', '2020-06-25', '2020-06-26', '2020-06-27', '2020-06-28', '2020-06-29', '2020-06-30', '2020-07-01', '2020-07-02', '2020-07-03', '2020-07-04', '2020-07-05', '2020-07-06', '2020-07-07', '2020-07-08', '2020-07-09', '2020-07-10', '2020-07-11', '2020-07-12', '2020-07-13', '2020-07-14', '2020-07-15', '2020-07-16', '2020-07-17', '2020-07-18', '2020-07-19'--}}
-{{--                                ],--}}
-{{--                                colors: [tabler.getColor("primary")],--}}
-{{--                                legend: {--}}
-{{--                                    show: false,--}}
-{{--                                },--}}
-{{--                            })).render();--}}
-{{--                        });--}}
-{{--                    </script>--}}
-{{--                </div>--}}
-{{--            </div>--}}
 
             <div class="col-12 col-md-6">
                 <div class="card">
                     <div class="card-body">
                         <div class="d-flex align-items-center">
                             <div class="subheader">Invoyslar</div>
-                            {{--                        <div class="ms-auto lh-1">--}}
-                            {{--                            <div class="dropdown">--}}
-                            {{--                                <a class="dropdown-toggle text-secondary" href="#" data-bs-toggle="dropdown"--}}
-                            {{--                                   aria-haspopup="true" aria-expanded="false">Last 7 days</a>--}}
-                            {{--                                <div class="dropdown-menu dropdown-menu-end">--}}
-                            {{--                                    <a class="dropdown-item active" href="#">Last 7 days</a>--}}
-                            {{--                                    <a class="dropdown-item" href="#">Last 30 days</a>--}}
-                            {{--                                    <a class="dropdown-item" href="#">Last 3 months</a>--}}
-                            {{--                                </div>--}}
-                            {{--                            </div>--}}
-                            {{--                        </div>--}}
                         </div>
                         <div class="d-flex align-items-baseline">
-                            <div class="h1 mb-3 me-2">2,986</div>
+                            <div class="h1 mb-3 me-2">{{number_format($monthlyInvoicesSum, 0, ',', ' ')}} UZS</div>
                             <div class="me-auto">
                             <span class="text-green d-inline-flex align-items-center lh-1">
                                4%
@@ -317,10 +174,16 @@
                                     fill: {
                                         opacity: 1,
                                     },
-                                    series: [{
-                                        name: "Profits",
-                                        data: [37, 35, 44, 28, 36, 24, 65, 31, 37, 39, 62, 51, 35, 41, 35, 27, 93, 53, 61, 27, 54, 43, 19, 46, 39, 62, 51, 35, 41, 67]
-                                    }],
+                                    series: [
+                                        {
+                                            name: "Invoys summasi",
+                                            data: @json($monthlyData->pluck('invoice_sum'))
+                                        },
+                                        {
+                                            name: "Invoys soni",
+                                            data: @json($monthlyData->pluck('invoice_count'))
+                                        },
+                                    ],
                                     tooltip: {
                                         theme: 'dark'
                                     },
@@ -344,9 +207,7 @@
                                             padding: 4
                                         },
                                     },
-                                    labels: [
-                                        '2020-06-20', '2020-06-21', '2020-06-22', '2020-06-23', '2020-06-24', '2020-06-25', '2020-06-26', '2020-06-27', '2020-06-28', '2020-06-29', '2020-06-30', '2020-07-01', '2020-07-02', '2020-07-03', '2020-07-04', '2020-07-05', '2020-07-06', '2020-07-07', '2020-07-08', '2020-07-09', '2020-07-10', '2020-07-11', '2020-07-12', '2020-07-13', '2020-07-14', '2020-07-15', '2020-07-16', '2020-07-17', '2020-07-18', '2020-07-19'
-                                    ],
+                                    labels: @json($monthlyData->pluck('date')),
                                     colors: [tabler.getColor("primary")],
                                     legend: {
                                         show: false,
@@ -375,7 +236,7 @@
                             {{--                        </div>--}}
                         </div>
                         <div class="d-flex align-items-baseline">
-                            <div class="h1 mb-3 me-2">2,986</div>
+                            <div class="h1 mb-3 me-2">{{number_format($monthlyPaymentsSum, 0, ',', ' ')}} UZS</div>
                             <div class="me-auto">
                             <span class="text-green d-inline-flex align-items-center lh-1">
                                4%
@@ -415,8 +276,8 @@
                                         opacity: 1,
                                     },
                                     series: [{
-                                        name: "Profits",
-                                        data: [37, 35, 44, 28, 36, 24, 65, 31, 37, 39, 62, 51, 35, 41, 35, 27, 93, 53, 61, 27, 54, 43, 19, 46, 39, 62, 51, 35, 41, 67]
+                                        name: "To'lovlar",
+                                        data: @json($monthlyPaymentsData->pluck('total'))
                                     }],
                                     tooltip: {
                                         theme: 'dark'
@@ -441,9 +302,7 @@
                                             padding: 4
                                         },
                                     },
-                                    labels: [
-                                        '2020-06-20', '2020-06-21', '2020-06-22', '2020-06-23', '2020-06-24', '2020-06-25', '2020-06-26', '2020-06-27', '2020-06-28', '2020-06-29', '2020-06-30', '2020-07-01', '2020-07-02', '2020-07-03', '2020-07-04', '2020-07-05', '2020-07-06', '2020-07-07', '2020-07-08', '2020-07-09', '2020-07-10', '2020-07-11', '2020-07-12', '2020-07-13', '2020-07-14', '2020-07-15', '2020-07-16', '2020-07-17', '2020-07-18', '2020-07-19'
-                                    ],
+                                    labels: @json($monthlyPaymentsData->pluck('date')),
                                     colors: [tabler.getColor("primary")],
                                     legend: {
                                         show: false,
@@ -459,141 +318,93 @@
                     <div class="card-body">
                         <div class="d-flex align-items-center">
                             <div class="subheader">Invoyslar va to'lovlar</div>
-                            {{--                        <div class="ms-auto lh-1">--}}
-                            {{--                            <div class="dropdown">--}}
-                            {{--                                <a class="dropdown-toggle text-secondary" href="#" data-bs-toggle="dropdown"--}}
-                            {{--                                   aria-haspopup="true" aria-expanded="false">Last 7 days</a>--}}
-                            {{--                                <div class="dropdown-menu dropdown-menu-end">--}}
-                            {{--                                    <a class="dropdown-item active" href="#">Last 7 days</a>--}}
-                            {{--                                    <a class="dropdown-item" href="#">Last 30 days</a>--}}
-                            {{--                                    <a class="dropdown-item" href="#">Last 3 months</a>--}}
-                            {{--                                </div>--}}
-                            {{--                            </div>--}}
-                            {{--                        </div>--}}
                         </div>
-                        <div class="d-flex align-items-baseline">
-                            <div class="h1 mb-3 me-2">6,782</div>
-                            <div class="me-auto">
-                            <span class="text-yellow d-inline-flex align-items-center lh-1">
-                               0%
-                                <!-- Download SVG icon from http://tabler.io/icons/icon/minus -->
-                                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24"
-                                     fill="none" stroke="currentColor"
-                                     stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
-                                     class="icon ms-1 icon-2"><path d="M5 12l14 0"/></svg>
-                            </span>
+{{--                        <div class="d-flex align-items-baseline">--}}
+{{--                            <div class="h1 mb-3 me-2">{{number_format($monthlyInvoicesSum + $monthlyPaymentsSum, 0, ',', ' ')}} UZS</div>--}}
+{{--                            <div class="me-auto">--}}
+{{--                            <span class="text-yellow d-inline-flex align-items-center lh-1">--}}
+{{--                               0%--}}
+{{--                                <!-- Download SVG icon from http://tabler.io/icons/icon/minus -->--}}
+{{--                                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24"--}}
+{{--                                     fill="none" stroke="currentColor"--}}
+{{--                                     stroke-width="2" stroke-linecap="round" stroke-linejoin="round"--}}
+{{--                                     class="icon ms-1 icon-2"><path d="M5 12l14 0"/></svg>--}}
+{{--                            </span>--}}
+{{--                            </div>--}}
+{{--                        </div>--}}
+                        <div id="chart-new-clients" class="chart-sm"></div>
+                        <div class="card">
+                            <div class="card-header">
+                                <h3 class="card-title">Invoyslar va To'lovlar (Kundalik)</h3>
+                            </div>
+                            <div class="card-body">
+                                <div id="chart-new-clients"></div>
                             </div>
                         </div>
-                        <div id="chart-new-clients" class="chart-sm"></div>
+
                         <script>
                             document.addEventListener("DOMContentLoaded", function () {
                                 window.ApexCharts && (new ApexCharts(document.getElementById('chart-new-clients'), {
                                     chart: {
                                         type: "line",
-                                        fontFamily: 'inherit',
-                                        height: 40,
+                                        height: 300,
+                                        // Sparkline o'chirib, normal to'liq chart ishlatamiz:
                                         sparkline: {
-                                            enabled: true
+                                            enabled: false
+                                        },
+                                        toolbar: {
+                                            show: true
                                         },
                                         animations: {
-                                            enabled: false
+                                            enabled: true
                                         },
-                                    },
-                                    fill: {
-                                        opacity: 1,
+                                        fontFamily: 'inherit'
                                     },
                                     stroke: {
-                                        width: [2, 1],
-                                        dashArray: [0, 3],
-                                        lineCap: "round",
+                                        width: [3, 3],
                                         curve: "smooth",
                                     },
-                                    series: [{
-                                        name: "May",
-                                        data: [37, 35, 44, 28, 36, 24, 65, 31, 37, 39, 62, 51, 35, 41, 35, 27, 93, 53, 61, 27, 54, 43, 4, 46, 39, 62, 51, 35, 41, 67]
-                                    }, {
-                                        name: "April",
-                                        data: [93, 54, 51, 24, 35, 35, 31, 67, 19, 43, 28, 36, 62, 61, 27, 39, 35, 41, 27, 35, 51, 46, 62, 37, 44, 53, 41, 65, 39, 37]
-                                    }],
+                                    dataLabels: {
+                                        enabled: false
+                                    },
+                                    series: [
+                                        {
+                                            name: "Invoyslar",
+                                            data: @json($chartInvoiceData)
+                                        },
+                                        {
+                                            name: "To'lovlar",
+                                            data: @json($chartPaymentData)
+                                        },
+                                    ],
+                                    xaxis: {
+                                        categories: @json($chartLabels), // "2025-03-01", "2025-03-02", ...
+                                        type: 'datetime',  // apexcharts da tooltipni sana sifatida ko‘rsatish uchun
+                                    },
                                     tooltip: {
+                                        x: {
+                                            format: 'yyyy-MM-dd'
+                                        },
                                         theme: 'dark'
                                     },
-                                    grid: {
-                                        strokeDashArray: 4,
-                                    },
-                                    xaxis: {
-                                        labels: {
-                                            padding: 0,
-                                        },
-                                        tooltip: {
-                                            enabled: false
-                                        },
-                                        type: 'datetime',
-                                    },
-                                    yaxis: {
-                                        labels: {
-                                            padding: 4
-                                        },
-                                    },
-                                    labels: [
-                                        '2020-06-20', '2020-06-21', '2020-06-22', '2020-06-23', '2020-06-24', '2020-06-25', '2020-06-26', '2020-06-27', '2020-06-28', '2020-06-29', '2020-06-30', '2020-07-01', '2020-07-02', '2020-07-03', '2020-07-04', '2020-07-05', '2020-07-06', '2020-07-07', '2020-07-08', '2020-07-09', '2020-07-10', '2020-07-11', '2020-07-12', '2020-07-13', '2020-07-14', '2020-07-15', '2020-07-16', '2020-07-17', '2020-07-18', '2020-07-19'
+                                    colors: [
+                                        tabler.getColor("primary"),
+                                        tabler.getColor("green") // to'lovlar chizig'i yashil, masalan
                                     ],
-                                    colors: [tabler.getColor("primary"), tabler.getColor("gray-600")],
                                     legend: {
-                                        show: false,
+                                        position: 'top'
                                     },
-                                })).render();
-                            });
-                        </script>
-                    </div>
-                </div>
-            </div>
-            <div class="col-lg-12">
-                <div class="card">
-                    <div class="card-body">
-                        <h3 class="card-title">Traffic summary</h3>
-                        <div id="chart-mentions" class="chart-lg"></div>
-                        <script>
-                            document.addEventListener("DOMContentLoaded", function () {
-                                window.ApexCharts && (new ApexCharts(document.getElementById('chart-mentions'), {
-                                    chart: {
-                                        type: "bar",
-                                        fontFamily: 'inherit',
-                                        height: 240,
-                                        parentHeightOffset: 0,
-                                        toolbar: {show: false},
-                                        animations: {enabled: false},
-                                        stacked: true,
-                                    },
-                                    plotOptions: {bar: {columnWidth: '50%'}},
-                                    dataLabels: {enabled: false},
-                                    fill: {opacity: 1},
-                                    series: [{
-                                        name: "To‘lovlar",
-                                        data: @json($series)
-                                    }],
-                                    tooltip: {theme: 'dark'},
                                     grid: {
-                                        padding: {top: -20, right: 0, left: -4, bottom: -4},
                                         strokeDashArray: 4,
-                                        xaxis: {lines: {show: true}},
-                                    },
-                                    xaxis: {
-                                        categories: @json($labels),
-                                        labels: {padding: 0},
-                                        tooltip: {enabled: false},
-                                        axisBorder: {show: false},
-                                        type: 'datetime',
-                                    },
-                                    yaxis: {labels: {padding: 4}},
-                                    colors: [tabler.getColor("primary")],
-                                    legend: {show: false},
+                                    }
                                 })).render();
                             });
                         </script>
+
                     </div>
                 </div>
             </div>
+
 
             <div class="col-lg-6">
                 <div class="row row-cards">
@@ -693,8 +504,7 @@
                                     <div>
                                         <div class="row">
                                             <div class="col-auto">
-                                            <span class="avatar avatar-1"
-                                                  style="background-image: url(./static/avatars/000f.jpg)"></span>
+                                            <span class="avatar avatar-1" style="background-image: url('./static/avatars/000f.jpg')"></span>
                                             </div>
                                             <div class="col">
                                                 <div class="text-truncate">
