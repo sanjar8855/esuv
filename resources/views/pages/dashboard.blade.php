@@ -85,7 +85,8 @@
                                     </div>
                                     <div class="col">
                                         <div class="font-weight-medium">
-                                            Jami: {{ $debtorsCount }} ta mijoz, {{ number_format($totalDebt, 0, ',', ' ') }} UZS
+                                            Jami: {{ $debtorsCount }} ta
+                                            mijoz, {{ number_format($totalDebt, 0, ',', ' ') }} UZS
                                         </div>
                                         <div class="text-secondary">
                                             Qarzdoz mijozlar
@@ -115,7 +116,8 @@
                                     </div>
                                     <div class="col">
                                         <div class="font-weight-medium">
-                                            Jami: {{ $profitCustomersCount }} ta mijoz, {{ number_format($totalProfit, 0, ',', ' ') }} UZS
+                                            Jami: {{ $profitCustomersCount }} ta
+                                            mijoz, {{ number_format($totalProfit, 0, ',', ' ') }} UZS
                                         </div>
                                         <div class="text-secondary">
                                             Haqdor mijozlar
@@ -134,265 +136,40 @@
                         <div class="d-flex align-items-center">
                             <div class="subheader">Invoyslar</div>
                         </div>
-                        <div class="d-flex align-items-baseline">
-                            <div class="h1 mb-3 me-2">{{number_format($monthlyInvoicesSum, 0, ',', ' ')}} UZS</div>
-                            <div class="me-auto">
-                            <span class="text-green d-inline-flex align-items-center lh-1">
-                               4%
-                                <!-- Download SVG icon from http://tabler.io/icons/icon/trending-up -->
-                                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24"
-                                     fill="none" stroke="currentColor"
-                                     stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
-                                     class="icon ms-1 icon-2"><path
-                                        d="M3 17l6 -6l4 4l8 -8"/><path d="M14 7l7 0l0 7"/></svg>
-                            </span>
-                            </div>
-                        </div>
-                        <div id="chart-active-users1" class="chart-sm"></div>
-                        <script>
-                            document.addEventListener("DOMContentLoaded", function () {
-                                window.ApexCharts && (new ApexCharts(document.getElementById('chart-active-users1'), {
-                                    chart: {
-                                        type: "bar",
-                                        fontFamily: 'inherit',
-                                        height: 40,
-                                        sparkline: {
-                                            enabled: true
-                                        },
-                                        animations: {
-                                            enabled: false
-                                        },
-                                    },
-                                    plotOptions: {
-                                        bar: {
-                                            columnWidth: '50%',
-                                        }
-                                    },
-                                    dataLabels: {
-                                        enabled: false,
-                                    },
-                                    fill: {
-                                        opacity: 1,
-                                    },
-                                    series: [
-                                        {
-                                            name: "Invoys summasi",
-                                            data: @json($monthlyData->pluck('invoice_sum'))
-                                        },
-                                        {
-                                            name: "Invoys soni",
-                                            data: @json($monthlyData->pluck('invoice_count'))
-                                        },
-                                    ],
-                                    tooltip: {
-                                        theme: 'dark'
-                                    },
-                                    grid: {
-                                        strokeDashArray: 4,
-                                    },
-                                    xaxis: {
-                                        labels: {
-                                            padding: 0,
-                                        },
-                                        tooltip: {
-                                            enabled: false
-                                        },
-                                        axisBorder: {
-                                            show: false,
-                                        },
-                                        type: 'datetime',
-                                    },
-                                    yaxis: {
-                                        labels: {
-                                            padding: 4
-                                        },
-                                    },
-                                    labels: @json($monthlyData->pluck('date')),
-                                    colors: [tabler.getColor("primary")],
-                                    legend: {
-                                        show: false,
-                                    },
-                                })).render();
-                            });
-                        </script>
+                        <div id="invoice-bar-chart"></div>
                     </div>
                 </div>
             </div>
+
             <div class="col-12 col-md-6">
                 <div class="card">
                     <div class="card-body">
                         <div class="d-flex align-items-center">
                             <div class="subheader">To'lovlar</div>
-                            {{--                        <div class="ms-auto lh-1">--}}
-                            {{--                            <div class="dropdown">--}}
-                            {{--                                <a class="dropdown-toggle text-secondary" href="#" data-bs-toggle="dropdown"--}}
-                            {{--                                   aria-haspopup="true" aria-expanded="false">Last 7 days</a>--}}
-                            {{--                                <div class="dropdown-menu dropdown-menu-end">--}}
-                            {{--                                    <a class="dropdown-item active" href="#">Last 7 days</a>--}}
-                            {{--                                    <a class="dropdown-item" href="#">Last 30 days</a>--}}
-                            {{--                                    <a class="dropdown-item" href="#">Last 3 months</a>--}}
-                            {{--                                </div>--}}
-                            {{--                            </div>--}}
-                            {{--                        </div>--}}
                         </div>
-                        <div class="d-flex align-items-baseline">
-                            <div class="h1 mb-3 me-2">{{number_format($monthlyPaymentsSum, 0, ',', ' ')}} UZS</div>
-                            <div class="me-auto">
-                            <span class="text-green d-inline-flex align-items-center lh-1">
-                               4%
-                                <!-- Download SVG icon from http://tabler.io/icons/icon/trending-up -->
-                                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24"
-                                     fill="none" stroke="currentColor"
-                                     stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
-                                     class="icon ms-1 icon-2"><path
-                                        d="M3 17l6 -6l4 4l8 -8"/><path d="M14 7l7 0l0 7"/></svg>
-                            </span>
-                            </div>
-                        </div>
-                        <div id="chart-active-users2" class="chart-sm"></div>
-                        <script>
-                            document.addEventListener("DOMContentLoaded", function () {
-                                window.ApexCharts && (new ApexCharts(document.getElementById('chart-active-users2'), {
-                                    chart: {
-                                        type: "bar",
-                                        fontFamily: 'inherit',
-                                        height: 40,
-                                        sparkline: {
-                                            enabled: true
-                                        },
-                                        animations: {
-                                            enabled: false
-                                        },
-                                    },
-                                    plotOptions: {
-                                        bar: {
-                                            columnWidth: '50%',
-                                        }
-                                    },
-                                    dataLabels: {
-                                        enabled: false,
-                                    },
-                                    fill: {
-                                        opacity: 1,
-                                    },
-                                    series: [{
-                                        name: "To'lovlar",
-                                        data: @json($monthlyPaymentsData->pluck('total'))
-                                    }],
-                                    tooltip: {
-                                        theme: 'dark'
-                                    },
-                                    grid: {
-                                        strokeDashArray: 4,
-                                    },
-                                    xaxis: {
-                                        labels: {
-                                            padding: 0,
-                                        },
-                                        tooltip: {
-                                            enabled: false
-                                        },
-                                        axisBorder: {
-                                            show: false,
-                                        },
-                                        type: 'datetime',
-                                    },
-                                    yaxis: {
-                                        labels: {
-                                            padding: 4
-                                        },
-                                    },
-                                    labels: @json($monthlyPaymentsData->pluck('date')),
-                                    colors: [tabler.getColor("primary")],
-                                    legend: {
-                                        show: false,
-                                    },
-                                })).render();
-                            });
-                        </script>
+                        <div id="payment-bar-chart"></div>
                     </div>
                 </div>
             </div>
+
             <div class="col-12">
                 <div class="card">
                     <div class="card-body">
                         <div class="d-flex align-items-center">
                             <div class="subheader">Invoyslar va to'lovlar</div>
                         </div>
-{{--                        <div class="d-flex align-items-baseline">--}}
-{{--                            <div class="h1 mb-3 me-2">{{number_format($monthlyInvoicesSum + $monthlyPaymentsSum, 0, ',', ' ')}} UZS</div>--}}
-{{--                            <div class="me-auto">--}}
-{{--                            <span class="text-yellow d-inline-flex align-items-center lh-1">--}}
-{{--                               0%--}}
-{{--                                <!-- Download SVG icon from http://tabler.io/icons/icon/minus -->--}}
-{{--                                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24"--}}
-{{--                                     fill="none" stroke="currentColor"--}}
-{{--                                     stroke-width="2" stroke-linecap="round" stroke-linejoin="round"--}}
-{{--                                     class="icon ms-1 icon-2"><path d="M5 12l14 0"/></svg>--}}
-{{--                            </span>--}}
-{{--                            </div>--}}
-{{--                        </div>--}}
-                        <div id="chart-new-clients" class="chart-sm"></div>
+                        <div id="chart-invoices-payments" class="chart-sm"></div>
+                    </div>
+                </div>
+            </div>
 
-                        <script>
-                            document.addEventListener("DOMContentLoaded", function () {
-                                window.ApexCharts && (new ApexCharts(document.getElementById('chart-new-clients'), {
-                                    chart: {
-                                        type: "line",
-                                        height: 300,
-                                        // Sparkline o'chirib, normal to'liq chart ishlatamiz:
-                                        sparkline: {
-                                            enabled: false
-                                        },
-                                        toolbar: {
-                                            show: true
-                                        },
-                                        animations: {
-                                            enabled: true
-                                        },
-                                        fontFamily: 'inherit'
-                                    },
-                                    stroke: {
-                                        width: [3, 3],
-                                        curve: "smooth",
-                                    },
-                                    dataLabels: {
-                                        enabled: false
-                                    },
-                                    series: [
-                                        {
-                                            name: "Invoyslar",
-                                            data: @json($chartInvoiceData)
-                                        },
-                                        {
-                                            name: "To'lovlar",
-                                            data: @json($chartPaymentData)
-                                        },
-                                    ],
-                                    xaxis: {
-                                        categories: @json($chartLabels), // "2025-03-01", "2025-03-02", ...
-                                        type: 'datetime',  // apexcharts da tooltipni sana sifatida ko‘rsatish uchun
-                                    },
-                                    tooltip: {
-                                        x: {
-                                            format: 'yyyy-MM-dd'
-                                        },
-                                        theme: 'dark'
-                                    },
-                                    colors: [
-                                        tabler.getColor("primary"),
-                                        tabler.getColor("green") // to'lovlar chizig'i yashil, masalan
-                                    ],
-                                    legend: {
-                                        position: 'top'
-                                    },
-                                    grid: {
-                                        strokeDashArray: 4,
-                                    }
-                                })).render();
-                            });
-                        </script>
-
+            <div class="col-12">
+                <div class="card">
+                    <div class="card-body">
+                        <div class="d-flex align-items-center">
+                            <div class="subheader">Hisoblagich ko‘rsatgichlari diagrammasi (Joriy oy)</div>
+                        </div>
+                        <div id="meter-indicators-chart"></div>
                     </div>
                 </div>
             </div>
@@ -400,43 +177,6 @@
 
             <div class="col-lg-6">
                 <div class="row row-cards">
-                    {{--                <div class="col-12">--}}
-                    {{--                    <div class="card">--}}
-                    {{--                        <div class="card-body">--}}
-                    {{--                            <p class="mb-3">Using Storage <strong>6854.45 MB </strong>of 8 GB</p>--}}
-                    {{--                            <div class="progress progress-separated mb-3">--}}
-                    {{--                                <div class="progress-bar bg-primary" role="progressbar" style="width: 44%"--}}
-                    {{--                                     aria-label="Regular"></div>--}}
-                    {{--                                <div class="progress-bar bg-info" role="progressbar" style="width: 19%"--}}
-                    {{--                                     aria-label="System"></div>--}}
-                    {{--                                <div class="progress-bar bg-success" role="progressbar" style="width: 9%"--}}
-                    {{--                                     aria-label="Shared"></div>--}}
-                    {{--                            </div>--}}
-                    {{--                            <div class="row">--}}
-                    {{--                                <div class="col-auto d-flex align-items-center pe-2">--}}
-                    {{--                                    <span class="legend me-2 bg-primary"></span>--}}
-                    {{--                                    <span>Regular</span>--}}
-                    {{--                                    <span class="d-none d-md-inline d-lg-none d-xxl-inline ms-2 text-secondary">915MB</span>--}}
-                    {{--                                </div>--}}
-                    {{--                                <div class="col-auto d-flex align-items-center px-2">--}}
-                    {{--                                    <span class="legend me-2 bg-info"></span>--}}
-                    {{--                                    <span>System</span>--}}
-                    {{--                                    <span class="d-none d-md-inline d-lg-none d-xxl-inline ms-2 text-secondary">415MB</span>--}}
-                    {{--                                </div>--}}
-                    {{--                                <div class="col-auto d-flex align-items-center px-2">--}}
-                    {{--                                    <span class="legend me-2 bg-success"></span>--}}
-                    {{--                                    <span>Shared</span>--}}
-                    {{--                                    <span class="d-none d-md-inline d-lg-none d-xxl-inline ms-2 text-secondary">201MB</span>--}}
-                    {{--                                </div>--}}
-                    {{--                                <div class="col-auto d-flex align-items-center ps-2">--}}
-                    {{--                                    <span class="legend me-2"></span>--}}
-                    {{--                                    <span>Free</span>--}}
-                    {{--                                    <span class="d-none d-md-inline d-lg-none d-xxl-inline ms-2 text-secondary">612MB</span>--}}
-                    {{--                                </div>--}}
-                    {{--                            </div>--}}
-                    {{--                        </div>--}}
-                    {{--                    </div>--}}
-                    {{--                </div>--}}
                     <div class="col-12">
                         <div class="card" style="height: 28rem">
                             <div class="card-body card-body-scrollable card-body-scrollable-shadow">
@@ -479,7 +219,7 @@
                                         <div class="row">
                                             <div class="col-auto">
                                             <span class="avatar avatar-1"
-                                                  style="background-image: url(./static/avatars/003m.jpg)"></span>
+                                                  style="background-image: url('./static/avatars/003m.jpg')"></span>
                                             </div>
                                             <div class="col">
                                                 <div class="text-truncate">
@@ -496,7 +236,8 @@
                                     <div>
                                         <div class="row">
                                             <div class="col-auto">
-                                            <span class="avatar avatar-1" style="background-image: url('./static/avatars/000f.jpg')"></span>
+                                                <span class="avatar avatar-1"
+                                                      style="background-image: url('./static/avatars/000f.jpg')"></span>
                                             </div>
                                             <div class="col">
                                                 <div class="text-truncate">
@@ -718,532 +459,6 @@
                     </div>
                 </div>
             </div>
-            <div class="col-lg-6">
-                <div class="card">
-                    <div class="card-header border-0">
-                        <div class="card-title">Development activity</div>
-                    </div>
-                    <div class="position-relative">
-                        <div class="position-absolute top-0 left-0 px-3 mt-1 w-75">
-                            <div class="row g-2">
-                                <div class="col-auto">
-                                    <div class="chart-sparkline chart-sparkline-square" id="sparkline-activity"></div>
-                                    <script>
-                                        document.addEventListener("DOMContentLoaded", function () {
-                                            window.ApexCharts && (new ApexCharts(document.getElementById('sparkline-activity'), {
-                                                chart: {
-                                                    type: "radialBar",
-                                                    fontFamily: 'inherit',
-                                                    height: 40,
-                                                    width: 40,
-                                                    animations: {
-                                                        enabled: false
-                                                    },
-                                                    sparkline: {
-                                                        enabled: true
-                                                    },
-                                                },
-                                                tooltip: {
-                                                    enabled: false,
-                                                },
-                                                plotOptions: {
-                                                    radialBar: {
-                                                        hollow: {
-                                                            margin: 0,
-                                                            size: '75%'
-                                                        },
-                                                        track: {
-                                                            margin: 0
-                                                        },
-                                                        dataLabels: {
-                                                            show: false
-                                                        }
-                                                    }
-                                                },
-                                                colors: [tabler.getColor("blue")],
-                                                series: [35],
-                                            })).render();
-                                        });
-                                    </script>
-                                </div>
-                                <div class="col">
-                                    <div>Today's Earning: $4,262.40</div>
-                                    <div class="text-secondary">
-                                        <!-- Download SVG icon from http://tabler.io/icons/icon/trending-up -->
-                                        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24"
-                                             viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
-                                             stroke-linecap="round" stroke-linejoin="round"
-                                             class="icon icon-inline text-green icon-3">
-                                            <path d="M3 17l6 -6l4 4l8 -8"/>
-                                            <path d="M14 7l7 0l0 7"/>
-                                        </svg>
-                                        +5% more than yesterday
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                        <div id="chart-development-activity"></div>
-                        <script>
-                            document.addEventListener("DOMContentLoaded", function () {
-                                window.ApexCharts && (new ApexCharts(document.getElementById('chart-development-activity'), {
-                                    chart: {
-                                        type: "area",
-                                        fontFamily: 'inherit',
-                                        height: 192,
-                                        sparkline: {
-                                            enabled: true
-                                        },
-                                        animations: {
-                                            enabled: false
-                                        },
-                                    },
-                                    dataLabels: {
-                                        enabled: false,
-                                    },
-                                    fill: {
-                                        opacity: .16,
-                                        type: 'solid'
-                                    },
-                                    stroke: {
-                                        width: 2,
-                                        lineCap: "round",
-                                        curve: "smooth",
-                                    },
-                                    series: [{
-                                        name: "Purchases",
-                                        data: [3, 5, 4, 6, 7, 5, 6, 8, 24, 7, 12, 5, 6, 3, 8, 4, 14, 30, 17, 19, 15, 14, 25, 32, 40, 55, 60, 48, 52, 70]
-                                    }],
-                                    tooltip: {
-                                        theme: 'dark'
-                                    },
-                                    grid: {
-                                        strokeDashArray: 4,
-                                    },
-                                    xaxis: {
-                                        labels: {
-                                            padding: 0,
-                                        },
-                                        tooltip: {
-                                            enabled: false
-                                        },
-                                        axisBorder: {
-                                            show: false,
-                                        },
-                                        type: 'datetime',
-                                    },
-                                    yaxis: {
-                                        labels: {
-                                            padding: 4
-                                        },
-                                    },
-                                    labels: [
-                                        '2020-06-20', '2020-06-21', '2020-06-22', '2020-06-23', '2020-06-24', '2020-06-25', '2020-06-26', '2020-06-27', '2020-06-28', '2020-06-29', '2020-06-30', '2020-07-01', '2020-07-02', '2020-07-03', '2020-07-04', '2020-07-05', '2020-07-06', '2020-07-07', '2020-07-08', '2020-07-09', '2020-07-10', '2020-07-11', '2020-07-12', '2020-07-13', '2020-07-14', '2020-07-15', '2020-07-16', '2020-07-17', '2020-07-18', '2020-07-19'
-                                    ],
-                                    colors: [tabler.getColor("primary")],
-                                    legend: {
-                                        show: false,
-                                    },
-                                    point: {
-                                        show: false
-                                    },
-                                })).render();
-                            });
-                        </script>
-                    </div>
-                    <div class="card-table table-responsive">
-                        <table class="table table-vcenter">
-                            <thead>
-                            <tr>
-                                <th>User</th>
-                                <th>Commit</th>
-                                <th>Date</th>
-                            </tr>
-                            </thead>
-                            <tbody>
-                            <tr>
-                                <td class="w-1">
-                                <span class="avatar avatar-sm"
-                                      style="background-image: url(./static/avatars/000m.jpg)"></span>
-                                </td>
-                                <td class="td-truncate">
-                                    <div class="text-truncate">
-                                        Fix dart Sass compatibility (#29755)
-                                    </div>
-                                </td>
-                                <td class="text-nowrap text-secondary">28 Nov 2019</td>
-                            </tr>
-                            <tr>
-                                <td class="w-1">
-                                    <span class="avatar avatar-sm">JL</span>
-                                </td>
-                                <td class="td-truncate">
-                                    <div class="text-truncate">
-                                        Change deprecated html tags to text decoration classes (#29604)
-                                    </div>
-                                </td>
-                                <td class="text-nowrap text-secondary">27 Nov 2019</td>
-                            </tr>
-                            <tr>
-                                <td class="w-1">
-                                <span class="avatar avatar-sm"
-                                      style="background-image: url(./static/avatars/002m.jpg)"></span>
-                                </td>
-                                <td class="td-truncate">
-                                    <div class="text-truncate">
-                                        justify-content:between ⇒ justify-content:space-between (#29734)
-                                    </div>
-                                </td>
-                                <td class="text-nowrap text-secondary">26 Nov 2019</td>
-                            </tr>
-                            <tr>
-                                <td class="w-1">
-                                <span class="avatar avatar-sm"
-                                      style="background-image: url(./static/avatars/003m.jpg)"></span>
-                                </td>
-                                <td class="td-truncate">
-                                    <div class="text-truncate">
-                                        Update change-version.js (#29736)
-                                    </div>
-                                </td>
-                                <td class="text-nowrap text-secondary">26 Nov 2019</td>
-                            </tr>
-                            <tr>
-                                <td class="w-1">
-                                <span class="avatar avatar-sm"
-                                      style="background-image: url(./static/avatars/000f.jpg)"></span>
-                                </td>
-                                <td class="td-truncate">
-                                    <div class="text-truncate">
-                                        Regenerate package-lock.json (#29730)
-                                    </div>
-                                </td>
-                                <td class="text-nowrap text-secondary">25 Nov 2019</td>
-                            </tr>
-                            </tbody>
-                        </table>
-                    </div>
-                </div>
-            </div>
-
-            {{--        <div class="col-md-12 col-lg-8">--}}
-            {{--            <div class="card">--}}
-            {{--                <div class="card-header">--}}
-            {{--                    <h3 class="card-title">Most Visited Pages</h3>--}}
-            {{--                </div>--}}
-            {{--                <div class="card-table table-responsive">--}}
-            {{--                    <table class="table table-vcenter">--}}
-            {{--                        <thead>--}}
-            {{--                        <tr>--}}
-            {{--                            <th>Page name</th>--}}
-            {{--                            <th>Visitors</th>--}}
-            {{--                            <th>Unique</th>--}}
-            {{--                            <th colspan="2">Bounce rate</th>--}}
-            {{--                        </tr>--}}
-            {{--                        </thead>--}}
-            {{--                        <tr>--}}
-            {{--                            <td>--}}
-            {{--                                /--}}
-            {{--                                <a href="#" class="ms-1" aria-label="Open website">--}}
-            {{--                                    <!-- Download SVG icon from http://tabler.io/icons/icon/link -->--}}
-            {{--                                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24"--}}
-            {{--                                         viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"--}}
-            {{--                                         stroke-linecap="round" stroke-linejoin="round" class="icon icon-1">--}}
-            {{--                                        <path d="M9 15l6 -6"/>--}}
-            {{--                                        <path d="M11 6l.463 -.536a5 5 0 0 1 7.071 7.072l-.534 .464"/>--}}
-            {{--                                        <path--}}
-            {{--                                            d="M13 18l-.397 .534a5.068 5.068 0 0 1 -7.127 0a4.972 4.972 0 0 1 0 -7.071l.524 -.463"/>--}}
-            {{--                                    </svg>--}}
-            {{--                                </a>--}}
-            {{--                            </td>--}}
-            {{--                            <td class="text-secondary">4,896</td>--}}
-            {{--                            <td class="text-secondary">3,654</td>--}}
-            {{--                            <td class="text-secondary">82.54%</td>--}}
-            {{--                            <td class="text-end w-1">--}}
-            {{--                                <div class="chart-sparkline chart-sparkline-sm" id="sparkline-bounce-rate-1"></div>--}}
-            {{--                                <script>--}}
-            {{--                                    document.addEventListener("DOMContentLoaded", function () {--}}
-            {{--                                        window.ApexCharts && (new ApexCharts(document.getElementById('sparkline-bounce-rate-1'), {--}}
-            {{--                                            chart: {--}}
-            {{--                                                type: "line",--}}
-            {{--                                                fontFamily: 'inherit',--}}
-            {{--                                                height: 24,--}}
-            {{--                                                animations: {--}}
-            {{--                                                    enabled: false--}}
-            {{--                                                },--}}
-            {{--                                                sparkline: {--}}
-            {{--                                                    enabled: true--}}
-            {{--                                                },--}}
-            {{--                                            },--}}
-            {{--                                            tooltip: {--}}
-            {{--                                                enabled: false,--}}
-            {{--                                            },--}}
-            {{--                                            stroke: {--}}
-            {{--                                                width: 2,--}}
-            {{--                                                lineCap: "round",--}}
-            {{--                                            },--}}
-            {{--                                            series: [{--}}
-            {{--                                                color: tabler.getColor("primary"),--}}
-            {{--                                                data: [17, 24, 20, 10, 5, 1, 4, 18, 13]--}}
-            {{--                                            }],--}}
-            {{--                                        })).render();--}}
-            {{--                                    });--}}
-            {{--                                </script>--}}
-            {{--                            </td>--}}
-            {{--                        </tr>--}}
-            {{--                        <tr>--}}
-            {{--                            <td>--}}
-            {{--                                /form-elements.html--}}
-            {{--                                <a href="#" class="ms-1" aria-label="Open website">--}}
-            {{--                                    <!-- Download SVG icon from http://tabler.io/icons/icon/link -->--}}
-            {{--                                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24"--}}
-            {{--                                         viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"--}}
-            {{--                                         stroke-linecap="round" stroke-linejoin="round" class="icon icon-1">--}}
-            {{--                                        <path d="M9 15l6 -6"/>--}}
-            {{--                                        <path d="M11 6l.463 -.536a5 5 0 0 1 7.071 7.072l-.534 .464"/>--}}
-            {{--                                        <path--}}
-            {{--                                            d="M13 18l-.397 .534a5.068 5.068 0 0 1 -7.127 0a4.972 4.972 0 0 1 0 -7.071l.524 -.463"/>--}}
-            {{--                                    </svg>--}}
-            {{--                                </a>--}}
-            {{--                            </td>--}}
-            {{--                            <td class="text-secondary">3,652</td>--}}
-            {{--                            <td class="text-secondary">3,215</td>--}}
-            {{--                            <td class="text-secondary">76.29%</td>--}}
-            {{--                            <td class="text-end w-1">--}}
-            {{--                                <div class="chart-sparkline chart-sparkline-sm" id="sparkline-bounce-rate-2"></div>--}}
-            {{--                                <script>--}}
-            {{--                                    document.addEventListener("DOMContentLoaded", function () {--}}
-            {{--                                        window.ApexCharts && (new ApexCharts(document.getElementById('sparkline-bounce-rate-2'), {--}}
-            {{--                                            chart: {--}}
-            {{--                                                type: "line",--}}
-            {{--                                                fontFamily: 'inherit',--}}
-            {{--                                                height: 24,--}}
-            {{--                                                animations: {--}}
-            {{--                                                    enabled: false--}}
-            {{--                                                },--}}
-            {{--                                                sparkline: {--}}
-            {{--                                                    enabled: true--}}
-            {{--                                                },--}}
-            {{--                                            },--}}
-            {{--                                            tooltip: {--}}
-            {{--                                                enabled: false,--}}
-            {{--                                            },--}}
-            {{--                                            stroke: {--}}
-            {{--                                                width: 2,--}}
-            {{--                                                lineCap: "round",--}}
-            {{--                                            },--}}
-            {{--                                            series: [{--}}
-            {{--                                                color: tabler.getColor("primary"),--}}
-            {{--                                                data: [13, 11, 19, 22, 12, 7, 14, 3, 21]--}}
-            {{--                                            }],--}}
-            {{--                                        })).render();--}}
-            {{--                                    });--}}
-            {{--                                </script>--}}
-            {{--                            </td>--}}
-            {{--                        </tr>--}}
-            {{--                        <tr>--}}
-            {{--                            <td>--}}
-            {{--                                /index.html--}}
-            {{--                                <a href="#" class="ms-1" aria-label="Open website">--}}
-            {{--                                    <!-- Download SVG icon from http://tabler.io/icons/icon/link -->--}}
-            {{--                                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24"--}}
-            {{--                                         viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"--}}
-            {{--                                         stroke-linecap="round" stroke-linejoin="round" class="icon icon-1">--}}
-            {{--                                        <path d="M9 15l6 -6"/>--}}
-            {{--                                        <path d="M11 6l.463 -.536a5 5 0 0 1 7.071 7.072l-.534 .464"/>--}}
-            {{--                                        <path--}}
-            {{--                                            d="M13 18l-.397 .534a5.068 5.068 0 0 1 -7.127 0a4.972 4.972 0 0 1 0 -7.071l.524 -.463"/>--}}
-            {{--                                    </svg>--}}
-            {{--                                </a>--}}
-            {{--                            </td>--}}
-            {{--                            <td class="text-secondary">3,256</td>--}}
-            {{--                            <td class="text-secondary">2,865</td>--}}
-            {{--                            <td class="text-secondary">72.65%</td>--}}
-            {{--                            <td class="text-end w-1">--}}
-            {{--                                <div class="chart-sparkline chart-sparkline-sm" id="sparkline-bounce-rate-3"></div>--}}
-            {{--                                <script>--}}
-            {{--                                    document.addEventListener("DOMContentLoaded", function () {--}}
-            {{--                                        window.ApexCharts && (new ApexCharts(document.getElementById('sparkline-bounce-rate-3'), {--}}
-            {{--                                            chart: {--}}
-            {{--                                                type: "line",--}}
-            {{--                                                fontFamily: 'inherit',--}}
-            {{--                                                height: 24,--}}
-            {{--                                                animations: {--}}
-            {{--                                                    enabled: false--}}
-            {{--                                                },--}}
-            {{--                                                sparkline: {--}}
-            {{--                                                    enabled: true--}}
-            {{--                                                },--}}
-            {{--                                            },--}}
-            {{--                                            tooltip: {--}}
-            {{--                                                enabled: false,--}}
-            {{--                                            },--}}
-            {{--                                            stroke: {--}}
-            {{--                                                width: 2,--}}
-            {{--                                                lineCap: "round",--}}
-            {{--                                            },--}}
-            {{--                                            series: [{--}}
-            {{--                                                color: tabler.getColor("primary"),--}}
-            {{--                                                data: [10, 13, 10, 4, 17, 3, 23, 22, 19]--}}
-            {{--                                            }],--}}
-            {{--                                        })).render();--}}
-            {{--                                    });--}}
-            {{--                                </script>--}}
-            {{--                            </td>--}}
-            {{--                        </tr>--}}
-            {{--                        <tr>--}}
-            {{--                            <td>--}}
-            {{--                                /icons.html--}}
-            {{--                                <a href="#" class="ms-1" aria-label="Open website">--}}
-            {{--                                    <!-- Download SVG icon from http://tabler.io/icons/icon/link -->--}}
-            {{--                                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24"--}}
-            {{--                                         viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"--}}
-            {{--                                         stroke-linecap="round" stroke-linejoin="round" class="icon icon-1">--}}
-            {{--                                        <path d="M9 15l6 -6"/>--}}
-            {{--                                        <path d="M11 6l.463 -.536a5 5 0 0 1 7.071 7.072l-.534 .464"/>--}}
-            {{--                                        <path--}}
-            {{--                                            d="M13 18l-.397 .534a5.068 5.068 0 0 1 -7.127 0a4.972 4.972 0 0 1 0 -7.071l.524 -.463"/>--}}
-            {{--                                    </svg>--}}
-            {{--                                </a>--}}
-            {{--                            </td>--}}
-            {{--                            <td class="text-secondary">986</td>--}}
-            {{--                            <td class="text-secondary">865</td>--}}
-            {{--                            <td class="text-secondary">44.89%</td>--}}
-            {{--                            <td class="text-end w-1">--}}
-            {{--                                <div class="chart-sparkline chart-sparkline-sm" id="sparkline-bounce-rate-4"></div>--}}
-            {{--                                <script>--}}
-            {{--                                    document.addEventListener("DOMContentLoaded", function () {--}}
-            {{--                                        window.ApexCharts && (new ApexCharts(document.getElementById('sparkline-bounce-rate-4'), {--}}
-            {{--                                            chart: {--}}
-            {{--                                                type: "line",--}}
-            {{--                                                fontFamily: 'inherit',--}}
-            {{--                                                height: 24,--}}
-            {{--                                                animations: {--}}
-            {{--                                                    enabled: false--}}
-            {{--                                                },--}}
-            {{--                                                sparkline: {--}}
-            {{--                                                    enabled: true--}}
-            {{--                                                },--}}
-            {{--                                            },--}}
-            {{--                                            tooltip: {--}}
-            {{--                                                enabled: false,--}}
-            {{--                                            },--}}
-            {{--                                            stroke: {--}}
-            {{--                                                width: 2,--}}
-            {{--                                                lineCap: "round",--}}
-            {{--                                            },--}}
-            {{--                                            series: [{--}}
-            {{--                                                color: tabler.getColor("primary"),--}}
-            {{--                                                data: [6, 15, 13, 13, 5, 7, 17, 20, 19]--}}
-            {{--                                            }],--}}
-            {{--                                        })).render();--}}
-            {{--                                    });--}}
-            {{--                                </script>--}}
-            {{--                            </td>--}}
-            {{--                        </tr>--}}
-            {{--                        <tr>--}}
-            {{--                            <td>--}}
-            {{--                                /docs/--}}
-            {{--                                <a href="#" class="ms-1" aria-label="Open website">--}}
-            {{--                                    <!-- Download SVG icon from http://tabler.io/icons/icon/link -->--}}
-            {{--                                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24"--}}
-            {{--                                         viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"--}}
-            {{--                                         stroke-linecap="round" stroke-linejoin="round" class="icon icon-1">--}}
-            {{--                                        <path d="M9 15l6 -6"/>--}}
-            {{--                                        <path d="M11 6l.463 -.536a5 5 0 0 1 7.071 7.072l-.534 .464"/>--}}
-            {{--                                        <path--}}
-            {{--                                            d="M13 18l-.397 .534a5.068 5.068 0 0 1 -7.127 0a4.972 4.972 0 0 1 0 -7.071l.524 -.463"/>--}}
-            {{--                                    </svg>--}}
-            {{--                                </a>--}}
-            {{--                            </td>--}}
-            {{--                            <td class="text-secondary">912</td>--}}
-            {{--                            <td class="text-secondary">822</td>--}}
-            {{--                            <td class="text-secondary">41.12%</td>--}}
-            {{--                            <td class="text-end w-1">--}}
-            {{--                                <div class="chart-sparkline chart-sparkline-sm" id="sparkline-bounce-rate-5"></div>--}}
-            {{--                                <script>--}}
-            {{--                                    document.addEventListener("DOMContentLoaded", function () {--}}
-            {{--                                        window.ApexCharts && (new ApexCharts(document.getElementById('sparkline-bounce-rate-5'), {--}}
-            {{--                                            chart: {--}}
-            {{--                                                type: "line",--}}
-            {{--                                                fontFamily: 'inherit',--}}
-            {{--                                                height: 24,--}}
-            {{--                                                animations: {--}}
-            {{--                                                    enabled: false--}}
-            {{--                                                },--}}
-            {{--                                                sparkline: {--}}
-            {{--                                                    enabled: true--}}
-            {{--                                                },--}}
-            {{--                                            },--}}
-            {{--                                            tooltip: {--}}
-            {{--                                                enabled: false,--}}
-            {{--                                            },--}}
-            {{--                                            stroke: {--}}
-            {{--                                                width: 2,--}}
-            {{--                                                lineCap: "round",--}}
-            {{--                                            },--}}
-            {{--                                            series: [{--}}
-            {{--                                                color: tabler.getColor("primary"),--}}
-            {{--                                                data: [2, 11, 15, 14, 21, 20, 8, 23, 18, 14]--}}
-            {{--                                            }],--}}
-            {{--                                        })).render();--}}
-            {{--                                    });--}}
-            {{--                                </script>--}}
-            {{--                            </td>--}}
-            {{--                        </tr>--}}
-            {{--                        <tr>--}}
-            {{--                            <td>--}}
-            {{--                                /accordion.html--}}
-            {{--                                <a href="#" class="ms-1" aria-label="Open website">--}}
-            {{--                                    <!-- Download SVG icon from http://tabler.io/icons/icon/link -->--}}
-            {{--                                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24"--}}
-            {{--                                         viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"--}}
-            {{--                                         stroke-linecap="round" stroke-linejoin="round" class="icon icon-1">--}}
-            {{--                                        <path d="M9 15l6 -6"/>--}}
-            {{--                                        <path d="M11 6l.463 -.536a5 5 0 0 1 7.071 7.072l-.534 .464"/>--}}
-            {{--                                        <path--}}
-            {{--                                            d="M13 18l-.397 .534a5.068 5.068 0 0 1 -7.127 0a4.972 4.972 0 0 1 0 -7.071l.524 -.463"/>--}}
-            {{--                                    </svg>--}}
-            {{--                                </a>--}}
-            {{--                            </td>--}}
-            {{--                            <td class="text-secondary">855</td>--}}
-            {{--                            <td class="text-secondary">798</td>--}}
-            {{--                            <td class="text-secondary">32.65%</td>--}}
-            {{--                            <td class="text-end w-1">--}}
-            {{--                                <div class="chart-sparkline chart-sparkline-sm" id="sparkline-bounce-rate-6"></div>--}}
-            {{--                                <script>--}}
-            {{--                                    document.addEventListener("DOMContentLoaded", function () {--}}
-            {{--                                        window.ApexCharts && (new ApexCharts(document.getElementById('sparkline-bounce-rate-6'), {--}}
-            {{--                                            chart: {--}}
-            {{--                                                type: "line",--}}
-            {{--                                                fontFamily: 'inherit',--}}
-            {{--                                                height: 24,--}}
-            {{--                                                animations: {--}}
-            {{--                                                    enabled: false--}}
-            {{--                                                },--}}
-            {{--                                                sparkline: {--}}
-            {{--                                                    enabled: true--}}
-            {{--                                                },--}}
-            {{--                                            },--}}
-            {{--                                            tooltip: {--}}
-            {{--                                                enabled: false,--}}
-            {{--                                            },--}}
-            {{--                                            stroke: {--}}
-            {{--                                                width: 2,--}}
-            {{--                                                lineCap: "round",--}}
-            {{--                                            },--}}
-            {{--                                            series: [{--}}
-            {{--                                                color: tabler.getColor("primary"),--}}
-            {{--                                                data: [22, 12, 7, 14, 3, 21, 8, 23, 18, 14]--}}
-            {{--                                            }],--}}
-            {{--                                        })).render();--}}
-            {{--                                    });--}}
-            {{--                                </script>--}}
-            {{--                            </td>--}}
-            {{--                        </tr>--}}
-            {{--                    </table>--}}
-            {{--                </div>--}}
-            {{--            </div>--}}
-            {{--        </div>--}}
 
             <div class="col-md-6 col-lg-4">
                 <div class="card">
@@ -1588,7 +803,7 @@
                                 </td>
                                 <td>
                                 <span class="avatar avatar-sm"
-                                      style="background-image: url(./static/avatars/000f.jpg)"></span>
+                                      style="background-image: url('./static/avatars/000f.jpg')"></span>
                                 </td>
                             </tr>
                             <tr>
@@ -2007,4 +1222,248 @@
         </div>
     </div>
 
+    <script>
+        document.addEventListener("DOMContentLoaded", function () {
+
+            // Invoyslar uchun ustun diagramma sozlamalari
+            var invoiceOptions = {
+                chart: {
+                    type: 'bar',
+                    height: 300,
+                    toolbar: {
+                        show: true,
+                        tools: {
+                            download: true,   // Yuklab olish tugmasi
+                            selection: true,
+                            zoom: true,
+                            zoomin: true,
+                            zoomout: true,
+                            pan: true,
+                            reset: true
+                        },
+                        export: {
+                            csv: {
+                                filename: 'Invoices',
+                                columnDelimiter: ',',
+                                headerCategory: 'Sana',
+                                headerValue: 'Invoys summasi'
+                            },
+                            svg: {filename: 'Invoices'},
+                            png: {filename: 'Invoices'}
+                        },
+                        fontFamily: 'inherit'
+                    }
+                },
+                plotOptions: {
+                    bar: {
+                        columnWidth: '55%'
+                    }
+                },
+                dataLabels: {
+                    enabled: false
+                },
+                series: [{
+                    name: 'Invoyslar',
+                    data: @json($chartInvoiceData)
+                }],
+                xaxis: {
+                    categories: @json($chartLabels),
+                    type: 'datetime',
+                    labels: {
+                        format: 'yyyy-MM-dd'
+                    }
+                },
+                tooltip: {
+                    x: {format: 'yyyy-MM-dd'},
+                    theme: 'dark'
+                },
+                colors: [tabler.getColor("primary")],
+                grid: {strokeDashArray: 4},
+                legend: {position: 'top'}
+            };
+
+            var invoiceChart = new ApexCharts(document.getElementById('invoice-bar-chart'), invoiceOptions);
+            invoiceChart.render();
+
+            // Tolovlar uchun ustun diagramma sozlamalari
+            var paymentOptions = {
+                chart: {
+                    type: 'bar',
+                    height: 300,
+                    toolbar: {
+                        show: true,
+                        tools: {
+                            download: true,
+                            selection: true,
+                            zoom: true,
+                            zoomin: true,
+                            zoomout: true,
+                            pan: true,
+                            reset: true
+                        },
+                        export: {
+                            csv: {
+                                filename: 'Payments',
+                                columnDelimiter: ',',
+                                headerCategory: 'Sana',
+                                headerValue: 'Tolov summasi'
+                            },
+                            svg: {filename: 'Payments'},
+                            png: {filename: 'Payments'}
+                        },
+                        fontFamily: 'inherit'
+                    }
+                },
+                plotOptions: {
+                    bar: {
+                        columnWidth: '55%'
+                    }
+                },
+                dataLabels: {
+                    enabled: false
+                },
+                series: [{
+                    name: "To'lovlar",
+                    data: @json($chartPaymentData)
+                }],
+                xaxis: {
+                    categories: @json($chartLabels),
+                    type: 'datetime',
+                    labels: {
+                        format: 'yyyy-MM-dd'
+                    }
+                },
+                tooltip: {
+                    x: {format: 'yyyy-MM-dd'},
+                    theme: 'dark'
+                },
+                colors: [tabler.getColor("green")],
+                grid: {strokeDashArray: 4},
+                legend: {position: 'top'}
+            };
+
+            var paymentChart = new ApexCharts(document.getElementById('payment-bar-chart'), paymentOptions);
+            paymentChart.render();
+
+        });
+    </script>
+    <script>
+        document.addEventListener("DOMContentLoaded", function () {
+            window.ApexCharts && (new ApexCharts(document.getElementById('chart-invoices-payments'), {
+                chart: {
+                    type: "line",
+                    height: 300,
+                    // Sparkline o'chirib, normal to'liq chart ishlatamiz:
+                    sparkline: {
+                        enabled: false
+                    },
+                    toolbar: {
+                        show: true
+                    },
+                    animations: {
+                        enabled: true
+                    },
+                    fontFamily: 'inherit'
+                },
+                stroke: {
+                    width: [3, 3],
+                    curve: "smooth",
+                },
+                dataLabels: {
+                    enabled: false
+                },
+                series: [
+                    {
+                        name: "Invoyslar",
+                        data: @json($chartInvoiceData)
+                    },
+                    {
+                        name: "To'lovlar",
+                        data: @json($chartPaymentData)
+                    },
+                ],
+                xaxis: {
+                    categories: @json($chartLabels), // "2025-03-01", "2025-03-02", ...
+                    type: 'datetime',  // apexcharts da tooltipni sana sifatida ko‘rsatish uchun
+                },
+                tooltip: {
+                    x: {
+                        format: 'yyyy-MM-dd'
+                    },
+                    theme: 'dark'
+                },
+                colors: [
+                    tabler.getColor("primary"),
+                    tabler.getColor("green") // to'lovlar chizig'i yashil, masalan
+                ],
+                legend: {
+                    position: 'top'
+                },
+                grid: {
+                    strokeDashArray: 4,
+                }
+            })).render();
+        });
+    </script>
+
+    <script>
+        document.addEventListener("DOMContentLoaded", function () {
+            var meterChartOptions = {
+                chart: {
+                    type: 'line',
+                    height: 350,
+                    toolbar: {
+                        show: true,
+                        tools: {
+                            download: true,
+                            selection: true,
+                            zoom: true,
+                            zoomin: true,
+                            zoomout: true,
+                            pan: true,
+                            reset: true
+                        },
+                        export: {
+                            csv: {
+                                filename: 'MeterIndicators',
+                                columnDelimiter: ',',
+                                headerCategory: 'Sana',
+                                headerValue: 'Hisoblagich ko‘rsatgichlari'
+                            },
+                            svg: { filename: 'MeterIndicators' },
+                            png: { filename: 'MeterIndicators' }
+                        },
+                        fontFamily: 'inherit'
+                    }
+                },
+                series: [
+                    {
+                        name: "Tasdiqlangan",
+                        data: @json($chartConfirmedData)
+                    },
+                    {
+                        name: "Tasdiqlanmagan",
+                        data: @json($chartUnconfirmedData)
+                    }
+                ],
+                xaxis: {
+                    categories: @json($chartLabels),
+                    type: 'datetime',
+                    labels: {
+                        format: 'yyyy-MM-dd'
+                    }
+                },
+                tooltip: {
+                    x: { format: 'yyyy-MM-dd' },
+                    theme: 'dark'
+                },
+                colors: [tabler.getColor("green"), tabler.getColor("red")],
+                grid: { strokeDashArray: 4 },
+                legend: { position: 'top' }
+            };
+
+            var meterChart = new ApexCharts(document.getElementById('meter-indicators-chart'), meterChartOptions);
+            meterChart.render();
+        });
+    </script>
 @endsection
