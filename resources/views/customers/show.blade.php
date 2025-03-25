@@ -153,7 +153,15 @@
                         </tr>
                         </tbody>
                     </table>
-
+                    <form action="{{ route('customers.destroy', $customer->id) }}" method="POST" class="d-inline mt-3">
+                        <a href="{{ route('customers.index') }}" class="btn btn-secondary">Ortga</a>
+                        <a href="{{ route('customers.edit', $customer->id) }}" class="btn btn-warning">Tahrirlash</a>
+                        @csrf
+                        @method('DELETE')
+                        <button type="submit" class="btn btn-danger"
+                                onclick="return confirm('Haqiqatan ham o‘chirmoqchimisiz?')">O‘chirish
+                        </button>
+                    </form>
                     <h1>Hisoblagich so'ngi ko'rsatgichlari:</h1>
                     <ul class="list-group">
                         @foreach($readings as $reading)
@@ -336,16 +344,6 @@
                             <button type="submit" class="btn btn-success">To‘lovni kiritish</button>
                         </form>
                     </div>
-
-                    <form action="{{ route('customers.destroy', $customer->id) }}" method="POST" class="d-inline mt-3">
-                        <a href="{{ route('customers.index') }}" class="btn btn-secondary">Ortga</a>
-                        <a href="{{ route('customers.edit', $customer->id) }}" class="btn btn-warning">Tahrirlash</a>
-                        @csrf
-                        @method('DELETE')
-                        <button type="submit" class="btn btn-danger"
-                                onclick="return confirm('Haqiqatan ham o‘chirmoqchimisiz?')">O‘chirish
-                        </button>
-                    </form>
                 </div>
             </div>
         </div>
