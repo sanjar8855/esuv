@@ -22,6 +22,23 @@ class DashboardController extends Controller
         $customerIds = Customer::where('company_id', $companyId)->pluck('id');
         $customersCount = $customerIds->count();
 
+        $allCustomers = Customer::where('company_id', $companyId)->get();
+
+        // Faqat qarzdor mijozlar va ularning qarzdorlik summasini aniqlash
+        $debtors = $allCustomers->filter(function ($customer) {
+            $totalDue = $customer->invoices()->sum('amount_due'); // barcha invoyslarni olamiz
+            $totalPaid = $customer->payments()->sum('amount');     // barcha to'lovlar
+            return ($totalPaid - $totalDue) < 0;
+        });
+
+        $debtorsCount = $debtors->count();
+
+        $totalDebt = $debtors->sum(function ($customer) {
+            $totalDue = $customer->invoices()->sum('amount_due');
+            $totalPaid = $customer->payments()->sum('amount');
+            return abs($totalPaid - $totalDue);
+        });
+
         // Oyning boshidan oxirigacha bo'lgan sanalar oralig‘i
         $start = Carbon::now()->startOfMonth();
         $end = Carbon::now()->endOfMonth();
@@ -33,21 +50,10 @@ class DashboardController extends Controller
             $baseQuery->where('company_id', $user->company_id);
         }
 
-        // Qarzdor mijozlar soni
-        $debtorsCount = (clone $baseQuery)
-            ->where('balance', '<', 0)
-            ->count();
-
         // Foyda beruvchi mijozlar soni
         $profitCustomersCount = (clone $baseQuery)
             ->where('balance', '>', 0)
             ->count();
-
-        // Jami qarz summasi (manfiy balanslardagi absolyut qiymatlarni yig‘indi)
-        $totalDebt = (clone $baseQuery)
-            ->where('balance', '<', 0)
-            ->get()
-            ->sum(fn($customer) => abs($customer->balance));
 
         // Jami foyda summasi
         $totalProfit = (clone $baseQuery)
@@ -62,7 +68,7 @@ class DashboardController extends Controller
 
         // Hozirgi oy uchun
         $currentMonth = Carbon::now()->month;
-        $currentYear  = Carbon::now()->year;
+        $currentYear = Carbon::now()->year;
 
         // Hozirgi oydagi invoyslar soni va summasi
         $monthlyInvoicesCount = Invoice::whereIn('customer_id', $customerIds)
@@ -118,8 +124,8 @@ class DashboardController extends Controller
             $invoiceRow = $monthlyData->get($dayString);
             $paymentRow = $monthlyPaymentsData->get($dayString);
 
-            $chartInvoiceData[] = $invoiceRow ? (float) $invoiceRow->invoice_sum : 0;
-            $chartPaymentData[] = $paymentRow ? (float) $paymentRow->total : 0;
+            $chartInvoiceData[] = $invoiceRow ? (float)$invoiceRow->invoice_sum : 0;
+            $chartPaymentData[] = $paymentRow ? (float)$paymentRow->total : 0;
         }
 
         // Agar qo'shimcha grafiklar uchun eski so'rovlar kerak bo'lsa:
@@ -138,22 +144,32 @@ class DashboardController extends Controller
             ->toArray();
 
         $start = Carbon::now()->startOfMonth();
-        $end   = Carbon::now()->endOfMonth();
+        $end = Carbon::now()->endOfMonth();
         $period = CarbonPeriod::create($start, $end);
 
-        // Tasdiqlangan o'qishlar bo'yicha kunlik hisobot
+// Tasdiqlangan o'qishlar bo'yicha kunlik hisobot, faqat aktiv kompaniya mijozlaridan
         $confirmedData = MeterReading::whereBetween('reading_date', [$start, $end])
             ->where('confirmed', true)
-            ->selectRaw('DATE(reading_date) as date, sum(reading) as count')
+            ->whereHas('waterMeter', function ($query) use ($companyId) {
+                $query->whereHas('customer', function ($q) use ($companyId) {
+                    $q->where('company_id', $companyId);
+                });
+            })
+            ->selectRaw('DATE(reading_date) as date, SUM(reading) as count')
             ->groupBy('date')
             ->orderBy('date')
             ->get()
             ->keyBy('date');
 
-        // Tasdiqlanmagan (yoki hali tasdiqlanmagan) o'qishlar bo'yicha kunlik hisobot
+// Tasdiqlanmagan o'qishlar bo'yicha kunlik hisobot, faqat aktiv kompaniya mijozlaridan
         $unconfirmedData = MeterReading::whereBetween('reading_date', [$start, $end])
             ->where('confirmed', false)
-            ->selectRaw('DATE(reading_date) as date, sum(reading) as count')
+            ->whereHas('waterMeter', function ($query) use ($companyId) {
+                $query->whereHas('customer', function ($q) use ($companyId) {
+                    $q->where('company_id', $companyId);
+                });
+            })
+            ->selectRaw('DATE(reading_date) as date, SUM(reading) as count')
             ->groupBy('date')
             ->orderBy('date')
             ->get()
@@ -169,6 +185,27 @@ class DashboardController extends Controller
             $chartConfirmedData[] = $confirmedData->has($dayString) ? (int)$confirmedData->get($dayString)->count : 0;
             $chartUnconfirmedData[] = $unconfirmedData->has($dayString) ? (int)$unconfirmedData->get($dayString)->count : 0;
         }
+
+        // Qarzdorlik bo‘yicha top 5 ko‘chani olish
+        $topStreets = Customer::where('company_id', $companyId)
+            ->where('balance', '<', 0)
+            ->whereHas('street') // faqat ko‘chasi borlar
+            ->with('street')
+            ->get()
+            ->groupBy('street_id')
+            ->map(function ($customers, $streetId) {
+                $totalDebt = $customers->sum(fn($c) => abs($c->balance));
+                return [
+                    'street_name' => $customers->first()->street->name ?? 'Nomaʼlum',
+                    'total_debt' => $totalDebt,
+                ];
+            })
+            ->sortByDesc('total_debt')
+            ->take(5)
+            ->values();
+
+        // Maksimal qarzdorlik (foiz hisoblash uchun)
+        $maxDebt = $topStreets->max('total_debt');
 
         return view('pages.dashboard', compact(
             'debtorsCount',
@@ -190,7 +227,9 @@ class DashboardController extends Controller
             'chartPaymentData',
             'chartLabels',
             'chartConfirmedData',
-            'chartUnconfirmedData'
+            'chartUnconfirmedData',
+            'topStreets',
+            'maxDebt'
         ));
     }
 }
