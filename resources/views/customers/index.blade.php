@@ -88,6 +88,7 @@
                                                 <span class="badge bg-red text-red-fg">Nofaol</span>
                                             @endif
                                         </td>
+                                        <td>{{ $customer->address }}</td>
                                         <td>{{ $customer->phone }}</td>
                                         <td>
                                             @php
@@ -107,7 +108,6 @@
                                             @endif
                                         </td>
                                         <td>{{ $customer->family_members }}</td>
-                                        <td>{{ $customer->address }}</td>
                                         <td>
                                             <a href="{{ route('customers.show', $customer->id) }}"
                                                class="btn btn-info btn-sm">Batafsil</a>
