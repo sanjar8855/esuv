@@ -55,12 +55,12 @@
                                         <th>Kompaniya</th>
                                     @endif
                                     <th>Ko‘cha</th>
+                                    <th>Uy raqami</th>
                                     <th>Ism</th>
                                     <th>Telefon</th>
                                     <th>Jami Qarzdorlik (UZS)</th>
                                     <th>Oxirgi ko'rsatkich</th>
                                     <th>Oila a'zolari soni</th>
-                                    <th>Uy raqami</th>
                                     <th>Amallar</th>
                                 </tr>
                                 </thead>
@@ -80,6 +80,7 @@
                                                 {{ $customer->street->name }}
                                             </a>
                                         </td>
+                                        <td>{{ $customer->address }}</td>
                                         <td>
                                             {{ $customer->name }}
                                             @if($customer->is_active)
@@ -88,7 +89,6 @@
                                                 <span class="badge bg-red text-red-fg">Nofaol</span>
                                             @endif
                                         </td>
-                                        <td>{{ $customer->address }}</td>
                                         <td>{{ $customer->phone }}</td>
                                         <td>
                                             @php
