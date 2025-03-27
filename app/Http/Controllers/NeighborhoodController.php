@@ -11,7 +11,26 @@ class NeighborhoodController extends Controller
 {
     public function index()
     {
-        $neighborhoods = Neighborhood::orderBy('name', 'asc')->with('city')->paginate(15);
+        $user = auth()->user();
+
+        $query = Neighborhood::with('city')
+            ->whereHas('streets.customers', function ($q) use ($user) {
+                $q->where('is_active', 1);
+                if (!$user->hasRole('admin') && $user->company_id) {
+                    $q->where('company_id', $user->company_id);
+                }
+            })
+            ->withCount(['streets as street_count' => function ($q) use ($user) {
+                $q->whereHas('customers', function ($qq) use ($user) {
+                    $qq->where('is_active', 1);
+                    if (!$user->hasRole('admin') && $user->company_id) {
+                        $qq->where('company_id', $user->company_id);
+                    }
+                });
+            }]);
+
+        $neighborhoods = $query->paginate(15);
+
         return view('neighborhoods.index', compact('neighborhoods'));
     }
 
@@ -40,7 +59,24 @@ class NeighborhoodController extends Controller
 
     public function show(Neighborhood $neighborhood)
     {
-        return view('neighborhoods.show', compact('neighborhood'));
+        $user = auth()->user();
+
+        $streets = $neighborhood->streets()
+            ->whereHas('customers', function ($q) use ($user) {
+                $q->where('is_active', 1);
+                if (!$user->hasRole('admin') && $user->company_id) {
+                    $q->where('company_id', $user->company_id);
+                }
+            })
+            ->withCount(['customers as customer_count' => function ($q) use ($user) {
+                $q->where('is_active', 1);
+                if (!$user->hasRole('admin') && $user->company_id) {
+                    $q->where('company_id', $user->company_id);
+                }
+            }])
+            ->paginate(15);
+
+        return view('neighborhoods.show', compact('neighborhood', 'streets'));
     }
 
     public function edit(Neighborhood $neighborhood)

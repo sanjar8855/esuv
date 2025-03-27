@@ -20,6 +20,8 @@
                             <th> N </th>
                             <th> Viloyat </th>
                             <th> Shahar Nomi </th>
+                            <th> Mahallalar soni </th>
+                            <th> Mijozlar soni </th>
                             <th> Amallar </th>
                         </tr>
                         </thead>
@@ -29,6 +31,8 @@
                                 <td> {{$loop->index +1}} </td>
                                 <td>{{ $city->region->name }}</td>
                                 <td>{{ $city->name }}</td>
+                                <td>{{ $city->neighborhood_count }}</td>
+                                <td>{{ $city->customer_count }}</td>
                                 <td>
                                     <a href="{{ route('cities.show', $city->id) }}"
                                        class="btn btn-info btn-sm">Ko‘rish</a>

@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Customer;
 use App\Models\Street;
 use App\Models\Neighborhood;
 use Illuminate\Http\Request;
@@ -11,7 +12,24 @@ class StreetController extends Controller
 {
     public function index()
     {
-        $streets = Street::with('neighborhood')->paginate(15);
+        $user = auth()->user();
+
+        $query = Street::with('neighborhood')
+            ->withCount(['customers as customer_count' => function ($q) use ($user) {
+                $q->where('is_active', 1);
+                if (!$user->hasRole('admin') && $user->company_id) {
+                    $q->where('company_id', $user->company_id);
+                }
+            }])
+            ->whereHas('customers', function ($q) use ($user) {
+                $q->where('is_active', 1);
+                if (!$user->hasRole('admin') && $user->company_id) {
+                    $q->where('company_id', $user->company_id);
+                }
+            });
+
+        $streets = $query->paginate(15);
+
         return view('streets.index', compact('streets'));
     }
 
@@ -40,7 +58,30 @@ class StreetController extends Controller
 
     public function show(Street $street)
     {
-        return view('streets.show', compact('street'));
+        $user = auth()->user();
+
+        $query = Customer::with([
+            'company',
+            'street.neighborhood.city.region',
+            'waterMeter.readings' => function ($q) {
+                $q->orderBy('reading_date', 'desc');
+                $q->orderBy('id', 'desc');
+            }
+        ])
+            ->withSum('invoices as total_due', 'amount_due')
+            ->withSum('payments as total_paid', 'amount')
+            ->where('is_active', 1)
+            ->where('street_id', $street->id); // 🔴 Shu ko‘chadagi mijozlar
+
+        if (!$user->hasRole('admin') && $user->company) {
+            $query->where('company_id', $user->company_id); // 🔒 Faqat o‘z kompaniyasidagi
+        }
+
+        $customersCount = (clone $query)->count();
+
+        $customers = $query->paginate(20)->withQueryString();
+
+        return view('streets.show', compact('street', 'customers', 'customersCount'));
     }
 
     public function edit(Street $street)

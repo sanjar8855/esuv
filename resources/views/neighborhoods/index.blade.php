@@ -21,6 +21,7 @@
                                     <th>N</th>
                                     <th>Shahar</th>
                                     <th>Mahalla Nomi</th>
+                                    <th>Ko‘chalar soni</th>
                                     <th>Harakatlar</th>
                                 </tr>
                                 </thead>
@@ -28,8 +29,13 @@
                                 @foreach($neighborhoods as $neighborhood)
                                     <tr>
                                         <td>{{$loop->index +1}}</td>
-                                        <td>{{ $neighborhood->city->name }}</td>
+                                        <td>
+                                            <a href="{{ route('cities.show', $neighborhood->city->id) }}" class="badge badge-outline text-blue">
+                                                {{ $neighborhood->city->name }}
+                                            </a>
+                                        </td>
                                         <td>{{ $neighborhood->name }}</td>
+                                        <td>{{ $neighborhood->street_count  }}</td>
                                         <td>
                                             <a href="{{ route('neighborhoods.show', $neighborhood->id) }}"
                                                class="btn btn-info btn-sm">Ko‘rish</a>

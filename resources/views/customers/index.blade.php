@@ -58,6 +58,7 @@
                                     <th>Uy raqami</th>
                                     <th>Ism</th>
                                     <th>Telefon</th>
+                                    <th>Hisoblagich</th>
                                     <th>Jami Qarzdorlik (UZS)</th>
                                     <th>Oxirgi ko'rsatkich</th>
                                     <th>Oila a'zolari soni</th>
@@ -70,7 +71,7 @@
                                         <td>{{ $loop->iteration }}</td>
                                         @if(auth()->user()->hasRole('admin'))
                                             <td>
-                                                <a href="{{ route('companies.show', $customer->company->id) }}">
+                                                <a href="{{ route('companies.show', $customer->company->id) }}" class="badge badge-outline text-blue">
                                                     {{ $customer->company->name }}
                                                 </a>
                                             </td>
@@ -91,13 +92,20 @@
                                         </td>
                                         <td>{{ $customer->phone }}</td>
                                         <td>
+                                            <a href="{{ route('water_meters.show', $customer->waterMeter->id) }}"
+                                               class="badge badge-outline text-blue">
+                                                {{ $customer->waterMeter->meter_number }}
+                                            </a>
+                                        </td>
+                                        <td>
                                             @php
                                                 $balance = $customer->balance;
                                                 $balanceClass = $balance < 0 ? 'text-red' : ($balance > 0 ? 'text-green' : 'text-info');
-                                                $balanceText = $balance < 0 ? 'Qarzdor' : ($balance > 0 ? 'Ortiqcha' : 'Nol');
+                                          //     $balanceText = $balance < 0 ? 'Qarzdor' : ($balance > 0 ? 'Ortiqcha' : 'Nol');
                                             @endphp
                                             <span class="badge {{ $balanceClass }}">
-                                        {{ ($balance > 0 ? '+' : '-') . number_format(abs($balance)) }} UZS ({{ $balanceText }})
+                                        {{ ($balance > 0 ? '+' : '-') . number_format(abs($balance)) }} UZS
+{{--                                                ({{ $balanceText }})--}}
                                     </span>
                                         </td>
                                         <td>
