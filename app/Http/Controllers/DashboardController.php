@@ -226,7 +226,6 @@ class DashboardController extends Controller
             'chartLabels',
             'chartInvoiceData',
             'chartPaymentData',
-            'chartLabels',
             'chartConfirmedData',
             'chartUnconfirmedData',
             'topStreets',

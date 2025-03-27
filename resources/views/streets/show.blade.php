@@ -52,10 +52,14 @@
                                 </td>
                                 <td>{{ $customer->phone }}</td>
                                 <td>
-                                    <a href="{{ route('water_meters.show', $customer->waterMeter->id) }}"
-                                       class="badge badge-outline text-blue">
-                                        {{ $customer->waterMeter->meter_number }}
-                                    </a>
+                                    @if($customer->waterMeter)
+                                        <a href="{{ route('water_meters.show', $customer->waterMeter->id) }}"
+                                           class="badge badge-outline text-blue">
+                                            {{ $customer->waterMeter->meter_number }}
+                                        </a>
+                                    @else
+                                        <span class="text-muted">Hisoblagich yo‘q</span>
+                                    @endif
                                 </td>
                                 <td>
                                     @php
