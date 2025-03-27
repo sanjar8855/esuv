@@ -196,6 +196,7 @@ class DashboardController extends Controller
             ->map(function ($customers, $streetId) {
                 $totalDebt = $customers->sum(fn($c) => abs($c->balance));
                 return [
+                    'street_id' => $streetId,
                     'street_name' => $customers->first()->street->name ?? 'Nomaʼlum',
                     'total_debt' => $totalDebt,
                 ];

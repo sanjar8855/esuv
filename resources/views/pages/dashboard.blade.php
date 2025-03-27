@@ -182,7 +182,12 @@
                                 $percent = $maxDebt > 0 ? round(($street['total_debt'] / $maxDebt) * 100, 2) : 0;
                             @endphp
                             <tr>
-                                <td>{{ $street['street_name'] }}</td>
+                                <td>
+                                    <a href="{{ route('streets.show', $street['street_id']) }}"
+                                       class="badge badge-outline text-blue">
+                                        {{ $street['street_name'] }}
+                                    </a>
+                                </td>
                                 <td>{{ number_format($street['total_debt'], 0, '', ' ') }}</td>
                                 <td class="w-50">
                                     <div class="progress progress-xs">
@@ -702,8 +707,8 @@
                                 headerCategory: 'Sana',
                                 headerValue: 'Hisoblagich ko‘rsatgichlari'
                             },
-                            svg: { filename: 'MeterIndicators' },
-                            png: { filename: 'MeterIndicators' }
+                            svg: {filename: 'MeterIndicators'},
+                            png: {filename: 'MeterIndicators'}
                         },
                         fontFamily: 'inherit'
                     }
@@ -726,12 +731,12 @@
                     }
                 },
                 tooltip: {
-                    x: { format: 'yyyy-MM-dd' },
+                    x: {format: 'yyyy-MM-dd'},
                     theme: 'dark'
                 },
                 colors: [tabler.getColor("green"), tabler.getColor("red")],
-                grid: { strokeDashArray: 4 },
-                legend: { position: 'top' }
+                grid: {strokeDashArray: 4},
+                legend: {position: 'top'}
             };
 
             var meterChart = new ApexCharts(document.getElementById('meter-indicators-chart'), meterChartOptions);

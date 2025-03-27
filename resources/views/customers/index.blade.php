@@ -77,7 +77,7 @@
                                             </td>
                                         @endif
                                         <td>
-                                            <a href="{{ route('streets.show', $customer->street->id) }}">
+                                            <a href="{{ route('streets.show', $customer->street->id) }}" class="badge badge-outline text-blue">
                                                 {{ $customer->street->name }}
                                             </a>
                                         </td>
