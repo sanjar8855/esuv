@@ -60,7 +60,7 @@ class UserController extends Controller
             $filePath = $request->file('files')->store('user_files', 'public'); // Papka nomini o'zgartirdim (ixtiyoriy)
         }
 
-        $userData = User::create([
+        $user = User::create([
             'company_id' => $validatedData['company_id'],
             'name' => $validatedData['name'],
             'email' => $validatedData['email'],
@@ -69,8 +69,6 @@ class UserController extends Controller
             'files' => $filePath,
             'work_start' => $validatedData['work_start'],
         ]);
-
-        $user = User::create($userData);
 
         $user->assignRole($validatedData['role']);
 
