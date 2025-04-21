@@ -77,7 +77,7 @@
                                             d="M16 3v4"/><path d="M8 3v4"/><path d="M4 11h16"/><path d="M11 15h1"/><path
                                             d="M12 15v3"/></svg>
                                 </span>
-                                    <input name="installation_date" class="form-control" placeholder="Sanani tanlang"
+                                    <input name="work_start" class="form-control" placeholder="Sanani tanlang"
                                            id="datepicker-icon-prepend1"/>
                                 </div>
                                 <script>

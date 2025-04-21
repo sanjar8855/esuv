@@ -42,7 +42,7 @@ class UserController extends Controller
 
     public function store(Request $request)
     {
-        $request->validate([
+        $validatedData = $request->validate([
             'company_id' => 'required|exists:companies,id',
             'name' => 'required|string',
             'email' => 'required|email|unique:users',
@@ -53,21 +53,26 @@ class UserController extends Controller
             'work_start' => 'nullable|date',
         ]);
 
+        $filePath = null;
+
         if ($request->hasFile('files')) {
-            $request['files'] = $request->file('files')->store('files', 'public');
+            // store() metodi fayl manzilini (string) qaytaradi
+            $filePath = $request->file('files')->store('user_files', 'public'); // Papka nomini o'zgartirdim (ixtiyoriy)
         }
 
-        $user = User::create([
-            'company_id' => $request->company_id,
-            'name' => $request->name,
-            'email' => $request->email,
-            'password' => Hash::make($request->password),
-            'rank' => $request->rank,
-            'files' => $request->files,
-            'work_start' => $request->work_start,
+        $userData = User::create([
+            'company_id' => $validatedData['company_id'],
+            'name' => $validatedData['name'],
+            'email' => $validatedData['email'],
+            'password' => Hash::make($validatedData['password']),
+            'rank' => $validatedData['rank'],
+            'files' => $filePath,
+            'work_start' => $validatedData['work_start'],
         ]);
 
-        $user->assignRole($request->role);
+        $user = User::create($userData);
+
+        $user->assignRole($validatedData['role']);
 
         return redirect()->route('users.index')->with('success', 'Foydalanuvchi qo‘shildi!');
     }
@@ -92,34 +97,57 @@ class UserController extends Controller
 
     public function update(Request $request, User $user)
     {
-        $request->validate([
+        // 1. Validatsiya
+        $validatedData = $request->validate([ // Validatsiyadan o'tgan ma'lumotlarni olish
             'company_id' => 'required|exists:companies,id',
             'name' => 'required|string',
-            'email' => 'required|email|unique:users,email,' . $user->id,
+            'email' => 'required|email|unique:users,email,' . $user->id, // Yangilash uchun to'g'ri unique qoidasi
+            'password' => 'nullable|string|min:6', // Yangilashda parol majburiy emas (nullable)
             'role' => 'required|in:company_owner,employee',
             'rank' => 'nullable|string',
-            'files' => 'nullable|file|max:4096',
+            'files' => 'nullable|file|max:4096', // Fayl ham majburiy emas va hajmi cheklangan
             'work_start' => 'nullable|date',
         ]);
 
-        if ($request->hasFile('files')) {
+        // 2. Fayl bilan ishlash
+        $filePath = $user->files; // Joriy fayl manzilini saqlab turamiz
+
+        if ($request->hasFile('files')) { // Agar YANGI fayl yuklangan bo'lsa
+            // a) Eski faylni o'chirish (agar mavjud bo'lsa)
             if ($user->files) {
-                Storage::disk('public')->delete($user->pdf_file); // Eski PDFni o‘chirish
+                // Storage::disk('public')->delete($user->pdf_file); // XATO: pdf_file emas, files bo'lishi kerak
+                Storage::disk('public')->delete($user->files); // TO'G'RI: 'files' ustunidagi manzilni ishlatish
             }
-            $user->files = $request->file('files')->store('files', 'public');
+            // b) Yangi faylni saqlash va manzilini olish
+            // $user->files = $request->file('files')->store('files', 'public'); // Bu ham ishlaydi, lekin pastdagi yondashuv aniqroq
+            $filePath = $request->file('files')->store('user_files', 'public'); // Yangi fayl manzilini $filePath ga yozamiz (store metodidagi papkaga)
         }
 
-        $user->update([
-            'company_id' => $request->company_id,
-            'name' => $request->name,
-            'email' => $request->email,
-            'password' => $request->password ? Hash::make($request->password) : $user->password,
-            'rank' => $request->rank,
-            'files' => $request->files,
-            'work_start' => $request->work_start,
-        ]);
+        // 3. Yangilash uchun ma'lumotlar massivini tayyorlash
+        $updateData = [
+            'company_id' => $validatedData['company_id'],
+            'name' => $validatedData['name'],
+            'email' => $validatedData['email'],
+            // Parolni faqat yangi parol kiritilgan bo'lsa yangilaymiz
+            // 'password' => $request->password ? Hash::make($request->password) : $user->password, // Bu eski yondashuv
+            'rank' => $validatedData['rank'],
+            'files' => $filePath, // <--- FAYL MANZILINI (string yoki null) TO'G'RI UZATISH
+            'work_start' => $validatedData['work_start'],
+        ];
 
-        $user->assignRole($request->role);
+        // 4. Agar validatsiyadan o'tgan parol bo'sh bo'lmasa (yangi parol kiritilgan bo'lsa)
+        if (!empty($validatedData['password'])) {
+            $updateData['password'] = Hash::make($validatedData['password']);
+        }
+        // Agar yangi parol kiritilmagan bo'lsa, $updateData massivida 'password' kaliti bo'lmaydi
+        // va update() metodi parolni o'zgartirmaydi.
+
+        // 5. Foydalanuvchi ma'lumotlarini yangilash
+        $user->update($updateData);
+
+        // 6. Rolni yangilash (eskisini o'chirib, yangisini qo'shish uchun syncRoles yaxshiroq)
+        // $user->assignRole($validatedData['role']); // assignRole faqat qo'shadi, eskini o'chirmaydi
+        $user->syncRoles([$validatedData['role']]); // Eskilarini o'chiradi va faqat ko'rsatilganni qoldiradi
 
         return redirect()->route('users.index')->with('success', 'Foydalanuvchi yangilandi!');
     }
