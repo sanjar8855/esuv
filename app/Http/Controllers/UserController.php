@@ -103,10 +103,10 @@ class UserController extends Controller
         ]);
 
         if ($request->hasFile('files')) {
-            if ($customer->files) {
-                Storage::disk('public')->delete($customer->pdf_file); // Eski PDFni o‘chirish
+            if ($user->files) {
+                Storage::disk('public')->delete($user->pdf_file); // Eski PDFni o‘chirish
             }
-            $customer->files = $request->file('files')->store('files', 'public');
+            $user->files = $request->file('files')->store('files', 'public');
         }
 
         $user->update([
