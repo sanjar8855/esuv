@@ -55,12 +55,12 @@
 
                         <div class="mb-3">
                             <label for="rank">Lavozim:</label>
-                            <input type="text" name="rank" class="form-control" required>
+                            <input type="text" name="rank" class="form-control">
                         </div>
 
                         <div class="mb-3">
                             <label for="files">Fayl:</label>
-                            <input type="file" name="files" class="form-control" required>
+                            <input type="file" name="files" class="form-control">
                         </div>
 
                         <div class="mb-3">

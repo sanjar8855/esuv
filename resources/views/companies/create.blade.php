@@ -45,7 +45,7 @@
 
                         <div class="mb-3">
                             <label for="logo">Logo:</label>
-                            <input type="file" name="logo" class="form-control" required>
+                            <input type="file" name="logo" class="form-control">
                         </div>
 
                         <div class="mb-3">
