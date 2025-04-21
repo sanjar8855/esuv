@@ -19,7 +19,7 @@
                                 <tr>
                                     <th>ID</th>
                                     <th>Ism</th>
-                                    <th>Foydalanuvchi</th>
+                                    <th>Foydalanuvchi turi</th>
                                     <th>Email</th>
                                     <th>Lavozim</th>
                                     <th>Ishga kirgan sana</th>
@@ -33,7 +33,18 @@
                                         <td>{{ $user->name }}</td>
                                         <td>
                                             @foreach($user->roles as $role)
-                                                <span class="badge badge-outline text-blue">{{ $role->name }}</span>
+                                                <span class="badge badge-outline text-blue">
+                                                    @if($role->name == 'admin')
+                                                        Admin
+                                                    @elseif($role->name == 'company_owner')
+                                                        Direktor
+                                                    @elseif($role->name == 'employee')
+                                                        Xodim
+                                                    @else
+                                                        {{-- Agar kutilmagan rol bo'lsa, asl nomini chiqarish --}}
+                                                        {{ $role->name }}
+                                                    @endif
+                                                </span>
                                             @endforeach
                                         </td>
                                         <td>{{ $user->email }}</td>
