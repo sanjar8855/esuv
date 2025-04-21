@@ -32,10 +32,10 @@ class UserController extends Controller
         $user = auth()->user();
         if ($user->hasRole('admin')) {
             // Admin barcha foydalanuvchilarni ko‘radi
-            $companies = Company::paginate(10);
+            $companies = Company::all();
         } else {
             // Oddiy foydalanuvchi faqat o‘z kompaniyasidagi userlarni ko‘radi
-            $companies = Company::where('id', $user->company->id)->paginate(10);
+            $companies = Company::where('id', $user->company->id)->get();
         }
         return view('users.create', compact('companies'));
     }
@@ -85,10 +85,10 @@ class UserController extends Controller
         $users = auth()->user();
         if ($users->hasRole('admin')) {
             // Admin barcha foydalanuvchilarni ko‘radi
-            $companies = Company::all()->paginate(10);
+            $companies = Company::all();
         } else {
             // Oddiy foydalanuvchi faqat o‘z kompaniyasidagi userlarni ko‘radi
-            $companies = Company::where('id', $user->company->id)->paginate(10);
+            $companies = Company::where('id', $user->company->id)->get();
         }
         return view('users.edit', compact('user', 'companies'));
     }
