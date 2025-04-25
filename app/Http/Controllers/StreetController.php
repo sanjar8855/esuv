@@ -14,19 +14,29 @@ class StreetController extends Controller
     {
         $user = auth()->user();
 
-        $query = Street::with('neighborhood')
-            ->withCount(['customers as customer_count' => function ($q) use ($user) {
+        // OZGARISH: Admin uchun barcha ko'chalarni ko'rsatish
+        $query = Street::with('neighborhood');
+
+        // Mijozlar sonini qo'shamiz
+        $query->withCount([
+            'customers as customer_count' => function ($q) use ($user) {
                 $q->where('is_active', 1);
+                // OZGARISH: Admin emas bo'lsa, filter qo'llaymiz
                 if (!$user->hasRole('admin') && $user->company_id) {
                     $q->where('company_id', $user->company_id);
                 }
-            }])
-            ->whereHas('customers', function ($q) use ($user) {
+            }
+        ]);
+
+        // OZGARISH: Admin emas bo'lsa, filter qo'llaymiz, admin uchun barcha ko'chalarni ko'rsatish
+        if (!$user->hasRole('admin')) {
+            $query->whereHas('customers', function ($q) use ($user) {
                 $q->where('is_active', 1);
-                if (!$user->hasRole('admin') && $user->company_id) {
+                if ($user->company_id) {
                     $q->where('company_id', $user->company_id);
                 }
             });
+        }
 
         $streets = $query->paginate(15);
 
