@@ -159,7 +159,7 @@ class TelegramController extends Controller
             ->row([
                 Keyboard::button('➕ Hisoblagichga ko‘rsatgich qo‘shish') // ✅ Yangi tugma
             ])
-            ->toJson();
+            ->toArray();
 
         $this->sendMessage($chatId, "📌 Asosiy menyu", $menu);
     }
