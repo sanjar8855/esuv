@@ -58,7 +58,7 @@ class CityController extends Controller
 
     public function store(Request $request)
     {
-        $request->validate([
+        $validated = $request->validate([
             'region_id' => 'required|exists:regions,id',
             'name' => [
                 'required',
@@ -69,8 +69,14 @@ class CityController extends Controller
             ],
         ]);
 
-        City::create($request->all());
-        return redirect()->route('cities.index')->with('success', 'Shahar qo‘shildi!');
+        try {
+            // $request->all() o'rniga faqat validatsiya qilingan ma'lumotlarni ishlatamiz
+            City::create($validated);
+            return redirect()->route('cities.index')->with('success', 'Shahar qo\'shildi!');
+        } catch (\Exception $e) {
+            // Xatolik bo'lsa uni qaytaramiz
+            return back()->withInput()->with('error', 'Xatolik yuz berdi: ' . $e->getMessage());
+        }
     }
 
     public function show(City $city)
