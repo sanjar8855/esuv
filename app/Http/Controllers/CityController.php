@@ -13,38 +13,49 @@ class CityController extends Controller
     {
         $user = auth()->user();
 
-        // Avval city-larni tayyorlaymiz
-        $cities = City::with('region')
-            ->whereHas('neighborhoods.streets.customers', function ($q) use ($user) {
+        // OZGARISH: Admin uchun barcha shaharlari ko'rsatamiz, oddiy foydalanuvchilar uchun filter qo'llaymiz
+        $citiesQuery = City::with('region');
+
+        // OZGARISH: Admin bo'lmasa, filter qo'llaymiz
+        if (!$user->hasRole('admin')) {
+            $citiesQuery->whereHas('neighborhoods.streets.customers', function ($q) use ($user) {
                 $q->where('is_active', true);
-                if (!$user->hasRole('admin') && $user->company_id) {
+                if ($user->company_id) {
                     $q->where('company_id', $user->company_id);
                 }
-            })
-            ->withCount([
-                'neighborhoods as neighborhood_count' => function ($q) use ($user) {
+            });
+        }
+
+        // Neighborhood'lar sonini qo'shamiz
+        $citiesQuery->withCount([
+            'neighborhoods as neighborhood_count' => function ($q) use ($user) {
+                // OZGARISH: Admin bo'lsa barcha neighborhoodlarni sanash kerak
+                if (!$user->hasRole('admin')) {
                     $q->whereHas('streets.customers', function ($qq) use ($user) {
                         $qq->where('is_active', true);
-                        if (!$user->hasRole('admin') && $user->company_id) {
+                        if ($user->company_id) {
                             $qq->where('company_id', $user->company_id);
                         }
                     });
                 }
-            ])
-            ->paginate(15);
+            }
+        ]);
 
-        // Endi har bir shahar uchun mijozlar sonini qo‘shamiz
+        $cities = $citiesQuery->paginate(15);
+
+        // Endi har bir shahar uchun mijozlar sonini qo'shamiz
         foreach ($cities as $city) {
-            $customerCount = Customer::where('is_active', true)
+            $customerQuery = Customer::where('is_active', true)
                 ->whereHas('street.neighborhood', function ($q) use ($city) {
                     $q->where('city_id', $city->id);
-                })
-                ->when(!$user->hasRole('admin') && $user->company_id, function ($q) use ($user) {
-                    $q->where('company_id', $user->company_id);
-                })
-                ->count();
+                });
 
-            $city->customer_count = $customerCount;
+            // OZGARISH: Faqat admin bo'lmasa company_id bo'yicha filterlash
+            if (!$user->hasRole('admin') && $user->company_id) {
+                $customerQuery->where('company_id', $user->company_id);
+            }
+
+            $city->customer_count = $customerQuery->count();
         }
 
         return view('cities.index', compact('cities'));
