@@ -44,6 +44,14 @@ class TelegramController extends Controller
                 case "settings":
                     $this->sendSettingsMenu($chatId);
                     return;
+                case "switch_account":
+                    $customerId = $callbackData[1] ?? null;
+                    $this->switchAccount($chatId, $customerId);
+                    return;
+                case "add_new_account":
+                    $this->sendMessage($chatId, "🔢 Yangi hisob raqamini kiriting:");
+                    cache()->put("awaiting_account_link_{$chatId}", true, now()->addMinutes(5));
+                    return;
             }
         }
 
@@ -205,7 +213,7 @@ class TelegramController extends Controller
 
         $customer = Customer::find($selectedCustomerId);
         if ($customer) {
-            $this->sendMessage($chatId, "✅ Hisob muvaffaqiyatli o‘zgartirildi!\n📌 Yangi hisob: <b>{$customer->name}</b>", []);
+            $this->sendMessage($chatId, "✅ Hisob muvaffaqiyatli o‘zgartirildi!\n📌 Yangi hisob: <b>{$customer->name}</b>", null);
         } else {
             $this->sendMessage($chatId, "❌ Xatolik: Tanlangan mijoz topilmadi.");
         }
@@ -222,7 +230,7 @@ class TelegramController extends Controller
         $message = "🆔 <b>Hisob ma'lumotlaringiz</b>\n";
         $message .= "👤 Ism: <b>{$customer->name}</b>\n";
         $message .= "📞 Telefon: <b>{$customer->phone}</b>\n";
-        $message .= "🏠 Manzil: <b>{$customer->street->neighborhood->city->region->name},{$customer->street->neighborhood->city->name},{$customer->street->neighborhood->name},{$customer->street->name}</b>\n";
+        $message .= "🏠 Manzil: <b>{$customer->street->neighborhood->city->region->name}, {$customer->street->neighborhood->city->name}, {$customer->street->neighborhood->name}, {$customer->street->name}</b>\n";
         $message .= "💳 Hisob raqami: <b>{$customer->account_number}</b>\n";
         $message .= "👫 Oila a'zolar soni: <b>{$customer->family_members}</b>\n";
         $message .= "🔹 Telegram akkauntlar: <b>";
@@ -251,8 +259,12 @@ class TelegramController extends Controller
         $total = $customer->invoices->count();
         $totalPages = ceil($total / $perPage);
         $offset = ($page - 1) * $perPage;
-        $invoices = $customer->invoices->slice($offset, $perPage);
-
+//        $invoices = $customer->invoices->slice($offset, $perPage);
+        $invoices = $customer->invoices()
+            ->orderBy('created_at', 'desc')
+            ->skip($offset)
+            ->take($perPage)
+            ->get();
         $message = "📑 <b>Hisob varaqalar</b> (Sahifa: {$page}/{$totalPages})\n";
         foreach ($invoices as $invoice) {
             $message .= "🔹 <b>Invoice #{$invoice->invoice_number}</b>\n 📆 Qaysi oy uchun: <b>{$invoice->billing_period}</b>\n 💰 Summa: <b>{$invoice->amount_due} UZS</b>\n\n";
@@ -407,12 +419,18 @@ class TelegramController extends Controller
             return;
         }
 
-        // ✅ Ko‘rsatgichni saqlash
-        $customer->waterMeter->readings()->create([
-            'reading' => $text,
-            'reading_date' => now(),
-            'confirmed' => false, // Yangi qo‘shilgan o‘qish tasdiqlanmagan bo‘ladi
-        ]);
+        try {
+            // ✅ Ko‘rsatgichni saqlash
+            $customer->waterMeter->readings()->create([
+                'reading' => $text,
+                'reading_date' => now(),
+                'confirmed' => false, // Yangi qo‘shilgan o‘qish tasdiqlanmagan bo‘ladi
+            ]);
+        } catch (\Exception $e) {
+            \Log::error("Meter reading error: ".$e->getMessage());
+            $this->sendMessage($chatId, "❌ Xatolik yuz berdi. Iltimos keyinroq urunib ko'ring.");
+            return;
+        }
 
         cache()->forget("awaiting_meter_reading_{$chatId}");
 
