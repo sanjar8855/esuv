@@ -13,21 +13,33 @@ class NeighborhoodController extends Controller
     {
         $user = auth()->user();
 
-        $query = Neighborhood::with('city')
-            ->whereHas('streets.customers', function ($q) use ($user) {
+        // OZGARISH: Admin uchun barcha mahallalarni ko'rsatish
+        $query = Neighborhood::with('city');
+
+        // OZGARISH: Admin emas bo'lsa, filter qo'llaymiz
+        if (!$user->hasRole('admin')) {
+            $query->whereHas('streets.customers', function ($q) use ($user) {
                 $q->where('is_active', 1);
-                if (!$user->hasRole('admin') && $user->company_id) {
+                if ($user->company_id) {
                     $q->where('company_id', $user->company_id);
                 }
-            })
-            ->withCount(['streets as street_count' => function ($q) use ($user) {
-                $q->whereHas('customers', function ($qq) use ($user) {
-                    $qq->where('is_active', 1);
-                    if (!$user->hasRole('admin') && $user->company_id) {
-                        $qq->where('company_id', $user->company_id);
-                    }
-                });
-            }]);
+            });
+        }
+
+        // Ko'chalar sonini qo'shamiz
+        $query->withCount([
+            'streets as street_count' => function ($q) use ($user) {
+                // OZGARISH: Admin uchun barcha ko'chalarni sanash
+                if (!$user->hasRole('admin')) {
+                    $q->whereHas('customers', function ($qq) use ($user) {
+                        $qq->where('is_active', 1);
+                        if ($user->company_id) {
+                            $qq->where('company_id', $user->company_id);
+                        }
+                    });
+                }
+            }
+        ]);
 
         $neighborhoods = $query->paginate(15);
 
