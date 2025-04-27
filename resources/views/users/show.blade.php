@@ -15,8 +15,8 @@
                             <span class="badge badge-outline text-blue">{{ $role->name }}</span>
                         @endforeach
                     </p>
-                    <p><strong>Lavozim:</strong> {{ $user->rank }}</p>
-                    <p><strong>Ish boshlagan sana:</strong> {{ $user->work_start }}</p>
+                    <p><strong>Lavozim:</strong> {{ $user->rank ?? 'Kiritilmagan' }}</p>
+                    <p><strong>Ish boshlagan sana:</strong> {{ $user->work_start ?? 'Kiritilmagan' }}</p>
 
                     <a href="{{ route('users.index') }}" class="btn btn-secondary">Ortga</a>
                 </div>

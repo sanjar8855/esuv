@@ -122,7 +122,9 @@
                                 <tbody>
                                 @forelse($company->users as $user)
                                     <tr>
-                                        <td>{{ $user->name }}</td>
+                                        <td>
+                                            <a href="{{route('users.show', $user->id)}}" class="badge badge-outline text-blue">{{ $user->name }}</a>
+                                        </td>
                                         <td>{{ $user->rank }}</td>
                                         <td>{{ $user->work_start ? date('d.m.Y', strtotime($user->work_start)) : 'Ko\'rsatilmagan' }}</td>
                                         <td>
