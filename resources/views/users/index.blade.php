@@ -7,7 +7,15 @@
     #usersTable {
         width: 100% !important;
     }
-
+    .dataTables_length select.form-select,
+    .dataTables_filter input.form-control {
+        height: calc(2.25rem + 2px); /* Bootstrap standart balandligi */
+        padding-top: 0.375rem;
+        padding-bottom: 0.375rem;
+        padding-left: 0.75rem;
+        font-size: 0.875rem; /* Bootstrap standart shrift o'lchami */
+        line-height: 1.5;
+    }
     /* Kenglikni to'liq egallash uchun */
 </style>
 
