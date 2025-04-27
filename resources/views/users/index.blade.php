@@ -1,11 +1,24 @@
-@extends('layouts.app')
+@extends('layouts.app') {{-- Yoki sizning layout faylingiz --}}
+
+<link rel="stylesheet" href="https://cdn.datatables.net/1.13.6/css/dataTables.bootstrap5.min.css">
+{{-- Qo'shimcha DataTables kengaytmalari (Buttons, Responsive) CSS'lari kerak bo'lsa shu yerga qo'shiladi --}}
+<style>
+    /* Zarur bo'lsa, jadval uchun qo'shimcha stillar */
+    #usersTable {
+        width: 100% !important;
+    }
+
+    /* Kenglikni to'liq egallash uchun */
+</style>
 
 @section('content')
     <div class="page-body">
         <div class="container-xl">
             <div class="row row-cards">
                 <div class="col-12">
-                    <h1>Xodimlar, {{$usersCount}} ta</h1>
+                    <h1>
+                        Xodimlar, {{ $usersCount }}</h1> {{-- Sonni DataTables o'zi ko'rsatadi yoki JS bilan yangilasa bo'ladi --}}
+                    {{-- Yoki boshlang'ich sonni ko'rsatish: <h1>Xodimlar, {{ $usersCount }} ta</h1> --}}
                     <a href="{{ route('users.create') }}" class="btn btn-primary mb-3">Yangi xodim qo‘shish</a>
 
                     @if(session('success'))
@@ -14,7 +27,8 @@
 
                     <div class="card">
                         <div class="table-responsive">
-                            <table class="table table-bordered table-vcenter card-table table-striped">
+                            {{-- Jadvalga ID beramiz va tbody ni bo'sh qoldiramiz --}}
+                            <table id="usersTable" class="table table-bordered table-vcenter card-table table-striped">
                                 <thead>
                                 <tr>
                                     <th>ID</th>
@@ -27,50 +41,76 @@
                                 </tr>
                                 </thead>
                                 <tbody>
-                                @foreach($users as $user)
-                                    <tr>
-                                        <td>{{ $user->id }}</td>
-                                        <td>{{ $user->name }}</td>
-                                        <td>
-                                            @foreach($user->roles as $role)
-                                                <span class="badge badge-outline text-blue">
-                                                    @if($role->name == 'admin')
-                                                        Admin
-                                                    @elseif($role->name == 'company_owner')
-                                                        Direktor
-                                                    @elseif($role->name == 'employee')
-                                                        Xodim
-                                                    @else
-                                                        {{-- Agar kutilmagan rol bo'lsa, asl nomini chiqarish --}}
-                                                        {{ $role->name }}
-                                                    @endif
-                                                </span>
-                                            @endforeach
-                                        </td>
-                                        <td>{{ $user->email }}</td>
-                                        <td>{{ $user->rank }}</td>
-                                        <td>{{ $user->work_start }}</td>
-                                        <td>
-                                            <a href="{{ route('users.show', $user->id) }}"
-                                               class="btn btn-info btn-sm">Batafsil</a>
-                                            <a href="{{ route('users.edit', $user->id) }}"
-                                               class="btn btn-warning btn-sm">Tahrirlash</a>
-                                            <form action="{{ route('users.destroy', $user->id) }}" method="POST"
-                                                  style="display:inline;">
-                                                @csrf @method('DELETE')
-                                                <button type="submit" class="btn btn-danger btn-sm">O‘chirish</button>
-                                            </form>
-                                        </td>
-                                    </tr>
-                                @endforeach
+                                {{-- Ma'lumotlar DataTables tomonidan AJAX orqali yuklanadi --}}
                                 </tbody>
                             </table>
                         </div>
                     </div>
-
-                    {{ $users->links() }}
+                    {{-- Laravel pagination linklarini olib tashlaymiz: {{ $users->links() }} --}}
                 </div>
             </div>
         </div>
     </div>
 @endsection
+
+@push('scripts')
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script src="https://cdn.datatables.net/1.13.6/js/jquery.dataTables.min.js"></script>
+    <script src="https://cdn.datatables.net/1.13.6/js/dataTables.bootstrap5.min.js"></script>
+    {{-- Qo'shimcha DataTables kengaytmalari (Buttons, Responsive) JS'lari kerak bo'lsa shu yerga qo'shiladi --}}
+
+    <script>
+        $(document).ready(function () {
+            // DataTables'ni #usersTable ID'li jadvalga qo'llaymiz
+            $('#usersTable').DataTable({
+                processing: true, // Ishlov jarayoni indikatorini ko'rsatish
+                serverSide: true, // Server tomonida ishlashni yoqish
+                ajax: {
+                    url: "{{ route('users.index') }}", // Ma'lumotlarni olish uchun Controller'dagi route
+                    type: 'GET' // So'rov turi (Controller'dagi route metodi bilan bir xil bo'lishi kerak)
+                },
+                columns: [
+                    // `data` - Controller'dan keladigan JSON javobidagi kalit nomi
+                    // `name` - Server tomonida saralash/qidirish uchun ishlatiladigan ustun nomi (odatda bazadagi nom)
+                    {data: 'id', name: 'id'},
+                    {data: 'name', name: 'name'},
+                    {data: 'roles', name: 'roles', orderable: false, searchable: false}, // Controller'da `addColumn` bilan qo'shilgan
+                    {data: 'email', name: 'email'},
+                    {data: 'rank', name: 'rank'}, // User modelida 'rank' maydoni borligiga ishonch hosil qiling
+                    {data: 'work_start', name: 'work_start'},
+                    {data: 'actions', name: 'actions', orderable: false, searchable: false} // Controller'da `addColumn` bilan qo'shilgan
+                ],
+                order: [[0, 'desc']], // Boshlang'ich saralash (masalan, ID bo'yicha kamayish tartibida)
+                language: { // <-- MANA SHU QISM
+                    // O'zbekcha tarjimani qo'shish (agar kerak bo'lsa)
+
+                    // 1-USUL: Tayyor tarjima faylini CDN'dan yuklash (Eng osoni)
+                    //url: "cdn.datatables.net/plug-ins/1.10.25/i18n/Uzbek.json" // <-- SHU QATORNI KOMMENTDAN OCHING (boshidagi // ni olib tashlang)
+
+                    // 2-USUL: Tarjimalarni qo'lda yozib chiqish (Agar CDN ishlamasa yoki boshqa matn kerak bo'lsa)
+                     // Bu qatorlarni kommentdan ochib, tarjimalarni yozing:
+                    search: "Qidiruv:",
+                    lengthMenu: "_MENU_ ta yozuv ko'rsatish",
+                    info: "_TOTAL_ ta yozuvdan _START_ dan _END_ gachasi ko'rsatilmoqda",
+                    infoEmpty: "Yozuvlar mavjud emas",
+                    infoFiltered: "(_MAX_ ta yozuv ichidan filtrlandi)",
+                    zeroRecords: "Hech qanday mos yozuv topilmadi",
+                    emptyTable: "Jadvalda ma'lumotlar mavjud emas",
+                    processing: "Yuklanmoqda...",
+                    paginate: {
+                        first: "Birinchi",
+                        last: "Oxirgi",
+                        next: "Keyingi",
+                        previous: "Oldingi"
+                    },
+                    aria: {
+                        sortAscending: ": ustunni o'sish tartibida saralash uchun aktivlashtiring",
+                        sortDescending: ": ustunni kamayish tartibida saralash uchun aktivlashtiring"
+                    }
+
+                }
+                // Boshqa DataTables sozlamalari...
+            });
+        });
+    </script>
+@endpush

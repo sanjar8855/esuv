@@ -15,6 +15,7 @@
     <link rel="stylesheet" href="{{ asset('tabler/css/tabler-vendors.min.css') }}">
     <link rel="stylesheet" href="{{ asset('tabler/css/tabler-marketing.min.css') }}">
     <link rel="stylesheet" href="{{ asset('tabler/css/demo.min.css') }}">
+
     <style>
         @import url('https://rsms.me/inter/inter.css');
     </style>
@@ -493,6 +494,8 @@
 <!-- Tabler Core -->
 <script src="{{ asset('tabler/js/tabler.min.js?1738096685') }}"></script>
 <script src="{{ asset('tabler/js/demo.min.js?1738096685') }}"></script>
+
+@stack('scripts')
 
 </body>
 </html>

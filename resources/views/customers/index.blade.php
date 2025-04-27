@@ -1,53 +1,91 @@
 @extends('layouts.app')
 
-@section('content')
-    <link href="https://cdn.jsdelivr.net/npm/tom-select@2.2.2/dist/css/tom-select.css" rel="stylesheet">
-    <script src="https://cdn.jsdelivr.net/npm/tom-select@2.2.2/dist/js/tom-select.complete.min.js"></script>
+{{-- TomSelect CSS --}}
+<link href="https://cdn.jsdelivr.net/npm/tom-select@2.2.2/dist/css/tom-select.css" rel="stylesheet">
+{{-- DataTables CSS --}}
+<link rel="stylesheet" href="https://cdn.datatables.net/1.13.6/css/dataTables.bootstrap5.min.css">
+<style>
+    #customersTable {
+        width: 100% !important;
+    }
 
+    /* TomSelect va DT filtrlari orasida joy tashlash */
+    .filter-form {
+        margin-bottom: 1rem;
+    }
+</style>
+
+@section('content')
     <div class="page-body">
         <div class="container-xl">
             <div class="row row-cards">
                 <div class="col-12">
-                    <h2>Mijozlar, {{$customersCount}} ta</h2>
+                    <h2>Mijozlar <span class="text-muted">({{ $customersCount }} ta)</span></h2>
                     <a href="{{ route('customers.create') }}" class="btn btn-primary mb-3">Yangi mijoz qo‘shish</a>
-                    <form method="GET" class="mb-3">
-                        <div class="input-group">
-                            <input type="text" name="search" value="{{ request('search') }}"
-                                   placeholder="Mijoz ismi, telefoni yoki hisob raqami" class="form-control">
-                            <button type="submit" class="btn btn-primary">Qidirish</button>
-                        </div>
-                    </form>
 
-                    <form method="GET" class="mb-3">
-                        <div class="input-group">
-                            <select name="street_id" id="StreetSelect" class="form-control">
-                                <option value="">Barcha ko‘chalar</option>
-                                @foreach($streets as $street)
-                                    <option
-                                        value="{{ $street->id }}" {{ request('street_id') == $street->id ? 'selected' : '' }}>
-                                        {{ $street->name }} ko'cha, {{ $street->neighborhood->name }} mahalla, {{ $street->neighborhood->city->name }}, {{ $street->neighborhood->city->region->name }} viloyat
-                                    </option>
-                                @endforeach
-                            </select>
-                            <button type="submit" class="btn btn-primary">Filtrlash</button>
-                        </div>
-                    </form>
+                    {{-- Filtrlarni alohida card'ga olish mumkin (ixtiyoriy) --}}
+                    <div class="card card-body mb-3">
+                        <div class="row g-3">
+                            {{-- Qidiruv Formasi --}}
+                            <div class="col-md-4">
+                                <form method="GET" id="customerSearchForm" class="filter-form">
+                                    <label class="form-label">Qidiruv:</label>
+                                    <div class="input-group">
+                                        <input type="text" id="customerSearchInput" name="search_text"
+                                               value="{{ request('search') }}"
+                                               placeholder="Ism, telefon, hisob raqam..." class="form-control">
+                                        {{-- Qidiruv tugmasini olib tashlasa ham bo'ladi, harflar yozilganda avtomatik qidiradi --}}
+                                        {{-- <button type="submit" class="btn btn-secondary">Qidirish</button> --}}
+                                    </div>
+                                </form>
+                            </div>
 
-                    <form method="GET" class="mb-3">
-                        <div class="input-group">
-                            <select name="debt" class="form-control">
-                                <option value="">Barcha mijozlar</option>
-                                <option value="has_debt" {{ request('debt') == 'has_debt' ? 'selected' : '' }}>Faqat
-                                    qarzdorlar
-                                </option>
-                            </select>
-                            <button type="submit" class="btn btn-primary">Filtrlash</button>
+                            {{-- Ko'cha Bo'yicha Filtr --}}
+                            <div class="col-md-4">
+                                <form method="GET" id="streetFilterForm" class="filter-form">
+                                    <label for="StreetSelect" class="form-label">Ko‘cha:</label>
+                                    <select name="street_id" id="StreetSelect"
+                                            class="form-select"> {{-- form-control o'rniga form-select --}}
+                                        <option value="">Barcha ko‘chalar</option>
+                                        @foreach($streets as $street)
+                                            <option
+                                                value="{{ $street->id }}" {{ request('street_id') == $street->id ? 'selected' : '' }}>
+                                                {{ $street->name }}
+                                                ko'cha, {{ $street->neighborhood->city->region->name }}
+                                                vil. {{-- Qisqaroq ko'rinish --}}
+                                            </option>
+                                        @endforeach
+                                    </select>
+                                    {{-- <button type="submit" class="btn btn-secondary mt-2">Filtrlash</button> --}}
+                                </form>
+                            </div>
+
+                            {{-- Qarzdorlik Bo'yicha Filtr --}}
+                            <div class="col-md-4">
+                                <form method="GET" id="debtFilterForm" class="filter-form">
+                                    <label for="debtFilterSelect" class="form-label">Qarzdorlik:</label>
+                                    <select name="debt" id="debtFilterSelect"
+                                            class="form-select"> {{-- form-control o'rniga form-select --}}
+                                        <option value="">Barcha mijozlar</option>
+                                        <option value="has_debt" {{ request('debt') == 'has_debt' ? 'selected' : '' }}>
+                                            Faqat qarzdorlar
+                                        </option>
+                                    </select>
+                                    {{-- <button type="submit" class="btn btn-secondary mt-2">Filtrlash</button> --}}
+                                </form>
+                            </div>
                         </div>
-                    </form>
+                    </div>
+
+
+                    @if(session('success'))
+                        <div class="alert alert-success">{{ session('success') }}</div>
+                    @endif
 
                     <div class="card">
                         <div class="table-responsive">
-                            <table class="table table-sm table-bordered table-vcenter card-table table-striped">
+                            <table id="customersTable"
+                                   class="table table-sm table-bordered table-vcenter card-table table-striped">
                                 <thead>
                                 <tr>
                                     <th>N</th>
@@ -56,112 +94,155 @@
                                     @endif
                                     <th>Ko‘cha</th>
                                     <th>Uy raqami</th>
-                                    <th>Ism</th>
+                                    <th>Ism va Status</th> {{-- Ustun nomini o'zgartirdim --}}
                                     <th>Telefon</th>
                                     <th>Hisoblagich</th>
-                                    <th>Jami Qarzdorlik (UZS)</th>
+                                    <th>Balans (UZS)</th> {{-- Ustun nomini o'zgartirdim --}}
                                     <th>Oxirgi ko'rsatkich</th>
-                                    <th>Oila a'zolari soni</th>
+                                    <th>Oila a'zolari</th> {{-- Ustun nomini o'zgartirdim --}}
                                     <th>Amallar</th>
                                 </tr>
                                 </thead>
                                 <tbody>
-                                @foreach($customers as $customer)
-                                    <tr>
-                                        <td>{{ $loop->iteration }}</td>
-                                        @if(auth()->user()->hasRole('admin'))
-                                            <td>
-                                                <a href="{{ route('companies.show', $customer->company->id) }}" class="badge badge-outline text-blue">
-                                                    {{ $customer->company->name }}
-                                                </a>
-                                            </td>
-                                        @endif
-                                        <td>
-                                            <a href="{{ route('streets.show', $customer->street->id) }}" class="badge badge-outline text-blue">
-                                                {{ $customer->street->name }}
-                                            </a>
-                                        </td>
-                                        <td>{{ $customer->address }}</td>
-                                        <td>
-                                            {{ $customer->name }}
-                                            @if($customer->is_active)
-                                                <span class="badge bg-cyan text-cyan-fg">Faol</span>
-                                            @else
-                                                <span class="badge bg-red text-red-fg">Nofaol</span>
-                                            @endif
-                                        </td>
-                                        <td>{{ $customer->phone }}</td>
-                                        <td>
-                                            @if($customer->waterMeter)
-                                                <a href="{{ route('water_meters.show', $customer->waterMeter->id) }}"
-                                                   class="badge badge-outline text-blue">
-                                                    {{ $customer->waterMeter->meter_number }}
-                                                </a>
-                                            @else
-                                                <span class="text-muted">Hisoblagich yo‘q</span>
-                                            @endif
-                                        </td>
-                                        <td>
-                                            @php
-                                                $balance = $customer->balance;
-                                                $balanceClass = $balance < 0 ? 'text-red' : ($balance > 0 ? 'text-green' : 'text-info');
-                                          //     $balanceText = $balance < 0 ? 'Qarzdor' : ($balance > 0 ? 'Ortiqcha' : 'Nol');
-                                            @endphp
-                                            <span class="badge {{ $balanceClass }}">
-                                        {{ ($balance > 0 ? '+' : '-') . number_format(abs($balance)) }} UZS
-{{--                                                ({{ $balanceText }})--}}
-                                    </span>
-                                        </td>
-                                        <td>
-                                            @if($customer->waterMeter && $customer->waterMeter->readings->count())
-                                                {{ $customer->waterMeter->readings->first()->reading }}
-                                            @else
-                                                —
-                                            @endif
-                                        </td>
-                                        <td>{{ $customer->family_members }}</td>
-                                        <td>
-                                            <a href="{{ route('customers.show', $customer->id) }}"
-                                               class="btn btn-info btn-sm">Batafsil</a>
-                                            <a href="{{ route('customers.edit', $customer->id) }}"
-                                               class="btn btn-warning btn-sm">Tahrirlash</a>
-                                            <form action="{{ route('customers.destroy', $customer->id) }}" method="POST"
-                                                  class="d-inline">
-                                                @csrf
-                                                @method('DELETE')
-                                                <button type="submit" class="btn btn-danger btn-sm"
-                                                        onclick="return confirm('Haqiqatan ham o‘chirmoqchimisiz?')">
-                                                    O‘chirish
-                                                </button>
-                                            </form>
-                                        </td>
-                                    </tr>
-                                @endforeach
+                                {{-- Ma'lumotlar DataTables tomonidan AJAX orqali yuklanadi --}}
                                 </tbody>
                             </table>
                         </div>
                     </div>
 
-                    <!-- Sahifalash (pagination) -->
-                    <div class="mt-3">
+                    {{-- Laravel sahifalash o'chirildi --}}
+                    {{-- <div class="mt-3">
                         {{ $customers->appends(request()->query())->links() }}
-                    </div>
+                    </div> --}}
                 </div>
             </div>
         </div>
     </div>
+@endsection
+
+@push('scripts')
+    {{-- jQuery --}}
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    {{-- TomSelect JS --}}
+    <script src="https://cdn.jsdelivr.net/npm/tom-select@2.2.2/dist/js/tom-select.complete.min.js"></script>
+    {{-- DataTables JS --}}
+    <script src="https://cdn.datatables.net/1.13.6/js/jquery.dataTables.min.js"></script>
+    <script src="https://cdn.datatables.net/1.13.6/js/dataTables.bootstrap5.min.js"></script>
 
     <script>
-        document.addEventListener("DOMContentLoaded", function() {
-            new TomSelect("#StreetSelect", {
+        $(document).ready(function () {
+            // TomSelect Init
+            var tomSelect = new TomSelect("#StreetSelect", {
                 create: false,
                 sortField: {
                     field: "text",
                     direction: "asc"
                 },
-                placeholder: "Mahalla nomini yozing...",
+                placeholder: "Ko'chani tanlang yoki yozing...",
                 allowEmptyOption: true
+                // Agar kerak bo'lsa, qidiruvni yoqish
+                // openOnFocus: true,
+                // valueField: 'id',
+                // labelField: 'name',
+                // searchField: ['name'],
             });
+
+            // DataTable Init
+            var customersTable = $('#customersTable').DataTable({
+                processing: true,
+                serverSide: true,
+                ajax: {
+                    url: "{{ route('customers.index') }}",
+                    type: "GET",
+                    data: function (d) {
+                        // Tashqi filtr qiymatlarini DataTables so'roviga qo'shish
+                        d.search_text = $('#customerSearchInput').val(); // Qidiruv maydoni
+                        d.street_id = $('#StreetSelect').val();       // Ko'cha tanlovi
+                        d.debt = $('#debtFilterSelect').val();       // Qarzdorlik tanlovi
+                    },
+                    // Xatoliklarni ushlash (ixtiyoriy)
+                    error: function (xhr, error, thrown) {
+                        console.error("DataTables AJAX xatosi:", error, thrown);
+                        // Foydalanuvchiga xabar berish mumkin
+                        alert('Jadval ma\'lumotlarini yuklashda xatolik yuz berdi. Sahifani yangilang yoki administratorga murojaat qiling.');
+                    }
+                },
+                columns: [
+                    // Controller'dagi addColumn/editColumn kalitlariga mos kelishi kerak
+                    {data: 'DT_RowIndex', name: 'DT_RowIndex', orderable: false, searchable: false},
+                        @if(auth()->user()->hasRole('admin'))
+                    {
+                        data: 'company_name', name: 'company.name'
+                    }, // Kompaniya nomi (name='company.name' saralash/qidirish uchun)
+                        @endif
+                    {
+                        data: 'street_name', name: 'street.name'
+                    }, // Ko'cha nomi
+                    {data: 'address', name: 'address'},
+                    {data: 'name_status', name: 'name'}, // Saralash/qidirish 'name' bo'yicha
+                    {data: 'phone', name: 'phone'},
+                    {data: 'meter_link', name: 'waterMeter.meter_number', orderable: false, searchable: false}, // Hisoblagich linki
+                    {data: 'balance_formatted', name: 'balance', searchable: false}, // Balans (saralash 'balance' bo'yicha)
+                    {data: 'last_reading', name: 'last_reading', orderable: false, searchable: false}, // Oxirgi ko'rsatkich (serverda alohida tayyorlanadi)
+                    {data: 'family_members', name: 'family_members'},
+                    {data: 'actions', name: 'actions', orderable: false, searchable: false} // Amallar
+                ],
+                // Boshlang'ich saralash (masalan, ID yoki Ism bo'yicha)
+                // order: [[{{ auth()->user()->hasRole('admin') ? 1 : 0 }}, 'asc']], // Birinchi ko'rinadigan ustun (N dan keyingi)
+                language: {
+                    search: "Qidiruv:",
+                    lengthMenu: "_MENU_ ta yozuv ko'rsatish",
+                    info: "_TOTAL_ ta yozuvdan _START_ dan _END_ gachasi ko'rsatilmoqda",
+                    infoEmpty: "Yozuvlar mavjud emas",
+                    infoFiltered: "(_MAX_ ta yozuv ichidan filtrlandi)",
+                    zeroRecords: "Hech qanday mos yozuv topilmadi",
+                    emptyTable: "Jadvalda ma'lumotlar mavjud emas",
+                    processing: "Yuklanmoqda...",
+                    paginate: {
+                        first: "Birinchi",
+                        last: "Oxirgi",
+                        next: "Keyingi",
+                        previous: "Oldingi"
+                    },
+                    aria: {
+                        sortAscending: ": ustunni o'sish tartibida saralash uchun aktivlashtiring",
+                        sortDescending: ": ustunni kamayish tartibida saralash uchun aktivlashtiring"
+                    }
+                },
+                // Sekin yozganda qidiruvni jo'natish (debounce) - ixtiyoriy
+                searchDelay: 500 // 500ms kutib turadi
+            });
+
+            // --- Tashqi filtrlar o'zgarganda DataTables'ni yangilash ---
+
+            // Qidiruv maydoni (harf terilganda yangilash)
+            var searchTimeout;
+            $('#customerSearchInput').on('keyup', function () {
+                clearTimeout(searchTimeout);
+                searchTimeout = setTimeout(function () {
+                    customersTable.ajax.reload(); // ajax.reload() jadvalni yangilaydi
+                }, 500); // 500ms kutib turib keyin jo'natadi (serverga yuklamani kamaytirish uchun)
+            });
+            // Qidiruv formasi submit bo'lishini oldini olish (agar Enter bosilsa)
+            $('#customerSearchForm').on('submit', function (e) {
+                e.preventDefault();
+            });
+
+            // Ko'cha tanlanganda yangilash
+            $('#StreetSelect').on('change', function () {
+                customersTable.ajax.reload();
+            });
+
+            // Qarzdorlik tanlanganda yangilash
+            $('#debtFilterSelect').on('change', function () {
+                customersTable.ajax.reload();
+            });
+
+            // Filtr formalarining default submit bo'lishini to'xtatish (agar tugmalari bo'lsa)
+            $('#streetFilterForm, #debtFilterForm').on('submit', function (e) {
+                e.preventDefault();
+            });
+
         });
     </script>
-@endsection
+@endpush

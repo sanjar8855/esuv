@@ -49,7 +49,15 @@ class CompanyController extends Controller
      */
     public function show($id)
     {
-        $company = Company::findOrFail($id);
+        $company = Company::where('id', $id)
+            ->with(['users' => function($query) {
+                // users id bo'yicha o'sish tartibida
+                $query->orderBy('id', 'asc');
+            }, 'tariffs' => function($query) {
+                // tariffs yanadan eskiga tartibda (eng oxirgi qo'shilgani birinchi)
+                $query->orderBy('id', 'desc');
+            }])
+            ->first();
         return view('companies.show', compact('company'));
     }
 

@@ -11,6 +11,8 @@ use App\Models\Company;
 use Illuminate\Pagination\LengthAwarePaginator;
 use Illuminate\Support\Facades\Storage;
 use Telegram\Bot\Laravel\Facades\Telegram;
+use Illuminate\Support\Facades\Auth;
+use Yajra\DataTables\Facades\DataTables;
 
 class CustomerController extends Controller
 {
@@ -19,66 +21,135 @@ class CustomerController extends Controller
      */
     public function index()
     {
-        $user = auth()->user();
-        $search = request('search');
-        $streetId = request('street_id');
-        $debtFilter = request('debt');
+        $user = Auth::user();
 
-        // **📌 Ko‘chalar ro‘yxatini olish**
+        // Ko'chalar ro'yxatini olish (bu filtr uchun kerak)
         if ($user->hasRole('admin')) {
-            $streets = Street::all(); // ✅ Admin barcha ko‘chalarni ko‘radi
+            $streets = Street::with('neighborhood.city.region')->get(); // <-- Optimallashtirish uchun eager load
         } else {
             $streets = $user->company
                 ? Street::whereHas('customers', function ($query) use ($user) {
                     $query->where('company_id', $user->company->id);
-                })->get()
-                : collect(); // ❌ Kompaniyasi yo‘q foydalanuvchilar uchun bo‘sh ro‘yxat
+                })->with('neighborhood.city.region')->get() // <-- Optimallashtirish uchun eager load
+                : collect();
         }
 
-        // **📌 Asosiy query**
-        $query = Customer::with([
-            'company',
-            'street.neighborhood.city.region',
-            'waterMeter.readings' => function ($q) {
-                $q->orderBy('reading_date', 'desc');
-                $q->orderBy('id', 'desc');
+        // ----- AJAX so'rovini tekshirish -----
+        if (request()->ajax()) {
+            // Asosiy query (AJAX uchun)
+            $query = Customer::with([
+                'company', // Admin uchun kerak
+                'street',  // Ko'cha nomi uchun kerak
+                'waterMeter' // Hisoblagich va ko'rsatkich uchun kerak
+            ])->select('customers.*') // DT bilan ishlaganda select() kerak bo'lishi mumkin
+            ->where('is_active', 1);
+
+            // **📌 Admin bo‘lmasa, faqat o‘z kompaniyasidagi mijozlarni olish**
+            if (!$user->hasRole('admin') && $user->company) {
+                $query->where('company_id', $user->company_id);
             }
-        ])
-            ->withSum('invoices as total_due', 'amount_due')
-            ->withSum('payments as total_paid', 'amount')
-            ->where('is_active', 1); // **📌 Faqat faol mijozlarni olish**
 
-        // **📌 Admin bo‘lmasa, faqat o‘z kompaniyasidagi mijozlarni olish**
+            // ----- Tashqi filtrlarni qo'llash -----
+            $searchText = request('search_text'); // JS dan keladigan nom
+            $streetId = request('street_id');
+            $debtFilter = request('debt');
+
+            if ($searchText) {
+                $query->where(function ($q) use ($searchText) {
+                    $q->where('name', 'LIKE', "%{$searchText}%")
+                        ->orWhere('phone', 'LIKE', "%{$searchText}%")
+                        ->orWhere('account_number', 'LIKE', "%{$searchText}%");
+                });
+            }
+
+            if ($streetId) {
+                $query->where('street_id', $streetId);
+            }
+
+            if ($debtFilter == 'has_debt') {
+                // Qarzdorlikni hisoblash uchun Invoice va Payment'lar kerak bo'ladi
+                // Bu qismni optimallashtirish kerak bo'lishi mumkin, masalan, balansni DBda saqlash
+                // Hozircha Customer modelidagi getBalanceAttribute ishlatilishiga tayanib ko'ramiz
+                // Lekin bu har bir qator uchun alohida query chaqirishi mumkin!
+                // Yaxshiroq yechim: balansni jadvalda saqlash yoki HAVING bilan ishlash
+                // $query->where('balance', '<', 0); // Agar 'balance' ustuni DBda bo'lsa
+                $query->withSum('invoices as total_due', 'amount_due')
+                    ->withSum('payments as total_paid', 'amount')
+                    ->havingRaw('IFNULL(total_due, 0) > IFNULL(total_paid, 0)'); // HAVING bilan ishlash ancha yaxshi
+            }
+
+            // ----- DataTables ga uzatish -----
+            return DataTables::eloquent($query)
+                ->addIndexColumn() // "N" ustuni uchun (DT_RowIndex)
+                ->addColumn('company_name', function(Customer $customer) { // Admin uchun kompaniya
+                    return $customer->company ? '<a href="'.route('companies.show', $customer->company->id).'" class="badge badge-outline text-blue">'.$customer->company->name.'</a>' : '-';
+                })
+                ->addColumn('street_name', function(Customer $customer) { // Ko'cha nomi
+                    return $customer->street ? '<a href="'.route('streets.show', $customer->street->id).'" class="badge badge-outline text-blue">'.$customer->street->name.'</a>' : '-';
+                })
+                ->addColumn('name_status', function(Customer $customer){ // Ism va status
+                    $statusBadge = $customer->is_active
+                        ? '<span class="badge bg-cyan text-cyan-fg ms-1">Faol</span>'
+                        : '<span class="badge bg-red text-red-fg ms-1">Nofaol</span>';
+                    return e($customer->name) . $statusBadge; // e() - XSS himoyasi
+                })
+                ->addColumn('meter_link', function(Customer $customer) { // Hisoblagich linki
+                    if ($customer->waterMeter) {
+                        return '<a href="'.route('water_meters.show', $customer->waterMeter->id).'" class="badge badge-outline text-blue">'.e($customer->waterMeter->meter_number).'</a>';
+                    }
+                    return '<span class="text-muted">Hisoblagich yo‘q</span>';
+                })
+                ->addColumn('balance_formatted', function(Customer $customer){ // Balansni formatlash
+                    // Modelda hisoblangan balansni olamiz (lekin bu sekin bo'lishi mumkin)
+                    $balance = $customer->balance; // Model getBalanceAttribute ishlaydi
+                    $balanceClass = $balance < 0 ? 'text-red' : ($balance > 0 ? 'text-green' : 'text-info');
+                    return '<span class="badge '.$balanceClass.'">' . ($balance >= 0 ? '+' : '') . number_format($balance) . ' UZS</span>';
+                })
+                ->addColumn('last_reading', function(Customer $customer){ // Oxirgi ko'rsatkich
+                    // Eager loading bilan olingan ma'lumotdan foydalanishga harakat qilamiz
+                    return $customer->waterMeter?->readings?->first()?->reading ?? '—';
+                     // Bu queryni optimallashtirish kerak bo'lishi mumkin
+                })
+                ->addColumn('actions', function(Customer $customer) { // Amallar tugmalari
+                    $showUrl = route('customers.show', $customer->id);
+                    $editUrl = route('customers.edit', $customer->id);
+                    $deleteUrl = route('customers.destroy', $customer->id);
+                    $csrf = csrf_field();
+                    $method = method_field('DELETE');
+                    return <<<HTML
+                        <a href="{$showUrl}" class="btn btn-info btn-sm">Batafsil</a>
+                        <a href="{$editUrl}" class="btn btn-warning btn-sm">Tahrirlash</a>
+                        <form action="{$deleteUrl}" method="POST" class="d-inline" onsubmit="return confirm('Haqiqatan ham o‘chirmoqchimisiz?')">
+                            {$csrf}
+                            {$method}
+                            <button type="submit" class="btn btn-danger btn-sm">O‘chirish</button>
+                        </form>
+                    HTML;
+                })
+                ->filterColumn('company_name', function($query, $keyword) { // Kompaniya nomini qidirish (agar admin bo'lsa)
+                    $query->whereHas('company', function($q) use ($keyword) {
+                        $q->where('name', 'like', "%{$keyword}%");
+                    });
+                })
+                ->filterColumn('street_name', function($query, $keyword) { // Ko'cha nomini qidirish
+                    $query->whereHas('street', function($q) use ($keyword) {
+                        $q->where('name', 'like', "%{$keyword}%");
+                    });
+                })
+                ->rawColumns(['company_name', 'street_name', 'name_status', 'meter_link', 'balance_formatted', 'actions']) // HTML ustunlar
+                ->make(true); // JSON javobni qaytarish
+        }
+
+        // ----- Oddiy GET so'rov uchun (sahifa birinchi ochilganda) -----
+        // Jami mijozlar sonini olish (boshlang'ich holat uchun)
+        $customersQueryForCount = Customer::query()->where('is_active', 1);
         if (!$user->hasRole('admin') && $user->company) {
-            $query->where('company_id', $user->company_id);
+            $customersQueryForCount->where('company_id', $user->company_id);
         }
+        $customersCount = $customersQueryForCount->count();
 
-        // **📌 Qidiruv**
-        if ($search) {
-            $query->where(function ($q) use ($search) {
-                $q->where('name', 'LIKE', "%{$search}%")
-                    ->orWhere('phone', 'LIKE', "%{$search}%")
-                    ->orWhere('account_number', 'LIKE', "%{$search}%");
-            });
-        }
-
-        // **📌 Ko‘cha bo‘yicha filtrlash**
-        if ($streetId) {
-            $query->where('street_id', $streetId);
-        }
-
-        // **📌 Qarzdor mijozlarni chiqarish**
-        if ($debtFilter == 'has_debt') {
-            $query->havingRaw('total_due > total_paid');
-        }
-
-        // **📌 Jami mijozlar sonini olish**
-        $customersCount = (clone $query)->count();
-
-        // **📌 Sahifalash (pagination)**
-        $customers = $query->paginate(20)->withQueryString();
-
-        return view('customers.index', compact('customers', 'streets', 'customersCount'));
+        // Faqat kerakli ma'lumotlarni view'ga uzatamiz
+        return view('customers.index', compact('streets', 'customersCount'));
     }
 
     /**

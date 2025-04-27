@@ -7,24 +7,72 @@ use App\Models\Company;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Storage;
+use Yajra\DataTables\Facades\DataTables; // DataTables Facade'ni import qiling
+use Illuminate\Support\Facades\Auth; // Auth facade'ni import qiling
 
 class UserController extends Controller
 {
     public function index()
     {
-        $user = auth()->user();
+        $loggedInUser = Auth::user(); // O'zgaruvchi nomini o'zgartirdim tushunarli bo'lishi uchun
 
-        $usersQuery = User::with('company','roles')->orderBy('id', 'desc');
+        // Asosiy query builder (boshlang'ich holat)
+        $usersQuery = User::with('company', 'roles')->select('users.*'); // Agar kerak bo'lsa select() ni qoldiring
 
-        if (!$user->hasRole('admin')) {
-            $usersQuery->where('company_id', $user->company_id);
+        // Admin bo'lmaganlar uchun kompaniya bo'yicha filtr
+        if (!$loggedInUser->hasRole('admin')) {
+            $usersQuery->where('company_id', $loggedInUser->company_id);
         }
 
-        $usersCount = (clone $usersQuery)->count();
+        // Agar so'rov AJAX orqali DataTables'dan kelsa
+        if (request()->ajax()) {
+            return DataTables::eloquent($usersQuery)
+                ->addColumn('roles', function (User $user) {
+                    // Rollarni formatlash (avvalgi kodingizdan) - Badge'larni shu yerda qo'shish qulayroq
+                    return $user->roles->map(function ($role) {
+                        switch ($role->name) {
+                            case 'admin': return '<span class="badge badge-outline text-red">Admin</span>';
+                            case 'company_owner': return '<span class="badge badge-outline text-blue">Direktor</span>';
+                            case 'employee': return '<span class="badge badge-outline text-green">Xodim</span>';
+                            default: return '<span class="badge badge-outline text-muted">' . e($role->name) . '</span>'; // e() - XSS himoyasi uchun
+                        }
+                    })->implode(' '); // Bir nechta rol bo'lsa, orasiga probel qo'yadi
+                })
+                ->addColumn('actions', function (User $user) {
+                    // Amallar tugmalarini generatsiya qilish
+                    $showUrl = route('users.show', $user->id);
+                    $editUrl = route('users.edit', $user->id);
+                    $deleteUrl = route('users.destroy', $user->id);
+                    $csrf = csrf_field();
+                    $method = method_field('DELETE');
 
-        $users = $usersQuery->paginate(10);
+                    // O'chirish uchun formani ham qo'shamiz
+                    return <<<HTML
+                        <a href="{$showUrl}" class="btn btn-info btn-sm">Batafsil</a>
+                        <a href="{$editUrl}" class="btn btn-warning btn-sm">Tahrirlash</a>
+                        <form action="{$deleteUrl}" method="POST" style="display:inline;" onsubmit="return confirm('Haqiqatan ham o‘chirmoqchimisiz?');">
+                            {$csrf}
+                            {$method}
+                            <button type="submit" class="btn btn-danger btn-sm">O‘chirish</button>
+                        </form>
+                    HTML;
+                    // Yoki alohida blade fayl (\`users.actions\`) ishlatishingiz mumkin:
+                    // return view('users.actions', compact('user'))->render();
+                })
+                ->editColumn('work_start', function(User $user) {
+                    // Sanani formatlash (agar kerak bo'lsa)
+                    return $user->work_start ? \Carbon\Carbon::parse($user->work_start)->format('Y-m-d') : '-';
+                })
+                ->rawColumns(['roles', 'actions']) // Bu ustunlarda HTML borligini DataTables'ga aytamiz
+                ->orderColumn('id', '-id $1') // Agar ID bo'yicha default sort kerak bo'lsa
+                ->toJson();
+        }
 
-        return view('users.index', compact('users', 'usersCount'));
+        // Oddiy GET so'rov uchun (sahifa birinchi marta ochilganda)
+        // Faqat umumiy sonni (agar sarlavhada kerak bo'lsa) va view'ni qaytaramiz
+        $usersCount = (clone $usersQuery)->count(); // Umumiy son (filtr hisobga olingan)
+
+        return view('users.index', compact('usersCount')); // Endi $users'ni o'tkazish shart emas
     }
 
     public function create()
