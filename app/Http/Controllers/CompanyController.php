@@ -38,7 +38,7 @@ class CompanyController extends Controller
             'plan' => 'nullable|in:basic,premium', // Reja majburiy bo'lmasligi mumkin
             'address' => 'nullable|string|max:255',
             'logo' => 'nullable|file|mimes:jpg,png,svg,webp|max:4096', // Logo validatsiyasi
-            'schet' => 'nullable|string|max:25|min:15',
+            'schet' => 'nullable|digits:20',
             'inn' => 'nullable|digits:9', // Agar 9 xonali bo'lishi kerak bo'lsa
             'description' => 'nullable|string|max:255',
         ]);
@@ -106,8 +106,8 @@ class CompanyController extends Controller
             'plan' => 'nullable|in:basic,premium', // Reja majburiy bo'lmasligi mumkin
             'address' => 'nullable|string|max:255',
             'logo' => 'nullable|file|mimes:jpg,png,svg,webp|max:4096', // Yangi logo uchun validatsiya
-            'schet' => 'nullable|string|max:25|min:15',
-            'inn' => 'nullable|digits:9', // Agar 9 xonali bo'lishi kerak bo'lsa
+            'schet' => 'nullable|digits:20',
+            'inn' => 'nullable|digits:9',
             'description' => 'nullable|string|max:255',
         ]);
 
