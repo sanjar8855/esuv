@@ -38,6 +38,21 @@ class UserController extends Controller
                         }
                     })->implode(' '); // Bir nechta rol bo'lsa, orasiga probel qo'yadi
                 })
+                ->addColumn('company_name', function (User $user) use ($loggedInUser) {
+                    if ($loggedInUser->hasRole('admin')) {
+                        if ($user->company) {
+                            // Kompaniyaning 'show' sahifasi uchun URL generatsiya qilamiz
+                            // 'companies.show' - sizning marshrutingiz nomi bo'lishi kerak
+                            // Agar marshrut boshqacha bo'lsa, mos ravishda o'zgartiring
+                            $url = route('companies.show', $user->company->id);
+                            // <a> tegi yordamida havolani yaratamiz
+                            return '<a href="' . $url . '">' . e($user->company->name) . '</a>';
+                        } else {
+                            return '-'; // Kompaniya yo'q bo'lsa
+                        }
+                    }
+                    return '-'; // Admin bo'lmasa
+                })
                 ->addColumn('actions', function (User $user) {
                     // Amallar tugmalarini generatsiya qilish
                     $showUrl = route('users.show', $user->id);
@@ -63,7 +78,7 @@ class UserController extends Controller
                     // Sanani formatlash (agar kerak bo'lsa)
                     return $user->work_start ? \Carbon\Carbon::parse($user->work_start)->format('Y-m-d') : '-';
                 })
-                ->rawColumns(['roles', 'actions']) // Bu ustunlarda HTML borligini DataTables'ga aytamiz
+                ->rawColumns(['roles', 'actions', 'company_name']) // Bu ustunlarda HTML borligini DataTables'ga aytamiz
                 ->orderColumn('id', '-id $1') // Agar ID bo'yicha default sort kerak bo'lsa
                 ->toJson();
         }

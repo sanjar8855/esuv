@@ -40,6 +40,7 @@
                                 <thead>
                                 <tr>
                                     <th>ID</th>
+                                    <th>Kompaniya</th>
                                     <th>Ism</th>
                                     <th>Foydalanuvchi turi</th>
                                     <th>Email</th>
@@ -81,6 +82,7 @@
                     // `data` - Controller'dan keladigan JSON javobidagi kalit nomi
                     // `name` - Server tomonida saralash/qidirish uchun ishlatiladigan ustun nomi (odatda bazadagi nom)
                     {data: 'id', name: 'id'},
+                    {data: 'company_name', name: 'company.name', orderable: false, searchable: false},
                     {data: 'name', name: 'name'},
                     {data: 'roles', name: 'roles', orderable: false, searchable: false}, // Controller'da `addColumn` bilan qo'shilgan
                     {data: 'email', name: 'email'},
