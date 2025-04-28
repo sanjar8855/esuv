@@ -28,15 +28,22 @@ class UserController extends Controller
         if (request()->ajax()) {
             return DataTables::eloquent($usersQuery)
                 ->addColumn('roles', function (User $user) {
-                    // Rollarni formatlash (avvalgi kodingizdan) - Badge'larni shu yerda qo'shish qulayroq
-                    return $user->roles->map(function ($role) {
-                        switch ($role->name) {
-                            case 'admin': return '<span class="badge badge-outline text-red">Admin</span>';
-                            case 'company_owner': return '<span class="badge badge-outline text-blue">Direktor</span>';
-                            case 'employee': return '<span class="badge badge-outline text-green">Xodim</span>';
-                            default: return '<span class="badge badge-outline text-muted">' . e($role->name) . '</span>'; // e() - XSS himoyasi uchun
-                        }
-                    })->implode(' '); // Bir nechta rol bo'lsa, orasiga probel qo'yadi
+                    // Rollarni ustuvorlik tartibida tekshiramiz
+                    // Agar bir nechta rol bo'lsa, eng muhimi (masalan, admin) ko'rsatiladi
+                    if ($user->hasRole('admin')) {
+                        return 'Admin'; // Rol 'admin' bo'lsa
+                    } elseif ($user->hasRole('company_owner')) {
+                        // Rol 'company_owner' bo'lsa (va 'admin' bo'lmasa)
+                        // Siz buni "Boshqaruv" deb nomladingiz
+                        return 'Boshqaruv';
+                    } elseif ($user->hasRole('employee')) {
+                        // Rol 'employee' bo'lsa (va yuqoridagilar bo'lmasa)
+                        return 'Ishchi';
+                    } else {
+                        // Agar yuqoridagi uchta roldan hech biri bo'lmasa
+                        // Qanday ko'rsatishni hal qilish kerak. Masalan, "Noma'lum" yoki birinchi rol nomi.
+                        return 'Noma\'lum'; // Yoki: $user->roles->first()?->name ?? '-'
+                    }
                 })
                 ->addColumn('company_name', function (User $user) use ($loggedInUser) {
                     if ($loggedInUser->hasRole('admin')) {
@@ -78,7 +85,7 @@ class UserController extends Controller
                     // Sanani formatlash (agar kerak bo'lsa)
                     return $user->work_start ? \Carbon\Carbon::parse($user->work_start)->format('Y-m-d') : '-';
                 })
-                ->rawColumns(['roles', 'actions', 'company_name']) // Bu ustunlarda HTML borligini DataTables'ga aytamiz
+                ->rawColumns(['actions', 'company_name']) // Bu ustunlarda HTML borligini DataTables'ga aytamiz
                 ->orderColumn('id', '-id $1') // Agar ID bo'yicha default sort kerak bo'lsa
                 ->toJson();
         }
