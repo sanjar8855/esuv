@@ -59,6 +59,14 @@
                         </div>
 
                         <div class="mb-3">
+                            <label for="phone" class="form-label">Telefon raqami</label>
+                            <input type="tel" class="form-control @error('phone') is-invalid @enderror" id="phone" name="phone" value="{{ old('phone') }}">
+                            @error('phone')
+                            <div class="invalid-feedback">{{ $message }}</div>
+                            @enderror
+                        </div>
+
+                        <div class="mb-3">
                             <label for="files">Fayl:</label>
                             <input type="file" name="files" class="form-control">
                         </div>

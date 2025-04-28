@@ -81,10 +81,13 @@ class UserController extends Controller
                     // Yoki alohida blade fayl (\`users.actions\`) ishlatishingiz mumkin:
                     // return view('users.actions', compact('user'))->render();
                 })
-                ->editColumn('work_start', function(User $user) {
-                    // Sanani formatlash (agar kerak bo'lsa)
-                    return $user->work_start ? \Carbon\Carbon::parse($user->work_start)->format('Y-m-d') : '-';
+                ->editColumn('phone', function(User $user) {
+                    return $user->phone ?? '-';
                 })
+//                ->editColumn('work_start', function(User $user) {
+//                    // Sanani formatlash (agar kerak bo'lsa)
+//                    return $user->work_start ? \Carbon\Carbon::parse($user->work_start)->format('Y-m-d') : '-';
+//                })
                 ->rawColumns(['actions', 'company_name']) // Bu ustunlarda HTML borligini DataTables'ga aytamiz
                 ->orderColumn('id', '-id $1') // Agar ID bo'yicha default sort kerak bo'lsa
                 ->toJson();
@@ -121,6 +124,7 @@ class UserController extends Controller
             'rank' => 'nullable|string',
             'files' => 'nullable|file|max:4096',
             'work_start' => 'nullable|date',
+            'phone' => 'nullable|string|max:25',
         ]);
 
         $filePath = null;
@@ -175,6 +179,7 @@ class UserController extends Controller
             'rank' => 'nullable|string',
             'files' => 'nullable|file|max:4096', // Fayl ham majburiy emas va hajmi cheklangan
             'work_start' => 'nullable|date',
+            'phone' => 'nullable|string|max:25',
         ]);
 
         // 2. Fayl bilan ishlash

@@ -87,18 +87,12 @@
                     {data: 'roles', name: 'roles', orderable: false, searchable: false}, // Controller'da `addColumn` bilan qo'shilgan
                     {data: 'email', name: 'email'},
                     {data: 'rank', name: 'rank'}, // User modelida 'rank' maydoni borligiga ishonch hosil qiling
-                    {data: 'work_start', name: 'work_start'},
+                    {data: 'phone', name: 'phone', orderable: false, searchable: false},
+                    // {data: 'work_start', name: 'work_start'},
                     {data: 'actions', name: 'actions', orderable: false, searchable: false} // Controller'da `addColumn` bilan qo'shilgan
                 ],
                 order: [[0, 'desc']], // Boshlang'ich saralash (masalan, ID bo'yicha kamayish tartibida)
                 language: { // <-- MANA SHU QISM
-                    // O'zbekcha tarjimani qo'shish (agar kerak bo'lsa)
-
-                    // 1-USUL: Tayyor tarjima faylini CDN'dan yuklash (Eng osoni)
-                    //url: "cdn.datatables.net/plug-ins/1.10.25/i18n/Uzbek.json" // <-- SHU QATORNI KOMMENTDAN OCHING (boshidagi // ni olib tashlang)
-
-                    // 2-USUL: Tarjimalarni qo'lda yozib chiqish (Agar CDN ishlamasa yoki boshqa matn kerak bo'lsa)
-                     // Bu qatorlarni kommentdan ochib, tarjimalarni yozing:
                     search: "Qidiruv:",
                     lengthMenu: "_MENU_ ta yozuv ko'rsatish",
                     info: "_TOTAL_ ta yozuvdan _START_ dan _END_ gachasi ko'rsatilmoqda",
