@@ -45,7 +45,7 @@
                                     <th>Foydalanuvchi turi</th>
                                     <th>Email</th>
                                     <th>Lavozim</th>
-                                    <th>Ishga kirgan sana</th>
+                                    <th>Telefon raqam</th>
                                     <th>Amallar</th>
                                 </tr>
                                 </thead>
@@ -88,7 +88,6 @@
                     {data: 'email', name: 'email'},
                     {data: 'rank', name: 'rank'}, // User modelida 'rank' maydoni borligiga ishonch hosil qiling
                     {data: 'phone', name: 'phone', orderable: false, searchable: false},
-                    // {data: 'work_start', name: 'work_start'},
                     {data: 'actions', name: 'actions', orderable: false, searchable: false} // Controller'da `addColumn` bilan qo'shilgan
                 ],
                 order: [[0, 'desc']], // Boshlang'ich saralash (masalan, ID bo'yicha kamayish tartibida)

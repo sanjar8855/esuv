@@ -141,6 +141,7 @@ class UserController extends Controller
             'password' => Hash::make($validatedData['password']),
             'rank' => $validatedData['rank'],
             'files' => $filePath,
+            'phone' => $validatedData['phone'],
             'work_start' => $validatedData['work_start'],
         ]);
 
@@ -205,6 +206,7 @@ class UserController extends Controller
             // 'password' => $request->password ? Hash::make($request->password) : $user->password, // Bu eski yondashuv
             'rank' => $validatedData['rank'],
             'files' => $filePath, // <--- FAYL MANZILINI (string yoki null) TO'G'RI UZATISH
+            'phone' => $validatedData['phone'],
             'work_start' => $validatedData['work_start'],
         ];
 
