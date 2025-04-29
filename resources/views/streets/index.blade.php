@@ -1,5 +1,20 @@
 @extends('layouts.app')
 
+{{-- DataTables CSS (Agar layoutda bo'lmasa) --}}
+<link rel="stylesheet" href="https://cdn.datatables.net/1.13.6/css/dataTables.bootstrap5.min.css">
+<style>
+    /* DataTables stillari */
+    #streetsTable { width: 100% !important; }
+    .dataTables_length select.form-select,
+    .dataTables_filter input.form-control {
+        height: calc(2.25rem + 2px); padding-top: 0.375rem; padding-bottom: 0.375rem;
+        padding-left: 0.75rem; font-size: 0.875rem; line-height: 1.5;
+    }
+    /* Qarzdorlik uchun ranglar */
+    .total-debt-negative { color: red; font-weight: bold; }
+    .total-debt-zero { color: grey; }
+</style>
+
 @section('content')
     <div class="page-body">
         <div class="container-xl">
@@ -14,50 +29,70 @@
 
                     <div class="card">
                         <div class="table-responsive">
-                            <table class="table table-sm table-bordered table-vcenter card-table table-striped">
+                            <table id="streetsTable" class="table table-sm table-bordered table-vcenter card-table table-striped">
                                 <thead>
                                 <tr>
-                                    <th>N</th>
+                                    <th>ID</th>
                                     <th>Mahalla</th>
                                     <th>Ko‘cha Nomi</th>
                                     <th>Mijozlar soni</th>
+                                    <th>Jami qarzdorlik</th> {{-- YANGI USTUN --}}
                                     <th>Harakatlar</th>
                                 </tr>
                                 </thead>
                                 <tbody>
-                                @foreach($streets as $street)
-                                    <tr>
-                                        <td>{{$loop->index +1}}</td>
-                                        <td>
-                                            <a href="{{ route('neighborhoods.show', $street->neighborhood->id) }}" class="badge badge-outline text-blue">
-                                                {{ $street->neighborhood->name }}
-                                            </a>
-                                        </td>
-                                        <td>{{ $street->name }}</td>
-                                        <td>{{ $street->customer_count }}</td>
-                                        <td>
-                                            <a href="{{ route('streets.show', $street->id) }}"
-                                               class="btn btn-info btn-sm">Ko‘rish</a>
-                                            <a href="{{ route('streets.edit', $street->id) }}"
-                                               class="btn btn-warning btn-sm">Tahrirlash</a>
-                                            @hasrole('admin')
-                                            <form action="{{ route('streets.destroy', $street->id) }}" method="POST"
-                                                  style="display:inline;">
-                                                @csrf @method('DELETE')
-                                                <button type="submit" class="btn btn-danger btn-sm">O‘chirish</button>
-                                            </form>
-                                            @endhasrole
-                                        </td>
-                                    </tr>
-                                @endforeach
+                                {{-- Ma'lumotlar DataTables tomonidan AJAX orqali yuklanadi --}}
                                 </tbody>
                             </table>
                         </div>
                     </div>
-
-                    {{ $streets->links() }}
                 </div>
             </div>
         </div>
     </div>
 @endsection
+
+@push('scripts')
+    {{-- DataTables JS --}}
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script src="https://cdn.datatables.net/1.13.6/js/jquery.dataTables.min.js"></script>
+    <script src="https://cdn.datatables.net/1.13.6/js/dataTables.bootstrap5.min.js"></script>
+
+    <script>
+        $(document).ready(function () {
+            $('#streetsTable').DataTable({
+                processing: true,
+                serverSide: true,
+                ajax: "{{ route('streets.index') }}",
+                columns: [
+                    { data: 'id', name: 'id' },
+                    // `data: 'neighborhood'` - Controllerdagi addColumn nomi
+                    // `name: 'neighborhoods.name'` - Saralash/qidirish uchun bazadagi ustun (join qilingan)
+                    { data: 'neighborhood', name: 'neighborhoods.name', orderable: true, searchable: true },
+                    { data: 'name', name: 'streets.name' }, // Jadval nomini aniq ko'rsatish
+                    { data: 'customer_count', name: 'customer_count', searchable: false },
+                    { data: 'total_debt', name: 'calculated_balance', searchable: false, orderable: true },
+                    { data: 'actions', name: 'actions', orderable: false, searchable: false }
+                ],
+                // Boshlang'ich saralash: Mahalla, keyin Ko'cha
+                order: [[1, 'asc'], [2, 'asc']],
+                language: { // O'zbekcha tarjima (users jadvalidagi kabi)
+                    search: "Qidiruv:",
+                    lengthMenu: "_MENU_ ta yozuv ko'rsatish",
+                    info: "_TOTAL_ ta yozuvdan _START_ dan _END_ gachasi ko'rsatilmoqda",
+                    infoEmpty: "Yozuvlar mavjud emas",
+                    infoFiltered: "(_MAX_ ta yozuv ichidan filtrlandi)",
+                    zeroRecords: "Hech qanday mos yozuv topilmadi",
+                    emptyTable: "Jadvalda ma'lumotlar mavjud emas",
+                    processing: "Yuklanmoqda...",
+                    paginate: {
+                        first: "Birinchi",
+                        last: "Oxirgi",
+                        next: "Keyingi",
+                        previous: "Oldingi"
+                    }
+                }
+            });
+        });
+    </script>
+@endpush
