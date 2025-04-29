@@ -179,95 +179,96 @@ class StreetController extends Controller
         return redirect()->route('streets.index')->with('success', 'Ko‘cha muvaffaqiyatli qo‘shildi!');
     }
 
-    public function show(Street $street) // Request $request qo'shilishi mumkin
+    public function show(Street $street)
     {
-        $user = auth()->user();
+        $user = Auth::user(); // Joriy foydalanuvchini olamiz
 
-        // Mijozlarni olish uchun asosiy query (bu AJAX uchun ham ishlatiladi)
-        $query = Customer::query() // query() dan boshlash yaxshiroq
-        ->with([
-            'company', // Kompaniya ma'lumotini olish
-            // 'street.neighborhood.city.region', // Bular DataTables uchun shart emas, agar ishlatilmasa
-            'waterMeter', // Hisoblagichni olish
-            'waterMeter.readings' => function ($q) { // Oxirgi ko'rsatkichni olish uchun
-                $q->select('water_meter_id', 'reading', 'reading_date') // Kerakli ustunlarni tanlash
-                ->latest('reading_date')->latest('id'); // Eng so'nggisini olish
-            }
-        ])
-            ->where('street_id', $street->id) // Faqat shu ko'chadagilar
-            ->where('is_active', 1); // Faqat aktivlar
-
-        // Admin bo'lmasa, o'z kompaniyasi bo'yicha filtr
-        if (!$user->hasRole('admin') && $user->company_id) {
-            $query->where('company_id', $user->company_id);
-        }
-
-        // --- DataTables uchun o'zgarishlar ---
+        // --- Mijozlar uchun DataTables AJAX so'rovini tekshirish ---
         if (request()->ajax()) {
+            // Ushbu ko'chadagi aktiv mijozlar uchun asosiy query
+            $query = Customer::query()
+                ->with([
+                    'company', // Kompaniya ma'lumotini yuklaymiz
+                    'waterMeter', // Hisoblagich ma'lumotini yuklaymiz
+                    'waterMeter.readings' => function ($q) { // Oxirgi ko'rsatkichni samarali yuklaymiz
+                        $q->select('water_meter_id', 'reading', 'reading_date') // Kerakli ustunlar
+                        ->latest('reading_date')->latest('id'); // Eng oxirgisi
+                    }
+                ])
+                ->where('street_id', $street->id) // Shu ko'cha bo'yicha filtr
+                ->where('is_active', 1); // Aktiv mijozlar bo'yicha filtr
+
+            // Admin bo'lmasa, kompaniya bo'yicha filtr
+            if (!$user->hasRole('admin') && $user->company_id) {
+                $query->where('company_id', $user->company_id);
+            }
+
+            // Saralashda join qo'shganda muammo bo'lmasligi uchun asosiy ustunlarni tanlaymiz
+            $query->select('customers.*');
+
+            // DataTables javobini tayyorlaymiz
             return DataTables::eloquent($query)
                 ->addColumn('company', function (Customer $customer) {
-                    // Faqat admin uchun kompaniya nomini link qilish
-                    if (auth()->user()->hasRole('admin') && $customer->company) {
-                        // Marshrut nomini tekshiring ('companies.show')
+                    // Kompaniya nomini link sifatida formatlash (agar mavjud bo'lsa)
+                    // Ko'rinishi Blade/JS da admin uchun boshqariladi
+                    if ($customer->company) {
                         $url = route('companies.show', $customer->company->id);
                         return '<a href="' . $url . '">' . e($customer->company->name) . '</a>';
                     }
-                    // Admin bo'lmasa yoki kompaniya yo'q bo'lsa (JS da bu ustun bo'lmaydi yoki bo'sh keladi)
-                    return $customer->company ? e($customer->company->name) : '-';
+                    return '-'; // Agar kompaniya biriktirilmagan bo'lsa
                 })
                 ->editColumn('name', function (Customer $customer) {
-                    // Mijoz nomini link qilish
+                    // Mijoz nomini link sifatida formatlash
                     $url = route('customers.show', $customer->id);
-                    // e() XSS himoyasi uchun
                     return '<a href="' . $url . '" class="badge badge-outline text-blue">' . e($customer->name) . '</a>';
                 })
                 ->addColumn('meter', function (Customer $customer) {
-                    // Hisoblagich nomini link qilish yoki "Yo'q" deb chiqarish
+                    // Hisoblagich raqamini link sifatida formatlash (agar mavjud bo'lsa)
                     if ($customer->waterMeter) {
-                        // Marshrut nomini tekshiring ('water_meters.show')
                         $url = route('water_meters.show', $customer->waterMeter->id);
                         return '<a href="' . $url . '" class="badge badge-outline text-blue">' . e($customer->waterMeter->meter_number) . '</a>';
                     }
-                    return '<span class="text-muted">Hisoblagich yo‘q</span>';
+                    return '<span class="text-muted">Hisoblagich yo‘q</span>'; // Agar hisoblagich yo'q bo'lsa
                 })
                 ->addColumn('balance', function (Customer $customer) {
-                    // Balansni formatlash va rang berish
-                    // 'balance' accessori Customer modelida bo'lishi kerak yoki shu yerda hisoblash kerak
-                    // Masalan: $balance = $customer->total_due - $customer->total_paid;
-                    $balance = $customer->balance ?? 0; // Agar accessor bo'lsa (yoki 0)
+                    // Balansni Customer modelidagi accessor orqali olib formatlash
+                    $balance = $customer->balance ?? 0; // getBalanceAttribute() ishlatiladi
                     $colorClass = $balance < 0 ? 'balance-negative' : ($balance > 0 ? 'balance-positive' : 'balance-zero');
-                    // number_format bilan formatlash
                     return '<span class="' . $colorClass . '">' . number_format($balance, 0, '', ' ') . ' UZS</span>';
                 })
                 ->addColumn('last_reading', function (Customer $customer) {
-                    // Oxirgi ko'rsatkichni olish (yuklangan readings aloqasidan)
-                    $lastReading = $customer->waterMeter?->readings?->first(); // Eng oxirgi (latest) yuklangan
+                    // Oxirgi ko'rsatkichni (eager loading orqali olingan) ko'rsatish
+                    $lastReading = $customer->waterMeter?->readings?->first(); // Yuklanganlar orasidan birinchisi (eng oxirgisi)
                     if ($lastReading) {
-                        // Sanani ham qo'shish mumkin: e($lastReading->reading) . ' (' . Carbon::parse($lastReading->reading_date)->format('d.m.Y') . ')'
-                        return e($lastReading->reading);
+                        return e($lastReading->reading); // Faqat ko'rsatkichni chiqaramiz
                     }
                     return '—'; // Agar ko'rsatkich yo'q bo'lsa
                 })
-                // ID ni qayta ishlamaymiz, data: 'id' yetarli
-                // editColumn('id', function(Customer $customer) { return $customer->id; })
-                // Telefon raqamini qayta ishlamaymiz, data: 'phone' yetarli
-                // editColumn('phone', function(Customer $customer) { return $customer->phone ?? '-'; })
                 ->rawColumns(['company', 'name', 'meter', 'balance']) // HTML ishlatilgan ustunlar
-                ->toJson();
+
+                // Kompaniya nomi bo'yicha saralash uchun callback (MUHIM TUZATISH)
+                ->orderColumn('company.name', function ($query, $order) {
+                    $query->leftJoin('companies', 'customers.company_id', '=', 'companies.id')
+                        ->orderBy('companies.name', $order);
+                })
+                ->toJson(); // JSON javobni qaytarish
+        } // --- AJAX so'rovi tugadi ---
+
+
+        // --- Oddiy GET so'rovi (sahifa birinchi ochilganda) ---
+        // Sarlavha uchun mijozlar sonini alohida so'rov bilan hisoblaymiz
+        $customersQueryForCount = Customer::query()
+            ->where('street_id', $street->id)
+            ->where('is_active', 1);
+        if (!$user->hasRole('admin') && $user->company_id) {
+            $customersQueryForCount->where('company_id', $user->company_id);
         }
+        $customersCount = $customersQueryForCount->count(); // Sonini olamiz
 
-        // Oddiy GET so'rov uchun (sahifa birinchi ochilganda)
-        // Umumiy sonni hisoblash (agar DataTables'dan oldin kerak bo'lsa)
-        // $customersCount = (clone $query)->count(); // Bu query DataTables ishlatishdan oldin bo'lishi kerak
-
-        // Hozirgi kodda $customersCount allaqachon hisoblangan, shuni ishlatsak ham bo'ladi.
-        // Lekin DataTables'dan oldin hisoblash to'g'riroq.
-        $customersCount = $query->count(); // DataTablesga berishdan oldin sonni olamiz
-
-        // View'ga faqat ko'cha va mijozlar sonini uzatamiz
+        // View'ga faqat ko'cha obyektini va mijozlar sonini uzatamiz
         return view('streets.show', compact('street', 'customersCount'));
-        // $customers o'zgaruvchisi endi kerak emas
-    }
+
+    } // --- show metodi tugadi ---
 
     public function edit(Street $street)
     {
