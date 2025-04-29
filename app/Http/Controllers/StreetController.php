@@ -8,6 +8,7 @@ use App\Models\Neighborhood;
 use App\Models\Invoice; // Invoice modelini qo'shamiz
 use App\Models\Payment; // Payment modelini qo'shamiz
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Validation\Rule;
 use Illuminate\Support\Facades\Auth;
 use Yajra\DataTables\Facades\DataTables;
@@ -59,7 +60,7 @@ class StreetController extends Controller
             // Lekin KATTA ma'lumotlar to'plamida bu sekin bo'lishi mumkin.
             // Hozircha barcha mos keladigan ko'chalarni olamiz:
             $streets = $query->get();
-
+ Log::info('Fetched Streets:', $streets->pluck('id', 'name')->toArray()); // 1-tekshiruv: Qaysi ko'chalar olindi?
             // 3. Olingan ko'chalar uchun qarzdorlikni alohida hisoblash
             $streetIds = $streets->pluck('id')->toArray();
 
@@ -74,7 +75,7 @@ class StreetController extends Controller
                     ->groupBy('customers.street_id')
                     ->selectRaw('customers.street_id, sum(invoices.amount_due) as total_due')
                     ->pluck('total_due', 'street_id'); // [street_id => sum]
-
+                Log::info('Invoice Sums:', $invoiceSums->toArray());
                 // Jami to'lovlarni olish (ko'cha bo'yicha guruhlab)
                 $paymentSums = Payment::join('customers', 'payments.customer_id', '=', 'customers.id')
                     ->whereIn('customers.street_id', $streetIds)
@@ -85,13 +86,14 @@ class StreetController extends Controller
                     ->groupBy('customers.street_id')
                     ->selectRaw('customers.street_id, sum(payments.amount) as total_paid')
                     ->pluck('total_paid', 'street_id'); // [street_id => sum]
-
+                Log::info('Payment Sums:', $paymentSums->toArray());
                 // 4. Har bir ko'chaga hisoblangan balansni qo'shish
                 $streets->each(function ($street) use ($paymentSums, $invoiceSums) {
                     $totalPaid = $paymentSums->get($street->id, 0); // get(key, default_value)
                     $totalInvoiced = $invoiceSums->get($street->id, 0);
                     // Yangi 'calculated_balance' atributini qo'shamiz
                     $street->calculated_balance = $totalPaid - $totalInvoiced;
+                    Log::info('Street ID: '.$street->id.' | Paid: '.$totalPaid.' | Invoiced: '.$totalInvoiced.' | Balance: '.$street->calculated_balance);
                 });
             } else {
                 // Agar ko'chalar topilmasa, har biriga balans 0 qo'shamiz
