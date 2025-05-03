@@ -23,24 +23,24 @@ class NeighborhoodController extends Controller
 
         if (request()->ajax()) {
 
-            // 1. Asosiy query - with('city') O'RNIGA leftJoin ishlatamiz
-            $query = Neighborhood::query() // query() dan boshlash
-            ->leftJoin('cities', 'neighborhoods.city_id', '=', 'cities.id') // Shahar jadvalini qo'lda qo'shamiz
-            ->select('neighborhoods.*', 'cities.name as city_name', 'cities.id as city_id_for_route'); // Kerakli ustunlarni tanlaymiz
+            // 1. Asosiy query - Endi barcha mahallalarni oladi
+            $query = Neighborhood::query()
+                ->leftJoin('cities', 'neighborhoods.city_id', '=', 'cities.id')
+                ->select('neighborhoods.*', 'cities.name as city_name', 'cities.id as city_id_for_route');
 
-            // 2. Admin bo'lmaganlar uchun asosiy filtr
-            if (!$user->hasRole('admin')) {
-                $query->whereHas('streets.customers', function (Builder $q) use ($user) {
-                    $q->where('is_active', 1);
-                    if ($user->company_id) {
-                        $q->where('company_id', $user->company_id);
-                    }
-                });
-            }
+            // 2. Admin bo'lmaganlar uchun asosiy filtr OLIB TASHLANDI
+            // if (!$user->hasRole('admin')) {
+            //     $query->whereHas('streets.customers', function (Builder $q) use ($user) {
+            //         $q->where('is_active', 1);
+            //         if ($user->company_id) {
+            //             $q->where('company_id', $user->company_id);
+            //         }
+            //     });
+            // }
 
-            // 3. Ko'chalar sonini hisoblash (filtr bilan)
+            // 3. Ko'chalar sonini hisoblash (BU YERDA FILTR QOLADI)
             $query->withCount(['streets as street_count' => function (Builder $query) use ($user) {
-                // ... (filtr logikasi avvalgidek) ...
+                // Faqat admin bo'lmaganlar uchun filtr qo'llaniladi
                 if (!$user->hasRole('admin')) {
                     $query->whereHas('customers', function ($qq) use ($user) {
                         $qq->where('is_active', 1);
@@ -51,25 +51,25 @@ class NeighborhoodController extends Controller
                 }
             }]);
 
-            // 4. Jami hisoblangan summani (Invoices) hisoblash (subquery avvalgidek)
+            // 4. Jami hisoblangan summani (Invoices) hisoblash (BU YERDA FILTR QOLADI)
             $query->addSelect(['total_invoices_sum' => Invoice::selectRaw('sum(amount_due)')
-                // ... (subquery logikasi avvalgidek) ...
                 ->join('customers', 'invoices.customer_id', '=', 'customers.id')
                 ->join('streets', 'customers.street_id', '=', 'streets.id')
                 ->whereColumn('streets.neighborhood_id', 'neighborhoods.id')
                 ->where('customers.is_active', 1)
+                // Faqat admin bo'lmaganlar uchun filtr qo'llaniladi
                 ->when(!$user->hasRole('admin') && $user->company_id, function ($q) use ($user) {
                     $q->where('customers.company_id', $user->company_id);
                 })
             ]);
 
-            // 5. Jami to'langan summani (Payments) hisoblash (subquery avvalgidek)
+            // 5. Jami to'langan summani (Payments) hisoblash (BU YERDA FILTR QOLADI)
             $query->addSelect(['total_payments_sum' => Payment::selectRaw('sum(amount)')
-                // ... (subquery logikasi avvalgidek) ...
                 ->join('customers', 'payments.customer_id', '=', 'customers.id')
                 ->join('streets', 'customers.street_id', '=', 'streets.id')
                 ->whereColumn('streets.neighborhood_id', 'neighborhoods.id')
                 ->where('customers.is_active', 1)
+                // Faqat admin bo'lmaganlar uchun filtr qo'llaniladi
                 ->when(!$user->hasRole('admin') && $user->company_id, function ($q) use ($user) {
                     $q->where('customers.company_id', $user->company_id);
                 })
@@ -77,21 +77,21 @@ class NeighborhoodController extends Controller
 
 
             // 6. DataTables'ga javob qaytarish
-            return DataTables::eloquent($query) // Eloquent'dan foydalanishda davom etamiz
-            ->addColumn('city', function (Neighborhood $neighborhood) {
-                // Qo'lda join qilingan ustunlardan foydalanamiz
-                if ($neighborhood->city_name) {
-                    // city_id_for_route ni ishlatamiz (yoki neighborhood->city_id ham ishlaydi)
-                    $url = route('cities.show', $neighborhood->city_id_for_route ?? $neighborhood->city_id);
-                    return '<a href="' . $url . '" class="badge badge-outline text-blue">' . e($neighborhood->city_name) . '</a>';
-                }
-                return '-';
-            })
+            return DataTables::eloquent($query)
+                ->addColumn('city', function (Neighborhood $neighborhood) {
+                    // ... (bu qism o'zgarmadi) ...
+                    if ($neighborhood->city_name) {
+                        $url = route('cities.show', $neighborhood->city_id_for_route ?? $neighborhood->city_id);
+                        return '<a href="' . $url . '" class="badge badge-outline text-blue">' . e($neighborhood->city_name) . '</a>';
+                    }
+                    return '-';
+                })
                 ->editColumn('street_count', function (Neighborhood $neighborhood) {
+                    // ... (bu qism o'zgarmadi) ...
                     return $neighborhood->street_count ?? 0;
                 })
                 ->addColumn('total_debt', function (Neighborhood $neighborhood) {
-                    // Qarzdorlikni hisoblash (avvalgidek)
+                    // ... (bu qism o'zgarmadi, chunki hisoblashda filtr bor) ...
                     $totalPaid = $neighborhood->total_payments_sum ?? 0;
                     $totalInvoiced = $neighborhood->total_invoices_sum ?? 0;
                     $balance = $totalPaid - $totalInvoiced;
@@ -100,7 +100,7 @@ class NeighborhoodController extends Controller
                     return '<span class="' . $colorClass . '">' . number_format($debt, 0, '', ' ') . ' UZS</span>';
                 })
                 ->addColumn('actions', function (Neighborhood $neighborhood) {
-                    // Amallar tugmalari (avvalgidek)
+                    // ... (bu qism o'zgarmadi) ...
                     $showUrl = route('neighborhoods.show', $neighborhood->id);
                     $editUrl = route('neighborhoods.edit', $neighborhood->id);
                     $deleteUrl = route('neighborhoods.destroy', $neighborhood->id);
@@ -120,12 +120,6 @@ class NeighborhoodController extends Controller
                     return $buttons;
                 })
                 ->rawColumns(['city', 'actions', 'total_debt'])
-                // filterColumn va orderColumn endi kerak emas, chunki DataTables
-                // 'cities.name' ustuni bo'yicha (JS dagi 'name' xossasi orqali)
-                // saralash/qidirishni bajarishga harakat qilishi kerak.
-                // Agar xatolik chiqsa, ularni qayta qo'shib, 'cities.name' ga moslash kerak.
-                // ->filterColumn('city.name', ...)
-                // ->orderColumn('city.name', ...)
                 ->toJson();
         }
 

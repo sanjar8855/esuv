@@ -5,8 +5,12 @@ namespace App\Http\Controllers;
 use App\Models\Customer;
 use App\Models\Street;
 use App\Models\Neighborhood;
-use App\Models\Invoice; // Invoice modelini qo'shamiz
-use App\Models\Payment; // Payment modelini qo'shamiz
+use App\Models\Invoice;
+
+// Invoice modelini qo'shamiz
+use App\Models\Payment;
+
+// Payment modelini qo'shamiz
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Validation\Rule;
@@ -15,7 +19,9 @@ use Yajra\DataTables\Facades\DataTables;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
 use Carbon\Carbon;
-use Illuminate\Database\Eloquent\Builder; // Builder'ni qo'shamiz
+use Illuminate\Database\Eloquent\Builder;
+
+// Builder'ni qo'shamiz
 use Illuminate\Support\Facades\DB;
 
 class StreetController extends Controller
@@ -42,15 +48,6 @@ class StreetController extends Controller
                 }
             }]);
 
-            // Admin bo'lmaganlar uchun asosiy filtr - Bu kerak
-            if (!$user->hasRole('admin')) {
-                $query->whereHas('customers', function ($q) use ($user) {
-                    $q->where('is_active', 1);
-                    if ($user->company_id) {
-                        $q->where('company_id', $user->company_id);
-                    }
-                });
-            }
 
             // addSelect subquerylarini olib tashladik
 
@@ -60,7 +57,7 @@ class StreetController extends Controller
             // Lekin KATTA ma'lumotlar to'plamida bu sekin bo'lishi mumkin.
             // Hozircha barcha mos keladigan ko'chalarni olamiz:
             $streets = $query->get();
- Log::info('Fetched Streets:', $streets->pluck('id', 'name')->toArray()); // 1-tekshiruv: Qaysi ko'chalar olindi?
+            Log::info('Fetched Streets:', $streets->pluck('id', 'name')->toArray()); // 1-tekshiruv: Qaysi ko'chalar olindi?
             // 3. Olingan ko'chalar uchun qarzdorlikni alohida hisoblash
             $streetIds = $streets->pluck('id')->toArray();
 
@@ -75,8 +72,10 @@ class StreetController extends Controller
                     ->groupBy('customers.street_id')
                     ->selectRaw('customers.street_id, sum(invoices.amount_due) as total_due')
                     ->pluck('total_due', 'street_id'); // [street_id => sum]
+
                 Log::info('Invoice Sums:', $invoiceSums->toArray());
                 // Jami to'lovlarni olish (ko'cha bo'yicha guruhlab)
+
                 $paymentSums = Payment::join('customers', 'payments.customer_id', '=', 'customers.id')
                     ->whereIn('customers.street_id', $streetIds)
                     ->where('customers.is_active', 1)
@@ -86,6 +85,7 @@ class StreetController extends Controller
                     ->groupBy('customers.street_id')
                     ->selectRaw('customers.street_id, sum(payments.amount) as total_paid')
                     ->pluck('total_paid', 'street_id'); // [street_id => sum]
+
                 Log::info('Payment Sums:', $paymentSums->toArray());
                 // 4. Har bir ko'chaga hisoblangan balansni qo'shish
                 $streets->each(function ($street) use ($paymentSums, $invoiceSums) {
@@ -93,7 +93,7 @@ class StreetController extends Controller
                     $totalInvoiced = $invoiceSums->get($street->id, 0);
                     // Yangi 'calculated_balance' atributini qo'shamiz
                     $street->calculated_balance = $totalPaid - $totalInvoiced;
-                    Log::info('Street ID: '.$street->id.' | Paid: '.$totalPaid.' | Invoiced: '.$totalInvoiced.' | Balance: '.$street->calculated_balance);
+                    Log::info('Street ID: ' . $street->id . ' | Paid: ' . $totalPaid . ' | Invoiced: ' . $totalInvoiced . ' | Balance: ' . $street->calculated_balance);
                 });
             } else {
                 // Agar ko'chalar topilmasa, har biriga balans 0 qo'shamiz
@@ -113,7 +113,7 @@ class StreetController extends Controller
                 }
                 return '-';
             })
-                ->editColumn('customer_count', function(Street $street) {
+                ->editColumn('customer_count', function (Street $street) {
                     // withCount natijasi
                     return $street->customer_count ?? 0;
                 })
@@ -134,11 +134,11 @@ class StreetController extends Controller
                     $method = method_field('DELETE');
                     $currentUser = Auth::user();
 
-                    $buttons = '<a href="'.$showUrl.'" class="btn btn-info btn-sm">Ko‘rish</a> ';
-                    $buttons .= '<a href="'.$editUrl.'" class="btn btn-warning btn-sm">Tahrirlash</a> ';
+                    $buttons = '<a href="' . $showUrl . '" class="btn btn-info btn-sm">Ko‘rish</a> ';
+                    $buttons .= '<a href="' . $editUrl . '" class="btn btn-warning btn-sm">Tahrirlash</a> ';
 
                     if ($currentUser->hasRole('admin')) {
-                        $buttons .= '<form action="'.$deleteUrl.'" method="POST" style="display:inline;" onsubmit="return confirm(\'Haqiqatan ham o‘chirmoqchimisiz?\');">';
+                        $buttons .= '<form action="' . $deleteUrl . '" method="POST" style="display:inline;" onsubmit="return confirm(\'Haqiqatan ham o‘chirmoqchimisiz?\');">';
                         $buttons .= $csrf . $method;
                         $buttons .= '<button type="submit" class="btn btn-danger btn-sm">O‘chirish</button>';
                         $buttons .= '</form>';
@@ -238,7 +238,7 @@ class StreetController extends Controller
                 })
                 ->addColumn('last_reading', function (Customer $customer) {
                     // Oxirgi ko'rsatkichni (eager loading orqali olingan) ko'rsatish
-                    $lastReading = $customer->waterMeter?->readings?->first(); // Yuklanganlar orasidan birinchisi (eng oxirgisi)
+                    $lastReading = $customer->waterMeter ?->readings ?->first(); // Yuklanganlar orasidan birinchisi (eng oxirgisi)
                     if ($lastReading) {
                         return e($lastReading->reading); // Faqat ko'rsatkichni chiqaramiz
                     }

@@ -5,7 +5,9 @@ use App\Models\City;
 use App\Models\Region;
 use App\Models\Customer;
 use Illuminate\Http\Request;
-use Illuminate\Validation\Rule;
+use Illuminate\Validation\Rule; // Kerak bo'lmasa ham
+use Illuminate\Support\Facades\Auth;
+use Illuminate\Database\Eloquent\Builder;
 
 class CityController extends Controller
 {
@@ -13,23 +15,23 @@ class CityController extends Controller
     {
         $user = auth()->user();
 
-        // OZGARISH: Admin uchun barcha shaharlari ko'rsatamiz, oddiy foydalanuvchilar uchun filter qo'llaymiz
-        $citiesQuery = City::with('region');
+        // Asosiy query - Endi barcha shaharlarni oladi
+        $citiesQuery = City::with('region'); // Region ma'lumotini eager load qilamiz
 
-        // OZGARISH: Admin bo'lmasa, filter qo'llaymiz
-        if (!$user->hasRole('admin')) {
-            $citiesQuery->whereHas('neighborhoods.streets.customers', function ($q) use ($user) {
-                $q->where('is_active', true);
-                if ($user->company_id) {
-                    $q->where('company_id', $user->company_id);
-                }
-            });
-        }
+        // Admin bo'lmaganlar uchun asosiy filtr OLIB TASHLANDI
+        // if (!$user->hasRole('admin')) {
+        //     $citiesQuery->whereHas('neighborhoods.streets.customers', function ($q) use ($user) {
+        //         $q->where('is_active', true);
+        //         if ($user->company_id) {
+        //             $q->where('company_id', $user->company_id);
+        //         }
+        //     });
+        // }
 
-        // Neighborhood'lar sonini qo'shamiz
+        // Neighborhood'lar sonini hisoblash (BU YERDA FILTR QOLADI)
         $citiesQuery->withCount([
-            'neighborhoods as neighborhood_count' => function ($q) use ($user) {
-                // OZGARISH: Admin bo'lsa barcha neighborhoodlarni sanash kerak
+            'neighborhoods as neighborhood_count' => function (Builder $q) use ($user) {
+                // Faqat admin bo'lmaganlar uchun filtr qo'llaniladi
                 if (!$user->hasRole('admin')) {
                     $q->whereHas('streets.customers', function ($qq) use ($user) {
                         $qq->where('is_active', true);
@@ -38,23 +40,31 @@ class CityController extends Controller
                         }
                     });
                 }
+                // Agar admin bo'lsa, filtr qo'llanilmaydi va barcha mahallalar sanaladi
             }
         ]);
 
+        // Shaharlarni sahifalash (pagination)
+        // Endi bu so'rov barcha shaharlarni oladi (lekin sahifalab)
         $cities = $citiesQuery->paginate(15);
 
-        // Endi har bir shahar uchun mijozlar sonini qo'shamiz
+        // Har bir shahar uchun mijozlar sonini hisoblash (joriy sahifa uchun)
+        // Bu qism avvalgidek qoladi, chunki u mantiqan to'g'ri ishlaydi
+        // (garchi N+1 muammosi bo'lishi mumkin) va kompaniya filtrini to'g'ri qo'llaydi.
+        // `withCount` bilan buni qilish ancha murakkab bo'lishi mumkin edi.
         foreach ($cities as $city) {
             $customerQuery = Customer::where('is_active', true)
                 ->whereHas('street.neighborhood', function ($q) use ($city) {
+                    // Mijozning ko'chasi shu shaharga tegishli mahallada ekanligini tekshirish
                     $q->where('city_id', $city->id);
                 });
 
-            // OZGARISH: Faqat admin bo'lmasa company_id bo'yicha filterlash
+            // Faqat admin bo'lmasa company_id bo'yicha filterlash
             if (!$user->hasRole('admin') && $user->company_id) {
                 $customerQuery->where('company_id', $user->company_id);
             }
 
+            // Hisoblangan sonni shahar obyektiga qo'shish
             $city->customer_count = $customerQuery->count();
         }
 
