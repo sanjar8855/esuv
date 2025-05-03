@@ -10,9 +10,12 @@ use App\Models\Customer;
 use App\Models\Company;
 use Illuminate\Pagination\LengthAwarePaginator;
 use Illuminate\Support\Facades\Storage;
+use Illuminate\Validation\Rule;
 use Telegram\Bot\Laravel\Facades\Telegram;
 use Illuminate\Support\Facades\Auth;
 use Yajra\DataTables\Facades\DataTables;
+use Carbon\Carbon; // Buni qo'shing
+
 
 class CustomerController extends Controller
 {
@@ -182,47 +185,78 @@ class CustomerController extends Controller
     {
         $user = auth()->user();
 
-        $validated = $request->validate([
+        $rules = [
             'company_id' => $user->hasRole('admin') ? 'required|exists:companies,id' : '',
             'street_id' => 'required|exists:streets,id',
             'name' => 'required|string|max:255',
             'phone' => 'nullable|string|max:255',
-            'address' => 'required|string',
-            'account_number' => 'required|unique:customers,account_number',
+            'address' => 'nullable|string',
+            'account_meter_number' => [
+                'required',
+                'string', // Yoki 'numeric' agar faqat son bo'lsa
+                Rule::unique('customers', 'account_number'), // customers.account_number ga unique
+                Rule::unique('water_meters', 'meter_number'), // water_meters.meter_number ga unique
+            ],
             'family_members' => 'nullable|integer|min:1',
             'pdf_file' => 'nullable|file|mimes:pdf|max:4096',
 
-            'meter_number' => 'required|numeric|unique:water_meters,meter_number',
-            'installation_date' => 'required|date',
-            'validity_period' => 'required|integer|min:1',
+            'installation_date' => 'nullable|date',
+            'validity_period' => 'nullable|integer|min:1',
 
             'initial_reading' => 'required|numeric|min:0',
-            'reading_date' => 'required|date',
-        ]);
+            'reading_date' => 'nullable|date',
+        ];
+
+        if (!$user->hasRole('admin')) {
+            unset($rules['company_id']); // Admin bo'lmasa, validatsiyadan olib tashlaymiz
+        }
+
+        $validated = $request->validate($rules);
+
+        // Oddiy foydalanuvchilar uchun kompaniyani avtomatik qo‘shish
+        if (!$user->hasRole('admin')) {
+            $validated['company_id'] = $user->company_id; // company_id ni qo'lda qo'shamiz
+            if (!$validated['company_id']) {
+                return redirect()->back()->withErrors(['msg' => 'Sizga kompaniya biriktirilmagan!'])->withInput();
+            }
+        }
+
+        $accountMeterNumber = $validated['account_meter_number'];
+
+        $customerData = [
+            'company_id' => $validated['company_id'],
+            'street_id' => $validated['street_id'],
+            'name' => $validated['name'],
+            'phone' => $validated['phone'],
+            'address' => $validated['address'],
+            'account_number' => $accountMeterNumber, // Yagona qiymatni ishlatamiz
+            'family_members' => $validated['family_members'],
+            'is_active' => 1, // Har doim aktiv
+            'has_water_meter' => 1, // Har doim hisoblagichli deb hisoblaymiz
+            // Balans avtomatik hisoblanishi kerak (yoki 0 qilib boshlash mumkin)
+            'balance' => 0,
+        ];
 
         if ($request->hasFile('pdf_file')) {
             $validated['pdf_file'] = $request->file('pdf_file')->store('pdfs', 'public');
         }
 
-        // Oddiy foydalanuvchilar uchun kompaniyani avtomatik qo‘shish
-        if (!$user->hasRole('admin')) {
-            $validated['company_id'] = $user->company->id;
-        }
+        $customer = Customer::create($customerData);
 
-//        $validated['is_active'] = $request->has('is_active') ? 1 : 0;
-        $validated['is_active'] = 1;
-//        $validated['has_water_meter'] = $request->has('has_water_meter') ? 1 : 0;
-        $validated['has_water_meter'] = 1;
+        $installationDate = Carbon::now(); // Bugungi sana
+        $validityPeriod = 8; // 8 yil
+        $expirationDate = $installationDate->copy()->addYears($validityPeriod);
 
-        $customer = Customer::create($validated);
-
-        $waterMeter = WaterMeter::create([
+        $waterMeterData = [
             'customer_id' => $customer->id,
-            'meter_number' => $validated['meter_number'],
-            'installation_date' => $validated['installation_date'],
-            'validity_period' => $validated['validity_period'],
-            'expiration_date' => now()->parse($validated['installation_date'])->addYears($validated['validity_period']), // Amal qilish muddati
-        ]);
+            'meter_number' => $accountMeterNumber, // Yagona qiymatni ishlatamiz
+            'installation_date' => $installationDate->toDateString(), // Avto-to'ldirilgan sana
+            'validity_period' => $validityPeriod, // Avto-to'ldirilgan muddat
+            'expiration_date' => $expirationDate->toDateString(), // Hisoblangan sana
+            // last_reading_date kerak emas, chunki MeterReading da bor
+        ];
+
+        $waterMeter = WaterMeter::create($waterMeterData);
 
         MeterReading::create([
             'water_meter_id' => $waterMeter->id,

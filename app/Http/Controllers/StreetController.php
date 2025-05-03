@@ -254,7 +254,6 @@ class StreetController extends Controller
                 ->toJson(); // JSON javobni qaytarish
         } // --- AJAX so'rovi tugadi ---
 
-
         // --- Oddiy GET so'rovi (sahifa birinchi ochilganda) ---
         // Sarlavha uchun mijozlar sonini alohida so'rov bilan hisoblaymiz
         $customersQueryForCount = Customer::query()
@@ -268,7 +267,7 @@ class StreetController extends Controller
         // View'ga faqat ko'cha obyektini va mijozlar sonini uzatamiz
         return view('streets.show', compact('street', 'customersCount'));
 
-    } // --- show metodi tugadi ---
+    }
 
     public function edit(Street $street)
     {

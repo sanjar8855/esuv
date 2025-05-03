@@ -9,6 +9,7 @@
             <div class="row row-cards">
                 <div class="col-12">
                     <h2>Yangi mijoz qo‘shish</h2>
+                    <h4 class="d-flex"> <label class="form-label required"></label> &nbsp; Majburiy to'ldirilishi kerak bo'lgan ma'lumotlar</h4>
                     @if ($errors->any())
                         <div class="alert alert-danger">
                             <ul>
@@ -21,7 +22,7 @@
                     <form action="{{ route('customers.store') }}" method="POST" enctype="multipart/form-data">
                         @csrf
                         <div class="mb-3">
-                            <label class="form-label">Kompaniya</label>
+                            <label class="form-label required">Kompaniya</label>
                             @if(auth()->user()->hasRole('admin'))
                                 <select name="company_id" class="form-control">
                                     @foreach($companies as $company)
@@ -36,16 +37,20 @@
                         </div>
 
                         <div class="mb-3">
-                            <label class="form-label">Ismi</label>
+                            <label class="form-label required">Ismi</label>
                             <input type="text" name="name" class="form-control" value="{{ old('name')}}" required>
                         </div>
 
                         <div class="mb-3">
-                            <label class="form-label">Ko'cha</label>
+                            <label class="form-label required">Ko'cha</label>
                             <select name="street_id" id="StreetSelect" class="form-control" required>
                                 <option></option>
                                 @foreach($streets as $street)
-                                    <option value="{{ $street->id }}">{{ $street->name }} ko'cha, {{ $street->neighborhood->name }} mahalla, {{ $street->neighborhood->city->name }}, {{ $street->neighborhood->city->region->name }} viloyat</option>
+                                    <option value="{{ $street->id }}">{{ $street->name }}
+                                        ko'cha, {{ $street->neighborhood->name }}
+                                        mahalla, {{ $street->neighborhood->city->name }}
+                                        , {{ $street->neighborhood->city->region->name }} viloyat
+                                    </option>
                                 @endforeach
                             </select>
                         </div>
@@ -63,21 +68,33 @@
                             <input type="text" name="address" class="form-control" value="{{ old('address') }}">
                         </div>
 
+                        <h3>Hisoblagich ma’lumotlari</h3>
+
                         <div class="mb-3">
-                            <label class="form-label">Hisob raqami</label>
-                            <input type="text" name="account_number" class="form-control" value="{{ old('account_number') }}" required>
+                            <label class="form-label required">Hisob raqami / Hisoblagich raqami</label>
+                            <input type="text" name="account_meter_number"
+                                   class="form-control @error('account_meter_number') is-invalid @enderror"
+                                   value="{{ old('account_meter_number') }}" required>
+                            @error('account_meter_number')
+                            <div class="invalid-feedback">{{ $message }}</div>
+                            @enderror
                         </div>
 
                         <div class="mb-3">
-                            <label for="pdf_file" class="form-label">Shartnoma PDF</label>
-                            <input type="file" name="pdf_file" class="form-control">
-                        </div>
-
-                        <div class="mb-3">
-                            <label class="form-label">Oila a'zolari soni</label>
+                            <label class="form-label">Oila a'zolari soni, agar meyoriy bo'lsa kiritish majburiy</label>
                             <input type="number" name="family_members" id="family_members" class="form-control"
                                    value="{{ old('family_members') }}" min="1">
                         </div>
+                        <div class="mb-3">
+                            <label class="form-label required">Boshlang‘ich Ko‘rsatkich</label>
+                            <input type="number" name="initial_reading" class="form-control" required>
+                        </div>
+
+                        {{--                        <div class="mb-3">--}}
+                        {{--                            <label for="pdf_file" class="form-label">Shartnoma PDF</label>--}}
+                        {{--                            <input type="file" name="pdf_file" class="form-control">--}}
+                        {{--                        </div>--}}
+
 
                         {{--                        <div class="mb-3">--}}
                         {{--                            <label class="form-check form-switch form-switch-2">--}}
@@ -107,59 +124,51 @@
                         {{--                            </label>--}}
                         {{--                        </div>--}}
 
-                        <h3>Hisoblagich ma’lumotlari</h3>
-                        <div class="mb-3">
-                            <label class="form-label">Hisoblagich Raqami</label>
-                            <input type="number" name="meter_number" class="form-control" required>
-                        </div>
 
-                        <div class="mb-3">
-                            <label class="form-label">O‘rnatilgan Sana:</label>
 
-                            <div class="input-icon">
-                                <span class="input-icon-addon">
-                                    <!-- Download SVG icon from http://tabler.io/icons/icon/calendar -->
-                                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24"
-                                         fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
-                                         stroke-linejoin="round" class="icon icon-1"><path
-                                            d="M4 7a2 2 0 0 1 2 -2h12a2 2 0 0 1 2 2v12a2 2 0 0 1 -2 2h-12a2 2 0 0 1 -2 -2v-12z"/><path
-                                            d="M16 3v4"/><path d="M8 3v4"/><path d="M4 11h16"/><path d="M11 15h1"/><path
-                                            d="M12 15v3"/></svg>
-                                </span>
-                                <input name="installation_date" class="form-control" placeholder="Sanani tanlang"
-                                       id="datepicker-icon-prepend1"/>
-                            </div>
-                            <script>
-                                document.addEventListener("DOMContentLoaded", function () {
-                                    window.Litepicker && (new Litepicker({
-                                        element: document.getElementById('datepicker-icon-prepend1'),
-                                        format: 'YYYY-MM-DD',
-                                        dropdowns: {
-                                            minYear: 2000,  // Boshlang‘ich yil
-                                            maxYear: new Date().getFullYear(),  // Hozirgi yildan keyingi 10 yilgacha
-                                            months: true,  // Oynilar dropdownda chiqishi uchun
-                                            years: true  // Yillarni dropdown shaklida chiqarish
-                                        },
-                                        buttonText: {
-                                            previousMonth: `<!-- Download SVG icon from http://tabler.io/icons/icon/chevron-left -->
-	<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="icon icon-1"><path d="M15 6l-6 6l6 6" /></svg>`,
-                                            nextMonth: `<!-- Download SVG icon from http://tabler.io/icons/icon/chevron-right -->
-	<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="icon icon-1"><path d="M9 6l6 6l-6 6" /></svg>`,
-                                        },
-                                    }));
-                                });
-                            </script>
-                        </div>
+                        {{--                        <div class="mb-3">--}}
+                        {{--                            <label class="form-label">O‘rnatilgan Sana:</label>--}}
 
-                        <div class="mb-3">
-                            <label class="form-label">Hisoblagich Amal Qilish Muddati (yil)</label>
-                            <input type="number" name="validity_period" class="form-control" required>
-                        </div>
+                        {{--                            <div class="input-icon">--}}
+                        {{--                                <span class="input-icon-addon">--}}
+                        {{--                                    <!-- Download SVG icon from http://tabler.io/icons/icon/calendar -->--}}
+                        {{--                                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24"--}}
+                        {{--                                         fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"--}}
+                        {{--                                         stroke-linejoin="round" class="icon icon-1"><path--}}
+                        {{--                                            d="M4 7a2 2 0 0 1 2 -2h12a2 2 0 0 1 2 2v12a2 2 0 0 1 -2 2h-12a2 2 0 0 1 -2 -2v-12z"/><path--}}
+                        {{--                                            d="M16 3v4"/><path d="M8 3v4"/><path d="M4 11h16"/><path d="M11 15h1"/><path--}}
+                        {{--                                            d="M12 15v3"/></svg>--}}
+                        {{--                                </span>--}}
+                        {{--                                <input name="installation_date" class="form-control" placeholder="Sanani tanlang"--}}
+                        {{--                                       id="datepicker-icon-prepend1"/>--}}
+                        {{--                            </div>--}}
+                        {{--                            <script>--}}
+                        {{--                                document.addEventListener("DOMContentLoaded", function () {--}}
+                        {{--                                    window.Litepicker && (new Litepicker({--}}
+                        {{--                                        element: document.getElementById('datepicker-icon-prepend1'),--}}
+                        {{--                                        format: 'YYYY-MM-DD',--}}
+                        {{--                                        dropdowns: {--}}
+                        {{--                                            minYear: 2000,  // Boshlang‘ich yil--}}
+                        {{--                                            maxYear: new Date().getFullYear(),  // Hozirgi yildan keyingi 10 yilgacha--}}
+                        {{--                                            months: true,  // Oynilar dropdownda chiqishi uchun--}}
+                        {{--                                            years: true  // Yillarni dropdown shaklida chiqarish--}}
+                        {{--                                        },--}}
+                        {{--                                        buttonText: {--}}
+                        {{--                                            previousMonth: `<!-- Download SVG icon from http://tabler.io/icons/icon/chevron-left -->--}}
+                        {{--	<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="icon icon-1"><path d="M15 6l-6 6l6 6" /></svg>`,--}}
+                        {{--                                            nextMonth: `<!-- Download SVG icon from http://tabler.io/icons/icon/chevron-right -->--}}
+                        {{--	<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="icon icon-1"><path d="M9 6l6 6l-6 6" /></svg>`,--}}
+                        {{--                                        },--}}
+                        {{--                                    }));--}}
+                        {{--                                });--}}
+                        {{--                            </script>--}}
+                        {{--                        </div>--}}
 
-                        <div class="mb-3">
-                            <label class="form-label">Boshlang‘ich Ko‘rsatkich</label>
-                            <input type="number" name="initial_reading" class="form-control" required>
-                        </div>
+                        {{--                        <div class="mb-3">--}}
+                        {{--                            <label class="form-label">Hisoblagich Amal Qilish Muddati (yil)</label>--}}
+                        {{--                            <input type="number" name="validity_period" class="form-control">--}}
+                        {{--                        </div>--}}
+
 
                         <div class="mb-3">
                             <label class="form-label">O‘qish sanasi:</label>

@@ -4,10 +4,11 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use App\Traits\RecordUserStamps;
 
 class Invoice extends Model
 {
-    use HasFactory;
+    use HasFactory, RecordUserStamps;
 
     protected $fillable = ['customer_id', 'tariff_id', 'invoice_number', 'billing_period', 'amount_due', 'due_date', 'status'];
 

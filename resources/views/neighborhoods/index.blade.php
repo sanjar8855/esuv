@@ -78,7 +78,22 @@
                     { data: 'actions', name: 'actions', orderable: false, searchable: false }
                 ],
                 order: [[1, 'asc'], [2, 'asc']], // cities.name, keyin neighborhoods.name bo'yicha
-                language: { /* ... tarjima ... */ }
+                language: { // O'zbekcha tarjima (users jadvalidagi kabi)
+                    search: "Qidiruv:",
+                    lengthMenu: "_MENU_ ta yozuv ko'rsatish",
+                    info: "_TOTAL_ ta yozuvdan _START_ dan _END_ gachasi ko'rsatilmoqda",
+                    infoEmpty: "Yozuvlar mavjud emas",
+                    infoFiltered: "(_MAX_ ta yozuv ichidan filtrlandi)",
+                    zeroRecords: "Hech qanday mos yozuv topilmadi",
+                    emptyTable: "Jadvalda ma'lumotlar mavjud emas",
+                    processing: "Yuklanmoqda...",
+                    paginate: {
+                        first: "Birinchi",
+                        last: "Oxirgi",
+                        next: "Keyingi",
+                        previous: "Oldingi"
+                    }
+                }
             });
         });
     </script>
