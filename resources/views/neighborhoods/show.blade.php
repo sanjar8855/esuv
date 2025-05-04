@@ -85,7 +85,7 @@
                     { data: 'actions', name: 'actions', orderable: false, searchable: false }
                 ],
                 order: [[1, 'asc']], // Boshlang'ich saralash
-                pageLength: 20,
+                pageLength: 25,
                 language: { // O'zbekcha tarjima
                     search: "Qidiruv:",
                     lengthMenu: "_MENU_ ta yozuv ko'rsatish",

@@ -78,7 +78,7 @@
                     { data: 'actions', name: 'actions', orderable: false, searchable: false }
                 ],
                 order: [[1, 'asc'], [2, 'asc']], // cities.name, keyin neighborhoods.name bo'yicha
-                pageLength: 20,
+                pageLength: 25,
                 language: { // O'zbekcha tarjima (users jadvalidagi kabi)
                     search: "Qidiruv:",
                     lengthMenu: "_MENU_ ta yozuv ko'rsatish",
