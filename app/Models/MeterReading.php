@@ -4,10 +4,11 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use App\Traits\RecordUserStamps;
 
 class MeterReading extends Model
 {
-    use HasFactory;
+    use HasFactory, RecordUserStamps;
 
     protected $fillable = ['water_meter_id', 'reading', 'reading_date', 'photo_url', 'photo', 'confirmed'];
 

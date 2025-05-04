@@ -8,7 +8,12 @@ class RegionController extends Controller
 {
     public function index()
     {
-        $regions = Region::orderBy('name', 'asc')->get();
+        // 'cities' relation (bog'liqlik) nomini to'g'ri yozganingizga ishonch hosil qiling
+        // Region modelida public function cities() { return $this->hasMany(City::class); } bo'lishi kerak
+        $regions = Region::withCount('cities') // <-- QO'SHILGAN QISM
+        ->orderBy('name', 'asc')
+            ->get(); // Yoki paginate(15) agar sahifalash kerak bo'lsa
+
         return view('regions.index', compact('regions'));
     }
 

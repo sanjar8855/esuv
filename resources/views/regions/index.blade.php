@@ -19,6 +19,7 @@
                                 <tr>
                                     <th>N</th>
                                     <th>Nomi</th>
+                                    <th>Shaharlar soni</th>
                                     <th>Amallar</th>
                                 </tr>
                                 </thead>
@@ -27,6 +28,7 @@
                                     <tr>
                                         <td>{{$loop->index +1}}</td>
                                         <td>{{ $region->name }}</td>
+                                        <td>{{ $region->cities_count }}</td>
                                         <td>
                                             <a href="{{ route('regions.show', $region->id) }}"
                                                class="btn btn-info btn-sm">Batafsil</a>
