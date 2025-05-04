@@ -98,6 +98,7 @@
                 ajax: "{{ route('streets.show', $street->id) }}", // Joriy sahifa route'idan ma'lumot olamiz
                 columns: columns, // Dinamik `columns` massivini ishlatamiz
                 order: [[isAdmin ? 2 : 1, 'asc']], // Boshlang'ich saralash (Uy raqami bo'yicha) - admin bo'lsa indeks o'zgaradi
+                pageLength: 50,
                 language: { // O'zbekcha tarjima
                     search: "Qidiruv:",
                     lengthMenu: "_MENU_ ta yozuv ko'rsatish",

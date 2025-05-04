@@ -46,7 +46,7 @@ class CityController extends Controller
 
         // Shaharlarni sahifalash (pagination)
         // Endi bu so'rov barcha shaharlarni oladi (lekin sahifalab)
-        $cities = $citiesQuery->paginate(15);
+        $cities = $citiesQuery->paginate(20);
 
         // Har bir shahar uchun mijozlar sonini hisoblash (joriy sahifa uchun)
         // Bu qism avvalgidek qoladi, chunki u mantiqan to'g'ri ishlaydi

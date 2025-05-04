@@ -7,7 +7,14 @@
                 <div class="col-12">
                     <h1>{{ $city->name }} shahardagi mahallalar</h1>
                     <a href="{{ route('cities.index') }}" class="btn btn-secondary">Ortga</a>
-
+                    @hasrole('admin')
+                    <a href="{{ route('cities.edit', $city->id) }}" class="btn btn-warning btn-sm">Tahrirlash</a>
+                    <form action="{{ route('cities.destroy', $city->id) }}" method="POST"
+                          style="display:inline;">
+                        @csrf @method('DELETE')
+                        <button type="submit" class="btn btn-danger btn-sm">O‘chirish</button>
+                    </form>
+                    @endhasrole
                     <table class="table table-bordered mt-3">
                         <thead>
                         <tr>
@@ -31,6 +38,14 @@
                                 <td>{{ $neighborhood->customer_count }}</td>
                                 <td>
                                     <a href="{{ route('neighborhoods.show', $neighborhood->id) }}" class="btn btn-info btn-sm">Ko‘rish</a>
+                                    @hasrole('admin')
+                                    <a href="{{ route('neighborhoods.edit', $neighborhood->id) }}" class="btn btn-warning btn-sm">Tahrirlash</a>
+                                    <form action="{{ route('neighborhoods.destroy', $neighborhood->id) }}" method="POST"
+                                          style="display:inline;">
+                                        @csrf @method('DELETE')
+                                        <button type="submit" class="btn btn-danger btn-sm">O‘chirish</button>
+                                    </form>
+                                    @endhasrole
                                 </td>
                             </tr>
                         @endforeach

@@ -36,8 +36,8 @@
                                 <td>
                                     <a href="{{ route('cities.show', $city->id) }}"
                                        class="btn btn-info btn-sm">Ko‘rish</a>
-                                    <a href="{{ route('cities.edit', $city->id) }}" class="btn btn-warning btn-sm">Tahrirlash</a>
                                     @hasrole('admin')
+                                    <a href="{{ route('cities.edit', $city->id) }}" class="btn btn-warning btn-sm">Tahrirlash</a>
                                     <form action="{{ route('cities.destroy', $city->id) }}" method="POST"
                                           style="display:inline;">
                                         @csrf @method('DELETE')

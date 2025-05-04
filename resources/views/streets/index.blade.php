@@ -76,6 +76,7 @@
                 ],
                 // Boshlang'ich saralash: Mahalla, keyin Ko'cha
                 order: [[1, 'asc'], [2, 'asc']],
+                pageLength: 50,
                 language: { // O'zbekcha tarjima (users jadvalidagi kabi)
                     search: "Qidiruv:",
                     lengthMenu: "_MENU_ ta yozuv ko'rsatish",

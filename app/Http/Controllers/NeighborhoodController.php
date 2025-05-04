@@ -109,9 +109,9 @@ class NeighborhoodController extends Controller
                     $currentUser = Auth::user();
 
                     $buttons = '<a href="'.$showUrl.'" class="btn btn-info btn-sm">Ko‘rish</a> ';
-                    $buttons .= '<a href="'.$editUrl.'" class="btn btn-warning btn-sm">Tahrirlash</a> ';
 
                     if ($currentUser->hasRole('admin')) {
+                        $buttons .= '<a href="'.$editUrl.'" class="btn btn-warning btn-sm">Tahrirlash</a> ';
                         $buttons .= '<form action="'.$deleteUrl.'" method="POST" style="display:inline;" onsubmit="return confirm(\'Haqiqatan ham o‘chirmoqchimisiz?\');">';
                         $buttons .= $csrf . $method;
                         $buttons .= '<button type="submit" class="btn btn-danger btn-sm">O‘chirish</button>';

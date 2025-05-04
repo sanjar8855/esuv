@@ -30,9 +30,9 @@
                                         <td>
                                             <a href="{{ route('regions.show', $region->id) }}"
                                                class="btn btn-info btn-sm">Batafsil</a>
+                                            @hasrole('admin')
                                             <a href="{{ route('regions.edit', $region->id) }}"
                                                class="btn btn-warning btn-sm">Tahrirlash</a>
-                                            @hasrole('admin')
                                             <form action="{{ route('regions.destroy', $region->id) }}" method="POST"
                                                   style="display:inline;">
                                                 @csrf @method('DELETE')
