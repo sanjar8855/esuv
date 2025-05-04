@@ -244,7 +244,24 @@ class StreetController extends Controller
                     }
                     return '—'; // Agar ko'rsatkich yo'q bo'lsa
                 })
-                ->rawColumns(['company', 'name', 'meter', 'balance']) // HTML ishlatilgan ustunlar
+                ->addColumn('actions', function(Customer $customer) {
+                    $showUrl = route('customers.show', $customer->id);
+                    $editUrl = route('customers.edit', $customer->id);
+                    $deleteUrl = route('customers.destroy', $customer->id);
+                    $csrf = csrf_field();
+                    $method = method_field('DELETE');
+                    $currentUser = Auth::user();
+                    $buttons = '<a href="' . $showUrl . '" class="btn btn-info btn-sm">Ko‘rish</a> ';
+                    if ($currentUser->hasRole('admin')) {
+                        $buttons .= '<a href="' . $editUrl . '" class="btn btn-warning btn-sm">Tahrirlash</a> ';
+                        $buttons .= '<form action="' . $deleteUrl . '" method="POST" style="display:inline;" onsubmit="return confirm(\'Haqiqatan ham o‘chirmoqchimisiz?\');">';
+                        $buttons .= $csrf . $method;
+                        $buttons .= '<button type="submit" class="btn btn-danger btn-sm">O‘chirish</button>';
+                        $buttons .= '</form>';
+                    }
+                    return $buttons;
+                })
+                ->rawColumns(['company', 'name', 'meter', 'balance','actions']) // HTML ishlatilgan ustunlar
 
                 // Kompaniya nomi bo'yicha saralash uchun callback (MUHIM TUZATISH)
                 ->orderColumn('company.name', function ($query, $order) {

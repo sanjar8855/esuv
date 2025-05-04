@@ -209,7 +209,21 @@ class NeighborhoodController extends Controller
                 })
                 ->addColumn('actions', function(Street $street) {
                     $showUrl = route('streets.show', $street->id);
-                    return '<a href="'.$showUrl.'" class="btn btn-info btn-sm">Ko‘rish</a>';
+                    $editUrl = route('streets.edit', $street->id);
+                    $deleteUrl = route('streets.destroy', $street->id);
+                    $csrf = csrf_field();
+                    $method = method_field('DELETE');
+                    $currentUser = Auth::user();
+
+                    $buttons = '<a href="' . $showUrl . '" class="btn btn-info btn-sm">Ko‘rish</a> ';
+                    if ($currentUser->hasRole('admin')) {
+                        $buttons .= '<a href="' . $editUrl . '" class="btn btn-warning btn-sm">Tahrirlash</a> ';
+                        $buttons .= '<form action="' . $deleteUrl . '" method="POST" style="display:inline;" onsubmit="return confirm(\'Haqiqatan ham o‘chirmoqchimisiz?\');">';
+                        $buttons .= $csrf . $method;
+                        $buttons .= '<button type="submit" class="btn btn-danger btn-sm">O‘chirish</button>';
+                        $buttons .= '</form>';
+                    }
+                    return $buttons;
                 })
                 ->rawColumns(['name', 'actions', 'total_debt'])
 

@@ -49,6 +49,7 @@
                                     <th>Hisoblagich</th>
                                     <th>Qarzdorlik</th>
                                     <th>Oxirgi ko'rsatkich</th>
+                                    <th>Amallar</th>
                                 </tr>
                                 </thead>
                                 <tbody>
@@ -84,7 +85,8 @@
                 { data: 'phone', name: 'phone' },
                 { data: 'meter', name: 'waterMeter.meter_number', orderable: false, searchable: false }, // Controllerda formatlanadi
                 { data: 'balance', name: 'balance', searchable: false }, // Controllerda formatlanadi, 'balance' accessorini taxmin qilamiz
-                { data: 'last_reading', name: 'last_reading', orderable: false, searchable: false } // Controllerda formatlanadi
+                { data: 'last_reading', name: 'last_reading', orderable: false, searchable: false }, // Controllerda formatlanadi
+                { data: 'actions', name: 'actions', orderable: false, searchable: false }
             ];
 
             // Agar admin bo'lsa, Kompaniya ustunini boshiga qo'shamiz (ID dan keyin)
