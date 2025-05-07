@@ -45,7 +45,7 @@ class CustomerController extends Controller
                 'street',  // Ko'cha nomi uchun kerak
                 'waterMeter' // Hisoblagich va ko'rsatkich uchun kerak
             ])->select('customers.*') // DT bilan ishlaganda select() kerak bo'lishi mumkin
-            ->where('is_active', 1);
+            ->where('customers.is_active', 1);
 
             // **📌 Admin bo‘lmasa, faqat o‘z kompaniyasidagi mijozlarni olish**
             if (!$user->hasRole('admin') && $user->company) {
@@ -145,7 +145,7 @@ class CustomerController extends Controller
 
         // ----- Oddiy GET so'rov uchun (sahifa birinchi ochilganda) -----
         // Jami mijozlar sonini olish (boshlang'ich holat uchun)
-        $customersQueryForCount = Customer::query()->where('is_active', 1);
+        $customersQueryForCount = Customer::query()->where('customers.is_active', 1);
         if (!$user->hasRole('admin') && $user->company) {
             $customersQueryForCount->where('company_id', $user->company_id);
         }

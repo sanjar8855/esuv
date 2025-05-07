@@ -8,16 +8,16 @@
     "packages": [
         {
             "name": "brick/math",
-            "version": "0.12.1",
+            "version": "0.12.3",
             "source": {
                 "type": "git",
                 "url": "https://github.com/brick/math.git",
-                "reference": "f510c0a40911935b77b86859eb5223d58d660df1"
+                "reference": "866551da34e9a618e64a819ee1e01c20d8a588ba"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/brick/math/zipball/f510c0a40911935b77b86859eb5223d58d660df1",
-                "reference": "f510c0a40911935b77b86859eb5223d58d660df1",
+                "url": "https://api.github.com/repos/brick/math/zipball/866551da34e9a618e64a819ee1e01c20d8a588ba",
+                "reference": "866551da34e9a618e64a819ee1e01c20d8a588ba",
                 "shasum": ""
             },
             "require": {
@@ -26,7 +26,7 @@
             "require-dev": {
                 "php-coveralls/php-coveralls": "^2.2",
                 "phpunit/phpunit": "^10.1",
-                "vimeo/psalm": "5.16.0"
+                "vimeo/psalm": "6.8.8"
             },
             "type": "library",
             "autoload": {
@@ -56,7 +56,7 @@
             ],
             "support": {
                 "issues": "https://github.com/brick/math/issues",
-                "source": "https://github.com/brick/math/tree/0.12.1"
+                "source": "https://github.com/brick/math/tree/0.12.3"
             },
             "funding": [
                 {
@@ -64,7 +64,7 @@
                     "type": "github"
                 }
             ],
-            "time": "2023-11-29T23:19:16+00:00"
+            "time": "2025-02-28T13:11:00+00:00"
         },
         {
             "name": "carbonphp/carbon-doctrine-types",
@@ -445,16 +445,16 @@
         },
         {
             "name": "egulias/email-validator",
-            "version": "4.0.3",
+            "version": "4.0.4",
             "source": {
                 "type": "git",
                 "url": "https://github.com/egulias/EmailValidator.git",
-                "reference": "b115554301161fa21467629f1e1391c1936de517"
+                "reference": "d42c8731f0624ad6bdc8d3e5e9a4524f68801cfa"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/egulias/EmailValidator/zipball/b115554301161fa21467629f1e1391c1936de517",
-                "reference": "b115554301161fa21467629f1e1391c1936de517",
+                "url": "https://api.github.com/repos/egulias/EmailValidator/zipball/d42c8731f0624ad6bdc8d3e5e9a4524f68801cfa",
+                "reference": "d42c8731f0624ad6bdc8d3e5e9a4524f68801cfa",
                 "shasum": ""
             },
             "require": {
@@ -500,7 +500,7 @@
             ],
             "support": {
                 "issues": "https://github.com/egulias/EmailValidator/issues",
-                "source": "https://github.com/egulias/EmailValidator/tree/4.0.3"
+                "source": "https://github.com/egulias/EmailValidator/tree/4.0.4"
             },
             "funding": [
                 {
@@ -508,7 +508,7 @@
                     "type": "github"
                 }
             ],
-            "time": "2024-12-27T00:36:43+00:00"
+            "time": "2025-03-06T22:45:56+00:00"
         },
         {
             "name": "fruitcake/php-cors",
@@ -645,16 +645,16 @@
         },
         {
             "name": "guzzlehttp/guzzle",
-            "version": "7.9.2",
+            "version": "7.9.3",
             "source": {
                 "type": "git",
                 "url": "https://github.com/guzzle/guzzle.git",
-                "reference": "d281ed313b989f213357e3be1a179f02196ac99b"
+                "reference": "7b2f29fe81dc4da0ca0ea7d42107a0845946ea77"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/guzzle/guzzle/zipball/d281ed313b989f213357e3be1a179f02196ac99b",
-                "reference": "d281ed313b989f213357e3be1a179f02196ac99b",
+                "url": "https://api.github.com/repos/guzzle/guzzle/zipball/7b2f29fe81dc4da0ca0ea7d42107a0845946ea77",
+                "reference": "7b2f29fe81dc4da0ca0ea7d42107a0845946ea77",
                 "shasum": ""
             },
             "require": {
@@ -751,7 +751,7 @@
             ],
             "support": {
                 "issues": "https://github.com/guzzle/guzzle/issues",
-                "source": "https://github.com/guzzle/guzzle/tree/7.9.2"
+                "source": "https://github.com/guzzle/guzzle/tree/7.9.3"
             },
             "funding": [
                 {
@@ -767,20 +767,20 @@
                     "type": "tidelift"
                 }
             ],
-            "time": "2024-07-24T11:22:20+00:00"
+            "time": "2025-03-27T13:37:11+00:00"
         },
         {
             "name": "guzzlehttp/promises",
-            "version": "2.0.4",
+            "version": "2.2.0",
             "source": {
                 "type": "git",
                 "url": "https://github.com/guzzle/promises.git",
-                "reference": "f9c436286ab2892c7db7be8c8da4ef61ccf7b455"
+                "reference": "7c69f28996b0a6920945dd20b3857e499d9ca96c"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/guzzle/promises/zipball/f9c436286ab2892c7db7be8c8da4ef61ccf7b455",
-                "reference": "f9c436286ab2892c7db7be8c8da4ef61ccf7b455",
+                "url": "https://api.github.com/repos/guzzle/promises/zipball/7c69f28996b0a6920945dd20b3857e499d9ca96c",
+                "reference": "7c69f28996b0a6920945dd20b3857e499d9ca96c",
                 "shasum": ""
             },
             "require": {
@@ -834,7 +834,7 @@
             ],
             "support": {
                 "issues": "https://github.com/guzzle/promises/issues",
-                "source": "https://github.com/guzzle/promises/tree/2.0.4"
+                "source": "https://github.com/guzzle/promises/tree/2.2.0"
             },
             "funding": [
                 {
@@ -850,20 +850,20 @@
                     "type": "tidelift"
                 }
             ],
-            "time": "2024-10-17T10:06:22+00:00"
+            "time": "2025-03-27T13:27:01+00:00"
         },
         {
             "name": "guzzlehttp/psr7",
-            "version": "2.7.0",
+            "version": "2.7.1",
             "source": {
                 "type": "git",
                 "url": "https://github.com/guzzle/psr7.git",
-                "reference": "a70f5c95fb43bc83f07c9c948baa0dc1829bf201"
+                "reference": "c2270caaabe631b3b44c85f99e5a04bbb8060d16"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/guzzle/psr7/zipball/a70f5c95fb43bc83f07c9c948baa0dc1829bf201",
-                "reference": "a70f5c95fb43bc83f07c9c948baa0dc1829bf201",
+                "url": "https://api.github.com/repos/guzzle/psr7/zipball/c2270caaabe631b3b44c85f99e5a04bbb8060d16",
+                "reference": "c2270caaabe631b3b44c85f99e5a04bbb8060d16",
                 "shasum": ""
             },
             "require": {
@@ -950,7 +950,7 @@
             ],
             "support": {
                 "issues": "https://github.com/guzzle/psr7/issues",
-                "source": "https://github.com/guzzle/psr7/tree/2.7.0"
+                "source": "https://github.com/guzzle/psr7/tree/2.7.1"
             },
             "funding": [
                 {
@@ -966,7 +966,7 @@
                     "type": "tidelift"
                 }
             ],
-            "time": "2024-07-18T11:15:46+00:00"
+            "time": "2025-03-27T12:30:47+00:00"
         },
         {
             "name": "guzzlehttp/uri-template",
@@ -1056,23 +1056,23 @@
         },
         {
             "name": "irazasyed/telegram-bot-sdk",
-            "version": "v3.14.0",
+            "version": "v3.15.0",
             "source": {
                 "type": "git",
                 "url": "https://github.com/irazasyed/telegram-bot-sdk.git",
-                "reference": "c72ef585556578105c4d5cc56324575ef3677fd2"
+                "reference": "07146018d173dedfd520fb8f18a50f31e27b1e60"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/irazasyed/telegram-bot-sdk/zipball/c72ef585556578105c4d5cc56324575ef3677fd2",
-                "reference": "c72ef585556578105c4d5cc56324575ef3677fd2",
+                "url": "https://api.github.com/repos/irazasyed/telegram-bot-sdk/zipball/07146018d173dedfd520fb8f18a50f31e27b1e60",
+                "reference": "07146018d173dedfd520fb8f18a50f31e27b1e60",
                 "shasum": ""
             },
             "require": {
                 "ext-json": "*",
                 "guzzlehttp/guzzle": "^7.5.1",
                 "guzzlehttp/psr7": "^2.5",
-                "illuminate/support": "9 - 11",
+                "illuminate/support": "9 - 12",
                 "league/event": "^2.2 || ^3.0",
                 "php": ">=8.0",
                 "psr/container": "^1.1 || ^2.0",
@@ -1080,11 +1080,11 @@
             },
             "require-dev": {
                 "irazasyed/docgen": "^0.2",
-                "pestphp/pest": "^1.22 || ^2.0",
+                "pestphp/pest": "^1.22 || ^2.0 || ^3.0",
                 "php-parallel-lint/php-parallel-lint": "^1.3",
                 "phpspec/prophecy": "^1.17",
                 "phpspec/prophecy-phpunit": "^2.0",
-                "rector/rector": "^0.16.0 || ^0.17.0 || ^0.18.0 || ^0.19.0 || ^1.0.0"
+                "rector/rector": "^0.16.0 || ^0.17.0 || ^0.18.0 || ^0.19.0 || ^1.0.0 || ^2.0.0"
             },
             "suggest": {
                 "illuminate/container": "Hold dependencies to be injected in commands constructors",
@@ -1133,22 +1133,22 @@
             ],
             "support": {
                 "issues": "https://github.com/irazasyed/telegram-bot-sdk/issues",
-                "source": "https://github.com/irazasyed/telegram-bot-sdk/tree/v3.14.0"
+                "source": "https://github.com/irazasyed/telegram-bot-sdk/tree/v3.15.0"
             },
-            "time": "2024-03-11T03:11:26+00:00"
+            "time": "2025-02-18T19:03:24+00:00"
         },
         {
             "name": "laravel/framework",
-            "version": "v10.48.28",
+            "version": "v10.48.29",
             "source": {
                 "type": "git",
                 "url": "https://github.com/laravel/framework.git",
-                "reference": "e714e7e0c1ae51bf747e3df5b10fa60c54e3e0e1"
+                "reference": "8f7f9247cb8aad1a769d6b9815a6623d89b46b47"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/laravel/framework/zipball/e714e7e0c1ae51bf747e3df5b10fa60c54e3e0e1",
-                "reference": "e714e7e0c1ae51bf747e3df5b10fa60c54e3e0e1",
+                "url": "https://api.github.com/repos/laravel/framework/zipball/8f7f9247cb8aad1a769d6b9815a6623d89b46b47",
+                "reference": "8f7f9247cb8aad1a769d6b9815a6623d89b46b47",
                 "shasum": ""
             },
             "require": {
@@ -1342,7 +1342,7 @@
                 "issues": "https://github.com/laravel/framework/issues",
                 "source": "https://github.com/laravel/framework"
             },
-            "time": "2025-01-31T10:04:17+00:00"
+            "time": "2025-03-12T14:42:01+00:00"
         },
         {
             "name": "laravel/prompts",
@@ -1531,16 +1531,16 @@
         },
         {
             "name": "laravel/telescope",
-            "version": "v5.5.0",
+            "version": "v5.7.0",
             "source": {
                 "type": "git",
                 "url": "https://github.com/laravel/telescope.git",
-                "reference": "2594b20b946155ba767002d8af971e33e1095637"
+                "reference": "440908cb856cfbef9323244f7978ad4bf8cd2daa"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/laravel/telescope/zipball/2594b20b946155ba767002d8af971e33e1095637",
-                "reference": "2594b20b946155ba767002d8af971e33e1095637",
+                "url": "https://api.github.com/repos/laravel/telescope/zipball/440908cb856cfbef9323244f7978ad4bf8cd2daa",
+                "reference": "440908cb856cfbef9323244f7978ad4bf8cd2daa",
                 "shasum": ""
             },
             "require": {
@@ -1594,22 +1594,22 @@
             ],
             "support": {
                 "issues": "https://github.com/laravel/telescope/issues",
-                "source": "https://github.com/laravel/telescope/tree/v5.5.0"
+                "source": "https://github.com/laravel/telescope/tree/v5.7.0"
             },
-            "time": "2025-02-11T15:01:27+00:00"
+            "time": "2025-03-27T17:25:52+00:00"
         },
         {
             "name": "league/commonmark",
-            "version": "2.6.1",
+            "version": "2.7.0",
             "source": {
                 "type": "git",
                 "url": "https://github.com/thephpleague/commonmark.git",
-                "reference": "d990688c91cedfb69753ffc2512727ec646df2ad"
+                "reference": "6fbb36d44824ed4091adbcf4c7d4a3923cdb3405"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/thephpleague/commonmark/zipball/d990688c91cedfb69753ffc2512727ec646df2ad",
-                "reference": "d990688c91cedfb69753ffc2512727ec646df2ad",
+                "url": "https://api.github.com/repos/thephpleague/commonmark/zipball/6fbb36d44824ed4091adbcf4c7d4a3923cdb3405",
+                "reference": "6fbb36d44824ed4091adbcf4c7d4a3923cdb3405",
                 "shasum": ""
             },
             "require": {
@@ -1646,7 +1646,7 @@
             "type": "library",
             "extra": {
                 "branch-alias": {
-                    "dev-main": "2.7-dev"
+                    "dev-main": "2.8-dev"
                 }
             },
             "autoload": {
@@ -1703,7 +1703,7 @@
                     "type": "tidelift"
                 }
             ],
-            "time": "2024-12-29T14:10:59+00:00"
+            "time": "2025-05-05T12:20:28+00:00"
         },
         {
             "name": "league/config",
@@ -2036,16 +2036,16 @@
         },
         {
             "name": "monolog/monolog",
-            "version": "3.8.1",
+            "version": "3.9.0",
             "source": {
                 "type": "git",
                 "url": "https://github.com/Seldaek/monolog.git",
-                "reference": "aef6ee73a77a66e404dd6540934a9ef1b3c855b4"
+                "reference": "10d85740180ecba7896c87e06a166e0c95a0e3b6"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/Seldaek/monolog/zipball/aef6ee73a77a66e404dd6540934a9ef1b3c855b4",
-                "reference": "aef6ee73a77a66e404dd6540934a9ef1b3c855b4",
+                "url": "https://api.github.com/repos/Seldaek/monolog/zipball/10d85740180ecba7896c87e06a166e0c95a0e3b6",
+                "reference": "10d85740180ecba7896c87e06a166e0c95a0e3b6",
                 "shasum": ""
             },
             "require": {
@@ -2123,7 +2123,7 @@
             ],
             "support": {
                 "issues": "https://github.com/Seldaek/monolog/issues",
-                "source": "https://github.com/Seldaek/monolog/tree/3.8.1"
+                "source": "https://github.com/Seldaek/monolog/tree/3.9.0"
             },
             "funding": [
                 {
@@ -2135,7 +2135,7 @@
                     "type": "tidelift"
                 }
             ],
-            "time": "2024-12-05T17:15:07+00:00"
+            "time": "2025-03-24T10:02:05+00:00"
         },
         {
             "name": "nesbot/carbon",
@@ -2308,16 +2308,16 @@
         },
         {
             "name": "nette/utils",
-            "version": "v4.0.5",
+            "version": "v4.0.6",
             "source": {
                 "type": "git",
                 "url": "https://github.com/nette/utils.git",
-                "reference": "736c567e257dbe0fcf6ce81b4d6dbe05c6899f96"
+                "reference": "ce708655043c7050eb050df361c5e313cf708309"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/nette/utils/zipball/736c567e257dbe0fcf6ce81b4d6dbe05c6899f96",
-                "reference": "736c567e257dbe0fcf6ce81b4d6dbe05c6899f96",
+                "url": "https://api.github.com/repos/nette/utils/zipball/ce708655043c7050eb050df361c5e313cf708309",
+                "reference": "ce708655043c7050eb050df361c5e313cf708309",
                 "shasum": ""
             },
             "require": {
@@ -2388,9 +2388,9 @@
             ],
             "support": {
                 "issues": "https://github.com/nette/utils/issues",
-                "source": "https://github.com/nette/utils/tree/v4.0.5"
+                "source": "https://github.com/nette/utils/tree/v4.0.6"
             },
-            "time": "2024-08-07T15:39:19+00:00"
+            "time": "2025-03-30T21:06:30+00:00"
         },
         {
             "name": "nunomaduro/termwind",
@@ -3010,16 +3010,16 @@
         },
         {
             "name": "ramsey/collection",
-            "version": "2.0.0",
+            "version": "2.1.1",
             "source": {
                 "type": "git",
                 "url": "https://github.com/ramsey/collection.git",
-                "reference": "a4b48764bfbb8f3a6a4d1aeb1a35bb5e9ecac4a5"
+                "reference": "344572933ad0181accbf4ba763e85a0306a8c5e2"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/ramsey/collection/zipball/a4b48764bfbb8f3a6a4d1aeb1a35bb5e9ecac4a5",
-                "reference": "a4b48764bfbb8f3a6a4d1aeb1a35bb5e9ecac4a5",
+                "url": "https://api.github.com/repos/ramsey/collection/zipball/344572933ad0181accbf4ba763e85a0306a8c5e2",
+                "reference": "344572933ad0181accbf4ba763e85a0306a8c5e2",
                 "shasum": ""
             },
             "require": {
@@ -3027,25 +3027,22 @@
             },
             "require-dev": {
                 "captainhook/plugin-composer": "^5.3",
-                "ergebnis/composer-normalize": "^2.28.3",
-                "fakerphp/faker": "^1.21",
+                "ergebnis/composer-normalize": "^2.45",
+                "fakerphp/faker": "^1.24",
                 "hamcrest/hamcrest-php": "^2.0",
-                "jangregor/phpstan-prophecy": "^1.0",
-                "mockery/mockery": "^1.5",
+                "jangregor/phpstan-prophecy": "^2.1",
+                "mockery/mockery": "^1.6",
                 "php-parallel-lint/php-console-highlighter": "^1.0",
-                "php-parallel-lint/php-parallel-lint": "^1.3",
-                "phpcsstandards/phpcsutils": "^1.0.0-rc1",
-                "phpspec/prophecy-phpunit": "^2.0",
-                "phpstan/extension-installer": "^1.2",
-                "phpstan/phpstan": "^1.9",
-                "phpstan/phpstan-mockery": "^1.1",
-                "phpstan/phpstan-phpunit": "^1.3",
-                "phpunit/phpunit": "^9.5",
-                "psalm/plugin-mockery": "^1.1",
-                "psalm/plugin-phpunit": "^0.18.4",
-                "ramsey/coding-standard": "^2.0.3",
-                "ramsey/conventional-commits": "^1.3",
-                "vimeo/psalm": "^5.4"
+                "php-parallel-lint/php-parallel-lint": "^1.4",
+                "phpspec/prophecy-phpunit": "^2.3",
+                "phpstan/extension-installer": "^1.4",
+                "phpstan/phpstan": "^2.1",
+                "phpstan/phpstan-mockery": "^2.0",
+                "phpstan/phpstan-phpunit": "^2.0",
+                "phpunit/phpunit": "^10.5",
+                "ramsey/coding-standard": "^2.3",
+                "ramsey/conventional-commits": "^1.6",
+                "roave/security-advisories": "dev-latest"
             },
             "type": "library",
             "extra": {
@@ -3083,19 +3080,9 @@
             ],
             "support": {
                 "issues": "https://github.com/ramsey/collection/issues",
-                "source": "https://github.com/ramsey/collection/tree/2.0.0"
+                "source": "https://github.com/ramsey/collection/tree/2.1.1"
             },
-            "funding": [
-                {
-                    "url": "https://github.com/ramsey",
-                    "type": "github"
-                },
-                {
-                    "url": "https://tidelift.com/funding/github/packagist/ramsey/collection",
-                    "type": "tidelift"
-                }
-            ],
-            "time": "2022-12-31T21:50:55+00:00"
+            "time": "2025-03-22T05:38:12+00:00"
         },
         {
             "name": "ramsey/uuid",
@@ -3191,16 +3178,16 @@
         },
         {
             "name": "spatie/laravel-permission",
-            "version": "6.15.0",
+            "version": "6.17.0",
             "source": {
                 "type": "git",
                 "url": "https://github.com/spatie/laravel-permission.git",
-                "reference": "86074fcfd127f9fa7bcdf550b7c938e3beb0d65f"
+                "reference": "02ada8f638b643713fa2fb543384738e27346ddb"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/spatie/laravel-permission/zipball/86074fcfd127f9fa7bcdf550b7c938e3beb0d65f",
-                "reference": "86074fcfd127f9fa7bcdf550b7c938e3beb0d65f",
+                "url": "https://api.github.com/repos/spatie/laravel-permission/zipball/02ada8f638b643713fa2fb543384738e27346ddb",
+                "reference": "02ada8f638b643713fa2fb543384738e27346ddb",
                 "shasum": ""
             },
             "require": {
@@ -3262,7 +3249,7 @@
             ],
             "support": {
                 "issues": "https://github.com/spatie/laravel-permission/issues",
-                "source": "https://github.com/spatie/laravel-permission/tree/6.15.0"
+                "source": "https://github.com/spatie/laravel-permission/tree/6.17.0"
             },
             "funding": [
                 {
@@ -3270,20 +3257,20 @@
                     "type": "github"
                 }
             ],
-            "time": "2025-02-17T19:18:01+00:00"
+            "time": "2025-04-08T15:06:14+00:00"
         },
         {
             "name": "symfony/console",
-            "version": "v6.4.17",
+            "version": "v6.4.21",
             "source": {
                 "type": "git",
                 "url": "https://github.com/symfony/console.git",
-                "reference": "799445db3f15768ecc382ac5699e6da0520a0a04"
+                "reference": "a3011c7b7adb58d89f6c0d822abb641d7a5f9719"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/symfony/console/zipball/799445db3f15768ecc382ac5699e6da0520a0a04",
-                "reference": "799445db3f15768ecc382ac5699e6da0520a0a04",
+                "url": "https://api.github.com/repos/symfony/console/zipball/a3011c7b7adb58d89f6c0d822abb641d7a5f9719",
+                "reference": "a3011c7b7adb58d89f6c0d822abb641d7a5f9719",
                 "shasum": ""
             },
             "require": {
@@ -3348,7 +3335,7 @@
                 "terminal"
             ],
             "support": {
-                "source": "https://github.com/symfony/console/tree/v6.4.17"
+                "source": "https://github.com/symfony/console/tree/v6.4.21"
             },
             "funding": [
                 {
@@ -3364,7 +3351,7 @@
                     "type": "tidelift"
                 }
             ],
-            "time": "2024-12-07T12:07:30+00:00"
+            "time": "2025-04-07T15:42:41+00:00"
         },
         {
             "name": "symfony/css-selector",
@@ -3500,16 +3487,16 @@
         },
         {
             "name": "symfony/error-handler",
-            "version": "v6.4.18",
+            "version": "v6.4.20",
             "source": {
                 "type": "git",
                 "url": "https://github.com/symfony/error-handler.git",
-                "reference": "e8d3b5b1975e67812a54388b1ba8e9ec28eb770e"
+                "reference": "aa3bcf4f7674719df078e61cc8062e5b7f752031"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/symfony/error-handler/zipball/e8d3b5b1975e67812a54388b1ba8e9ec28eb770e",
-                "reference": "e8d3b5b1975e67812a54388b1ba8e9ec28eb770e",
+                "url": "https://api.github.com/repos/symfony/error-handler/zipball/aa3bcf4f7674719df078e61cc8062e5b7f752031",
+                "reference": "aa3bcf4f7674719df078e61cc8062e5b7f752031",
                 "shasum": ""
             },
             "require": {
@@ -3555,7 +3542,7 @@
             "description": "Provides tools to manage errors and ease debugging PHP code",
             "homepage": "https://symfony.com",
             "support": {
-                "source": "https://github.com/symfony/error-handler/tree/v6.4.18"
+                "source": "https://github.com/symfony/error-handler/tree/v6.4.20"
             },
             "funding": [
                 {
@@ -3571,7 +3558,7 @@
                     "type": "tidelift"
                 }
             ],
-            "time": "2025-01-06T09:38:16+00:00"
+            "time": "2025-03-01T13:00:38+00:00"
         },
         {
             "name": "symfony/event-dispatcher",
@@ -3795,16 +3782,16 @@
         },
         {
             "name": "symfony/http-foundation",
-            "version": "v6.4.18",
+            "version": "v6.4.21",
             "source": {
                 "type": "git",
                 "url": "https://github.com/symfony/http-foundation.git",
-                "reference": "d0492d6217e5ab48f51fca76f64cf8e78919d0db"
+                "reference": "3f0c7ea41db479383b81d436b836d37168fd5b99"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/symfony/http-foundation/zipball/d0492d6217e5ab48f51fca76f64cf8e78919d0db",
-                "reference": "d0492d6217e5ab48f51fca76f64cf8e78919d0db",
+                "url": "https://api.github.com/repos/symfony/http-foundation/zipball/3f0c7ea41db479383b81d436b836d37168fd5b99",
+                "reference": "3f0c7ea41db479383b81d436b836d37168fd5b99",
                 "shasum": ""
             },
             "require": {
@@ -3852,7 +3839,7 @@
             "description": "Defines an object-oriented layer for the HTTP specification",
             "homepage": "https://symfony.com",
             "support": {
-                "source": "https://github.com/symfony/http-foundation/tree/v6.4.18"
+                "source": "https://github.com/symfony/http-foundation/tree/v6.4.21"
             },
             "funding": [
                 {
@@ -3868,20 +3855,20 @@
                     "type": "tidelift"
                 }
             ],
-            "time": "2025-01-09T15:48:56+00:00"
+            "time": "2025-04-27T13:27:38+00:00"
         },
         {
             "name": "symfony/http-kernel",
-            "version": "v6.4.18",
+            "version": "v6.4.21",
             "source": {
                 "type": "git",
                 "url": "https://github.com/symfony/http-kernel.git",
-                "reference": "fca7197bfe9e99dfae7fb1ad3f7f5bd9ef80e1b7"
+                "reference": "983ca05eec6623920d24ec0f1005f487d3734a0c"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/symfony/http-kernel/zipball/fca7197bfe9e99dfae7fb1ad3f7f5bd9ef80e1b7",
-                "reference": "fca7197bfe9e99dfae7fb1ad3f7f5bd9ef80e1b7",
+                "url": "https://api.github.com/repos/symfony/http-kernel/zipball/983ca05eec6623920d24ec0f1005f487d3734a0c",
+                "reference": "983ca05eec6623920d24ec0f1005f487d3734a0c",
                 "shasum": ""
             },
             "require": {
@@ -3966,7 +3953,7 @@
             "description": "Provides a structured process for converting a Request into a Response",
             "homepage": "https://symfony.com",
             "support": {
-                "source": "https://github.com/symfony/http-kernel/tree/v6.4.18"
+                "source": "https://github.com/symfony/http-kernel/tree/v6.4.21"
             },
             "funding": [
                 {
@@ -3982,20 +3969,20 @@
                     "type": "tidelift"
                 }
             ],
-            "time": "2025-01-29T07:25:58+00:00"
+            "time": "2025-05-02T08:46:38+00:00"
         },
         {
             "name": "symfony/mailer",
-            "version": "v6.4.18",
+            "version": "v6.4.21",
             "source": {
                 "type": "git",
                 "url": "https://github.com/symfony/mailer.git",
-                "reference": "e93a6ae2767d7f7578c2b7961d9d8e27580b2b11"
+                "reference": "ada2809ccd4ec27aba9fc344e3efdaec624c6438"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/symfony/mailer/zipball/e93a6ae2767d7f7578c2b7961d9d8e27580b2b11",
-                "reference": "e93a6ae2767d7f7578c2b7961d9d8e27580b2b11",
+                "url": "https://api.github.com/repos/symfony/mailer/zipball/ada2809ccd4ec27aba9fc344e3efdaec624c6438",
+                "reference": "ada2809ccd4ec27aba9fc344e3efdaec624c6438",
                 "shasum": ""
             },
             "require": {
@@ -4046,7 +4033,7 @@
             "description": "Helps sending emails",
             "homepage": "https://symfony.com",
             "support": {
-                "source": "https://github.com/symfony/mailer/tree/v6.4.18"
+                "source": "https://github.com/symfony/mailer/tree/v6.4.21"
             },
             "funding": [
                 {
@@ -4062,20 +4049,20 @@
                     "type": "tidelift"
                 }
             ],
-            "time": "2025-01-24T15:27:15+00:00"
+            "time": "2025-04-26T23:47:35+00:00"
         },
         {
             "name": "symfony/mime",
-            "version": "v6.4.18",
+            "version": "v6.4.21",
             "source": {
                 "type": "git",
                 "url": "https://github.com/symfony/mime.git",
-                "reference": "917d77981eb1ea963608d5cda4d9c0cf72eaa68e"
+                "reference": "fec8aa5231f3904754955fad33c2db50594d22d1"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/symfony/mime/zipball/917d77981eb1ea963608d5cda4d9c0cf72eaa68e",
-                "reference": "917d77981eb1ea963608d5cda4d9c0cf72eaa68e",
+                "url": "https://api.github.com/repos/symfony/mime/zipball/fec8aa5231f3904754955fad33c2db50594d22d1",
+                "reference": "fec8aa5231f3904754955fad33c2db50594d22d1",
                 "shasum": ""
             },
             "require": {
@@ -4131,7 +4118,7 @@
                 "mime-type"
             ],
             "support": {
-                "source": "https://github.com/symfony/mime/tree/v6.4.18"
+                "source": "https://github.com/symfony/mime/tree/v6.4.21"
             },
             "funding": [
                 {
@@ -4147,11 +4134,11 @@
                     "type": "tidelift"
                 }
             ],
-            "time": "2025-01-23T13:10:52+00:00"
+            "time": "2025-04-27T13:27:38+00:00"
         },
         {
             "name": "symfony/polyfill-ctype",
-            "version": "v1.31.0",
+            "version": "v1.32.0",
             "source": {
                 "type": "git",
                 "url": "https://github.com/symfony/polyfill-ctype.git",
@@ -4210,7 +4197,7 @@
                 "portable"
             ],
             "support": {
-                "source": "https://github.com/symfony/polyfill-ctype/tree/v1.31.0"
+                "source": "https://github.com/symfony/polyfill-ctype/tree/v1.32.0"
             },
             "funding": [
                 {
@@ -4230,7 +4217,7 @@
         },
         {
             "name": "symfony/polyfill-intl-grapheme",
-            "version": "v1.31.0",
+            "version": "v1.32.0",
             "source": {
                 "type": "git",
                 "url": "https://github.com/symfony/polyfill-intl-grapheme.git",
@@ -4288,7 +4275,7 @@
                 "shim"
             ],
             "support": {
-                "source": "https://github.com/symfony/polyfill-intl-grapheme/tree/v1.31.0"
+                "source": "https://github.com/symfony/polyfill-intl-grapheme/tree/v1.32.0"
             },
             "funding": [
                 {
@@ -4308,16 +4295,16 @@
         },
         {
             "name": "symfony/polyfill-intl-idn",
-            "version": "v1.31.0",
+            "version": "v1.32.0",
             "source": {
                 "type": "git",
                 "url": "https://github.com/symfony/polyfill-intl-idn.git",
-                "reference": "c36586dcf89a12315939e00ec9b4474adcb1d773"
+                "reference": "9614ac4d8061dc257ecc64cba1b140873dce8ad3"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/symfony/polyfill-intl-idn/zipball/c36586dcf89a12315939e00ec9b4474adcb1d773",
-                "reference": "c36586dcf89a12315939e00ec9b4474adcb1d773",
+                "url": "https://api.github.com/repos/symfony/polyfill-intl-idn/zipball/9614ac4d8061dc257ecc64cba1b140873dce8ad3",
+                "reference": "9614ac4d8061dc257ecc64cba1b140873dce8ad3",
                 "shasum": ""
             },
             "require": {
@@ -4371,7 +4358,7 @@
                 "shim"
             ],
             "support": {
-                "source": "https://github.com/symfony/polyfill-intl-idn/tree/v1.31.0"
+                "source": "https://github.com/symfony/polyfill-intl-idn/tree/v1.32.0"
             },
             "funding": [
                 {
@@ -4387,11 +4374,11 @@
                     "type": "tidelift"
                 }
             ],
-            "time": "2024-09-09T11:45:10+00:00"
+            "time": "2024-09-10T14:38:51+00:00"
         },
         {
             "name": "symfony/polyfill-intl-normalizer",
-            "version": "v1.31.0",
+            "version": "v1.32.0",
             "source": {
                 "type": "git",
                 "url": "https://github.com/symfony/polyfill-intl-normalizer.git",
@@ -4452,7 +4439,7 @@
                 "shim"
             ],
             "support": {
-                "source": "https://github.com/symfony/polyfill-intl-normalizer/tree/v1.31.0"
+                "source": "https://github.com/symfony/polyfill-intl-normalizer/tree/v1.32.0"
             },
             "funding": [
                 {
@@ -4472,19 +4459,20 @@
         },
         {
             "name": "symfony/polyfill-mbstring",
-            "version": "v1.31.0",
+            "version": "v1.32.0",
             "source": {
                 "type": "git",
                 "url": "https://github.com/symfony/polyfill-mbstring.git",
-                "reference": "85181ba99b2345b0ef10ce42ecac37612d9fd341"
+                "reference": "6d857f4d76bd4b343eac26d6b539585d2bc56493"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/symfony/polyfill-mbstring/zipball/85181ba99b2345b0ef10ce42ecac37612d9fd341",
-                "reference": "85181ba99b2345b0ef10ce42ecac37612d9fd341",
+                "url": "https://api.github.com/repos/symfony/polyfill-mbstring/zipball/6d857f4d76bd4b343eac26d6b539585d2bc56493",
+                "reference": "6d857f4d76bd4b343eac26d6b539585d2bc56493",
                 "shasum": ""
             },
             "require": {
+                "ext-iconv": "*",
                 "php": ">=7.2"
             },
             "provide": {
@@ -4532,7 +4520,7 @@
                 "shim"
             ],
             "support": {
-                "source": "https://github.com/symfony/polyfill-mbstring/tree/v1.31.0"
+                "source": "https://github.com/symfony/polyfill-mbstring/tree/v1.32.0"
             },
             "funding": [
                 {
@@ -4548,20 +4536,20 @@
                     "type": "tidelift"
                 }
             ],
-            "time": "2024-09-09T11:45:10+00:00"
+            "time": "2024-12-23T08:48:59+00:00"
         },
         {
             "name": "symfony/polyfill-php80",
-            "version": "v1.31.0",
+            "version": "v1.32.0",
             "source": {
                 "type": "git",
                 "url": "https://github.com/symfony/polyfill-php80.git",
-                "reference": "60328e362d4c2c802a54fcbf04f9d3fb892b4cf8"
+                "reference": "0cc9dd0f17f61d8131e7df6b84bd344899fe2608"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/symfony/polyfill-php80/zipball/60328e362d4c2c802a54fcbf04f9d3fb892b4cf8",
-                "reference": "60328e362d4c2c802a54fcbf04f9d3fb892b4cf8",
+                "url": "https://api.github.com/repos/symfony/polyfill-php80/zipball/0cc9dd0f17f61d8131e7df6b84bd344899fe2608",
+                "reference": "0cc9dd0f17f61d8131e7df6b84bd344899fe2608",
                 "shasum": ""
             },
             "require": {
@@ -4612,7 +4600,7 @@
                 "shim"
             ],
             "support": {
-                "source": "https://github.com/symfony/polyfill-php80/tree/v1.31.0"
+                "source": "https://github.com/symfony/polyfill-php80/tree/v1.32.0"
             },
             "funding": [
                 {
@@ -4628,11 +4616,11 @@
                     "type": "tidelift"
                 }
             ],
-            "time": "2024-09-09T11:45:10+00:00"
+            "time": "2025-01-02T08:10:11+00:00"
         },
         {
             "name": "symfony/polyfill-php83",
-            "version": "v1.31.0",
+            "version": "v1.32.0",
             "source": {
                 "type": "git",
                 "url": "https://github.com/symfony/polyfill-php83.git",
@@ -4688,7 +4676,7 @@
                 "shim"
             ],
             "support": {
-                "source": "https://github.com/symfony/polyfill-php83/tree/v1.31.0"
+                "source": "https://github.com/symfony/polyfill-php83/tree/v1.32.0"
             },
             "funding": [
                 {
@@ -4708,7 +4696,7 @@
         },
         {
             "name": "symfony/polyfill-uuid",
-            "version": "v1.31.0",
+            "version": "v1.32.0",
             "source": {
                 "type": "git",
                 "url": "https://github.com/symfony/polyfill-uuid.git",
@@ -4767,7 +4755,7 @@
                 "uuid"
             ],
             "support": {
-                "source": "https://github.com/symfony/polyfill-uuid/tree/v1.31.0"
+                "source": "https://github.com/symfony/polyfill-uuid/tree/v1.32.0"
             },
             "funding": [
                 {
@@ -4787,16 +4775,16 @@
         },
         {
             "name": "symfony/process",
-            "version": "v6.4.15",
+            "version": "v6.4.20",
             "source": {
                 "type": "git",
                 "url": "https://github.com/symfony/process.git",
-                "reference": "3cb242f059c14ae08591c5c4087d1fe443564392"
+                "reference": "e2a61c16af36c9a07e5c9906498b73e091949a20"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/symfony/process/zipball/3cb242f059c14ae08591c5c4087d1fe443564392",
-                "reference": "3cb242f059c14ae08591c5c4087d1fe443564392",
+                "url": "https://api.github.com/repos/symfony/process/zipball/e2a61c16af36c9a07e5c9906498b73e091949a20",
+                "reference": "e2a61c16af36c9a07e5c9906498b73e091949a20",
                 "shasum": ""
             },
             "require": {
@@ -4828,7 +4816,7 @@
             "description": "Executes commands in sub-processes",
             "homepage": "https://symfony.com",
             "support": {
-                "source": "https://github.com/symfony/process/tree/v6.4.15"
+                "source": "https://github.com/symfony/process/tree/v6.4.20"
             },
             "funding": [
                 {
@@ -4844,7 +4832,7 @@
                     "type": "tidelift"
                 }
             ],
-            "time": "2024-11-06T14:19:14+00:00"
+            "time": "2025-03-10T17:11:00+00:00"
         },
         {
             "name": "symfony/routing",
@@ -5014,16 +5002,16 @@
         },
         {
             "name": "symfony/string",
-            "version": "v6.4.15",
+            "version": "v6.4.21",
             "source": {
                 "type": "git",
                 "url": "https://github.com/symfony/string.git",
-                "reference": "73a5e66ea2e1677c98d4449177c5a9cf9d8b4c6f"
+                "reference": "73e2c6966a5aef1d4892873ed5322245295370c6"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/symfony/string/zipball/73a5e66ea2e1677c98d4449177c5a9cf9d8b4c6f",
-                "reference": "73a5e66ea2e1677c98d4449177c5a9cf9d8b4c6f",
+                "url": "https://api.github.com/repos/symfony/string/zipball/73e2c6966a5aef1d4892873ed5322245295370c6",
+                "reference": "73e2c6966a5aef1d4892873ed5322245295370c6",
                 "shasum": ""
             },
             "require": {
@@ -5080,7 +5068,7 @@
                 "utf8"
             ],
             "support": {
-                "source": "https://github.com/symfony/string/tree/v6.4.15"
+                "source": "https://github.com/symfony/string/tree/v6.4.21"
             },
             "funding": [
                 {
@@ -5096,20 +5084,20 @@
                     "type": "tidelift"
                 }
             ],
-            "time": "2024-11-13T13:31:12+00:00"
+            "time": "2025-04-18T15:23:29+00:00"
         },
         {
             "name": "symfony/translation",
-            "version": "v6.4.13",
+            "version": "v6.4.21",
             "source": {
                 "type": "git",
                 "url": "https://github.com/symfony/translation.git",
-                "reference": "bee9bfabfa8b4045a66bf82520e492cddbaffa66"
+                "reference": "bb92ea5588396b319ba43283a5a3087a034cb29c"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/symfony/translation/zipball/bee9bfabfa8b4045a66bf82520e492cddbaffa66",
-                "reference": "bee9bfabfa8b4045a66bf82520e492cddbaffa66",
+                "url": "https://api.github.com/repos/symfony/translation/zipball/bb92ea5588396b319ba43283a5a3087a034cb29c",
+                "reference": "bb92ea5588396b319ba43283a5a3087a034cb29c",
                 "shasum": ""
             },
             "require": {
@@ -5175,7 +5163,7 @@
             "description": "Provides tools to internationalize your application",
             "homepage": "https://symfony.com",
             "support": {
-                "source": "https://github.com/symfony/translation/tree/v6.4.13"
+                "source": "https://github.com/symfony/translation/tree/v6.4.21"
             },
             "funding": [
                 {
@@ -5191,7 +5179,7 @@
                     "type": "tidelift"
                 }
             ],
-            "time": "2024-09-27T18:14:25+00:00"
+            "time": "2025-04-07T19:02:30+00:00"
         },
         {
             "name": "symfony/translation-contracts",
@@ -5347,16 +5335,16 @@
         },
         {
             "name": "symfony/var-dumper",
-            "version": "v6.4.18",
+            "version": "v6.4.21",
             "source": {
                 "type": "git",
                 "url": "https://github.com/symfony/var-dumper.git",
-                "reference": "4ad10cf8b020e77ba665305bb7804389884b4837"
+                "reference": "22560f80c0c5cd58cc0bcaf73455ffd81eb380d5"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/symfony/var-dumper/zipball/4ad10cf8b020e77ba665305bb7804389884b4837",
-                "reference": "4ad10cf8b020e77ba665305bb7804389884b4837",
+                "url": "https://api.github.com/repos/symfony/var-dumper/zipball/22560f80c0c5cd58cc0bcaf73455ffd81eb380d5",
+                "reference": "22560f80c0c5cd58cc0bcaf73455ffd81eb380d5",
                 "shasum": ""
             },
             "require": {
@@ -5412,7 +5400,7 @@
                 "dump"
             ],
             "support": {
-                "source": "https://github.com/symfony/var-dumper/tree/v6.4.18"
+                "source": "https://github.com/symfony/var-dumper/tree/v6.4.21"
             },
             "funding": [
                 {
@@ -5428,7 +5416,7 @@
                     "type": "tidelift"
                 }
             ],
-            "time": "2025-01-17T11:26:11+00:00"
+            "time": "2025-04-09T07:34:50+00:00"
         },
         {
             "name": "tijsverkoyen/css-to-inline-styles",
@@ -5487,16 +5475,16 @@
         },
         {
             "name": "vlucas/phpdotenv",
-            "version": "v5.6.1",
+            "version": "v5.6.2",
             "source": {
                 "type": "git",
                 "url": "https://github.com/vlucas/phpdotenv.git",
-                "reference": "a59a13791077fe3d44f90e7133eb68e7d22eaff2"
+                "reference": "24ac4c74f91ee2c193fa1aaa5c249cb0822809af"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/vlucas/phpdotenv/zipball/a59a13791077fe3d44f90e7133eb68e7d22eaff2",
-                "reference": "a59a13791077fe3d44f90e7133eb68e7d22eaff2",
+                "url": "https://api.github.com/repos/vlucas/phpdotenv/zipball/24ac4c74f91ee2c193fa1aaa5c249cb0822809af",
+                "reference": "24ac4c74f91ee2c193fa1aaa5c249cb0822809af",
                 "shasum": ""
             },
             "require": {
@@ -5555,7 +5543,7 @@
             ],
             "support": {
                 "issues": "https://github.com/vlucas/phpdotenv/issues",
-                "source": "https://github.com/vlucas/phpdotenv/tree/v5.6.1"
+                "source": "https://github.com/vlucas/phpdotenv/tree/v5.6.2"
             },
             "funding": [
                 {
@@ -5567,7 +5555,7 @@
                     "type": "tidelift"
                 }
             ],
-            "time": "2024-07-20T21:52:34+00:00"
+            "time": "2025-04-30T23:37:27+00:00"
         },
         {
             "name": "voku/portable-ascii",
