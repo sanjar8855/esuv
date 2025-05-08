@@ -4,11 +4,11 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Casts\Attribute;
-use App\Traits\RecordUserStamps; // Traitni import qilish
+use App\Traits\RecordUserStamps;
 
 class Customer extends Model
 {
-    use HasFactory;
+    use HasFactory, RecordUserStamps;
 
     protected $fillable = [
         'company_id',
