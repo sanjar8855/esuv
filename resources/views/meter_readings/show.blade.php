@@ -12,11 +12,14 @@
                             {{ $meterReading->waterMeter->customer->name }}
                         </a>
                     </p>
-                    <p><strong>Hisoblagich:</strong> {{ number_format($meterReading->waterMeter->meter_number, 0, '.', ' ') }}</p>
+                    <p>
+                        <strong>Hisoblagich:</strong> {{ number_format($meterReading->waterMeter->meter_number, 0, '.', ' ') }}
+                    </p>
                     <p><strong>O‘qish:</strong> {{ number_format($meterReading->reading, 0, '.', ' ') }}</p>
                     <p><strong>O‘qish sanasi:</strong> {{ $meterReading->reading_date }}</p>
                     <p><strong>Holat:</strong> {{ $meterReading->confirmed ? 'Tasdiqlangan' : 'Tasdiqlanmagan' }}</p>
-
+                    <p><strong>Yaratgan:</strong> {{ $meterReading->createdBy->name ?? 'Noma’lum' }}</p>
+                    <p><strong>Tahrir qilgan:</strong> {{ $meterReading->updatedBy->name ?? 'Noma’lum' }}</p>
                     <a href="{{ route('meter_readings.index') }}" class="btn btn-secondary">Ortga</a>
                     <a href="{{ route('meter_readings.edit', $meterReading->id) }}"
                        class="btn btn-warning">Tahrirlash</a>

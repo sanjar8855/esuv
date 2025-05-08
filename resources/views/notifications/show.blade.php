@@ -10,6 +10,8 @@
                     <p><strong>Xabar Turi:</strong> {{ ucfirst($notification->type) }}</p>
                     <p><strong>Xabar:</strong> {{ $notification->message }}</p>
                     <p><strong>Yuborilgan Sana:</strong> {{ $notification->created_at }}</p>
+                    <p><strong>Yaratgan:</strong> {{ $notification->createdBy->name ?? 'Noma’lum' }}</p>
+                    <p><strong>Tahrir qilgan:</strong> {{ $notification->updatedBy->name ?? 'Noma’lum' }}</p>
 
                     <a href="{{ route('notifications.index') }}" class="btn btn-secondary">Ortga</a>
                 </div>

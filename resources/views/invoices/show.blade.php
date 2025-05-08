@@ -25,7 +25,12 @@
                                 <li class="list-group-item">
                                     <strong>Summa:</strong> {{ number_format($invoice->amount_due, 0, '.', ' ') }} UZS
                                 </li>
-                                <li class="list-group-item"><strong>To‘lov muddati:</strong> {{ $invoice->due_date }}
+                                <li class="list-group-item"><strong>To‘lov muddati:</strong> {{ $invoice->due_date }} </li>
+                                <li class="list-group-item">
+                                    <p><strong>Yaratgan:</strong> {{ $invoice->createdBy->name ?? 'Noma’lum' }}</p>
+                                </li>
+                                <li class="list-group-item">
+                                    <p><strong>Tahrir qilgan:</strong> {{ $invoice->updatedBy->name ?? 'Noma’lum' }}</p>
                                 </li>
                                 <li class="list-group-item"><strong>Holat:</strong>
                                     @if($invoice->status == 'pending')

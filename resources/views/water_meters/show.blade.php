@@ -18,6 +18,9 @@
                     <p><strong>Amal qilish muddati (yillarda):</strong> {{ $waterMeter->validity_period ?? 'Noma’lum' }}
                     </p>
                     <p><strong>Tugash muddati:</strong> {{ $waterMeter->expiration_date ?? 'Noma’lum' }}</p>
+                    <p><strong>Yaratgan:</strong> {{ $meterReading->createdBy->name ?? 'Noma’lum' }}</p>
+                    <p><strong>Tahrir qilgan:</strong> {{ $meterReading->updatedBy->name ?? 'Noma’lum' }}</p>
+
                     <a href="{{ route('water_meters.index') }}" class="btn btn-secondary">Ortga</a>
                 </div>
                 <div class="col-md-4">

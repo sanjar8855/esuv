@@ -142,6 +142,22 @@
                             <td>{{ number_format($customer->account_number, 0, '.', ' ') }}</td>
                         </tr>
                         <tr>
+                            <th>Tizimga qo'shgan xodim</th>
+                            <td>
+                                <a href="{{ route('users.show', $customer->created_by_user_id) }}">
+                                    {{ $customer->createdBy->name }}
+                                </a>
+                            </td>
+                        </tr>
+                        <tr>
+                            <th>Oxirgi o'zgartirgan xodim</th>
+                            <td>
+                                <a href="{{ route('users.show', $customer->updated_by_user_id) }}">
+                                    {{ $customer->updatedBy->name }}
+                                </a>
+                            </td>
+                        </tr>
+                        <tr>
                             <th>Faollik</th>
                             <td>
                                 @if($customer->is_active)

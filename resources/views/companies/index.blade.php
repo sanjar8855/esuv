@@ -12,7 +12,7 @@
                     <br>
                     <div class="card">
                         <div class="table-responsive">
-                            <table class="table table-bordered table-vcenter card-table table-striped">
+                            <table class="table table-bordered table-center card-table table-striped">
                                 <thead>
                                 <tr>
                                     <th>N</th>
@@ -20,6 +20,8 @@
 {{--                                    <th>Email</th>--}}
                                     <th>Telefon</th>
                                     <th>Plan</th>
+                                    <th>Ishchilar soni</th>
+                                    <th>Mijozlar soni</th>
                                     <th>Amallar</th>
                                 </tr>
                                 </thead>
@@ -38,6 +40,8 @@
 {{--                                        <td class="text-secondary">{{ $company->email }}</td>--}}
                                         <td class="text-secondary">{{ $company->phone }}</td>
                                         <td class="text-secondary">{{ $company->plan }}</td>
+                                        <td class="text-secondary">{{ $company->users_count }}</td>
+                                        <td class="text-secondary">{{ $company->customers_count }}</td>
                                         <td>
                                             <a href="{{ route('companies.show', $company->id) }}" class="btn btn-info">Ko‘rish</a>
                                             <a href="{{ route('companies.edit', $company->id) }}" class="btn btn-warning">Tahrirlash</a>

@@ -43,6 +43,22 @@
                             <td>{{ $payment->created_at }}</td>
                         </tr>
                         <tr>
+                            <th>Tizimga qo'shgan xodim</th>
+                            <td>
+                                <a href="{{ route('users.show', $payment->created_by_user_id) }}">
+                                    {{ $payment->createdBy->name }}
+                                </a>
+                            </td>
+                        </tr>
+                        <tr>
+                            <th>Oxirgi o'zgartirgan xodim</th>
+                            <td>
+                                <a href="{{ route('users.show', $payment->updated_by_user_id) }}">
+                                    {{ $payment->updatedBy->name }}
+                                </a>
+                            </td>
+                        </tr>
+                        <tr>
                             <th>Holati</th>
                             <td>
                                 @switch($payment->status)

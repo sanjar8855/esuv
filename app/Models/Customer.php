@@ -5,10 +5,11 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Casts\Attribute;
 use App\Traits\RecordUserStamps;
+use App\Traits\TracksUser;
 
 class Customer extends Model
 {
-    use HasFactory, RecordUserStamps;
+    use HasFactory, RecordUserStamps, TracksUser;
 
     protected $fillable = [
         'company_id',
