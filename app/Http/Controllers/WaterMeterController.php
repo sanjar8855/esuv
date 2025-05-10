@@ -106,7 +106,7 @@ class WaterMeterController extends Controller
     {
         $request->validate([
             'customer_id' => 'required|exists:customers,id',
-            'meter_number' => 'required|numeric|unique:water_meters',
+            'meter_number' => 'required|string|max:20|unique:water_meters',
             'validity_period' => 'required|numeric',
             'last_reading_date' => 'nullable|date',
             'installation_date' => 'nullable|date',
@@ -137,7 +137,7 @@ class WaterMeterController extends Controller
     {
         $request->validate([
             'customer_id' => 'required|exists:customers,id',
-            'meter_number' => 'required|numeric|unique:water_meters,meter_number,' . $waterMeter->id,
+            'meter_number' => 'required|string|max:20|unique:water_meters,meter_number,' . $waterMeter->id,
             'validity_period' => 'required|numeric',
             'last_reading_date' => 'nullable|date',
             'installation_date' => 'nullable|date',
