@@ -66,7 +66,7 @@
                             <td>
                                 @if($customer->waterMeter)
                                     <a href="{{ route('water_meters.show', $customer->waterMeter->id) }}">
-                                        {{ number_format($customer->waterMeter->meter_number, 0, '.', ' ') }}
+                                        {{ $customer->waterMeter->meter_number }}
                                     </a>
                                 @else
                                     Hisoblagich o'rnatilmagan
@@ -139,7 +139,7 @@
                         </tr>
                         <tr>
                             <th>Hisob Raqami</th>
-                            <td>{{ number_format($customer->account_number, 0, '.', ' ') }}</td>
+                            <td>{{ $customer->account_number }}</td>
                         </tr>
                         <tr>
                             <th>Tizimga qo'shgan xodim</th>
