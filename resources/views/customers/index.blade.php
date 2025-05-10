@@ -59,9 +59,10 @@
                                         @foreach($streets as $street)
                                             <option
                                                 value="{{ $street->id }}" {{ request('street_id') == $street->id ? 'selected' : '' }}>
-                                                {{ $street->name }}
-                                                ko'cha, {{ $street->neighborhood->city->region->name }}
-                                                vil. {{-- Qisqaroq ko'rinish --}}
+                                                {{ $street->name }} ko'cha,
+                                                {{ $street->neighborhood->name }} MFY,
+                                                {{ $street->neighborhood->city->name }} shahar/tuman,
+                                                {{ $street->neighborhood->city->region->name }} vil.
                                             </option>
                                         @endforeach
                                     </select>
