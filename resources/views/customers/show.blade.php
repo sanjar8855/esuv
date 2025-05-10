@@ -144,17 +144,25 @@
                         <tr>
                             <th>Tizimga qo'shgan xodim</th>
                             <td>
-                                <a href="{{ route('users.show', $customer->created_by_user_id) }}">
+                                @if ($customer->createdBy) {{-- Foydalanuvchi obyektini tekshirish --}}
+                                <a href="{{ route('users.show', $customer->createdBy->id) }}"> {{-- Obyektdan ID ni olish --}}
                                     {{ $customer->createdBy->name }}
                                 </a>
+                                @else
+                                    Ma'lumot yo'q
+                                @endif
                             </td>
                         </tr>
                         <tr>
                             <th>Oxirgi o'zgartirgan xodim</th>
                             <td>
-                                <a href="{{ route('users.show', $customer->updated_by_user_id) }}">
+                                @if ($customer->updatedBy) {{-- Foydalanuvchi obyektini tekshirish --}}
+                                <a href="{{ route('users.show', $customer->updatedBy->id) }}"> {{-- Obyektdan ID ni olish --}}
                                     {{ $customer->updatedBy->name }}
                                 </a>
+                                @else
+                                    Ma'lumot yo'q
+                                @endif
                             </td>
                         </tr>
                         <tr>
