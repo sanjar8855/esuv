@@ -96,10 +96,25 @@ class WaterMeterController extends Controller
         return view('water_meters.index', compact('waterMetersCount'));
     }
 
-    public function create()
+    public function create(Request $request) // <-- Request $request ni qabul qilamiz
     {
-        $customers = Customer::all();
-        return view('water_meters.create', compact('customers'));
+        $user = Auth::user();
+        $customersQuery = Customer::query();
+
+        // Agar admin bo'lmasa, faqat o'z kompaniyasining mijozlarini oladi
+        if (!$user->hasRole('admin') && $user->company_id) {
+            $customersQuery->where('company_id', $user->company_id);
+        }
+        // Faqat aktiv mijozlarni va has_water_meter = false bo'lganlarni olish yaxshiroq
+        // Lekin hozircha barcha aktivlarni olamiz, formadan turib ham tanlash mumkin
+        $customers = $customersQuery->where('is_active', true)
+            ->orderBy('name')
+            ->get();
+
+        // URL dan kelgan customer_id ni olamiz
+        $selectedCustomerId = $request->query('customer_id');
+
+        return view('water_meters.create', compact('customers', 'selectedCustomerId'));
     }
 
     public function store(Request $request)

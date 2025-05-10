@@ -22,13 +22,21 @@
                         @csrf
 
                         <div class="mb-3">
-                            <label for="customer_id">Mijoz tanlang:</label>
-                            <select name="customer_id" id="customerSelect" class="form-control" required>
-                                <option></option>
+                            <label class="form-label required" for="customer_id">Mijoz</label>
+                            <select name="customer_id" id="customer_id"
+                                    class="form-select @error('customer_id') is-invalid @enderror" required>
+                                <option value="">Mijozni tanlang...</option>
                                 @foreach($customers as $customer)
-                                    <option value="{{ $customer->id }}">{{ $customer->name }}</option>
+                                    <option value="{{ $customer->id }}"
+                                        {{-- Agar selectedCustomerId bo'lsa va customer.id ga teng bo'lsa yoki oldingi xatoda shu tanlangan bo'lsa --}}
+                                        {{ (isset($selectedCustomerId) && $selectedCustomerId == $customer->id) || old('customer_id') == $customer->id ? 'selected' : '' }}>
+                                        {{ $customer->name }} (Hisob: {{ $customer->account_number }})
+                                    </option>
                                 @endforeach
                             </select>
+                            @error('customer_id')
+                            <div class="invalid-feedback">{{ $message }}</div>
+                            @enderror
                         </div>
 
                         <div class="mb-3">
@@ -36,19 +44,25 @@
                             <input type="text" name="meter_number" class="form-control" required>
                         </div>
 
-{{--                        <div class="mb-3">--}}
-{{--                            <label for="installation_date">O‘rnatilgan Sana:</label>--}}
-{{--                            <input type="date" name="installation_date" class="form-control">--}}
-{{--                        </div>--}}
+                        {{--                        <div class="mb-3">--}}
+                        {{--                            <label for="installation_date">O‘rnatilgan Sana:</label>--}}
+                        {{--                            <input type="date" name="installation_date" class="form-control">--}}
+                        {{--                        </div>--}}
                         <div class="mb-3">
                             <label class="form-label">O‘rnatilgan Sana:</label>
 
                             <div class="input-icon">
                                 <span class="input-icon-addon">
                                     <!-- Download SVG icon from http://tabler.io/icons/icon/calendar -->
-                                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="icon icon-1"><path d="M4 7a2 2 0 0 1 2 -2h12a2 2 0 0 1 2 2v12a2 2 0 0 1 -2 2h-12a2 2 0 0 1 -2 -2v-12z" /><path d="M16 3v4" /><path d="M8 3v4" /><path d="M4 11h16" /><path d="M11 15h1" /><path d="M12 15v3" /></svg>
+                                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24"
+                                         fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                                         stroke-linejoin="round" class="icon icon-1"><path
+                                            d="M4 7a2 2 0 0 1 2 -2h12a2 2 0 0 1 2 2v12a2 2 0 0 1 -2 2h-12a2 2 0 0 1 -2 -2v-12z"/><path
+                                            d="M16 3v4"/><path d="M8 3v4"/><path d="M4 11h16"/><path d="M11 15h1"/><path
+                                            d="M12 15v3"/></svg>
                                 </span>
-                                <input name="installation_date" class="form-control" placeholder="Sanani tanlang" id="datepicker-icon-prepend1"/>
+                                <input name="installation_date" class="form-control" placeholder="Sanani tanlang"
+                                       id="datepicker-icon-prepend1"/>
                             </div>
                             <script>
                                 document.addEventListener("DOMContentLoaded", function () {
@@ -56,7 +70,7 @@
                                         element: document.getElementById('datepicker-icon-prepend1'),
                                         format: 'YYYY-MM-DD',
                                         dropdowns: {
-                                            minYear: 2000,  // Boshlang‘ich yil
+                                            minYear: 2010,  // Boshlang‘ich yil
                                             maxYear: new Date().getFullYear(),  // Hozirgi yildan keyingi 10 yilgacha
                                             months: true,  // Oynilar dropdownda chiqishi uchun
                                             years: true  // Yillarni dropdown shaklida chiqarish
@@ -74,7 +88,8 @@
 
                         <div class="mb-3">
                             <label for="validity_period">Amal qilish muddati (yillarda):</label>
-                            <input type="number" name="validity_period" id="validity_period" class="form-control" required>
+                            <input type="number" name="validity_period" id="validity_period" class="form-control"
+                                   required value="8">
                         </div>
 
                         <div class="mb-3">
@@ -83,9 +98,15 @@
                             <div class="input-icon">
                                 <span class="input-icon-addon">
                                     <!-- Download SVG icon from http://tabler.io/icons/icon/calendar -->
-                                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="icon icon-1"><path d="M4 7a2 2 0 0 1 2 -2h12a2 2 0 0 1 2 2v12a2 2 0 0 1 -2 2h-12a2 2 0 0 1 -2 -2v-12z" /><path d="M16 3v4" /><path d="M8 3v4" /><path d="M4 11h16" /><path d="M11 15h1" /><path d="M12 15v3" /></svg>
+                                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24"
+                                         fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                                         stroke-linejoin="round" class="icon icon-1"><path
+                                            d="M4 7a2 2 0 0 1 2 -2h12a2 2 0 0 1 2 2v12a2 2 0 0 1 -2 2h-12a2 2 0 0 1 -2 -2v-12z"/><path
+                                            d="M16 3v4"/><path d="M8 3v4"/><path d="M4 11h16"/><path d="M11 15h1"/><path
+                                            d="M12 15v3"/></svg>
                                 </span>
-                                <input name="expiration_date" class="form-control" placeholder="Sanani tanlang" id="datepicker-icon-prepend3"/>
+                                <input name="expiration_date" class="form-control" placeholder="Sanani tanlang"
+                                       id="datepicker-icon-prepend3"/>
                             </div>
                             <script>
                                 document.addEventListener("DOMContentLoaded", function () {
@@ -93,8 +114,8 @@
                                         element: document.getElementById('datepicker-icon-prepend3'),
                                         format: 'YYYY-MM-DD',
                                         dropdowns: {
-                                            minYear: 2000,  // Boshlang‘ich yil
-                                            maxYear: new Date().getFullYear()+10,  // Hozirgi yildan keyingi 10 yilgacha
+                                            minYear: 2015,  // Boshlang‘ich yil
+                                            maxYear: new Date().getFullYear() + 10,  // Hozirgi yildan keyingi 10 yilgacha
                                             months: true,  // Oynilar dropdownda chiqishi uchun
                                             years: true  // Yillarni dropdown shaklida chiqarish
                                         },
@@ -115,9 +136,15 @@
                             <div class="input-icon">
                                 <span class="input-icon-addon">
                                     <!-- Download SVG icon from http://tabler.io/icons/icon/calendar -->
-                                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="icon icon-1"><path d="M4 7a2 2 0 0 1 2 -2h12a2 2 0 0 1 2 2v12a2 2 0 0 1 -2 2h-12a2 2 0 0 1 -2 -2v-12z" /><path d="M16 3v4" /><path d="M8 3v4" /><path d="M4 11h16" /><path d="M11 15h1" /><path d="M12 15v3" /></svg>
+                                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24"
+                                         fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                                         stroke-linejoin="round" class="icon icon-1"><path
+                                            d="M4 7a2 2 0 0 1 2 -2h12a2 2 0 0 1 2 2v12a2 2 0 0 1 -2 2h-12a2 2 0 0 1 -2 -2v-12z"/><path
+                                            d="M16 3v4"/><path d="M8 3v4"/><path d="M4 11h16"/><path d="M11 15h1"/><path
+                                            d="M12 15v3"/></svg>
                                 </span>
-                                <input name="last_reading_date" class="form-control" placeholder="Sanani tanlang" id="datepicker-icon-prepend2"/>
+                                <input name="last_reading_date" class="form-control" placeholder="Sanani tanlang"
+                                       id="datepicker-icon-prepend2"/>
                             </div>
                             <script>
                                 document.addEventListener("DOMContentLoaded", function () {
@@ -125,8 +152,8 @@
                                         element: document.getElementById('datepicker-icon-prepend2'),
                                         format: 'YYYY-MM-DD',
                                         dropdowns: {
-                                            minYear: 2000,  // Boshlang‘ich yil
-                                            maxYear: new Date().getFullYear(),  // Hozirgi yildan keyingi 10 yilgacha
+                                            minYear: 2010,  // Boshlang‘ich yil
+                                            maxYear: new Date().getFullYear(),
                                             months: true,  // Oynilar dropdownda chiqishi uchun
                                             years: true  // Yillarni dropdown shaklida chiqarish
                                         },
@@ -174,7 +201,7 @@
         });
     </script>
     <script>
-        document.addEventListener("DOMContentLoaded", function() {
+        document.addEventListener("DOMContentLoaded", function () {
             new TomSelect("#customerSelect", {
                 create: false,
                 sortField: {
