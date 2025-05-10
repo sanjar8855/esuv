@@ -34,7 +34,7 @@
 
                         <div class="mb-3">
                             <label for="meter_number">Hisoblagich Raqami:</label>
-                            <input type="number" name="meter_number" class="form-control"
+                            <input type="text" name="meter_number" class="form-control"
                                    value="{{ $waterMeter->meter_number }}" required>
                         </div>
 

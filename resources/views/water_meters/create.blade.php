@@ -33,7 +33,7 @@
 
                         <div class="mb-3">
                             <label for="meter_number">Hisoblagich Raqami:</label>
-                            <input type="number" name="meter_number" class="form-control" required>
+                            <input type="text" name="meter_number" class="form-control" required>
                         </div>
 
 {{--                        <div class="mb-3">--}}
