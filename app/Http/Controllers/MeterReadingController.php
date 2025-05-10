@@ -53,9 +53,13 @@ class MeterReadingController extends Controller
                 ->editColumn('reading', function (MeterReading $meterReading) { // O'qishni formatlash
                     return number_format($meterReading->reading, 0, '.', ' ');
                 })
-                ->editColumn('reading_date', function (MeterReading $meterReading) { // Sanani formatlash (ixtiyoriy)
-                    // Agar Carbon ishlatilsa: \Carbon\Carbon::parse($meterReading->reading_date)->format('d.m.Y')
-                    return $meterReading->reading_date ?? '-'; // Oddiy format
+                ->editColumn('created_at', function (MeterReading $meterReading) { // Sanani formatlash (ixtiyoriy)
+                    if (empty($meterReading->created_at)) {
+                        return '-';
+                    }
+                    // Vaqtni O'zbekiston (Toshkent) vaqt mintaqasiga o'tkazamiz va formatlaymiz
+                    return $meterReading->created_at->setTimezone(config('app.timezone', 'Asia/Tashkent'))
+                        ->format('d.m.Y H:i:s');
                 })
                 ->addColumn('photo_display', function (MeterReading $meterReading) { // Rasm ko'rinishi
                     if ($meterReading->photo) {

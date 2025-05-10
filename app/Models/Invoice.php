@@ -6,6 +6,7 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use App\Traits\RecordUserStamps;
 use App\Traits\TracksUser;
+use Illuminate\Support\Facades\DB;
 
 class Invoice extends Model
 {
@@ -18,17 +19,33 @@ class Invoice extends Model
         parent::boot();
 
         static::creating(function ($invoice) {
-            $invoice->invoice_number = self::generateUniqueInvoiceNumber();
+            // Agar created_at invoys yaratilishidan oldin o'rnatilgan bo'lsa, o'sha yilni olamiz,
+            // aks holda joriy yilni olamiz.
+            $year = $invoice->created_at ? date('Y', strtotime($invoice->created_at)) : date('Y');
+            $invoice->invoice_number = self::generateNextInvoiceNumberForYear((int)$year);
         });
     }
 
-    private static function generateUniqueInvoiceNumber()
+    public static function generateNextInvoiceNumberForYear(int $year)
     {
-        do {
-            $number = date('Y') . '-' . str_pad(mt_rand(100000, 999999), 6, '0', STR_PAD_LEFT);
-        } while (self::where('invoice_number', $number)->exists()); // Takrorlanmasligi tekshiriladi
+        // Atomik tarzda raqamni olish va yangilash
+        $sequence = DB::transaction(function () use ($year) {
+            // Yil uchun yozuvni topish yoki yaratish va bloklash (concurrency uchun)
+            $row = DB::table('invoice_sequences')->where('year', $year)->lockForUpdate()->first();
 
-        return $number;
+            if ($row) {
+                $newNumber = $row->last_number + 1;
+                DB::table('invoice_sequences')->where('year', $year)->update(['last_number' => $newNumber]);
+                return $newNumber;
+            } else {
+                // Agar bu yil uchun yozuv bo'lmasa, yangi yozuv yaratamiz
+                DB::table('invoice_sequences')->insert(['year' => $year, 'last_number' => 1]);
+                return 1;
+            }
+        });
+
+        // Raqamni 7 xonali qilib formatlash (masalan, 0000001)
+        return $year . '-' . str_pad($sequence, 8, '0', STR_PAD_LEFT);
     }
 
     public function customer()

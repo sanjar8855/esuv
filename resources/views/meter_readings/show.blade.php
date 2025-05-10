@@ -16,7 +16,10 @@
                         <strong>Hisoblagich:</strong> {{ number_format($meterReading->waterMeter->meter_number, 0, '.', ' ') }}
                     </p>
                     <p><strong>O‘qish:</strong> {{ number_format($meterReading->reading, 0, '.', ' ') }}</p>
-                    <p><strong>O‘qish sanasi:</strong> {{ $meterReading->reading_date }}</p>
+                    <p>
+                        <strong>O‘qish sanasi:</strong>
+                        {{ $meterReading->created_at ? $meterReading->created_at->setTimezone(config('app.timezone', 'Asia/Tashkent'))->format('d.m.Y H:i') : '-' }}
+                    </p>
                     <p><strong>Holat:</strong> {{ $meterReading->confirmed ? 'Tasdiqlangan' : 'Tasdiqlanmagan' }}</p>
                     <p><strong>Yaratgan:</strong> {{ $meterReading->createdBy->name ?? 'Noma’lum' }}</p>
                     <p><strong>Tahrir qilgan:</strong> {{ $meterReading->updatedBy->name ?? 'Noma’lum' }}</p>

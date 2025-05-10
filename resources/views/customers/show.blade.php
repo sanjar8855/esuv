@@ -277,7 +277,7 @@
                         @foreach($invoices as $invoice)
                             <li class="list-group-item">
                                 <strong>Invoys #{{ $invoice->invoice_number }}</strong><br>
-                                <small>Oy: {{ $invoice->billing_period }}</small><br>
+                                <small>Qaysi oy uchun?: {{ $invoice->billing_period }}</small><br>
                                 <small>Holat:
                                     @if($invoice->status == 'pending')
                                         <span class="badge bg-yellow text-yellow-fg">To'liq to‘lanmagan</span>
