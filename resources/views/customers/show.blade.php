@@ -66,10 +66,14 @@
                             <td>
                                 @if($customer->waterMeter)
                                     <a href="{{ route('water_meters.show', $customer->waterMeter->id) }}">
-                                        {{ number_format($customer->waterMeter->meter_number, 0, '.', ' ') }}
+                                        {{ $customer->waterMeter->meter_number }}
                                     </a>
                                 @else
-                                    Hisoblagich o'rnatilmagan
+                                    Hisoblagich o'rnatilmagan <br>
+                                    <a href="{{ route('water_meters.create', ['customer_id' => $customer->id]) }}" class="btn btn-outline-primary">
+                                        <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-plus" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M12 5l0 14" /><path d="M5 12l14 0" /></svg>
+                                        Hisoblagich qo'shish
+                                    </a>
                                 @endif
                             </td>
                         </tr>
@@ -139,22 +143,30 @@
                         </tr>
                         <tr>
                             <th>Hisob Raqami</th>
-                            <td>{{ number_format($customer->account_number, 0, '.', ' ') }}</td>
+                            <td>{{ $customer->account_number }}</td>
                         </tr>
                         <tr>
                             <th>Tizimga qo'shgan xodim</th>
                             <td>
-                                <a href="{{ route('users.show', $customer->created_by_user_id) }}">
+                                @if ($customer->createdBy) {{-- Foydalanuvchi obyektini tekshirish --}}
+                                <a href="{{ route('users.show', $customer->createdBy->id) }}"> {{-- Obyektdan ID ni olish --}}
                                     {{ $customer->createdBy->name }}
                                 </a>
+                                @else
+                                    Ma'lumot yo'q
+                                @endif
                             </td>
                         </tr>
                         <tr>
                             <th>Oxirgi o'zgartirgan xodim</th>
                             <td>
-                                <a href="{{ route('users.show', $customer->updated_by_user_id) }}">
+                                @if ($customer->updatedBy) {{-- Foydalanuvchi obyektini tekshirish --}}
+                                <a href="{{ route('users.show', $customer->updatedBy->id) }}"> {{-- Obyektdan ID ni olish --}}
                                     {{ $customer->updatedBy->name }}
                                 </a>
+                                @else
+                                    Ma'lumot yo'q
+                                @endif
                             </td>
                         </tr>
                         <tr>
@@ -265,7 +277,7 @@
                         @foreach($invoices as $invoice)
                             <li class="list-group-item">
                                 <strong>Invoys #{{ $invoice->invoice_number }}</strong><br>
-                                <small>Oy: {{ $invoice->billing_period }}</small><br>
+                                <small>Qaysi oy uchun?: {{ $invoice->billing_period }}</small><br>
                                 <small>Holat:
                                     @if($invoice->status == 'pending')
                                         <span class="badge bg-yellow text-yellow-fg">To'liq to‘lanmagan</span>

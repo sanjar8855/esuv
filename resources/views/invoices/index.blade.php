@@ -1,77 +1,122 @@
 @extends('layouts.app')
 
+{{-- DataTables CSS (agar layouts/app.blade.php da umumiy qo'shilmagan bo'lsa) --}}
+<link rel="stylesheet" href="https://cdn.datatables.net/1.13.6/css/dataTables.bootstrap5.min.css">
+<style>
+    #invoicesTable {
+        width: 100% !important;
+    }
+
+    .dataTables_wrapper .dataTables_length select,
+    .dataTables_wrapper .dataTables_filter input {
+        height: calc(2.25rem + 2px);
+        padding-top: 0.375rem;
+        padding-bottom: 0.375rem;
+        padding-left: 0.75rem;
+        font-size: 0.875rem;
+        line-height: 1.5;
+        border-radius: var(--tblr-border-radius);
+    }
+</style>
+
 @section('content')
     <div class="page-body">
         <div class="container-xl">
             <div class="row row-cards">
                 <div class="col-12">
-                    <h2>Hisob-fakturalar, {{$invoicesCount}} ta</h2>
-                    <a href="{{ route('invoices.create') }}" class="btn btn-primary mb-3">Yangi hisob-faktura</a>
+                    <h2>Hisob-fakturalar (@if(isset($invoicesCount)){{ $invoicesCount }}@else 0 @endif ta)</h2>
+                    <div class="d-flex mb-3">
+                        <a href="{{ route('invoices.create') }}" class="btn btn-primary">Yangi hisob-faktura</a>
+                        {{-- Oylik Invoyslarni Generatsiya Qilish Tugmasi --}}
+                        @can('generate_invoices') {{-- Agar ruxsatnoma bo'lsa (ixtiyoriy) --}}
+                        <form action="{{ route('invoices.generate') }}" method="POST" class="ms-2">
+                            @csrf
+                            <button type="submit" class="btn btn-outline-info">Oylik Invoyslarni Generatsiya Qilish
+                            </button>
+                        </form>
+                        @endcan
+                    </div>
+
+                    @if(session('success'))
+                        <div class="alert alert-success">{{ session('success') }}</div>
+                    @endif
+
                     <div class="card">
                         <div class="table-responsive">
-                            <table class="table table-sm table-bordered table-vcenter card-table table-striped">
+                            <table id="invoicesTable"
+                                   class="table table-sm table-bordered table-vcenter card-table table-striped">
                                 <thead>
                                 <tr>
                                     <th>N</th>
                                     <th>Mijoz</th>
-                                    <th>Tarif</th>
+                                    {{-- <th>Tarif</th> --}}
                                     <th>Hisob raqami</th>
                                     <th>Davr</th>
-                                    <th>Summa</th>
+                                    <th>Summa (UZS)</th>
                                     <th>Holat</th>
+                                    <th>Qo'shilgan vaqt</th>
                                     <th>Amallar</th>
                                 </tr>
                                 </thead>
                                 <tbody>
-                                @foreach($invoices as $invoice)
-                                    <tr>
-                                        <td>{{$loop->index +1}}</td>
-
-                                        <td>
-                                            @if ($invoice->customer)
-                                                <a href="{{ route('customers.show', $invoice->customer->id) }}"
-                                                   class="badge badge-outline text-blue">
-                                                    {{ $invoice->customer->name }}
-                                                </a>
-                                            @else
-                                                <span class="badge badge-outline text-danger">Mijoz yo‘q</span>
-                                            @endif
-                                        </td>
-                                        <td>m3: {{ number_format($invoice->tariff->price_per_m3, 0, '.', ' ') }}, Meyoriy bir kishiga: {{number_format($invoice->tariff->for_one_person, 0, '.', ' ') }}</td>
-                                        <td>{{ $invoice->invoice_number }}</td>
-                                        <td>{{ $invoice->billing_period }}</td>
-                                        <td>{{ number_format($invoice->amount_due, 0, '.', ' ') }} UZS</td>
-                                        <td>
-                                            @if($invoice->status == 'pending')
-                                                <span class="badge bg-yellow text-yellow-fg">To'liq to‘lanmagan</span>
-                                            @elseif($invoice->status == 'paid')
-                                                <span class="badge bg-green text-green-fg">To‘langan</span>
-                                            @elseif($invoice->status == 'overdue')
-                                                <span class="badge bg-red text-red-fg">Muddati o‘tgan</span>
-                                            @endif
-                                        </td>
-                                        <td>
-                                            <a href="{{ route('invoices.show', $invoice->id) }}"
-                                               class="btn btn-info btn-sm">Ko‘rish</a>
-                                            <a href="{{ route('invoices.edit', $invoice->id) }}"
-                                               class="btn btn-warning btn-sm">Tahrirlash</a>
-                                            <form action="{{ route('invoices.destroy', $invoice->id) }}" method="POST"
-                                                  class="d-inline">
-                                                @csrf
-                                                @method('DELETE')
-                                                <button type="submit" class="btn btn-danger btn-sm">O‘chirish</button>
-                                            </form>
-                                        </td>
-                                    </tr>
-                                @endforeach
+                                {{-- Ma'lumotlar DataTables tomonidan AJAX orqali yuklanadi --}}
                                 </tbody>
                             </table>
                         </div>
                     </div>
-
-                    {{ $invoices->links() }}
+                    {{-- Laravel pagination olib tashlandi --}}
                 </div>
             </div>
         </div>
     </div>
 @endsection
+
+@push('scripts')
+    {{-- jQuery va DataTables JS --}}
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script src="https://cdn.datatables.net/1.13.6/js/jquery.dataTables.min.js"></script>
+    <script src="https://cdn.datatables.net/1.13.6/js/dataTables.bootstrap5.min.js"></script>
+
+    <script>
+        $(document).ready(function () {
+            $('#invoicesTable').DataTable({
+                processing: true,
+                serverSide: true,
+                ajax: "{{ route('invoices.index') }}", // Ma'lumotlarni shu yerdan oladi
+                columns: [
+                    {data: 'DT_RowIndex', name: 'DT_RowIndex', orderable: false, searchable: false}, // N
+                    {data: 'customer_link', name: 'customer.name'}, // Mijoz
+                    // { data: 'tariff_info', name: 'tariff.name' }, // Agar tarif ustuni kerak bo'lsa
+                    {data: 'invoice_number', name: 'invoice_number'}, // Hisob raqami
+                    {data: 'billing_period', name: 'billing_period'}, // Davr
+                    {data: 'amount_due', name: 'amount_due'}, // Summa
+                    {data: 'status_display', name: 'status'}, // Holat
+                    {data: 'created_at_formatted', name: 'created_at'}, // Qo'shilgan vaqt
+                    {data: 'actions', name: 'actions', orderable: false, searchable: false} // Amallar
+                ],
+                order: [[6, 'desc']], // Boshlang'ich saralash: "Qo'shilgan vaqt" (6-indeks) bo'yicha kamayish tartibida
+                pageLength: 25, // Sahifada 25 ta yozuv
+                language: { // O'zbekcha tarjima
+                    "search": "Qidiruv:",
+                    "lengthMenu": "_MENU_ tadan ko'rsatish",
+                    "info": "_TOTAL_ yozuvdan _START_ dan _END_ gachasi ko'rsatilmoqda",
+                    "infoEmpty": "Yozuvlar mavjud emas",
+                    "infoFiltered": "(_MAX_ yozuv ichidan filtrlandi)",
+                    "zeroRecords": "Mos yozuvlar topilmadi",
+                    "emptyTable": "Jadvalda ma'lumotlar mavjud emas",
+                    "processing": "Yuklanmoqda...",
+                    "paginate": {
+                        "first": "Birinchi",
+                        "last": "Oxirgi",
+                        "next": "Keyingi",
+                        "previous": "Oldingi"
+                    },
+                    "aria": {
+                        "sortAscending": ": ustunni o'sish tartibida saralash uchun aktivlashtirish",
+                        "sortDescending": ": ustunni kamayish tartibida saralash uchun aktivlashtirish"
+                    }
+                }
+            });
+        });
+    </script>
+@endpush

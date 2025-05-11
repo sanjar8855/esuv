@@ -99,8 +99,12 @@ class CustomerController extends Controller
                 ->addColumn('meter_link', function(Customer $customer) { // Hisoblagich linki
                     if ($customer->waterMeter) {
                         return '<a href="'.route('water_meters.show', $customer->waterMeter->id).'" class="badge badge-outline text-blue">'.e($customer->waterMeter->meter_number).'</a>';
+                    } else {
+                        // Agar hisoblagich yo'q bo'lsa, qo'shish tugmasini qaytaramiz
+                        $addMeterUrl = route('water_meters.create', ['customer_id' => $customer->id]);
+                        // Kichikroq tugma uchun 'btn-sm' yoki 'btn-xs' klassini ishlatish mumkin
+                        return '<a href="'.$addMeterUrl.'" class="btn btn-sm btn-outline-success">Qo\'shish</a>';
                     }
-                    return '<span class="text-muted">Hisoblagich yo‘q</span>';
                 })
                 ->addColumn('balance_formatted', function(Customer $customer){ // Balansni formatlash
                     // Modelda hisoblangan balansni olamiz (lekin bu sekin bo'lishi mumkin)
@@ -193,7 +197,8 @@ class CustomerController extends Controller
             'address' => 'nullable|string',
             'account_meter_number' => [
                 'required',
-                'string', // Yoki 'numeric' agar faqat son bo'lsa
+                'string',
+                'max:20',
                 Rule::unique('customers', 'account_number'), // customers.account_number ga unique
                 Rule::unique('water_meters', 'meter_number'), // water_meters.meter_number ga unique
             ],
@@ -325,7 +330,7 @@ class CustomerController extends Controller
             'name' => 'required|string|max:255',
             'phone' => 'nullable|string|max:255',
             'address' => 'required|string',
-            'account_number' => 'required|unique:customers,account_number,' . $customer->id,
+            'account_number' => 'required|string|max:20|unique:customers,account_number,' . $customer->id,
             'family_members' => 'nullable|integer|min:1',
             'pdf_file' => 'nullable|mimes:pdf|max:2048',
         ]);

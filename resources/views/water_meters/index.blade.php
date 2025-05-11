@@ -99,6 +99,7 @@
                     {data: 'last_reading_value', name: 'last_reading_value', orderable: false, searchable: false}, // Oxirgi ko'rsatkich
                     {data: 'actions', name: 'actions', orderable: false, searchable: false} // Amallar
                 ],
+                pageLength: 25,
                 order: [[2, 'asc']], // Boshlang'ich saralash (masalan, hisoblagich raqami bo'yicha)
                 language: { // <-- O'zbekcha tarjima (qo'lda kiritilgan)
                     search: "Qidiruv:",

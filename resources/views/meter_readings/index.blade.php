@@ -54,8 +54,8 @@
                                 <th>N</th> {{-- Tartib raqami --}}
                                 <th>Mijoz</th>
                                 <th>Hisoblagich Raqami</th>
-                                <th>O‘qish (m³)</th>
-                                <th>O‘qish Sanasi</th>
+                                <th>Ko'rsatgich raqami (m³)</th>
+                                <th>O‘qish vaqti</th>
                                 <th>Rasm</th>
                                 <th>Holat</th>
                                 <th>Amallar</th>
@@ -110,11 +110,12 @@
                 { data: 'customer_link', name: 'customer_link', orderable: true, searchable: true }, // Mijoz (qidirish/saralash Controllerda sozlandi)
                 { data: 'meter_link', name: 'meter_link', orderable: true, searchable: true }, // Hisoblagich (qidirish/saralash Controllerda sozlandi)
                 { data: 'reading', name: 'reading', searchable: true }, // O'qish qiymati (qidirish mumkin)
-                { data: 'reading_date', name: 'reading_date', searchable: false }, // O'qish sanasi (qidirish o'chirilgan)
+                { data: 'created_at', name: 'created_at', searchable: false }, // O'qish sanasi (qidirish o'chirilgan)
                 { data: 'photo_display', name: 'photo_display', orderable: false, searchable: false }, // Rasm (saralash/qidirish o'chirilgan)
                 { data: 'status_badge', name: 'confirmed', searchable: true }, // Holat (qidirish 'confirmed' bo'yicha)
                 { data: 'actions', name: 'actions', orderable: false, searchable: false } // Amallar (saralash/qidirish o'chirilgan)
             ],
+            pageLength: 25,
             order: [[0, 'desc']], // Boshlang'ich saralash (masalan, ID bo'yicha kamayish tartibida)
             language: { // O'zbekcha tarjima (qo'lda kiritilgan)
                 search: "Qidiruv:",

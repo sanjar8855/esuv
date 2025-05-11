@@ -69,7 +69,7 @@
                     // `data: 'neighborhood'` - Controllerdagi addColumn nomi
                     // `name: 'neighborhoods.name'` - Saralash/qidirish uchun bazadagi ustun (join qilingan)
                     { data: 'neighborhood', name: 'neighborhoods.name', orderable: true, searchable: true },
-                    { data: 'name', name: 'streets.name' }, // Jadval nomini aniq ko'rsatish
+                    { data: 'name', name: 'name' }, // Jadval nomini aniq ko'rsatish
                     { data: 'customer_count', name: 'customer_count', searchable: false },
                     { data: 'total_debt', name: 'calculated_balance', searchable: false, orderable: true },
                     { data: 'actions', name: 'actions', orderable: false, searchable: false }
