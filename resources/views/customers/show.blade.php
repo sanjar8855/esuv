@@ -65,7 +65,8 @@
                             <th>Hisoblagich unikal raqami</th>
                             <td>
                                 @if($customer->waterMeter)
-                                    <a href="{{ route('water_meters.show', $customer->waterMeter->id) }}">
+                                    <a href="{{ route('water_meters.show', $customer->waterMeter->id) }}"
+                                       class="badge badge-outline text-blue">
                                         {{ $customer->waterMeter->meter_number }}
                                     </a>
                                 @else

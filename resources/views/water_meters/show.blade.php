@@ -12,7 +12,7 @@
                             {{ $waterMeter->customer->name }}
                         </a>
                     </p>
-                    <p><strong>Hisoblagich Raqami:</strong> {{ number_format($waterMeter->meter_number, 0, '.', ' ') }}</p>
+                    <p><strong>Hisoblagich Raqami:</strong> {{ $waterMeter->meter_number }}</p>
                     <p><strong>O‘rnatilgan Sana:</strong> {{ $waterMeter->installation_date ?? 'Noma’lum' }}</p>
                     <p><strong>Oxirgi tekshirilgan sana:</strong> {{ $waterMeter->last_reading_date ?? 'Noma’lum' }}</p>
                     <p><strong>Amal qilish muddati (yillarda):</strong> {{ $waterMeter->validity_period ?? 'Noma’lum' }}
