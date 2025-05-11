@@ -22,6 +22,9 @@
                     <p><strong>Tahrir qilgan:</strong> {{ $meterReading->updatedBy->name ?? 'Noma’lum' }}</p>
 
                     <a href="{{ route('water_meters.index') }}" class="btn btn-secondary">Ortga</a>
+                    <a href="{{ route('water_meters.edit', $user->id) }}" class="btn btn-warning">
+                        Tahrirlash
+                    </a>
                 </div>
                 <div class="col-md-4">
                     <h1>Hisoblagich so'ngi ko'rsatgichlari:</h1>
