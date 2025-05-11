@@ -116,7 +116,7 @@ class CustomerController extends Controller
                 })
                 ->addColumn('last_reading', function (Customer $customer) { // Oxirgi ko'rsatkich
                     // Eager loading bilan olingan ma'lumotdan foydalanishga harakat qilamiz
-                    return $customer->waterMeter ?->readings ?->first() ?->reading ?? '—';
+                    return $customer->waterMeter ?->readings ?->last() ?->reading ?? '—';
                      // Bu queryni optimallashtirish kerak bo'lishi mumkin
                 })
                 ->addColumn('actions', function (Customer $customer) { // Amallar tugmalari
