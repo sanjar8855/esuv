@@ -114,10 +114,19 @@ class CustomerController extends Controller
                     $balanceClass = $balance < 0 ? 'text-red' : ($balance > 0 ? 'text-green' : 'text-info');
                     return '<span class="badge ' . $balanceClass . '">' . ($balance >= 0 ? '+' : '') . number_format($balance) . ' UZS</span>';
                 })
-                ->addColumn('last_reading', function (Customer $customer) { // Oxirgi ko'rsatkich
-                    // Eager loading bilan olingan ma'lumotdan foydalanishga harakat qilamiz
-                    return $customer->waterMeter ?->readings ?->last() ?->reading ?? '—';
-                     // Bu queryni optimallashtirish kerak bo'lishi mumkin
+                ->addColumn('last_reading', function (Customer $customer) {
+                    if (!$customer->waterMeter) {
+                        return '—';
+                    }
+
+                    // waterMeter->readings() query builder obyektini qaytaradi
+                    $lastConfirmedReading = $customer->waterMeter->readings()
+                        ->where('confirmed', true) // Faqat tasdiqlanganlarni olamiz
+                        ->orderBy('created_at', 'desc') // Ko'rsatkich sanasi bo'yicha (eng yangisi birinchi)
+                        ->orderBy('id', 'desc') // Agar sanalar bir xil bo'lsa, ID si kattasi birinchi
+                        ->first(); // Birinchi topilgan yozuvni (eng oxirgisini) olamiz
+
+                    return $lastConfirmedReading ? $lastConfirmedReading->reading : '—';
                 })
                 ->addColumn('actions', function (Customer $customer) { // Amallar tugmalari
                     $showUrl = route('customers.show', $customer->id);
@@ -280,7 +289,10 @@ class CustomerController extends Controller
         ]);
 
         $readings = $customer->waterMeter
-            ? $customer->waterMeter->readings()->latest()->paginate(5, ['*'], 'reading_page')
+            ? $customer->waterMeter->readings()
+                ->latest()
+                ->orderBy('id', 'desc')
+                ->paginate(5, ['*'], 'reading_page')
             : new LengthAwarePaginator([], 0, 5, 1, ['path' => request()->url(), 'pageName' => 'reading_page']);
         $invoices = $customer->invoices()->latest()->paginate(5, ['*'], 'invoice_page');
         $payments = $customer->payments()->latest()->paginate(5, ['*'], 'payment_page');
