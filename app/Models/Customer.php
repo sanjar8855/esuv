@@ -25,6 +25,19 @@ class Customer extends Model
         'pdf_file'
     ];
 
+    /**
+     * "name" atributini o'rnatishdan oldin birinchi harflarini kattalashtiradi.
+     *
+     * @param  string  $value
+     * @return void
+     */
+    public function setNameAttribute($value)
+    {
+        // mb_convert_case o'zbekcha harflarni ham to'g'ri ishlaydi (masalan, "ismoil" -> "Ismoil")
+        // MB_CASE_TITLE har bir so'zning birinchi harfini kattalashtiradi
+        $this->attributes['name'] = mb_convert_case($value, MB_CASE_TITLE, "UTF-8");
+    }
+
     public function company()
     {
         return $this->belongsTo(Company::class);
