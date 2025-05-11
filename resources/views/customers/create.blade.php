@@ -72,7 +72,7 @@
                                 <input class="form-check-input" type="checkbox" id="has_water_meter_checkbox"
                                        name="has_water_meter"
                                        value="1" {{ old('has_water_meter', true) ? 'checked' : '' }}>
-                                <span class="form-check-label">Suv hisoblagichi bormi?</span>
+                                <span class="form-check-label">Suv hisoblagichi bormi? Meyoriy bo'lsa o'chirib qo'ying</span>
                             </label>
                         </div>
 
@@ -142,7 +142,7 @@
 
     <script>
         document.addEventListener("DOMContentLoaded", function () {
-            const hasWaterMeterCheckbox = document.getElementById("has_water_meter");
+            const hasWaterMeterCheckbox = document.getElementById("has_water_meter_checkbox");
             const familyMembersInput = document.getElementById("family_members");
             const meterNumberDiv = document.getElementById("meter_number_div");
             const meterNumberInput = document.getElementById("meter_number");
