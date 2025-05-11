@@ -14,7 +14,9 @@ use Illuminate\Validation\Rule;
 use Telegram\Bot\Laravel\Facades\Telegram;
 use Illuminate\Support\Facades\Auth;
 use Yajra\DataTables\Facades\DataTables;
-use Carbon\Carbon; // Buni qo'shing
+use Carbon\Carbon;
+
+// Buni qo'shing
 
 
 class CustomerController extends Controller
@@ -84,40 +86,40 @@ class CustomerController extends Controller
             // ----- DataTables ga uzatish -----
             return DataTables::eloquent($query)
                 ->addIndexColumn() // "N" ustuni uchun (DT_RowIndex)
-                ->addColumn('company_name', function(Customer $customer) { // Admin uchun kompaniya
-                    return $customer->company ? '<a href="'.route('companies.show', $customer->company->id).'" class="badge badge-outline text-blue">'.$customer->company->name.'</a>' : '-';
+                ->addColumn('company_name', function (Customer $customer) { // Admin uchun kompaniya
+                    return $customer->company ? '<a href="' . route('companies.show', $customer->company->id) . '" class="badge badge-outline text-blue">' . $customer->company->name . '</a>' : '-';
                 })
-                ->addColumn('street_name', function(Customer $customer) { // Ko'cha nomi
-                    return $customer->street ? '<a href="'.route('streets.show', $customer->street->id).'" class="badge badge-outline text-blue">'.$customer->street->name.'</a>' : '-';
+                ->addColumn('street_name', function (Customer $customer) { // Ko'cha nomi
+                    return $customer->street ? '<a href="' . route('streets.show', $customer->street->id) . '" class="badge badge-outline text-blue">' . $customer->street->name . '</a>' : '-';
                 })
-                ->addColumn('name_status', function(Customer $customer){ // Ism va status
+                ->addColumn('name_status', function (Customer $customer) { // Ism va status
                     $statusBadge = $customer->is_active
                         ? '<span class="badge bg-cyan text-cyan-fg ms-1">Faol</span>'
                         : '<span class="badge bg-red text-red-fg ms-1">Nofaol</span>';
                     return e($customer->name) . $statusBadge; // e() - XSS himoyasi
                 })
-                ->addColumn('meter_link', function(Customer $customer) { // Hisoblagich linki
+                ->addColumn('meter_link', function (Customer $customer) { // Hisoblagich linki
                     if ($customer->waterMeter) {
-                        return '<a href="'.route('water_meters.show', $customer->waterMeter->id).'" class="badge badge-outline text-blue">'.e($customer->waterMeter->meter_number).'</a>';
+                        return '<a href="' . route('water_meters.show', $customer->waterMeter->id) . '" class="badge badge-outline text-blue">' . e($customer->waterMeter->meter_number) . '</a>';
                     } else {
                         // Agar hisoblagich yo'q bo'lsa, qo'shish tugmasini qaytaramiz
                         $addMeterUrl = route('water_meters.create', ['customer_id' => $customer->id]);
                         // Kichikroq tugma uchun 'btn-sm' yoki 'btn-xs' klassini ishlatish mumkin
-                        return '<a href="'.$addMeterUrl.'" class="btn btn-sm btn-outline-success">Qo\'shish</a>';
+                        return '<a href="' . $addMeterUrl . '" class="btn btn-sm btn-outline-success">Qo\'shish</a>';
                     }
                 })
-                ->addColumn('balance_formatted', function(Customer $customer){ // Balansni formatlash
+                ->addColumn('balance_formatted', function (Customer $customer) { // Balansni formatlash
                     // Modelda hisoblangan balansni olamiz (lekin bu sekin bo'lishi mumkin)
                     $balance = $customer->balance; // Model getBalanceAttribute ishlaydi
                     $balanceClass = $balance < 0 ? 'text-red' : ($balance > 0 ? 'text-green' : 'text-info');
-                    return '<span class="badge '.$balanceClass.'">' . ($balance >= 0 ? '+' : '') . number_format($balance) . ' UZS</span>';
+                    return '<span class="badge ' . $balanceClass . '">' . ($balance >= 0 ? '+' : '') . number_format($balance) . ' UZS</span>';
                 })
-                ->addColumn('last_reading', function(Customer $customer){ // Oxirgi ko'rsatkich
+                ->addColumn('last_reading', function (Customer $customer) { // Oxirgi ko'rsatkich
                     // Eager loading bilan olingan ma'lumotdan foydalanishga harakat qilamiz
-                    return $customer->waterMeter?->readings?->first()?->reading ?? '—';
+                    return $customer->waterMeter ?->readings ?->first() ?->reading ?? '—';
                      // Bu queryni optimallashtirish kerak bo'lishi mumkin
                 })
-                ->addColumn('actions', function(Customer $customer) { // Amallar tugmalari
+                ->addColumn('actions', function (Customer $customer) { // Amallar tugmalari
                     $showUrl = route('customers.show', $customer->id);
                     $editUrl = route('customers.edit', $customer->id);
                     $deleteUrl = route('customers.destroy', $customer->id);
@@ -133,13 +135,13 @@ class CustomerController extends Controller
                         </form>
                     HTML;
                 })
-                ->filterColumn('company_name', function($query, $keyword) { // Kompaniya nomini qidirish (agar admin bo'lsa)
-                    $query->whereHas('company', function($q) use ($keyword) {
+                ->filterColumn('company_name', function ($query, $keyword) { // Kompaniya nomini qidirish (agar admin bo'lsa)
+                    $query->whereHas('company', function ($q) use ($keyword) {
                         $q->where('name', 'like', "%{$keyword}%");
                     });
                 })
-                ->filterColumn('street_name', function($query, $keyword) { // Ko'cha nomini qidirish
-                    $query->whereHas('street', function($q) use ($keyword) {
+                ->filterColumn('street_name', function ($query, $keyword) { // Ko'cha nomini qidirish
+                    $query->whereHas('street', function ($q) use ($keyword) {
                         $q->where('name', 'like', "%{$keyword}%");
                     });
                 })
@@ -188,6 +190,7 @@ class CustomerController extends Controller
     public function store(Request $request)
     {
         $user = auth()->user();
+        $hasWaterMeter = $request->boolean('has_water_meter');
 
         $rules = [
             'company_id' => $user->hasRole('admin') ? 'required|exists:companies,id' : '',
@@ -200,16 +203,13 @@ class CustomerController extends Controller
                 'string',
                 'max:20',
                 Rule::unique('customers', 'account_number'), // customers.account_number ga unique
-                Rule::unique('water_meters', 'meter_number'), // water_meters.meter_number ga unique
+                Rule::unique('water_meters', 'meter_number')->when($hasWaterMeter), // water_meters.meter_number ga unique
             ],
             'family_members' => 'nullable|integer|min:1',
-            'pdf_file' => 'nullable|file|mimes:pdf|max:4096',
+            'has_water_meter' => 'nullable|boolean',
 
-            'installation_date' => 'nullable|date',
-            'validity_period' => 'nullable|integer|min:1',
-
-            'initial_reading' => 'required|numeric|min:0',
-            'reading_date' => 'nullable|date',
+            'initial_reading' => ['nullable', Rule::requiredIf($hasWaterMeter), 'numeric', 'min:0'],
+            'reading_date' => ['nullable', Rule::requiredIf($hasWaterMeter), 'date'],
         ];
 
         if (!$user->hasRole('admin')) {
@@ -237,38 +237,34 @@ class CustomerController extends Controller
             'account_number' => $accountMeterNumber, // Yagona qiymatni ishlatamiz
             'family_members' => $validated['family_members'],
             'is_active' => 1, // Har doim aktiv
-            'has_water_meter' => 1, // Har doim hisoblagichli deb hisoblaymiz
-            // Balans avtomatik hisoblanishi kerak (yoki 0 qilib boshlash mumkin)
+            'has_water_meter' => $hasWaterMeter,
             'balance' => 0,
         ];
 
-        if ($request->hasFile('pdf_file')) {
-            $validated['pdf_file'] = $request->file('pdf_file')->store('pdfs', 'public');
-        }
-
         $customer = Customer::create($customerData);
 
-        $installationDate = Carbon::now(); // Bugungi sana
-        $validityPeriod = 8; // 8 yil
-        $expirationDate = $installationDate->copy()->addYears($validityPeriod);
+        if ($hasWaterMeter) {
+            $installationDate = Carbon::now(); // Bugungi sana
+            $validityPeriod = 8; // 8 yil
+            $expirationDate = $installationDate->copy()->addYears($validityPeriod);
 
-        $waterMeterData = [
-            'customer_id' => $customer->id,
-            'meter_number' => $accountMeterNumber, // Yagona qiymatni ishlatamiz
-            'installation_date' => $installationDate->toDateString(), // Avto-to'ldirilgan sana
-            'validity_period' => $validityPeriod, // Avto-to'ldirilgan muddat
-            'expiration_date' => $expirationDate->toDateString(), // Hisoblangan sana
-            // last_reading_date kerak emas, chunki MeterReading da bor
-        ];
+            $waterMeterData = [
+                'customer_id' => $customer->id,
+                'meter_number' => $accountMeterNumber, // Yagona qiymatni ishlatamiz
+                'installation_date' => $installationDate->toDateString(), // Avto-to'ldirilgan sana
+                'validity_period' => $validityPeriod, // Avto-to'ldirilgan muddat
+                'expiration_date' => $expirationDate->toDateString(), // Hisoblangan sana
+            ];
 
-        $waterMeter = WaterMeter::create($waterMeterData);
+            $waterMeter = WaterMeter::create($waterMeterData);
 
-        MeterReading::create([
-            'water_meter_id' => $waterMeter->id,
-            'reading' => $validated['initial_reading'],
-            'reading_date' => $validated['reading_date'],
-            'confirmed' => 1, // Birinchi o'qish avtomatik tasdiqlanadi
-        ]);
+            MeterReading::create([
+                'water_meter_id' => $waterMeter->id,
+                'reading' => $validated['initial_reading'],
+                'reading_date' => $validated['reading_date'],
+                'confirmed' => 1, // Birinchi o'qish avtomatik tasdiqlanadi
+            ]);
+        }
 
         return redirect()->route('customers.index')->with('success', 'Mijoz muvaffaqiyatli qo‘shildi!');
     }
@@ -345,12 +341,6 @@ class CustomerController extends Controller
         $validated['is_active'] = $request->has('is_active') ? 1 : 0;
         $validated['has_water_meter'] = $request->has('has_water_meter') ? 1 : 0;
         $validated['pdf_file'] = $customer->pdf_file;
-
-
-        // Hisoblagich bo‘lsa, family_members null qilamiz
-//        if ($request->has('has_water_meter')) {
-//            $validated['family_members'] = null;
-//        }
 
         $customer->update($validated);
 
