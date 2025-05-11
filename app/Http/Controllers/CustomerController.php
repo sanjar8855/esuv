@@ -203,13 +203,13 @@ class CustomerController extends Controller
                 'string',
                 'max:20',
                 Rule::unique('customers', 'account_number'), // customers.account_number ga unique
-                Rule::unique('water_meters', 'meter_number')->when($hasWaterMeter), // water_meters.meter_number ga unique
+                Rule::unique('water_meters', 'meter_number'), // water_meters.meter_number ga unique
             ],
             'family_members' => 'nullable|integer|min:1',
             'has_water_meter' => 'nullable|boolean',
 
-            'initial_reading' => ['nullable', Rule::requiredIf($hasWaterMeter), 'numeric', 'min:0'],
-            'reading_date' => ['nullable', Rule::requiredIf($hasWaterMeter), 'date'],
+            'initial_reading' => ['nullable', 'numeric', 'min:0'],
+            'reading_date' => ['nullable', 'date'],
         ];
 
         if (!$user->hasRole('admin')) {
