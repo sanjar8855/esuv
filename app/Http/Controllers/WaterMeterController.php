@@ -7,6 +7,7 @@ use App\Models\Customer;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Yajra\DataTables\Facades\DataTables;
+use Illuminate\Support\Carbon;
 
 class WaterMeterController extends Controller
 {
@@ -42,11 +43,11 @@ class WaterMeterController extends Controller
                     return '<span class="badge badge-outline text-danger">Mijoz yo‘q</span>';
                 })
                 ->editColumn('meter_number', function (WaterMeter $waterMeter) { // Raqamni formatlash
-                    return number_format($waterMeter->meter_number, 0, '.', ' ');
+                    return $waterMeter->meter_number;
                 })
                 // Sanalarni formatlash (agar kerak bo'lsa)
-                // ->editColumn('installation_date', fn($wm) => $wm->installation_date ? \Carbon\Carbon::parse($wm->installation_date)->format('d.m.Y') : 'Noma’lum')
-                // ->editColumn('expiration_date', fn($wm) => $wm->expiration_date ? \Carbon\Carbon::parse($wm->expiration_date)->format('d.m.Y') : 'Noma’lum')
+//                 ->editColumn('installation_date', fn($wm) => $wm->installation_date ? \Carbon\Carbon::parse($wm->installation_date)->format('d.m.Y') : 'Noma’lum')
+//                 ->editColumn('expiration_date', fn($wm) => $wm->expiration_date ? \Carbon\Carbon::parse($wm->expiration_date)->format('d.m.Y') : 'Noma’lum')
                 ->addColumn('last_reading_value', function (WaterMeter $waterMeter) { // Oxirgi ko'rsatkich qiymati
                     $reading = $waterMeter->readings->first()?->reading; // Eager loading qilingan 'readings' dan olamiz
                     return $reading !== null ? number_format($reading, 0, '.', ' ') : '---';
