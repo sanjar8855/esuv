@@ -47,7 +47,7 @@
                             <th>So'ngi ko'rsatkich</th>
                             <td>
                                 @if($customer->waterMeter && $customer->waterMeter->readings->count())
-                                    {{ $customer->waterMeter->readings->first()->reading }}
+                                    {{ $customer->waterMeter->readings->last()->reading }}
                                 @else
                                     <em>Ko‘rsatkich mavjud emas</em>
                                 @endif
