@@ -120,7 +120,13 @@ class StreetController extends Controller
                     $balance = $c->balance ?? 0;
                     $cls = $balance < 0 ? 'balance-negative'
                         : ($balance > 0 ? 'balance-positive' : 'balance-zero');
-                    return '<span class="'.$cls.'">'.number_format($balance,0,'',' ').' UZS</span>';
+                    return '<span class="'.$cls.'">'
+                        . number_format($balance, 0, '', ' ') . ' UZS</span>';
+                })
+                // Quyidagi qatorni qo'shing:
+                ->orderColumn('balance', function ($query, $direction) {
+                    // Agar customers jadvlining balance ustuni bo'lsa:
+                    $query->orderBy('customers.balance', $direction);
                 })
                 ->addColumn('last_reading', function (Customer $c) {
                     $last = $c->waterMeter?->readings?->first();

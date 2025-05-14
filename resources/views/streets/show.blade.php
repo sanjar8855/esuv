@@ -64,7 +64,7 @@
                     { data: 'name',         name: 'name' },
                     { data: 'phone',        name: 'phone' },
                     { data: 'meter',        name: 'waterMeter.meter_number', orderable:false, searchable:false },
-                    { data: 'balance',      name: 'balance', orderable:false, searchable:false },
+                    { data: 'balance',      name: 'balance', orderable:true, searchable:false },
                     { data: 'last_reading', name: 'last_reading', orderable:false, searchable:false },
                     { data: 'actions',      name: 'actions', orderable:false, searchable:false },
                 ],
