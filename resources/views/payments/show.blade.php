@@ -14,9 +14,13 @@
                         </tr>
                         <tr>
                             <th>Invoice raqami</th>
-                            <td>{{ $payment->invoice && $payment->invoice->invoice_number
-                                ? number_format($payment->invoice->invoice_number, 0, '.', ' ')
-                                : 'Noma’lum' }}</td>
+                            <td>
+                                @if($payment->invoice && $payment->invoice->invoice_number)
+                                    {{ number_format($payment->invoice->invoice_number, 0, '.', ' ') }}
+                                @else
+                                    Noma’lum
+                                @endif
+                            </td>
                         </tr>
                         <tr>
                             <th>To‘lov miqdori</th>

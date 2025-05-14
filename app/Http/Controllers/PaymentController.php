@@ -187,6 +187,7 @@ class PaymentController extends Controller
 
     public function show(Payment $payment)
     {
+        $payment->load('invoice');
         return view('payments.show', compact('payment'));
     }
 
