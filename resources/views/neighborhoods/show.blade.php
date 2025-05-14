@@ -43,21 +43,17 @@
                             <table id="streetsTable" class="table table-sm table-bordered table-vcenter card-table table-striped">
                                 <thead>
                                 <tr>
-                                    <th>ID</th> {{-- # o'rniga ID --}}
+                                    <th>ID</th>
                                     <th>Ko‘cha nomi</th>
                                     <th>Mijozlar soni</th>
-                                    <th>Jami qarzdorlik</th> {{-- YANGI USTUN --}}
                                     <th>Harakatlar</th>
                                 </tr>
                                 </thead>
                                 <tbody>
-                                {{-- Ma'lumotlar DataTables tomonidan AJAX orqali yuklanadi --}}
                                 </tbody>
                             </table>
                         </div>
                     </div>
-                    {{-- Laravel pagination olib tashlandi --}}
-                    {{-- <div class="mt-3">{{ $streets->links() }}</div> --}}
                 </div>
             </div>
         </div>
@@ -80,8 +76,6 @@
                     { data: 'id', name: 'id' },
                     { data: 'name', name: 'name' },
                     { data: 'customer_count', name: 'customer_count', searchable: false },
-                    // Saralash yoqilgan, 'name' esa Controllerdagi orderColumn ga mos keladi
-                    { data: 'total_debt', name: 'calculated_balance', searchable: false, orderable: true },
                     { data: 'actions', name: 'actions', orderable: false, searchable: false }
                 ],
                 order: [[1, 'asc']], // Boshlang'ich saralash

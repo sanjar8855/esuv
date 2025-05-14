@@ -43,7 +43,13 @@ Route::middleware('auth')->group(function () {
 
     Route::middleware('can:companies')->group(function () {
         Route::resource('companies', CompanyController::class);
+        Route::resource('regions', RegionController::class);
+        Route::resource('cities', CityController::class);
+        Route::resource('neighborhoods', NeighborhoodController::class);
+        Route::resource('streets', StreetController::class);
     });
+//    Route::middleware('can:locations')->group(function () {
+//    });
 
     Route::middleware('can:dashboard')->group(function () {
         Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
@@ -63,12 +69,6 @@ Route::middleware('auth')->group(function () {
     Route::middleware('can:payments')->group(function () {
         Route::resource('payments', PaymentController::class);
     });
-//    Route::middleware('can:locations')->group(function () {
-        Route::resource('regions', RegionController::class);
-        Route::resource('cities', CityController::class);
-        Route::resource('neighborhoods', NeighborhoodController::class);
-        Route::resource('streets', StreetController::class);
-//    });
     Route::middleware('can:water_meters')->group(function () {
         Route::resource('water_meters', WaterMeterController::class);
     });

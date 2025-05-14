@@ -20,82 +20,54 @@ class NeighborhoodController extends Controller
 {
     public function index()
     {
-        $user = Auth::user();
-        // Foydalanuvchi ma'lumotlarini logga yozish (diagnostika uchun)
-        Log::info('Neighborhood Index User Check:', [
-            'id' => $user->id,
-            'is_admin' => $user->hasRole('admin'), // Spatie Role ishlatiladi
-            'company_id' => $user->company_id
-        ]);
+        // Diagnostika uchun log
+        Log::info('Neighborhood Index accessed');
 
         if (request()->ajax()) {
-
-            // 1. Asosiy query - Barcha mahallalarni oladi
             $query = Neighborhood::query()
                 ->leftJoin('cities', 'neighborhoods.city_id', '=', 'cities.id')
-                ->select('neighborhoods.*', 'cities.name as city_name', 'cities.id as city_id_for_route');
+                ->select(
+                    'neighborhoods.*',
+                    'cities.name as city_name',
+                    'cities.id as city_id_for_route'
+                )
+                // Ko'chalar soni
+                ->withCount('streets as street_count')
+                // Jami qarzdorlikni hisoblash (faol mijozlarning manfiy balanslari)
+                ->addSelect(['total_customer_count' => Customer::selectRaw('COUNT(*)')
+                    ->where('customers.is_active', 1)
+                    ->whereHas('street', function (Builder $q) {
+                        $q->whereColumn('streets.neighborhood_id', 'neighborhoods.id');
+                    })
+                ]);
 
-            // 2. Ko'chalar sonini hisoblash (FILTRSIZ - hamma uchun umumiy son)
-            // Avvalgi kelishuvga binoan barcha joylashuvlar ko'rinishi kerak edi
-            $query->withCount('streets as street_count'); // Filtr olib tashlandi
-
-            // 3. Jami QARZDORLIKNI hisoblash (Customer balanslarini SUM qilish orqali)
-            $query->addSelect(['total_customer_debt_sum' => Customer::select(
-                DB::raw('SUM(CASE WHEN balance < 0 THEN balance ELSE 0 END)') // Faqat manfiy balans
-            )
-                ->where('customers.is_active', true) // Aktiv mijozlar
-                ->whereHas('street', function (Builder $streetQuery) {
-                    // Ko'chani mahalla bilan bog'lash (tashqi queryga)
-                    $streetQuery->whereColumn('streets.neighborhood_id', 'neighborhoods.id');
-                })
-                // Kompaniya filtrini QAT'IY ravishda faqat admin bo'lmaganlar uchun qo'llaymiz
-                ->when(!$user->hasRole('admin'), function ($customerSubQuery) use ($user) {
-                    // Agar non-admin uchun company_id null bo'lsa ham, where null ishlaydi (natija 0 chiqadi)
-                    $customerSubQuery->where('customers.company_id', $user->company_id);
-                })
-                // Admin uchun bu ->when() sharti bajarilmaydi va filtr qo'shilmaydi
-            ]);
-
-            // 4. DataTables'ga javob qaytarish
             return DataTables::eloquent($query)
-                ->addColumn('city', function (Neighborhood $neighborhood) {
-                    if ($neighborhood->city_name) {
-                        $url = route('cities.show', $neighborhood->city_id_for_route ?? $neighborhood->city_id);
-                        return '<a href="' . $url . '" class="badge badge-outline text-blue">' . e($neighborhood->city_name) . '</a>';
-                    }
-                    return '-';
+                ->addColumn('city', function (Neighborhood $n) {
+                    $url = route('cities.show', $n->city_id_for_route);
+                    return '<a href="' . $url . '" class="badge badge-outline text-blue">'
+                        . e($n->city_name) . '</a>';
                 })
-                ->editColumn('street_count', function (Neighborhood $neighborhood) {
-                    // withCount dan kelgan qiymat (endi filtrsiz, jami ko'chalar soni)
-                    return $neighborhood->street_count ?? 0;
+                ->editColumn('street_count', fn(Neighborhood $n) => $n->street_count ?: 0)
+                ->addColumn('total_customers', function (Neighborhood $n) {
+                    return $n->total_customer_count;
                 })
-                ->addColumn('total_debt', function (Neighborhood $neighborhood) {
-                    // Endi qo'shimcha tekshiruv kerak emas, subquery natijasini ishlatamiz
-                    $debt = abs($neighborhood->total_customer_debt_sum ?? 0);
-                    $colorClass = $debt > 0 ? 'total-debt-negative' : 'total-debt-zero';
-                    return '<span class="' . $colorClass . '">' . number_format($debt, 0, '', ' ') . ' UZS</span>';
-                })
-                ->addColumn('actions', function (Neighborhood $neighborhood) {
-                    $showUrl = route('neighborhoods.show', $neighborhood->id);
-                    $editUrl = route('neighborhoods.edit', $neighborhood->id);
-                    $deleteUrl = route('neighborhoods.destroy', $neighborhood->id);
-                    $csrf = csrf_field();
+                ->addColumn('actions', function (Neighborhood $n) {
+                    $show = route('neighborhoods.show', $n->id);
+                    $edit = route('neighborhoods.edit', $n->id);
+                    $del  = route('neighborhoods.destroy', $n->id);
+                    $csrf   = csrf_field();
                     $method = method_field('DELETE');
-                    $currentUser = Auth::user();
 
-                    $buttons = '<a href="'.$showUrl.'" class="btn btn-info btn-sm">Ko‘rish</a> ';
-
-                    // Edit/Delete faqat admin uchun
-                    if ($currentUser->hasRole('admin')) {
-                        $buttons .= '<a href="'.$editUrl.'" class="btn btn-warning btn-sm">Tahrirlash</a> ';
-                        $buttons .= '<form action="'.$deleteUrl.'" method="POST" style="display:inline;" onsubmit="return confirm(\'Haqiqatan ham o‘chirmoqchimisiz?\');">';
-                        $buttons .= $csrf . $method;
-                        $buttons .= '<button type="submit" class="btn btn-danger btn-sm">O‘chirish</button>';
-                        $buttons .= '</form>';
-                    }
-                    return $buttons;
+                    return
+                        '<a href="' . $show . '" class="btn btn-info btn-sm">Ko‘rish</a> ' .
+                        '<a href="' . $edit . '" class="btn btn-warning btn-sm">Tahrirlash</a> ' .
+                        '<form action="' . $del . '" method="POST" style="display:inline;" '
+                        . 'onsubmit="return confirm(\'Haqiqatan ham o‘chirmoqchimisiz?\');">'
+                        . $csrf . $method
+                        . '<button type="submit" class="btn btn-danger btn-sm">O‘chirish</button>'
+                        . '</form>';
                 })
-                ->rawColumns(['city', 'actions', 'total_debt'])
+                ->rawColumns(['city', 'actions'])
                 ->toJson();
         }
 
@@ -113,116 +85,69 @@ class NeighborhoodController extends Controller
     {
         $request->validate([
             'city_id' => 'required|exists:cities,id',
-            'name' => [
+            'name'    => [
                 'required',
                 'string',
-                Rule::unique('neighborhoods')->where(function ($query) use ($request) {
-                    return $query->where('city_id', $request->city_id);
-                })
+                Rule::unique('neighborhoods')->where(fn($q) =>
+                $q->where('city_id', $request->city_id)
+                )
             ],
         ]);
 
         Neighborhood::create($request->all());
-        return redirect()->route('neighborhoods.index')->with('success', 'Mahalla muvaffaqiyatli qo‘shildi!');
+
+        return redirect()
+            ->route('neighborhoods.index')
+            ->with('success', 'Mahalla muvaffaqiyatli qo‘shildi!');
     }
 
     public function show(Neighborhood $neighborhood)
     {
-        $user = auth()->user();
-
+        // Agar AJAX so‘rovi bo‘lsa
         if (request()->ajax()) {
-            $streetsQuery = $neighborhood->streets(); // Relationshipdan boshlaymiz
+            $streetsQuery = $neighborhood->streets()
+                // Har bir ko‘cha uchun faqat aktiv mijozlar soni
+                ->withCount(['customers as customer_count' => function (\Illuminate\Database\Eloquent\Builder $q) {
+                    $q->where('is_active', 1);
+                }]);
 
-            // Mijozlar sonini hisoblash (filtr bilan)
-            $streetsQuery->withCount(['customers as customer_count' => function (Builder $q) use ($user) {
-                $q->where('is_active', 1);
-                if (!$user->hasRole('admin') && $user->company_id) {
-                    $q->where('company_id', $user->company_id);
-                }
-            }]);
-
-            // Jami hisoblangan summani (Invoices) hisoblash (filtr bilan)
-            // Bu avval to'g'ri ishlagan edi
-            $streetsQuery->addSelect(['total_invoices_sum' => Invoice::selectRaw('sum(amount_due)')
-                ->join('customers', 'invoices.customer_id', '=', 'customers.id')
-                ->whereColumn('customers.street_id', 'streets.id')
-                ->where('customers.is_active', 1)
-                ->when(!$user->hasRole('admin') && $user->company_id, function ($q) use ($user) {
-                    $q->where('customers.company_id', $user->company_id);
-                })
-            ]);
-
-            // Jami to'langan summani (Payments) hisoblash (filtr bilan)
-            // Bu ham avval to'g'ri ishlagan edi
-            $streetsQuery->addSelect(['total_payments_sum' => Payment::selectRaw('sum(amount)')
-                ->join('customers', 'payments.customer_id', '=', 'customers.id')
-                ->whereColumn('customers.street_id', 'streets.id')
-                ->where('customers.is_active', 1)
-                ->when(!$user->hasRole('admin') && $user->company_id, function ($q) use ($user) {
-                    $q->where('customers.company_id', $user->company_id);
-                })
-                // ->where('payments.status', 'completed') // Agar kerak bo'lsa
-            ]);
-
-            // DB::raw bilan balans hisoblashni olib tashladik
-
-            return DataTables::eloquent($streetsQuery)
-                ->editColumn('name', function(Street $street) {
+            return \Yajra\DataTables\Facades\DataTables::eloquent($streetsQuery)
+                ->editColumn('name', function (\App\Models\Street $street) {
                     $url = route('streets.show', $street->id);
-                    return '<a href="' . $url . '" class="badge badge-outline text-blue">' . e($street->name) . '</a>';
+                    return '<a href="' . $url . '" class="badge badge-outline text-blue">'
+                        . e($street->name) . '</a>';
                 })
-                ->editColumn('customer_count', function(Street $street) {
-                    return $street->customer_count ?? 0;
+                ->editColumn('customer_count', function (\App\Models\Street $street) {
+                    return $street->customer_count;
                 })
-                ->addColumn('total_debt', function (Street $street) {
-                    // Qarzdorlikni hisoblash (avvalgidek, endi to'g'ri qiymatlar bilan)
-                    $totalPaid = $street->total_payments_sum ?? 0;
-                    $totalInvoiced = $street->total_invoices_sum ?? 0;
-                    $balance = $totalPaid - $totalInvoiced;
-                    $debt = $balance < 0 ? abs($balance) : 0;
-                    $colorClass = $debt > 0 ? 'total-debt-negative' : 'total-debt-zero';
-                    return '<span class="' . $colorClass . '">' . number_format($debt, 0, '', ' ') . ' UZS</span>';
-                })
-                ->addColumn('actions', function(Street $street) {
-                    $showUrl = route('streets.show', $street->id);
-                    $editUrl = route('streets.edit', $street->id);
-                    $deleteUrl = route('streets.destroy', $street->id);
-                    $csrf = csrf_field();
+                ->addColumn('actions', function (\App\Models\Street $street) {
+                    $show = route('streets.show', $street->id);
+                    $edit = route('streets.edit', $street->id);
+                    $del  = route('streets.destroy', $street->id);
+                    $csrf   = csrf_field();
                     $method = method_field('DELETE');
-                    $currentUser = Auth::user();
 
-                    $buttons = '<a href="' . $showUrl . '" class="btn btn-info btn-sm">Ko‘rish</a> ';
-                    if ($currentUser->hasRole('admin')) {
-                        $buttons .= '<a href="' . $editUrl . '" class="btn btn-warning btn-sm">Tahrirlash</a> ';
-                        $buttons .= '<form action="' . $deleteUrl . '" method="POST" style="display:inline;" onsubmit="return confirm(\'Haqiqatan ham o‘chirmoqchimisiz?\');">';
-                        $buttons .= $csrf . $method;
-                        $buttons .= '<button type="submit" class="btn btn-danger btn-sm">O‘chirish</button>';
-                        $buttons .= '</form>';
-                    }
-                    return $buttons;
+                    return
+                        '<a href="' . $show . '" class="btn btn-info btn-sm">Ko‘rish</a> ' .
+                        '<a href="' . $edit . '" class="btn btn-warning btn-sm">Tahrirlash</a> ' .
+                        '<form action="' . $del . '" method="POST" style="display:inline;" '
+                        . 'onsubmit="return confirm(\'Haqiqatan ham o‘chirmoqchimisiz?\');">'
+                        . $csrf . $method
+                        . '<button type="submit" class="btn btn-danger btn-sm">O‘chirish</button>'
+                        . '</form>';
                 })
-                ->rawColumns(['name', 'actions', 'total_debt'])
-
-                // --- SARALASH UCHUN QO'SHIMCHA ---
-                // 'calculated_balance' (JS dagi name) ustuni bosilganda ishlaydi
-                ->orderColumn('calculated_balance', function ($query, $order) {
-                    // Balans bo'yicha saralash: (Jami to'lovlar - Jami invoyslar)
-                    // Bu yerda addSelect orqali qo'shilgan aliaslarni ishlatishga harakat qilamiz
-                    // COALESCE null qiymatlarni 0 ga aylantiradi
-                    $query->orderByRaw('(COALESCE(total_payments_sum, 0) - COALESCE(total_invoices_sum, 0)) ' . $order);
-                })
+                // endi faqat name, customer_count va actions ustunlari raw
+                ->rawColumns(['name', 'actions'])
                 ->toJson();
-        } // --- AJAX tugadi ---
+        }
 
-        // --- Oddiy GET so'rovi ---
+        // Oddiy GET – sahifaga ko‘chalar soni (faol mijozlar bilan) uzatiladi
         $streetsCount = $neighborhood->streets()
-            ->whereHas('customers', function ($q) use ($user) {
+            ->whereHas('customers', function ($q) {
                 $q->where('is_active', 1);
-                if (!$user->hasRole('admin') && $user->company_id) {
-                    $q->where('company_id', $user->company_id);
-                }
             })
-            ->count(); // Avvalgidek
+            ->count();
+
         return view('neighborhoods.show', compact('neighborhood', 'streetsCount'));
     }
 
@@ -236,24 +161,27 @@ class NeighborhoodController extends Controller
     {
         $request->validate([
             'city_id' => 'required|exists:cities,id',
-            'name' => [
+            'name'    => [
                 'required',
                 'string',
-                Rule::unique('neighborhoods')->where(function ($query) use ($request, $neighborhood) {
-                    return $query->where('city_id', $request->city_id);
-                })->ignore($neighborhood->id) // O‘zidan tashqari boshqalarga unikal bo‘lishi shart
+                Rule::unique('neighborhoods')->where(fn($q) =>
+                $q->where('city_id', $request->city_id)
+                )->ignore($neighborhood->id)
             ],
         ]);
 
         $neighborhood->update($request->all());
 
-        return redirect()->route('neighborhoods.index')->with('success', 'Mahalla muvaffaqiyatli yangilandi!');
+        return redirect()
+            ->route('neighborhoods.index')
+            ->with('success', 'Mahalla muvaffaqiyatli yangilandi!');
     }
-
 
     public function destroy(Neighborhood $neighborhood)
     {
         $neighborhood->delete();
-        return redirect()->route('neighborhoods.index')->with('success', 'Mahalla muvaffaqiyatli o‘chirildi!');
+        return redirect()
+            ->route('neighborhoods.index')
+            ->with('success', 'Mahalla muvaffaqiyatli o‘chirildi!');
     }
 }

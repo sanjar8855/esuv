@@ -36,7 +36,6 @@
                                     <th>Mahalla</th>
                                     <th>Ko‘cha Nomi</th>
                                     <th>Mijozlar soni</th>
-                                    <th>Jami qarzdorlik</th> {{-- YANGI USTUN --}}
                                     <th>Harakatlar</th>
                                 </tr>
                                 </thead>
@@ -71,7 +70,6 @@
                     { data: 'neighborhood', name: 'neighborhoods.name', orderable: true, searchable: true },
                     { data: 'name', name: 'name' }, // Jadval nomini aniq ko'rsatish
                     { data: 'customer_count', name: 'customer_count', searchable: false },
-                    { data: 'total_debt', name: 'calculated_balance', searchable: false, orderable: true },
                     { data: 'actions', name: 'actions', orderable: false, searchable: false }
                 ],
                 // Boshlang'ich saralash: Mahalla, keyin Ko'cha

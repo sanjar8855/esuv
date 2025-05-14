@@ -7,13 +7,13 @@
     #neighborhoodsTable { width: 100% !important; }
     .dataTables_length select.form-select,
     .dataTables_filter input.form-control {
-        height: calc(2.25rem + 2px); padding-top: 0.375rem; padding-bottom: 0.375rem;
-        padding-left: 0.75rem; font-size: 0.875rem; line-height: 1.5;
+        height: calc(2.25rem + 2px);
+        padding-top: 0.375rem;
+        padding-bottom: 0.375rem;
+        padding-left: 0.75rem;
+        font-size: 0.875rem;
+        line-height: 1.5;
     }
-    /* Balans uchun ranglar (kerak bo'lsa) */
-    .total-debt-negative { color: red; font-weight: bold; }
-    .total-debt-positive { color: green; } /* Agar musbat balans ham bo'lsa */
-    .total-debt-zero { color: grey; }
 </style>
 
 @section('content')
@@ -34,11 +34,11 @@
                             <table id="neighborhoodsTable" class="table table-sm table-bordered table-vcenter card-table table-striped">
                                 <thead>
                                 <tr>
-                                    <th>ID</th> {{-- N o'rniga ID --}}
+                                    <th>ID</th>
                                     <th>Shahar</th>
                                     <th>Mahalla Nomi</th>
                                     <th>Ko‘chalar soni</th>
-                                    <th>Jami qarzdorlik</th> {{-- YANGI USTUN --}}
+                                    <th>Jami mijozlar</th>
                                     <th>Harakatlar</th>
                                 </tr>
                                 </thead>
@@ -48,7 +48,6 @@
                             </table>
                         </div>
                     </div>
-                    {{-- Laravel pagination olib tashlandi --}}
                 </div>
             </div>
         </div>
@@ -69,17 +68,15 @@
                 ajax: "{{ route('neighborhoods.index') }}",
                 columns: [
                     { data: 'id', name: 'id' },
-                    // `data: 'city'` - Controllerdagi addColumn nomi
-                    // `name: 'cities.name'` - Saralash/qidirish uchun bazadagi ustun (join qilingan)
                     { data: 'city', name: 'cities.name' },
-                    { data: 'name', name: 'neighborhoods.name' }, // To'liq nom berish yaxshiroq
+                    { data: 'name', name: 'neighborhoods.name' },
                     { data: 'street_count', name: 'street_count', searchable: false },
-                    { data: 'total_debt', name: 'total_debt', searchable: false, orderable: false },
+                    { data: 'total_customers', name: 'total_customer_count', searchable: false, orderable: false },
                     { data: 'actions', name: 'actions', orderable: false, searchable: false }
                 ],
-                order: [[1, 'asc'], [2, 'asc']], // cities.name, keyin neighborhoods.name bo'yicha
+                order: [[1, 'asc'], [2, 'asc']],
                 pageLength: 25,
-                language: { // O'zbekcha tarjima (users jadvalidagi kabi)
+                language: {
                     search: "Qidiruv:",
                     lengthMenu: "_MENU_ ta yozuv ko'rsatish",
                     info: "_TOTAL_ ta yozuvdan _START_ dan _END_ gachasi ko'rsatilmoqda",
