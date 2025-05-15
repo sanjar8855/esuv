@@ -70,7 +70,7 @@ class NeighborhoodController extends Controller
                     return $neighborhood->company ? e($neighborhood->company->name) : '<span class="text-muted">Belgilanmagan</span>';
                 })
                 ->editColumn('name', function(Neighborhood $neighborhood) { // Mahalla nomi
-                    return e($neighborhood->name);
+                    return $neighborhood->name;
                 })
                 ->editColumn('street_count', function(Neighborhood $neighborhood) { // Ko'chalar soni
                     return $neighborhood->street_count ?? 0;
