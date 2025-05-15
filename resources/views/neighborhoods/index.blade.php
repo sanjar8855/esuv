@@ -88,12 +88,6 @@
                     {data: 'name', name: 'name'}, // Mahalla Nomi (saralash neighborhoods.name bo'lishi kerak)
                     {data: 'street_count', name: 'street_count', searchable: false, orderable: true}, // Ko'chalar soni
                     {data: 'customer_count', name: 'customer_count_val', searchable: false, orderable: true}, // Mijozlar soni
-                    {
-                        data: 'total_debt_display',
-                        name: 'total_debt_on_neighborhood',
-                        searchable: false,
-                        orderable: true
-                    }, // Jami qarzdorlik
                     {data: 'actions', name: 'actions', orderable: false, searchable: false} // Amallar
                 ],
                 // Boshlang'ich saralash: Shahar, keyin Mahalla

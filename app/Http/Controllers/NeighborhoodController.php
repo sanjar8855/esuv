@@ -52,18 +52,6 @@ class NeighborhoodController extends Controller
                 ->whereColumn('customers.company_id', 'neighborhoods.company_id')
             ]);
 
-            // 3. Jami qarzdorlikni hisoblash
-            $query->addSelect(['total_debt_on_neighborhood' => Customer::select(
-                DB::raw('SUM(CASE WHEN balance < 0 THEN balance ELSE 0 END)')
-            )
-                ->where('customers.is_active', true)
-                ->whereHas('street', function (Builder $streetQuery) {
-                    $streetQuery->whereColumn('streets.neighborhood_id', 'neighborhoods.id');
-                })
-                ->whereColumn('customers.company_id', 'neighborhoods.company_id')
-            ]);
-
-
             return DataTables::eloquent($query)
                 ->addIndexColumn() // "N" ustuni uchun
                 ->addColumn('city_full_path', function (Neighborhood $neighborhood) {
@@ -90,11 +78,6 @@ class NeighborhoodController extends Controller
                 ->editColumn('customer_count', function(Neighborhood $neighborhood) { // Mijozlar soni
                     return $neighborhood->customer_count_val ?? 0;
                 })
-                ->addColumn('total_debt_display', function (Neighborhood $neighborhood) {
-                    $debt = abs($neighborhood->total_debt_on_neighborhood ?? 0);
-                    $colorClass = $debt > 0 ? 'text-danger fw-bold' : 'text-muted';
-                    return '<span class="' . $colorClass . '">' . number_format($debt, 0, '', ' ') . ' UZS</span>';
-                })
                 ->addColumn('actions', function (Neighborhood $neighborhood) {
                     $showUrl = route('neighborhoods.show', $neighborhood->id);
                     $editUrl = route('neighborhoods.edit', $neighborhood->id);
@@ -107,7 +90,7 @@ class NeighborhoodController extends Controller
                     $buttons .= '<form action="'.$deleteUrl.'" method="POST" style="display:inline;" onsubmit="return confirm(\'Haqiqatan ham o‘chirmoqchimisiz?\');">'.$csrf.$method.'<button type="submit" class="btn btn-danger btn-sm">O‘chirish</button></form>';
                     return $buttons;
                 })
-                ->rawColumns(['city_full_path', 'company_name_display', 'actions', 'total_debt_display'])
+                ->rawColumns(['city_full_path', 'company_name_display', 'actions'])
                 ->make(true);
         }
 
