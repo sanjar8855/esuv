@@ -56,7 +56,7 @@ class CityController extends Controller
                     return $city->company ? e($city->company->name) : '<span class="text-muted">Belgilanmagan</span>';
                 })
                 ->editColumn('name', function(City $city) { // Shahar nomi
-                    return e($city->name);
+                    return $city->name;
                 })
                 ->editColumn('neighborhood_count', function(City $city) { // Mahalla soni
                     return $city->neighborhood_count_val ?? 0; // withCount dan kelgan qiymat
