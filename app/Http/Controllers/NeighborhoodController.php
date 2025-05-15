@@ -155,52 +155,73 @@ class NeighborhoodController extends Controller
         }
     }
 
-    public function show(Neighborhood $neighborhood)
+    public function show(Request $request, Neighborhood $neighborhood) // Requestni inject qiling
     {
-        // Agar AJAX so‘rovi bo‘lsa
-        if (request()->ajax()) {
-            $streetsQuery = $neighborhood->streets()
-                // Har bir ko‘cha uchun faqat aktiv mijozlar soni
-                ->withCount(['customers as customer_count' => function (\Illuminate\Database\Eloquent\Builder $q) {
-                    $q->where('is_active', 1);
-                }]);
+        $user = Auth::user(); // Joriy foydalanuvchi (admin huquqlarini tekshirish uchun)
 
-            return \Yajra\DataTables\Facades\DataTables::eloquent($streetsQuery)
-                ->editColumn('name', function (\App\Models\Street $street) {
+        // AJAX so‘rovi bo‘lsa (DataTables uchun)
+        if ($request->ajax()) {
+            // Ushbu mahallaga tegishli ko'chalarni olamiz
+            $streetsQuery = $neighborhood->streets() // streets() relationini ishlatamiz
+            ->with('company'); // Har bir ko'cha uchun kompaniya ma'lumotini yuklaymiz
+
+            // Mahallaning kompaniyasi bo'yicha ko'chalarni filtrlash
+            // Agar mahalla biror kompaniyaga biriktirilgan bo'lsa, faqat o'sha kompaniyaning ko'chalarini ko'rsatamiz
+            // Agar mahalla kompaniyaga biriktirilmagan bo'lsa (company_id=NULL), faqat kompaniyasi NULL bo'lgan ko'chalarni ko'rsatamiz
+            $streetsQuery->where('streets.company_id', $neighborhood->company_id);
+
+
+            // Har bir ko'cha uchun aktiv mijozlar sonini hisoblash
+            // Mijozlar ko'chaning kompaniyasiga tegishli bo'lishi kerak
+            $streetsQuery->withCount(['customers as customer_count' => function (Builder $q) {
+                $q->where('customers.is_active', true)
+                    ->whereColumn('customers.company_id', 'streets.company_id');
+            }]);
+
+            return DataTables::eloquent($streetsQuery)
+                ->addColumn('id_display', function (Street $street) {
+                    return $street->id;
+                })
+                ->addColumn('company_name_display', function (Street $street) {
+                    return $street->company ? e($street->company->name) : '<span class="text-muted">Belgilanmagan</span>';
+                })
+                ->editColumn('name', function (Street $street) {
                     $url = route('streets.show', $street->id);
                     return '<a href="' . $url . '" class="badge badge-outline text-blue">'
                         . e($street->name) . '</a>';
                 })
-                ->editColumn('customer_count', function (\App\Models\Street $street) {
-                    return $street->customer_count;
+                ->editColumn('customer_count', function (Street $street) {
+                    return $street->customer_count ?? 0;
                 })
-                ->addColumn('actions', function (\App\Models\Street $street) {
+                ->addColumn('actions', function (Street $street) {
                     $show = route('streets.show', $street->id);
                     $edit = route('streets.edit', $street->id);
                     $del  = route('streets.destroy', $street->id);
                     $csrf   = csrf_field();
                     $method = method_field('DELETE');
+                    $currentUser = Auth::user(); // Joriy foydalanuvchi
 
-                    return
-                        '<a href="' . $show . '" class="btn btn-info btn-sm">Ko‘rish</a> ' .
-                        '<a href="' . $edit . '" class="btn btn-warning btn-sm">Tahrirlash</a> ' .
-                        '<form action="' . $del . '" method="POST" style="display:inline;" '
-                        . 'onsubmit="return confirm(\'Haqiqatan ham o‘chirmoqchimisiz?\');">'
-                        . $csrf . $method
-                        . '<button type="submit" class="btn btn-danger btn-sm">O‘chirish</button>'
-                        . '</form>';
+                    $btns  = '<a href="' . $show . '" class="btn btn-info btn-sm">Ko‘rish</a> ';
+                    // Tahrirlash va o'chirish faqat admin uchun (bu sahifaga faqat admin kiradi deb hisoblayapmiz)
+                    if ($currentUser && $currentUser->hasRole('admin')) {
+                        $btns .= '<a href="' . $edit . '" class="btn btn-warning btn-sm">Tahrirlash</a> ';
+                        $btns .= '<form action="' . $del . '" method="POST" style="display:inline;" '
+                            . 'onsubmit="return confirm(\'Haqiqatan ham o‘chirmoqchimisiz?\');">'
+                            . $csrf . $method
+                            . '<button type="submit" class="btn btn-danger btn-sm">O‘chirish</button>'
+                            . '</form>';
+                    }
+                    return $btns;
                 })
-                // endi faqat name, customer_count va actions ustunlari raw
-                ->rawColumns(['name', 'actions'])
+                ->rawColumns(['name', 'actions', 'company_name_display'])
                 ->toJson();
         }
 
-        // Oddiy GET – sahifaga ko‘chalar soni (faol mijozlar bilan) uzatiladi
-        $streetsCount = $neighborhood->streets()
-            ->whereHas('customers', function ($q) {
-                $q->where('is_active', 1);
-            })
-            ->count();
+        // AJAX bo'lmagan so'rov uchun (sahifa birinchi ochilganda)
+        // Mahallaga tegishli (va mahallaning kompaniyasiga mos keladigan) ko'chalar sonini olish
+        $streetsInitialQuery = $neighborhood->streets();
+        $streetsInitialQuery->where('streets.company_id', $neighborhood->company_id);
+        $streetsCount = $streetsInitialQuery->count();
 
         return view('neighborhoods.show', compact('neighborhood', 'streetsCount'));
     }
