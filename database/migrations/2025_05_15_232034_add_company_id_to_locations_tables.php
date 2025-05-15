@@ -24,14 +24,8 @@ return new class extends Migration
                             ->after('id')  // 'id' ustunidan keyin joylashtirish (ixtiyoriy)
                             ->constrained('companies') // companies jadvaliga ishora qiladi
                             ->onDelete('cascade'); // Agar kompaniya o'chirilsa, unga tegishli joylashuvlar ham o'chiriladi
-                        // Yoki ->onDelete('set null') agar null bo'lib qolishi kerak bo'lsa
-                        Log::info("Added company_id to {$tableName} table.");
-                    } else {
-                        Log::info("company_id column already exists in {$tableName} table.");
                     }
                 });
-            } else {
-                Log::warning("Table '{$tableName}' not found while trying to add company_id column.");
             }
         }
     }
@@ -48,10 +42,7 @@ return new class extends Migration
                 Schema::table($tableName, function (Blueprint $table) {
                     $table->dropForeign(['company_id']); // Yoki $table->dropForeign('table_name_company_id_foreign');
                     $table->dropColumn('company_id');
-                    Log::info("Dropped company_id from {$tableName} table.");
                 });
-            } else {
-                Log::info("company_id column does not exist or table '{$tableName}' not found for dropping.");
             }
         }
     }
