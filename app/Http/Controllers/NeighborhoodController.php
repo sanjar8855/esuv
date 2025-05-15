@@ -57,7 +57,7 @@ class NeighborhoodController extends Controller
                 ->addColumn('city_full_path', function (Neighborhood $neighborhood) {
                     $pathParts = [];
                     if ($neighborhood->city) {
-                        $pathParts[] = e($neighborhood->city->name); // Shahar
+                        $pathParts[] = $neighborhood->city->name; // Shahar
                         if ($neighborhood->city->region) {
                             $pathParts[] = e($neighborhood->city->region->name); // Viloyat
                         }

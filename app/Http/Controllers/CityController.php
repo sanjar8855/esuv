@@ -50,10 +50,10 @@ class CityController extends Controller
             return DataTables::eloquent($query)
                 ->addIndexColumn() // "N" ustuni uchun
                 ->addColumn('region_name', function (City $city) {
-                    return $city->region ? e($city->region->name) : '-';
+                    return $city->region ? $city->region->name : '-';
                 })
                 ->addColumn('company_name_display', function (City $city) {
-                    return $city->company ? e($city->company->name) : '<span class="text-muted">Belgilanmagan</span>';
+                    return $city->company ? $city->company->name : '<span class="text-muted">Belgilanmagan</span>';
                 })
                 ->editColumn('name', function(City $city) { // Shahar nomi
                     return $city->name;

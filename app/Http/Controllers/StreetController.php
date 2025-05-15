@@ -59,16 +59,16 @@ class StreetController extends Controller
                 })
                 ->addColumn('company_name_display', function (Street $street) {
                     // Eager loaded company dan foydalanamiz
-                    return $street->company ? e($street->company->name) : '<span class="text-muted">Kompaniya belgilanmagan</span>';
+                    return $street->company ? $street->company->name : '<span class="text-muted">Kompaniya belgilanmagan</span>';
                 })
                 ->addColumn('neighborhood_full_path_display', function (Street $street) { // addColumn nomlarini o'zgartirdim
                     $pathParts = [];
                     if ($street->neighborhood) {
-                        $pathParts[] = e($street->neighborhood->name); // Mahalla
+                        $pathParts[] = $street->neighborhood->name; // Mahalla
                         if ($street->neighborhood->city) {
-                            $pathParts[] = e($street->neighborhood->city->name); // Shahar
+                            $pathParts[] = $street->neighborhood->city->name; // Shahar
                             if ($street->neighborhood->city->region) {
-                                $pathParts[] = e($street->neighborhood->city->region->name); // Viloyat
+                                $pathParts[] = $street->neighborhood->city->region->name; // Viloyat
                             }
                         }
                     }
@@ -77,7 +77,7 @@ class StreetController extends Controller
                     return $displayText ? '<a href="' . $link . '" class="badge badge-outline text-blue">' . $displayText . '</a>' : '-';
                 })
                 ->editColumn('name', function ($street){
-                    return e($street->name); // Ko'cha nomi (streets.name)
+                    return $street->name; // Ko'cha nomi (streets.name)
                 })
                 ->editColumn('customer_count', function ($street) {
                     return $street->customer_count ?? 0;
@@ -162,13 +162,13 @@ class StreetController extends Controller
             return DataTables::eloquent($query)
                 ->addColumn('company', function (Customer $c) {
                     return $c->company
-                        ? '<a href="'.route('companies.show',$c->company->id).'">'.e($c->company->name).'</a>'
+                        ? '<a href="'.route('companies.show',$c->company->id).'">'.$c->company->name.'</a>'
                         : '-';
                 })
-                ->addColumn('address', fn(Customer $c) => e($c->address))
+                ->addColumn('address', fn(Customer $c) => $c->address)
                 ->addColumn('meter', function (Customer $c) {
                     return $c->waterMeter
-                        ? '<a href="'.route('water_meters.show',$c->waterMeter->id).'">'.e($c->waterMeter->meter_number).'</a>'
+                        ? '<a href="'.route('water_meters.show',$c->waterMeter->id).'">'.$c->waterMeter->meter_number.'</a>'
                         : '<span class="text-muted">—</span>';
                 })
                 ->addColumn('balance', function (Customer $c) {
