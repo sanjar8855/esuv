@@ -33,6 +33,7 @@
                                 <thead>
                                 <tr>
                                     <th>ID</th>
+                                    <th>Kompaniya</th>
                                     <th>Mahalla</th>
                                     <th>Ko‘cha Nomi</th>
                                     <th>Mijozlar soni</th>
@@ -64,12 +65,11 @@
                 serverSide: true,
                 ajax: "{{ route('streets.index') }}",
                 columns: [
-                    { data: 'id', name: 'id' },
-                    // `data: 'neighborhood'` - Controllerdagi addColumn nomi
-                    // `name: 'neighborhoods.name'` - Saralash/qidirish uchun bazadagi ustun (join qilingan)
-                    { data: 'neighborhood', name: 'neighborhoods.name', orderable: true, searchable: true },
-                    { data: 'name', name: 'name' }, // Jadval nomini aniq ko'rsatish
-                    { data: 'customer_count', name: 'customer_count', searchable: false },
+                    { data: 'id_display', name: 'streets.id' },
+                    { data: 'company_name_display', name: 'companies.name' },
+                    { data: 'neighborhood_full_path_display', name: 'neighborhoods.name'},
+                    { data: 'name', name: 'streets.name' }, // Jadval nomini aniq ko'rsatish
+                    { data: 'customer_count', name: 'customer_count', searchable: false, orderable: true },
                     { data: 'actions', name: 'actions', orderable: false, searchable: false }
                 ],
                 // Boshlang'ich saralash: Mahalla, keyin Ko'cha

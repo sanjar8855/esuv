@@ -9,7 +9,7 @@ class Street extends Model
 {
     use HasFactory;
 
-    protected $fillable = ['neighborhood_id', 'name'];
+    protected $fillable = ['neighborhood_id', 'name', 'company_id'];
 
     public function neighborhood()
     {
@@ -19,5 +19,10 @@ class Street extends Model
     public function customers()
     {
         return $this->hasMany(Customer::class);
+    }
+
+    public function company()
+    {
+        return $this->belongsTo(Company::class);
     }
 }

@@ -5,12 +5,9 @@ namespace App\Http\Controllers;
 use App\Models\Customer;
 use App\Models\Street;
 use App\Models\Neighborhood;
+use App\Models\Company;
 use App\Models\Invoice;
-
-// Invoice modelini qo'shamiz
 use App\Models\Payment;
-
-// Payment modelini qo'shamiz
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Validation\Rule;
@@ -20,33 +17,72 @@ use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
 use Carbon\Carbon;
 use Illuminate\Database\Eloquent\Builder;
-
-// Builder'ni qo'shamiz
 use Illuminate\Support\Facades\DB;
 
 class StreetController extends Controller
 {
     public function index(Request $request)
     {
-        // AJAX so‘rovi bo‘lsa…
-        if ($request->ajax()) {
-            // 1) Har bir ko‘cha uchun faqat aktiv mijozlar sonini yuklaymiz
-            $streets = Street::with('neighborhood')
-                ->withCount(['customers as customer_count' => function ($q) {
-                    $q->where('is_active', true);
-                }])
-                ->get();
+        // Bu sahifaga faqat admin kiradi
+        // $user = Auth::user(); // Endi shart emas
 
-            // 2) DataTables uchun collection qaytaramiz
-            return DataTables::collection($streets)
-                ->addColumn('neighborhood', function ($street) {
-                    $url = route('neighborhoods.show', $street->neighborhood->id);
-                    return '<a href="' . $url . '" class="badge badge-outline text-blue">'
-                        . e($street->neighborhood->name) . '</a>';
+        if ($request->ajax()) {
+            $query = Street::query()
+                ->select('streets.*') // Asosiy jadval ustunlarini aniq tanlaymiz (JOINlarda chalkashmasligi uchun)
+                // Saralash va ma'lumot olish uchun kerakli jadvallarni JOIN qilamiz
+                // Kompaniya nomini olish va saralash uchun (agar company_id NULL bo'lsa ham ko'cha chiqishi uchun leftJoin)
+                ->leftJoin('companies', 'streets.company_id', '=', 'companies.id')
+                // Mahalla nomini olish va saralash uchun
+                ->leftJoin('neighborhoods', 'streets.neighborhood_id', '=', 'neighborhoods.id')
+                // Agar shahar/viloyat nomi bo'yicha ham saralash kerak bo'lsa, ularni ham JOIN qilish mumkin:
+                // ->leftJoin('cities', 'neighborhoods.city_id', '=', 'cities.id')
+                // ->leftJoin('regions', 'cities.region_id', '=', 'regions.id')
+
+                // Eager loading (with) JOIN qilingan ma'lumotlarni Eloquent obyektlariga to'g'ri joylash uchun kerak bo'lishi mumkin,
+                // lekin JOIN qilingan ustunlarni to'g'ridan-to'g'ri addColumn ichida ishlataveramiz.
+                // Agar ->with() ishlatilsa, u alohida so'rov yuboradi.
+                // JOIN qilganimizdan keyin ->with() shart bo'lmasligi mumkin, agar select() da kerakli ustunlarni olsak.
+                // Hozircha ->with() ni qoldiramiz, lekin select() ga e'tibor beramiz.
+                ->with([
+                    'neighborhood.city.region', // Bu display uchun hali ham kerak
+                    'company' // Bu ham display uchun kerak
+                ]);
+
+            $query->withCount(['customers as customer_count' => function (Builder $q) {
+                $q->where('customers.is_active', true)
+                    ->whereColumn('customers.company_id', 'streets.company_id');
+            }]);
+
+            return DataTables::eloquent($query)
+                ->addColumn('id_display', function(Street $street){
+                    return $street->id;
+                })
+                ->addColumn('company_name_display', function (Street $street) {
+                    // Eager loaded company dan foydalanamiz
+                    return $street->company ? e($street->company->name) : '<span class="text-muted">Kompaniya belgilanmagan</span>';
+                })
+                ->addColumn('neighborhood_full_path_display', function (Street $street) { // addColumn nomlarini o'zgartirdim
+                    $pathParts = [];
+                    if ($street->neighborhood) {
+                        $pathParts[] = e($street->neighborhood->name); // Mahalla
+                        if ($street->neighborhood->city) {
+                            $pathParts[] = e($street->neighborhood->city->name); // Shahar
+                            if ($street->neighborhood->city->region) {
+                                $pathParts[] = e($street->neighborhood->city->region->name); // Viloyat
+                            }
+                        }
+                    }
+                    $link = $street->neighborhood ? route('neighborhoods.show', $street->neighborhood->id) : '#';
+                    $displayText = implode(', ', $pathParts);
+                    return $displayText ? '<a href="' . $link . '" class="badge badge-outline text-blue">' . $displayText . '</a>' : '-';
+                })
+                ->editColumn('name', function ($street){
+                    return e($street->name); // Ko'cha nomi (streets.name)
                 })
                 ->editColumn('customer_count', function ($street) {
-                    return $street->customer_count;
+                    return $street->customer_count ?? 0;
                 })
+
                 ->addColumn('actions', function ($street) {
                     $show = route('streets.show', $street->id);
                     $edit = route('streets.edit', $street->id);
@@ -61,11 +97,10 @@ class StreetController extends Controller
                         . $csrf . $method
                         . '<button type="submit" class="btn btn-danger btn-sm">O‘chirish</button>'
                         . '</form>';
-
                     return $btns;
                 })
-                ->rawColumns(['neighborhood','actions'])
-                ->toJson();
+                ->rawColumns(['neighborhood_full_path_display', 'actions', 'company_name_display'])
+                ->make(true);
         }
 
         return view('streets.index');
@@ -73,24 +108,44 @@ class StreetController extends Controller
 
     public function create()
     {
-        $neighborhoods = Neighborhood::orderBy('name', 'asc')->get();
-        return view('streets.create', compact('neighborhoods'));
+        // Faqat adminlar ko'cha qo'sha oladi deb hisoblaymiz
+        // Agar boshqa rollar ham qo'sha olsa, bu yerga shart qo'shish kerak
+        if (!auth()->user()->hasRole('admin')) {
+            // abort(403, 'Bu amal uchun ruxsatingiz yo\'q.');
+            // Yoki boshqa sahifaga yo'naltirish
+            return redirect()->route('streets.index')->with('error', 'Sizda ko\'cha qo\'shish uchun ruxsat yo\'q.');
+        }
+
+        $companies = Company::orderBy('name')->get(); // Barcha kompaniyalar ro'yxati
+        $neighborhoods = Neighborhood::with('city.region')->orderBy('name')->get(); // Barcha mahallalar (keyinchalik kompaniyaga qarab filtrlash mumkin)
+
+        return view('streets.create', compact('companies', 'neighborhoods'));
     }
 
     public function store(Request $request)
     {
-        $request->validate([
-            'neighborhood_id' => 'required|exists:neighborhoods,id',
+        if (!auth()->user()->hasRole('admin')) {
+            // abort(403);
+            return redirect()->route('streets.index')->with('error', 'Sizda ko\'cha saqlash uchun ruxsat yo\'q.');
+        }
+
+        $validated = $request->validate([
             'name' => [
                 'required',
                 'string',
+                'max:255',
                 Rule::unique('streets')->where(function ($query) use ($request) {
-                    return $query->where('neighborhood_id', $request->neighborhood_id);
-                })
+                    return $query->where('neighborhood_id', $request->neighborhood_id)
+                        ->where('company_id', $request->company_id); // Kompaniya bo'yicha unikallik
+                }),
             ],
+            'neighborhood_id' => 'required|exists:neighborhoods,id',
+            'company_id' => 'required|exists:companies,id', // Kompaniya tanlanishi shart
         ]);
 
-        Street::create($request->all());
+        // Street modelida company_id fillable'ga qo'shilgan bo'lishi kerak
+        Street::create($validated);
+
         return redirect()->route('streets.index')->with('success', 'Ko‘cha muvaffaqiyatli qo‘shildi!');
     }
 
@@ -157,32 +212,58 @@ class StreetController extends Controller
         return view('streets.show', compact('street','customersCount'));
     }
 
-    public function edit(Street $street)
+    public function edit(Street $street) // Route model binding ishlatiladi
     {
-        $neighborhoods = Neighborhood::orderBy('name', 'asc')->get();
-        return view('streets.edit', compact('street', 'neighborhoods'));
+        // Faqat adminlar tahrirlay oladi
+        if (!auth()->user()->hasRole('admin')) {
+            return redirect()->route('streets.index')->with('error', 'Sizda ko\'chani tahrirlash uchun ruxsat yo\'q.');
+        }
+
+        $companies = Company::orderBy('name')->get(); // Kompaniyalar ro'yxati
+        $neighborhoods = Neighborhood::with('city.region')->orderBy('name')->get(); // Mahallalar ro'yxati
+
+        return view('streets.edit', compact('street', 'companies', 'neighborhoods'));
     }
 
     public function update(Request $request, Street $street)
     {
-        $request->validate([
-            'neighborhood_id' => 'required|exists:neighborhoods,id',
+        if (!auth()->user()->hasRole('admin')) {
+            return redirect()->route('streets.index')->with('error', 'Sizda ko\'chani yangilash uchun ruxsat yo\'q.');
+        }
+
+        $validated = $request->validate([
             'name' => [
                 'required',
                 'string',
-                Rule::unique('streets')->where(function ($query) use ($request, $street) {
-                    return $query->where('neighborhood_id', $request->neighborhood_id);
-                })->ignore($street->id) // O‘zidan tashqari boshqalarga unikal bo‘lishi shart
+                'max:255',
+                Rule::unique('streets')->where(function ($query) use ($request) {
+                    return $query->where('neighborhood_id', $request->neighborhood_id)
+                        ->where('company_id', $request->company_id);
+                })->ignore($street->id), // Joriy ko'chani unikallik tekshiruvidan chiqarib tashlash
             ],
+            'neighborhood_id' => 'required|exists:neighborhoods,id',
+            'company_id' => 'required|exists:companies,id', // Kompaniya tanlanishi shart
         ]);
 
-        $street->update($request->all());
+        $street->update($validated);
+
         return redirect()->route('streets.index')->with('success', 'Ko‘cha muvaffaqiyatli yangilandi!');
     }
 
     public function destroy(Street $street)
     {
+        if (!auth()->user()->hasRole('admin')) {
+            return redirect()->route('streets.index')->with('error', 'Sizda ko\'chani o\'chirish uchun ruxsat yo\'q.');
+        }
+
+        // Bu yerga qo'shimcha tekshiruvlar qo'shish mumkin,
+        // masalan, agar ko'chada mijozlar bo'lsa o'chirishga ruxsat bermaslik.
+        if ($street->customers()->count() > 0) {
+            return redirect()->route('streets.index')->with('error', 'Bu ko\'chada mijozlar mavjudligi sababli uni o\'chirib bo\'lmaydi.');
+        }
+
         $street->delete();
+
         return redirect()->route('streets.index')->with('success', 'Ko‘cha muvaffaqiyatli o‘chirildi!');
     }
 }

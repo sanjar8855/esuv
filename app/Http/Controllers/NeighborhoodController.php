@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\Neighborhood;
 use App\Models\City;
 use App\Models\Customer;
+use App\Models\Company;
 use App\Models\Street;
 use App\Models\Invoice; // Invoice modelini qo'shamiz
 use App\Models\Payment; // Payment modelini qo'shamiz
@@ -18,87 +19,157 @@ use Illuminate\Support\Facades\DB;
 
 class NeighborhoodController extends Controller
 {
-    public function index()
+    public function index(Request $request)
     {
-        // Diagnostika uchun log
-        Log::info('Neighborhood Index accessed');
+        // Bu sahifaga faqat admin kiradi deb hisoblaymiz
+        // $user = Auth::user();
 
-        if (request()->ajax()) {
+        if ($request->ajax()) {
             $query = Neighborhood::query()
-                ->leftJoin('cities', 'neighborhoods.city_id', '=', 'cities.id')
-                ->select(
-                    'neighborhoods.*',
-                    'cities.name as city_name',
-                    'cities.id as city_id_for_route'
-                )
-                // Ko'chalar soni
-                ->withCount('streets as street_count')
-                // Jami qarzdorlikni hisoblash (faol mijozlarning manfiy balanslari)
-                ->addSelect(['total_customer_count' => Customer::selectRaw('COUNT(*)')
-                    ->where('customers.is_active', 1)
-                    ->whereHas('street', function (Builder $q) {
-                        $q->whereColumn('streets.neighborhood_id', 'neighborhoods.id');
-                    })
-                ]);
+                ->with([
+                    'city.region', // Shahar va viloyat ma'lumotlarini yuklash
+                    'company'      // Mahallaning kompaniyasini yuklash
+                ])
+                ->select('neighborhoods.*'); // Asosiy jadval ustunlarini aniq tanlaymiz
+
+            // 1. Ko'chalar sonini hisoblash (shu mahalladagi, kompaniyasidan qat'i nazar)
+            // Chunki mahalla o'zi bir kompaniyaga tegishli (yoki tegishli emas)
+            // Ko'chalar ham o'sha mahallaning kompaniyasiga tegishli bo'lishi kerak
+            $query->withCount(['streets as street_count' => function(Builder $streetQuery) {
+                // Ko'cha mahallaning kompaniyasiga tegishli bo'lishi kerak
+                $streetQuery->whereColumn('streets.company_id', 'neighborhoods.company_id');
+            }]);
+
+            // 2. Mijozlar sonini hisoblash
+            // Shu mahallaga va mahallaning kompaniyasiga tegishli aktiv mijozlar soni
+            $query->addSelect(['customer_count_val' => Customer::select(DB::raw('count(*)'))
+                ->where('customers.is_active', true)
+                ->whereHas('street', function (Builder $streetQuery) {
+                    // Mijozning ko'chasi shu mahallaga tegishli ekanligini tekshirish
+                    $streetQuery->whereColumn('streets.neighborhood_id', 'neighborhoods.id');
+                })
+                // Mijozning kompaniyasi mahallaning kompaniyasiga mos kelishini tekshirish
+                ->whereColumn('customers.company_id', 'neighborhoods.company_id')
+            ]);
+
+            // 3. Jami qarzdorlikni hisoblash
+            $query->addSelect(['total_debt_on_neighborhood' => Customer::select(
+                DB::raw('SUM(CASE WHEN balance < 0 THEN balance ELSE 0 END)')
+            )
+                ->where('customers.is_active', true)
+                ->whereHas('street', function (Builder $streetQuery) {
+                    $streetQuery->whereColumn('streets.neighborhood_id', 'neighborhoods.id');
+                })
+                ->whereColumn('customers.company_id', 'neighborhoods.company_id')
+            ]);
+
 
             return DataTables::eloquent($query)
-                ->addColumn('city', function (Neighborhood $n) {
-                    $url = route('cities.show', $n->city_id_for_route);
-                    return '<a href="' . $url . '" class="badge badge-outline text-blue">'
-                        . e($n->city_name) . '</a>';
+                ->addIndexColumn() // "N" ustuni uchun
+                ->addColumn('city_full_path', function (Neighborhood $neighborhood) {
+                    $pathParts = [];
+                    if ($neighborhood->city) {
+                        $pathParts[] = e($neighborhood->city->name); // Shahar
+                        if ($neighborhood->city->region) {
+                            $pathParts[] = e($neighborhood->city->region->name); // Viloyat
+                        }
+                    }
+                    $link = $neighborhood->city ? route('cities.show', $neighborhood->city->id) : '#';
+                    $displayText = implode(', ', $pathParts);
+                    return $displayText ? '<a href="' . $link . '" class="badge badge-outline text-blue">' . $displayText . '</a>' : '-';
                 })
-                ->editColumn('street_count', fn(Neighborhood $n) => $n->street_count ?: 0)
-                ->addColumn('total_customers', function (Neighborhood $n) {
-                    return $n->total_customer_count;
+                ->addColumn('company_name_display', function (Neighborhood $neighborhood) {
+                    return $neighborhood->company ? e($neighborhood->company->name) : '<span class="text-muted">Belgilanmagan</span>';
                 })
-                ->addColumn('actions', function (Neighborhood $n) {
-                    $show = route('neighborhoods.show', $n->id);
-                    $edit = route('neighborhoods.edit', $n->id);
-                    $del  = route('neighborhoods.destroy', $n->id);
-                    $csrf   = csrf_field();
+                ->editColumn('name', function(Neighborhood $neighborhood) { // Mahalla nomi
+                    return e($neighborhood->name);
+                })
+                ->editColumn('street_count', function(Neighborhood $neighborhood) { // Ko'chalar soni
+                    return $neighborhood->street_count ?? 0;
+                })
+                ->editColumn('customer_count', function(Neighborhood $neighborhood) { // Mijozlar soni
+                    return $neighborhood->customer_count_val ?? 0;
+                })
+                ->addColumn('total_debt_display', function (Neighborhood $neighborhood) {
+                    $debt = abs($neighborhood->total_debt_on_neighborhood ?? 0);
+                    $colorClass = $debt > 0 ? 'text-danger fw-bold' : 'text-muted';
+                    return '<span class="' . $colorClass . '">' . number_format($debt, 0, '', ' ') . ' UZS</span>';
+                })
+                ->addColumn('actions', function (Neighborhood $neighborhood) {
+                    $showUrl = route('neighborhoods.show', $neighborhood->id);
+                    $editUrl = route('neighborhoods.edit', $neighborhood->id);
+                    $deleteUrl = route('neighborhoods.destroy', $neighborhood->id);
+                    $csrf = csrf_field();
                     $method = method_field('DELETE');
-
-                    return
-                        '<a href="' . $show . '" class="btn btn-info btn-sm">Ko‘rish</a> ' .
-                        '<a href="' . $edit . '" class="btn btn-warning btn-sm">Tahrirlash</a> ' .
-                        '<form action="' . $del . '" method="POST" style="display:inline;" '
-                        . 'onsubmit="return confirm(\'Haqiqatan ham o‘chirmoqchimisiz?\');">'
-                        . $csrf . $method
-                        . '<button type="submit" class="btn btn-danger btn-sm">O‘chirish</button>'
-                        . '</form>';
+                    // Faqat admin ko'rishi va amallarni bajarishi mumkin
+                    $buttons = '<a href="'.$showUrl.'" class="btn btn-info btn-sm">Ko‘rish</a> ';
+                    $buttons .= '<a href="'.$editUrl.'" class="btn btn-warning btn-sm">Tahrirlash</a> ';
+                    $buttons .= '<form action="'.$deleteUrl.'" method="POST" style="display:inline;" onsubmit="return confirm(\'Haqiqatan ham o‘chirmoqchimisiz?\');">'.$csrf.$method.'<button type="submit" class="btn btn-danger btn-sm">O‘chirish</button></form>';
+                    return $buttons;
                 })
-                ->rawColumns(['city', 'actions'])
-                ->toJson();
+                ->rawColumns(['city_full_path', 'company_name_display', 'actions', 'total_debt_display'])
+                ->make(true);
         }
 
         return view('neighborhoods.index');
     }
 
-
     public function create()
     {
-        $cities = City::orderBy('name', 'asc')->get();
-        return view('neighborhoods.create', compact('cities'));
+        // Bu amalni faqat admin bajarishi mumkin
+        // $this->authorize('create', Neighborhood::class);
+
+        $cities = City::with('region', 'company')->orderBy('name')->get(); // Shaharlarni viloyati va kompaniyasi bilan olish
+        $companies = Company::orderBy('name')->get(); // Barcha kompaniyalar
+
+        return view('neighborhoods.create', compact('cities', 'companies'));
     }
 
     public function store(Request $request)
     {
-        $request->validate([
+        // $this->authorize('create', Neighborhood::class);
+
+        $validated = $request->validate([
             'city_id' => 'required|exists:cities,id',
-            'name'    => [
+            'company_id' => 'nullable|exists:companies,id', // Ixtiyoriy
+            'name' => [
                 'required',
                 'string',
-                Rule::unique('neighborhoods')->where(fn($q) =>
-                $q->where('city_id', $request->city_id)
-                )
+                'max:255',
+                Rule::unique('neighborhoods')->where(function ($query) use ($request) {
+                    return $query->where('city_id', $request->city_id)
+                        ->where('company_id', $request->company_id);
+                }),
             ],
         ]);
 
-        Neighborhood::create($request->all());
+        $city = City::find($validated['city_id']);
+        $companyIdToSave = $validated['company_id'];
 
-        return redirect()
-            ->route('neighborhoods.index')
-            ->with('success', 'Mahalla muvaffaqiyatli qo‘shildi!');
+        // Agar mahalla uchun kompaniya tanlanmagan bo'lsa, lekin shahar kompaniyaga biriktirilgan bo'lsa,
+        // mahallani ham o'sha shahar kompaniyasiga biriktiramiz.
+        if (empty($companyIdToSave) && $city && $city->company_id) {
+            $companyIdToSave = $city->company_id;
+            // Validatsiyani qayta tekshirish (agar companyId o'zgargan bo'lsa)
+            $nameRule = Rule::unique('neighborhoods')->where(function ($query) use ($request, $companyIdToSave) {
+                return $query->where('city_id', $request->city_id)
+                    ->where('company_id', $companyIdToSave);
+            });
+            $request->validate(['name' => ['required', 'string', 'max:255', $nameRule]]);
+        }
+
+        try {
+            // Neighborhood modelida $fillable ga 'company_id' qo'shilgan bo'lishi kerak
+            Neighborhood::create([
+                'name' => $validated['name'],
+                'city_id' => $validated['city_id'],
+                'company_id' => $companyIdToSave, // Yangilangan company_id
+            ]);
+            return redirect()->route('neighborhoods.index')->with('success', 'Mahalla muvaffaqiyatli qo‘shildi!');
+        } catch (\Exception $e) {
+            Log::error('Error storing neighborhood: ' . $e->getMessage(), $validated);
+            return back()->withInput()->with('error', 'Mahalla qo‘shishda xatolik yuz berdi.');
+        }
     }
 
     public function show(Neighborhood $neighborhood)
@@ -151,30 +222,64 @@ class NeighborhoodController extends Controller
         return view('neighborhoods.show', compact('neighborhood', 'streetsCount'));
     }
 
-    public function edit(Neighborhood $neighborhood)
+    public function edit(Neighborhood $neighborhood) // Route model binding
     {
-        $cities = City::orderBy('name', 'asc')->get();
-        return view('neighborhoods.edit', compact('neighborhood', 'cities'));
+        // Bu amalni faqat admin bajarishi mumkin
+        // $this->authorize('update', $neighborhood);
+
+        $cities = City::with('region', 'company')->orderBy('name')->get();
+        $companies = Company::orderBy('name')->get();
+
+        return view('neighborhoods.edit', compact('neighborhood', 'cities', 'companies'));
     }
 
     public function update(Request $request, Neighborhood $neighborhood)
     {
-        $request->validate([
+        // $this->authorize('update', $neighborhood);
+
+        $validated = $request->validate([
             'city_id' => 'required|exists:cities,id',
-            'name'    => [
+            'company_id' => 'nullable|exists:companies,id',
+            'name' => [
                 'required',
                 'string',
-                Rule::unique('neighborhoods')->where(fn($q) =>
-                $q->where('city_id', $request->city_id)
-                )->ignore($neighborhood->id)
+                'max:255',
+                Rule::unique('neighborhoods')->where(function ($query) use ($request) {
+                    return $query->where('city_id', $request->city_id)
+                        ->where('company_id', $request->company_id);
+                })->ignore($neighborhood->id), // Joriy mahallani unikallik tekshiruvidan chiqarib tashlash
             ],
         ]);
 
-        $neighborhood->update($request->all());
+        $city = City::find($validated['city_id']);
+        // Agar formadan company_id kelmasa (bo'sh string), null qilib olamiz
+        $companyIdToSave = $validated['company_id'] ?? null;
 
-        return redirect()
-            ->route('neighborhoods.index')
-            ->with('success', 'Mahalla muvaffaqiyatli yangilandi!');
+
+        // Agar mahalla uchun kompaniya tanlanmagan bo'lsa (yoki "Kompaniya tanlanmagan" tanlangan bo'lsa),
+        // va tanlangan shaharning o'z kompaniyasi bo'lsa, mahallani o'sha shahar kompaniyasiga biriktiramiz.
+        if (empty($companyIdToSave) && $city && $city->company_id) {
+            $companyIdToSave = $city->company_id;
+            // Agar company_id o'zgargan bo'lsa, validatsiyani qayta tekshirish kerak bo'lishi mumkin
+            // (agar eski company_id va yangi company_id bilan name unikalligi boshqacha bo'lsa)
+            // Hozircha bu qismni sodda qoldiramiz, chunki ignore($neighborhood->id) bor
+        }
+        // Agar mahalla uchun kompaniya tanlangan bo'lsa, o'sha ishlatiladi.
+        // Agar shahar ham, mahalla uchun ham kompaniya tanlanmagan bo'lsa, companyIdToSave null bo'ladi.
+
+        $updateData = [
+            'name' => $validated['name'],
+            'city_id' => $validated['city_id'],
+            'company_id' => $companyIdToSave,
+        ];
+
+        try {
+            $neighborhood->update($updateData);
+            return redirect()->route('neighborhoods.index')->with('success', 'Mahalla muvaffaqiyatli yangilandi!');
+        } catch (\Exception $e) {
+            Log::error('Error updating neighborhood ID ' . $neighborhood->id . ': ' . $e->getMessage(), $validated);
+            return back()->withInput()->with('error', 'Mahalla yangilashda xatolik yuz berdi.');
+        }
     }
 
     public function destroy(Neighborhood $neighborhood)

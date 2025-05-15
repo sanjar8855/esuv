@@ -9,7 +9,7 @@ class City extends Model
 {
     use HasFactory;
 
-    protected $fillable = ['region_id', 'name'];
+    protected $fillable = ['region_id', 'name', 'company_id'];
 
     public function region()
     {
@@ -21,4 +21,8 @@ class City extends Model
         return $this->hasMany(Neighborhood::class);
     }
 
+    public function company()
+    {
+        return $this->belongsTo(Company::class);
+    }
 }

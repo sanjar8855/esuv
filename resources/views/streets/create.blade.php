@@ -23,11 +23,31 @@
                         @csrf
 
                         <div class="mb-3">
+                            <label class="form-label required" for="company_id">Kompaniya</label>
+                            <select name="company_id" id="company_id" class="form-select @error('company_id') is-invalid @enderror" required>
+                                <option value="">Kompaniyani tanlang...</option>
+                                @foreach($companies as $company)
+                                    <option value="{{ $company->id }}" {{ old('company_id') == $company->id ? 'selected' : '' }}>
+                                        {{ $company->name }}
+                                    </option>
+                                @endforeach
+                            </select>
+                            @error('company_id')
+                            <div class="invalid-feedback">{{ $message }}</div>
+                            @enderror
+                        </div>
+
+                        <div class="mb-3">
                             <label for="neighborhood_id">Mahalla kiritib tanlang:</label>
                             <select name="neighborhood_id" id="neighborhoodSelect" class="form-control" required>
                                 <option></option>
                                 @foreach($neighborhoods as $neighborhood)
-                                    <option value="{{ $neighborhood->id }}">{{ $neighborhood->name }} - {{$neighborhood->city->name}} - {{$neighborhood->city->region->name}}</option>
+                                    <option value="{{ $neighborhood->id }}">
+                                        @if($neighborhood->company) (Komp: {{ $neighborhood->company->name }}), @endif
+                                        {{ $neighborhood->name }},
+                                        {{$neighborhood->city->name}},
+                                        {{$neighborhood->city->region->name}}
+                                    </option>
                                 @endforeach
                             </select>
                         </div>
@@ -53,6 +73,16 @@
                     direction: "asc"
                 },
                 placeholder: "Mahalla nomini yozing...",
+                allowEmptyOption: true
+            });
+
+            new TomSelect("#company_id", {
+                create: false,
+                sortField: {
+                    field: "text",
+                    direction: "asc"
+                },
+                placeholder: "Kompaniya nomini yozing...",
                 allowEmptyOption: true
             });
         });
