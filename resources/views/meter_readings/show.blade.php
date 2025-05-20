@@ -13,7 +13,7 @@
                         </a>
                     </p>
                     <p>
-                        <strong>Hisoblagich:</strong> {{ number_format($meterReading->waterMeter->meter_number, 0, '.', ' ') }}
+                        <strong>Hisoblagich:</strong> {{ $meterReading->waterMeter->meter_number }}
                     </p>
                     <p><strong>O‘qish:</strong> {{ number_format($meterReading->reading, 0, '.', ' ') }}</p>
                     <p>
