@@ -12,10 +12,10 @@
                             <th>Nomi:</th>
                             <td>{{ $company->name }}</td>
                         </tr>
-{{--                        <tr>--}}
-{{--                            <th>Email:</th>--}}
-{{--                            <td>{{ $company->email }}</td>--}}
-{{--                        </tr>--}}
+                        {{--                        <tr>--}}
+                        {{--                            <th>Email:</th>--}}
+                        {{--                            <td>{{ $company->email }}</td>--}}
+                        {{--                        </tr>--}}
                         <tr>
                             <th>Telefon:</th>
                             <td>{{ $company->phone }}</td>
@@ -69,14 +69,14 @@
                         </button>
                     </form>
                 </div>
-                <div class="col-4">
+                <div class="col-3">
                     <h2>Tariflar</h2>
                     <div class="card">
                         <div class="table-responsive">
                             <table class="table table-vcenter card-table">
                                 <thead>
                                 <tr>
-                                    <th>Nomi</th>
+                                    {{--                                    <th>Nomi</th>--}}
                                     <th>1 m³ narxi</th>
                                     <th>1 kishiga narx</th>
                                     <th>Holati</th>
@@ -85,7 +85,7 @@
                                 <tbody>
                                 @forelse($company->tariffs as $tariff)
                                     <tr>
-                                        <td>{{ $tariff->name }}</td>
+                                        {{--                                        <td>{{ $tariff->name }}</td>--}}
                                         <td>{{ number_format($tariff->price_per_m3, 0, '.', ' ') }} so'm</td>
                                         <td>{{ number_format($tariff->for_one_person, 0, '.', ' ') }} so'm</td>
                                         <td>
@@ -106,7 +106,7 @@
                         </div>
                     </div>
                 </div>
-                <div class="col-4">
+                <div class="col-5">
                     <h2>Xodimlar</h2>
                     <div class="card">
                         <div class="table-responsive">
@@ -123,7 +123,8 @@
                                 @forelse($company->users as $user)
                                     <tr>
                                         <td>
-                                            <a href="{{route('users.show', $user->id)}}" class="badge badge-outline text-blue">{{ $user->name }}</a>
+                                            <a href="{{route('users.show', $user->id)}}"
+                                               class="badge badge-outline text-blue">{{ $user->name }}</a>
                                         </td>
                                         <td>{{ $user->rank }}</td>
                                         <td>{{ $user->work_start ? date('d.m.Y', strtotime($user->work_start)) : 'Ko\'rsatilmagan' }}</td>
