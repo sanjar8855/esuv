@@ -45,7 +45,7 @@
                                     <option value="{{ $street->id }}">
                                         {{ $street->name }} ko'cha,
                                         {{ $street->neighborhood->name }} mahalla,
-                                        {{ $street->neighborhood->city->name }} shahar,
+                                        {{ $street->neighborhood->city->name }},
                                         {{ $street->neighborhood->city->region->name }} viloyat
                                     </option>
                                 @endforeach

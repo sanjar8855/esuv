@@ -176,19 +176,27 @@ class CustomerController extends Controller
     public function create()
     {
         $user = auth()->user();
+        $companies = collect(); // Bo'sh kolleksiya bilan initsializatsiya qilamiz
+        $streets = collect();   // Bo'sh kolleksiya bilan initsializatsiya qilamiz
 
         // Agar admin bo‘lsa, barcha kompaniyalarning mahallalarini oladi
         if ($user->hasRole('admin')) {
             $companies = Company::all();
+            $streets = Street::all();
         } else {
-            // Oddiy foydalanuvchilar faqat o‘z kompaniyasining ma’lumotlarini ko‘radi
-            $company = $user->company;
-            if (!$company) {
-                return redirect()->route('customers.index')->withErrors('Sizga hech qanday kompaniya bog‘lanmagan.');
+            if (!$user->company_id) {
+                // Agar foydalanuvchiga kompaniya biriktirilmagan bo'lsa, xatolik yoki bosh sahifaga yo'naltirish
+                return redirect()->route('dashboard') // Yoki customers.index
+                ->with('error', 'Sizga kompaniya biriktirilmagan. Mijoz qo\'sha olmaysiz.');
             }
-            $companies = Company::where('id', $company->id)->get(); // Faqat bitta kompaniya qaytadi
+            // Faqat o'z kompaniyasini olamiz (formada ko'rsatish yoki yashirincha ishlatish uchun)
+            $companies = Company::where('id', $user->company_id)->get();
+            // Faqat o'z kompaniyasiga tegishli ko'chalarni olamiz
+            $streets = Street::where('company_id', $user->company_id)
+                ->with('neighborhood.city.region')
+                ->orderBy('name', 'asc')
+                ->get();
         }
-        $streets = Street::all();
 
         return view('customers.create', compact('companies', 'streets'));
     }
