@@ -43,6 +43,9 @@
                                 <option></option>
                                 @foreach($streets as $street)
                                     <option value="{{ $street->id }}">
+                                        @if(auth()->user()->hasRole('admin') && $street->company)
+                                            <span class="text-primary">[{{ $street->company->name }}]</span>
+                                        @endif
                                         {{ $street->name }} ko'cha,
                                         {{ $street->neighborhood->name }} mahalla,
                                         {{ $street->neighborhood->city->name }},

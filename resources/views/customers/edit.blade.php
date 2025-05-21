@@ -27,11 +27,13 @@
                             @if(auth()->user()->hasRole('admin'))
                                 <select name="company_id" class="form-control">
                                     @foreach($companies as $company)
-                                        <option value="{{ $company->id }}" {{$customer->company_id==$company->id ? 'selected' : ''}}>{{ $company->name }}</option>
+                                        <option
+                                            value="{{ $company->id }}" {{$customer->company_id==$company->id ? 'selected' : ''}}>{{ $company->name }}</option>
                                     @endforeach
                                 </select>
                             @else
-                                <input type="text" class="form-control" value="{{ $companies->first()->name }}" disabled>
+                                <input type="text" class="form-control" value="{{ $companies->first()->name }}"
+                                       disabled>
                                 <input type="hidden" name="company_id" value="{{ $companies->first()->id }}">
                             @endif
                         </div>
@@ -45,8 +47,15 @@
                             <label class="form-label">Ko'cha</label>
                             <select name="street_id" id="StreetSelect" class="form-control" required>
                                 @foreach($streets as $street)
-                                    <option value="{{ $street->id }}" {{ $customer->street_id == $street->id ? 'selected' : '' }}>
-                                        {{ $street->name }}
+                                    <option
+                                        value="{{ $street->id }}" {{ $customer->street_id == $street->id ? 'selected' : '' }}>
+                                        @if(auth()->user()->hasRole('admin') && $street->company)
+                                            <span class="text-primary">[{{ $street->company->name }}]</span>
+                                        @endif
+                                        {{ $street->name }} ko'cha,
+                                        {{ $street->neighborhood->name }} mahalla,
+                                        {{ $street->neighborhood->city->name }},
+                                        {{ $street->neighborhood->city->region->name }} viloyat
                                     </option>
                                 @endforeach
                             </select>
@@ -66,7 +75,8 @@
 
                         <div class="mb-3">
                             <label class="form-label">Hisob raqami</label>
-                            <input type="text" name="account_number" class="form-control" value="{{ $customer->account_number }}" required>
+                            <input type="text" name="account_number" class="form-control"
+                                   value="{{ $customer->account_number }}" required>
                         </div>
 
                         <div class="mb-3">
@@ -76,7 +86,8 @@
 
                         <div class="mb-3">
                             <label class="form-check">
-                                <input type="checkbox" name="has_water_meter" id="has_water_meter" class="form-check-input"
+                                <input type="checkbox" name="has_water_meter" id="has_water_meter"
+                                       class="form-check-input"
                                        value="1" {{ $customer->has_water_meter ? 'checked' : '' }}>
                                 <span class="form-check-label">Suv hisoblagichi bormi?</span>
                             </label>
@@ -90,7 +101,8 @@
 
                         <div class="mb-3">
                             <label class="form-check">
-                                <input type="checkbox" name="is_active" class="form-check-input" {{ $customer->is_active ? 'checked' : '' }}>
+                                <input type="checkbox" name="is_active"
+                                       class="form-check-input" {{ $customer->is_active ? 'checked' : '' }}>
                                 <span class="form-check-label">Faol mijoz</span>
                             </label>
                         </div>
@@ -103,27 +115,27 @@
         </div>
     </div>
 
-{{--    <script>--}}
-{{--        document.addEventListener("DOMContentLoaded", function () {--}}
-{{--            const hasWaterMeterCheckbox = document.getElementById("has_water_meter");--}}
-{{--            const familyMembersDiv = document.getElementById("family_members_div");--}}
-{{--            const familyMembersInput = document.getElementById("family_members");--}}
+    {{--    <script>--}}
+    {{--        document.addEventListener("DOMContentLoaded", function () {--}}
+    {{--            const hasWaterMeterCheckbox = document.getElementById("has_water_meter");--}}
+    {{--            const familyMembersDiv = document.getElementById("family_members_div");--}}
+    {{--            const familyMembersInput = document.getElementById("family_members");--}}
 
-{{--            function toggleFields() {--}}
-{{--                if (hasWaterMeterCheckbox.checked) {--}}
-{{--                    familyMembersDiv.style.display = "none";--}}
-{{--                    familyMembersInput.value = ""; // Oiladagi odam soni olinmaydi--}}
-{{--                } else {--}}
-{{--                    familyMembersDiv.style.display = "block";--}}
-{{--                }--}}
-{{--            }--}}
+    {{--            function toggleFields() {--}}
+    {{--                if (hasWaterMeterCheckbox.checked) {--}}
+    {{--                    familyMembersDiv.style.display = "none";--}}
+    {{--                    familyMembersInput.value = ""; // Oiladagi odam soni olinmaydi--}}
+    {{--                } else {--}}
+    {{--                    familyMembersDiv.style.display = "block";--}}
+    {{--                }--}}
+    {{--            }--}}
 
-{{--            hasWaterMeterCheckbox.addEventListener("change", toggleFields);--}}
-{{--            toggleFields(); // Sahifa yuklanganda avtomatik tekshirish--}}
-{{--        });--}}
-{{--    </script>--}}
+    {{--            hasWaterMeterCheckbox.addEventListener("change", toggleFields);--}}
+    {{--            toggleFields(); // Sahifa yuklanganda avtomatik tekshirish--}}
+    {{--        });--}}
+    {{--    </script>--}}
     <script>
-        document.addEventListener("DOMContentLoaded", function() {
+        document.addEventListener("DOMContentLoaded", function () {
             new TomSelect("#StreetSelect", {
                 create: false,
                 sortField: {
