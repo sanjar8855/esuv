@@ -315,20 +315,27 @@ class CustomerController extends Controller
     {
         $user = auth()->user();
 
+        $customer->loadMissing(['company', 'street']);
+        $companies = collect();
+        $streets = collect();
+
         // Agar admin bo‘lsa, barcha kompaniyalarning mahallalarini oladi
         if ($user->hasRole('admin')) {
             $companies = Company::all();
+            $streets = Street::all();
         } else {
             // Oddiy foydalanuvchilar faqat o‘z kompaniyasining ma’lumotlarini ko‘radi
-            $company = $user->company;
-
-            if (!$company) {
-                return redirect()->route('customers.index')->withErrors('Sizga hech qanday kompaniya bog‘lanmagan.');
+            if ($customer->company_id != $user->company_id) {
+                return redirect()->route('customers.index')->with('error', 'Siz faqat o\'z kompaniyangiz mijozlarini tahrirlay olasiz.');
             }
 
-            $companies = Company::where('id', $company->id)->get(); // Faqat bitta kompaniya qaytadi
+            // Kompaniyasi o'zgarmaydi, faqat o'zining kompaniyasi
+            $companies = Company::where('id', $user->company_id)->get();
+            // Faqat o'z kompaniyasiga tegishli ko'chalar
+            $streets = Street::where('company_id', $user->company_id)
+                ->with('neighborhood.city.region')
+                ->orderBy('name')->get();
         }
-        $streets = Street::all();
 
         return view('customers.edit', compact('customer', 'companies', 'streets'));
     }
