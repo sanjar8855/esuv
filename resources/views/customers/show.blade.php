@@ -526,13 +526,23 @@
                     if (document.getElementById('invoice_billing_period_picker')) {
                         new Litepicker({
                             element: document.getElementById('invoice_billing_period_picker'),
-                            format: 'YYYY-MM',
+                            format: 'YYYY-MM', // Faqat yil va oyni saqlash uchun format
                             autoApply: true,
-                            // showOnFocus: true,
+                            singleMode: true, // Bitta sana tanlash (bu standart, lekin aniqlik uchun)
+                            showTooltip: false, // Maslahatlarni o'chirish (ixtiyoriy)
+
+                            // Oylar va Yillarni tanlash uchun ochiladigan menyularni yoqish
+                            dropdowns: {
+                                months: true, // Oylar uchun ochiladigan menyu
+                                years: true,  // Yillar uchun ochiladigan menyu (standart yoki 'asc'/'desc' tartibida)
+                                // minYear: 2000, // Minimal yil (ixtiyoriy)
+                                // maxYear: null,  // Maksimal yil (ixtiyoriy)
+                            },
+
                             buttonText: {
                                 previousMonth: '<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="icon icon-1"><path d="M15 6l-6 6l6 6" /></svg>',
                                 nextMonth: '<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="icon icon-1"><path d="M9 6l6 6l-6 6" /></svg>',
-                            },
+                            }
                         });
                     }
                 } else {
