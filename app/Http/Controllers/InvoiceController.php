@@ -139,16 +139,22 @@ class InvoiceController extends Controller
      */
     public function store(Request $request)
     {
-        $request->validate([
+        $validatedData = $request->validate([
             'customer_id' => 'required|exists:customers,id',
             'tariff_id' => 'required|exists:tariffs,id',
-            'billing_period' => 'required|string',
+            'billing_period' => 'required|date_format:Y-m',
             'amount_due' => 'required|numeric|min:0',
             'due_date' => 'required|date',
             'status' => 'required|in:pending,paid,overdue',
         ]);
 
-        Invoice::create($request->all());
+        Invoice::create($validatedData);
+
+        // Agar forma mijozning show sahifasidan yuborilgan bo'lsa, o'sha yerga qaytamiz
+        if ($request->has('redirect_to_customer_show') && $request->customer_id) {
+            return redirect()->route('customers.show', $request->customer_id)
+                ->with('success', 'Hisob-faktura muvaffaqiyatli qo‘shildi!');
+        }
 
         return redirect()->route('invoices.index')->with('success', 'Hisob-faktura muvaffaqiyatli qo‘shildi!');
     }

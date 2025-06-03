@@ -71,8 +71,16 @@
                                     </a>
                                 @else
                                     Hisoblagich o'rnatilmagan <br>
-                                    <a href="{{ route('water_meters.create', ['customer_id' => $customer->id]) }}" class="btn btn-outline-primary">
-                                        <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-plus" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M12 5l0 14" /><path d="M5 12l14 0" /></svg>
+                                    <a href="{{ route('water_meters.create', ['customer_id' => $customer->id]) }}"
+                                       class="btn btn-outline-primary">
+                                        <svg xmlns="http://www.w3.org/2000/svg"
+                                             class="icon icon-tabler icon-tabler-plus" width="24" height="24"
+                                             viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none"
+                                             stroke-linecap="round" stroke-linejoin="round">
+                                            <path stroke="none" d="M0 0h24v24H0z" fill="none"/>
+                                            <path d="M12 5l0 14"/>
+                                            <path d="M5 12l14 0"/>
+                                        </svg>
                                         Hisoblagich qo'shish
                                     </a>
                                 @endif
@@ -227,7 +235,9 @@
                         @if($customer->waterMeter)
                             <input type="hidden" name="water_meter_id" value="{{ $customer->waterMeter->id }}">
                         @else
-                            <div class="alert alert-warning">Mijozga hisoblagich o‘rnatilmagan. Ko‘rsatkich qo‘shib bo‘lmaydi.</div>
+                            <div class="alert alert-warning">Mijozga hisoblagich o‘rnatilmagan. Ko‘rsatkich qo‘shib
+                                bo‘lmaydi.
+                            </div>
                         @endif
 
                         <div class="mb-3">
@@ -299,6 +309,127 @@
                     <div class="mt-3">
                         {{ $invoices->appends(['payment_page' => request('payment_page')])->links() }}
                     </div>
+
+                    {{-- ------------- YANGI INVOYS QO'SHISH FORMASI ------------- --}}
+                    <h3 class="mt-4">Yangi Invoys Qo'shish</h3>
+                    <form action="{{ route('invoices.store') }}" method="POST" class="mb-3">
+                        @csrf
+                        <input type="hidden" name="customer_id" value="{{ $customer->id }}">
+                        {{-- Agar invoys qo'shilgandan keyin shu sahifaga qaytish kerak bo'lsa --}}
+                        <input type="hidden" name="redirect_to_customer_show" value="1">
+
+                        <div class="mb-3">
+                            <label for="invoice_tariff_id" class="form-label required">Tarif:</label>
+                            <select name="tariff_id" id="invoice_tariff_id"
+                                    class="form-control @error('tariff_id', 'invoice_form') is-invalid @enderror"
+                                    required>
+                                @if($activeTariffs->count() > 0)
+                                    @foreach($activeTariffs as $tariff)
+                                        <option
+                                            value="{{ $tariff->id }}" {{ old('tariff_id') == $tariff->id ? 'selected' : '' }}>
+                                            {{ $tariff->name ?? "ID: " . $tariff->id }}
+                                            ({{ number_format($tariff->price_per_m3, 0, '', ' ') }} so'm/m³
+                                            @if($tariff->for_one_person)
+                                                , {{ number_format($tariff->for_one_person, 0, '', ' ') }}
+                                                so'm/kishi @endif)
+                                        </option>
+                                    @endforeach
+                                @else
+                                    <option value="" disabled>Mijoz kompaniyasi uchun aktiv tariflar mavjud emas.
+                                    </option>
+                                @endif
+                            </select>
+                            @error('tariff_id', 'invoice_form') {{-- Xatoliklarni alohida nomlash --}}
+                            <div class="invalid-feedback">{{ $message }}</div>
+                            @enderror
+                        </div>
+
+                        <div class="mb-3">
+                            <label for="invoice_billing_period_picker" class="form-label required">Hisob davri
+                                (YYYY-MM):</label>
+                            <div class="input-icon"> {{-- Input-icon qobig'i --}}
+                                <span class="input-icon-addon"> {{-- Ikonka uchun joy --}}
+                                     <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24"
+                                          fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                                          stroke-linejoin="round" class="icon icon-tabler icon-tabler-calendar-month"><path
+                                             stroke="none" d="M0 0h24v24H0z" fill="none"/><path
+                                             d="M4 7a2 2 0 0 1 2 -2h12a2 2 0 0 1 2 2v12a2 2 0 0 1 -2 2h-12a2 2 0 0 1 -2 -2v-12z"/><path
+                                             d="M16 3v4"/><path d="M8 3v4"/><path d="M4 11h16"/><path d="M7 14h.01"/><path
+                                             d="M10 14h.01"/><path d="M13 14h.01"/><path d="M7 17h.01"/><path
+                                             d="M10 17h.01"/><path d="M13 17h.01"/></svg>
+                                </span>
+                                <input type="text" {{-- type="month" dan "text" ga o'zgartirildi --}}
+                                name="billing_period"
+                                       id="invoice_billing_period_picker" {{-- Yangi ID --}}
+                                       class="form-control @error('billing_period', 'invoice_form') is-invalid @enderror"
+                                       placeholder="YYYY-MM formatida"
+                                       value="{{ old('billing_period', now()->format('Y-m')) }}"
+                                       required
+                                       autocomplete="off">
+                            </div>
+                            @error('billing_period', 'invoice_form')
+                            <div class="invalid-feedback">{{ $message }}</div>
+                            @enderror
+                        </div>
+
+                        <div class="mb-3">
+                            <label for="invoice_amount_due" class="form-label required">Summa (UZS):</label>
+                            <input type="number" name="amount_due" id="invoice_amount_due"
+                                   class="form-control @error('amount_due', 'invoice_form') is-invalid @enderror"
+                                   value="{{ old('amount_due') }}" required min="0" step="any">
+                            @error('amount_due', 'invoice_form')
+                            <div class="invalid-feedback">{{ $message }}</div>
+                            @enderror
+                        </div>
+
+                        <div class="mb-3">
+                            <label for="invoice_issue_date_picker" class="form-label required">Hisob varaqa
+                                sanasi:</label>
+                            <div class="input-icon"> {{-- Input-icon qobig'i --}}
+                                <span class="input-icon-addon"> {{-- Ikonka uchun joy --}}
+                                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24"
+                                         fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                                         stroke-linejoin="round" class="icon icon-tabler icon-tabler-calendar"><path
+                                            stroke="none" d="M0 0h24v24H0z" fill="none"/><path
+                                            d="M4 7a2 2 0 0 1 2 -2h12a2 2 0 0 1 2 2v12a2 2 0 0 1 -2 2h-12a2 2 0 0 1 -2 -2v-12z"/><path
+                                            d="M16 3v4"/><path d="M8 3v4"/><path d="M4 11h16"/><path d="M11 15h1"/><path
+                                            d="M12 15v3"/></svg>
+                                </span>
+                                <input type="text" {{-- type="date" dan "text" ga o'zgartirildi --}}
+                                name="due_date" {{-- Bazadagi due_date ustuniga yozish uchun name o'zgarmaydi --}}
+                                       id="invoice_issue_date_picker" {{-- Yangi ID --}}
+                                       class="form-control @error('due_date', 'invoice_form') is-invalid @enderror"
+                                       placeholder="Sanani tanlang"
+                                       value="{{ old('due_date', now()->format('Y-m-d')) }}"
+                                       {{-- Standart qiymat bugungi sana --}}
+                                       required
+                                       autocomplete="off"> {{-- Brauzer avtomatik to'ldirishini o'chirish --}}
+                            </div>
+                            @error('due_date', 'invoice_form')
+                            <div class="invalid-feedback">{{ $message }}</div>
+                            @enderror
+                        </div>
+
+                        <div class="mb-3">
+                            <label for="invoice_status" class="form-label required">Holati:</label>
+                            <select name="status" id="invoice_status"
+                                    class="form-control @error('status', 'invoice_form') is-invalid @enderror" required>
+                                <option value="pending" {{ old('status', 'pending') == 'pending' ? 'selected' : '' }}>
+                                    To'lanmagan
+                                </option>
+                                <option value="paid" {{ old('status') == 'paid' ? 'selected' : '' }}>To'langan</option>
+                                <option value="overdue" {{ old('status') == 'overdue' ? 'selected' : '' }}>Muddati
+                                    o'tgan
+                                </option>
+                            </select>
+                            @error('status', 'invoice_form')
+                            <div class="invalid-feedback">{{ $message }}</div>
+                            @enderror
+                        </div>
+
+                        <button type="submit" class="btn btn-success">Invoys Qo'shish</button>
+                    </form>
+                    {{-- ------------- YANGI INVOYS QO'SHISH FORMASI TUGADI ------------- --}}
                 </div>
 
                 <div class="col-md-4">
@@ -349,7 +480,6 @@
                     <div class="mt-3">
                         {{ $payments->appends(['invoice_page' => request('invoice_page')])->links() }}
 
-
                         <h3>To‘lov qabul qilish</h3>
                         <form action="{{ route('payments.store') }}" method="POST" class="mb-3">
                             @csrf
@@ -377,55 +507,39 @@
             </div>
         </div>
 
-        <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery.pjax/2.0.1/jquery.pjax.min.js"></script>
-
         <script>
-            $(document).ready(function () {
-                // Invoyslar tarixi uchun PJAX faqat kerakli qismni yuklaydi
-                $(document).pjax('#pjax-invoices .pagination a', '#pjax-invoices', {timeout: 2000});
-
-                // Yangi yuklangan ma'lumotlarni to'g'ri ishlash uchun indikator qo'shish
-                $(document).on('pjax:send', function () {
-                    $('#pjax-invoices').css('opacity', '0.5'); // Yoqimli animatsiya
-                });
-
-                $(document).on('pjax:complete', function () {
-                    $('#pjax-invoices').css('opacity', '1'); // Animatsiyani tiklash
-                });
-            });
-        </script>
-
-        <script>
-            $(document).ready(function () {
-                $(document).on('submit', '.confirm-form', function (e) {
-                    e.preventDefault();
-                    let form = $(this);
-                    let button = form.find('.confirm-btn');
-                    let readingId = form.data('reading-id');
-                    let statusContainer = $('#reading-status-' + readingId);
-
-                    $.ajax({
-                        url: form.attr('action'),
-                        type: 'POST',
-                        data: form.serialize(),
-                        beforeSend: function () {
-                            button.prop('disabled', true).text('Tasdiqlanmoqda...');
-                        },
-                        success: function (response) {
-                            if (response.status === 'success') {
-                                statusContainer.html(response.html);
-                            } else {
-                                button.prop('disabled', false).text('Tasdiqlash');
-                                alert('Xatolik yuz berdi. Iltimos, qayta urinib ko‘ring.');
+            document.addEventListener("DOMContentLoaded", function () {
+                if (window.Litepicker) { // Litepicker obyekti mavjudligini tekshirish
+                    if (document.getElementById('invoice_issue_date_picker')) {
+                        new Litepicker({
+                            element: document.getElementById('invoice_issue_date_picker'),
+                            format: 'YYYY-MM-DD',
+                            autoApply: true,
+                            // showOnFocus: true, // Litepicker odatda text input uchun buni avtomatik qiladi
+                            buttonText: {
+                                previousMonth: '<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="icon icon-1"><path d="M15 6l-6 6l6 6" /></svg>',
+                                nextMonth: '<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="icon icon-1"><path d="M9 6l6 6l-6 6" /></svg>',
                             }
-                        },
-                        error: function () {
-                            button.prop('disabled', false).text('Tasdiqlash');
-                            alert('Tarmoq xatosi. Iltimos, qayta urinib ko‘ring.');
-                        }
-                    });
-                });
+                        });
+                    }
+
+                    if (document.getElementById('invoice_billing_period_picker')) {
+                        new Litepicker({
+                            element: document.getElementById('invoice_billing_period_picker'),
+                            format: 'YYYY-MM',
+                            autoApply: true,
+                            // showOnFocus: true,
+                            buttonText: {
+                                previousMonth: '<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="icon icon-1"><path d="M15 6l-6 6l6 6" /></svg>',
+                                nextMonth: '<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="icon icon-1"><path d="M9 6l6 6l-6 6" /></svg>',
+                            },
+                        });
+                    }
+                } else {
+                    console.error('Litepicker is not loaded.'); // Litepicker yuklanmagan bo'lsa xabar
+                }
             });
         </script>
+
 
 @endsection

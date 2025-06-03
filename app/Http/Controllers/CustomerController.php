@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\MeterReading;
 use App\Models\Street;
+use App\Models\Tariff;
 use App\Models\WaterMeter;
 use Illuminate\Http\Request;
 use App\Models\Customer;
@@ -92,13 +93,14 @@ class CustomerController extends Controller
                 ->addColumn('street_name', function (Customer $customer) { // Ko'cha nomi
                     return $customer->street ? '<a href="' . route('streets.show', $customer->street->id) . '" class="badge badge-outline text-blue">' . $customer->street->name . '</a>' : '-';
                 })
-                ->addColumn('name_status', function (Customer $customer) { // Ism va status
+                ->addColumn('name_status', function (Customer $customer) {
+                    $nameLink = '<a href="' . route('customers.show', $customer->id) . '" class="badge badge-outline text-blue">'. e($customer->name) . '</a>';
                     $statusBadge = $customer->is_active
                         ? '<span class="badge bg-cyan text-cyan-fg ms-1">Faol</span>'
                         : '<span class="badge bg-red text-red-fg ms-1">Nofaol</span>';
-                    return e($customer->name) . $statusBadge; // e() - XSS himoyasi
+                    return $nameLink . $statusBadge;
                 })
-                ->addColumn('meter_link', function (Customer $customer) { // Hisoblagich linki
+                ->addColumn('meter_link', function (Customer $customer) {
                     if ($customer->waterMeter) {
                         return '<a href="' . route('water_meters.show', $customer->waterMeter->id) . '" class="badge badge-outline text-blue">' . e($customer->waterMeter->meter_number) . '</a>';
                     } else {
@@ -305,7 +307,21 @@ class CustomerController extends Controller
         $invoices = $customer->invoices()->latest()->paginate(5, ['*'], 'invoice_page');
         $payments = $customer->payments()->latest()->paginate(5, ['*'], 'payment_page');
 
-        return view('customers.show', compact('customer', 'readings', 'invoices', 'payments'));
+        $activeTariffs = collect(); // Bo'sh kolleksiya bilan boshlaymiz
+        if ($customer->company_id) { // Agar mijoz kompaniyaga biriktirilgan bo'lsa
+            $activeTariffs = Tariff::where('company_id', $customer->company_id)
+                ->where('is_active', true)
+                ->orderBy('name') // Yoki valid_from bo'yicha saralash
+                ->get();
+        }
+
+        return view('customers.show', compact(
+            'customer',
+            'readings',
+            'invoices',
+            'payments',
+            'activeTariffs'
+        ));
     }
 
     /**

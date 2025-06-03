@@ -18,7 +18,89 @@
 
     <style>
         @import url('https://rsms.me/inter/inter.css');
+
+        /* Logotiplar uchun standart holat */
+        .navbar-brand .logo-compact {
+            display: none;
+        }
+        .navbar-brand .logo-full {
+            /* Tabler standartiga qarab block yoki inline-block bo'lishi mumkin */
+            display: inline-block;
+        }
+
+        /* Katta ekranlar uchun (>= 992px) */
+        @media (min-width: 992px) {
+            /* ---- Yon menyu Kengliklari ---- */
+            aside.navbar-vertical {
+                /* To'liq menyu kengligini bu yerda belgilamaymiz, Tabler o'zi qo'ysin */
+                /* Agar Tabler kenglikni bermasa, avvalgi kabi 250px yoki haqiqiy qiymatni qo'ying */
+                /* width: 250px !important; */
+                transition: width 0.2s ease-in-out;
+            }
+            aside.navbar-vertical.sidebar-compact {
+                width: 72px !important; /* Ixcham menyu kengligi */
+                overflow: hidden;
+            }
+
+            /* ---- Ixcham Menyuning Ichki Ko'rinishi (logotip, matnlar, ikonka) ---- */
+            /* Bu qismlar avvalgi javobdagidek qoladi */
+            aside.navbar-vertical.sidebar-compact .navbar-brand {
+                padding-left: 0 !important;
+                padding-right: 0 !important;
+                justify-content: center;
+            }
+            aside.navbar-vertical.sidebar-compact .navbar-brand .logo-full {
+                display: none !important;
+            }
+            aside.navbar-vertical.sidebar-compact .navbar-brand .logo-compact {
+                display: block !important;
+                margin: 0 auto !important;
+            }
+            aside.navbar-vertical.sidebar-compact .nav-link-title {
+                display: none !important;
+                opacity: 0;
+                visibility: hidden;
+                transition: opacity 0.1s ease-in-out, visibility 0.1s ease-in-out;
+            }
+            aside.navbar-vertical.sidebar-compact .nav-link {
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                padding: 0.75rem 0.5rem !important;
+            }
+            aside.navbar-vertical.sidebar-compact .nav-link .nav-link-icon {
+                margin-right: 0 !important;
+            }
+
+            .page-wrapper {
+                /* To'liq menyu holati uchun padding-left ni bu yerda belgilamaymiz. */
+                /* Tabler o'zining standart stillari bilan buni to'g'ri qilishi kerak. */
+                transition: padding-left 0.2s ease-in-out, margin-left 0.2s ease-in-out; /* margin-left ni ham kuzatamiz */
+            }
+
+            /* Faqat menyu ixchamlashganda .page-wrapper uchun paddingni o'rnatamiz */
+            .page.page-sidebar-compacted .page-wrapper {
+                padding-left: 72px !important;
+                margin-left: 0 !important;
+            }
+            #desktop-sidebar-compact-toggle svg{
+                margin-top:0px;
+                margin-bottom:0px;
+            }
+            .navbar-collapse .navbar-nav .nav-item .nav-link .nav-link-icon{
+                margin-left:10px;
+            }
+        }
+
+        /* Kichik ekranlar uchun (< 992px) */
+        @media (max-width: 991.98px) {
+            #desktop-sidebar-compact-toggle { display: none !important; }
+            .page .page-wrapper { padding-left: 0; margin-left: 0; }
+            .page.page-sidebar-compacted .page-wrapper { padding-left: 0; margin-left: 0; }
+            /* ... mobil uchun ixcham menyu stillarini bekor qilish ... */
+        }
     </style>
+
 </head>
 <body class=" layout-fluid">
 <script src="{{ asset('tabler/js/demo-theme.min.js?1738096685') }}"></script>
@@ -26,6 +108,12 @@
 
 <div class="page">
     <!-- Sidebar -->
+    <button class="btn btn-icon d-none d-lg-block" type="button" id="desktop-sidebar-compact-toggle"
+            style="position: fixed; top: 15px; left: 15px; z-index: 1050; background-color: #206bc4; color:white;"
+            aria-label="Yon menyuni ixchamlashtirish">
+        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="icon icon-tabler icon-tabler-menu-2"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M4 6l16 0" /><path d="M4 12l16 0" /><path d="M4 18l16 0" /></svg>
+    </button>
+
     <aside class="navbar navbar-vertical navbar-expand-lg" data-bs-theme="dark">
         <div class="container-fluid">
             <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#sidebar-menu"
@@ -42,7 +130,7 @@
             <div class="navbar-brand navbar-brand-autodark">
                 <a href="{{ route('dashboard') }}">
                     {{--                    eSuv.uz--}}
-                    <img src="{{ asset('tabler/img/logo/full-white.png') }}" alt="" width="100">
+                    <img src="{{ asset('tabler/img/logo/full-white.png') }}" alt="" width="100" style="margin-top:25px;">
                 </a>
             </div>
             {{--            <div class="navbar-nav flex-row d-lg-none">--}}
@@ -487,6 +575,57 @@
 </div>
 
 <!-- Libs JS -->
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const desktopToggleBtn = document.getElementById('desktop-sidebar-compact-toggle');
+        const sidebar = document.querySelector('aside.navbar-vertical');
+        const page = document.querySelector('.page'); // Asosiy .page elementi
+        const PAGE_SIDEBAR_COMPACTED_CLASS = 'page-sidebar-compacted';
+        const SIDEBAR_COMPACT_CLASS = 'sidebar-compact';
+
+        // Menyuning holatini o'rnatadigan funksiya
+        function applyCompactState(isCompact) {
+            if (!sidebar || !page) return; // Elementlar topilmasa, hech narsa qilmaslik
+
+            if (window.innerWidth >= 992) { // Faqat katta ekranlar uchun
+                if (isCompact) {
+                    sidebar.classList.add(SIDEBAR_COMPACT_CLASS);
+                    page.classList.add(PAGE_SIDEBAR_COMPACTED_CLASS);
+                } else {
+                    sidebar.classList.remove(SIDEBAR_COMPACT_CLASS);
+                    page.classList.remove(PAGE_SIDEBAR_COMPACTED_CLASS);
+                }
+            } else { // Kichik ekranlarda har doim ixcham bo'lmagan holat
+                sidebar.classList.remove(SIDEBAR_COMPACT_CLASS);
+                page.classList.remove(PAGE_SIDEBAR_COMPACTED_CLASS);
+            }
+        }
+
+        if (desktopToggleBtn && sidebar && page) {
+            // Sahifa yuklanganda localStorage dan holatni o'qib, o'rnatish
+            const savedStateIsCompact = localStorage.getItem('sidebarCompactState') === 'true';
+            applyCompactState(savedStateIsCompact);
+
+            desktopToggleBtn.addEventListener('click', function() {
+                if (window.innerWidth >= 992) { // Faqat katta ekranlar uchun
+                    const currentIsCompact = sidebar.classList.contains(SIDEBAR_COMPACT_CLASS);
+                    const newStateIsCompact = !currentIsCompact;
+
+                    applyCompactState(newStateIsCompact);
+                    localStorage.setItem('sidebarCompactState', newStateIsCompact ? 'true' : 'false');
+                }
+            });
+        }
+
+        // Ekran o'lchami o'zgarganda menyu holatini to'g'rilash
+        window.addEventListener('resize', function() {
+            const savedStateIsCompact = localStorage.getItem('sidebarCompactState') === 'true';
+            applyCompactState(savedStateIsCompact); // Holatni qayta o'rnatish
+        });
+    });
+</script>
+
+<script src="{{ asset('tabler/libs/litepicker/dist/litepicker.js') }}" defer></script>
 <script src="{{ asset('tabler/libs/apexcharts/dist/apexcharts.min.js') }}" defer></script>
 <script src="{{ asset('tabler/libs/jsvectormap/dist/jsvectormap.min.js') }}" defer></script>
 <script src="{{ asset('tabler/libs/jsvectormap/dist/maps/world.js') }}" defer></script>

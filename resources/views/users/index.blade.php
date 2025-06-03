@@ -91,6 +91,7 @@
                     {data: 'actions', name: 'actions', orderable: false, searchable: false} // Controller'da `addColumn` bilan qo'shilgan
                 ],
                 order: [[0, 'desc']], // Boshlang'ich saralash (masalan, ID bo'yicha kamayish tartibida)
+                pageLength: 25,
                 language: { // <-- MANA SHU QISM
                     search: "Qidiruv:",
                     lengthMenu: "_MENU_ ta yozuv ko'rsatish",

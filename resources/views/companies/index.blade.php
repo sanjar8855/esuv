@@ -22,6 +22,7 @@
                                     <th>Plan</th>
                                     <th>Ishchilar soni</th>
                                     <th>Mijozlar soni</th>
+                                    <th>Izoh</th>
                                     <th>Amallar</th>
                                 </tr>
                                 </thead>
@@ -42,6 +43,7 @@
                                         <td class="text-secondary">{{ $company->plan }}</td>
                                         <td class="text-secondary">{{ $company->users_count }}</td>
                                         <td class="text-secondary">{{ $company->customers_count }}</td>
+                                        <td class="text-secondary">{{ $company->description }}</td>
                                         <td>
                                             <a href="{{ route('companies.show', $company->id) }}" class="btn btn-info">Ko‘rish</a>
                                             <a href="{{ route('companies.edit', $company->id) }}" class="btn btn-warning">Tahrirlash</a>

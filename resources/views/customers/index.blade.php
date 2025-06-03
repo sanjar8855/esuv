@@ -104,12 +104,12 @@
                                     @endif
                                     <th>Ko‘cha</th>
                                     <th>Uy raqami</th>
-                                    <th>Ism va Status</th> {{-- Ustun nomini o'zgartirdim --}}
+                                    <th>Ism va Status</th>
                                     <th>Telefon</th>
                                     <th>Hisoblagich</th>
-                                    <th>Balans (UZS)</th> {{-- Ustun nomini o'zgartirdim --}}
+                                    <th>Balans (UZS)</th>
                                     <th>Oxirgi ko'rsatkich</th>
-                                    <th>Oila a'zolari</th> {{-- Ustun nomini o'zgartirdim --}}
+{{--                                    <th>Oila a'zolari</th> --}}
                                     <th>Amallar</th>
                                 </tr>
                                 </thead>
@@ -194,7 +194,7 @@
                     {data: 'meter_link', name: 'waterMeter.meter_number', orderable: false, searchable: false}, // Hisoblagich linki
                     {data: 'balance_formatted', name: 'balance', searchable: false}, // Balans (saralash 'balance' bo'yicha)
                     {data: 'last_reading', name: 'last_reading', orderable: false, searchable: false}, // Oxirgi ko'rsatkich (serverda alohida tayyorlanadi)
-                    {data: 'family_members', name: 'family_members'},
+                    // {data: 'family_members', name: 'family_members'},
                     {data: 'actions', name: 'actions', orderable: false, searchable: false} // Amallar
                 ],
                 pageLength: 25,
