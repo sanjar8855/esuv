@@ -16,6 +16,10 @@ class MeterReading extends Model
     protected $casts = [
         'confirmed' => 'boolean',
     ];
+    /**
+     * @var mixed
+     */
+    private $waterMeter;
 
     public function waterMeter()
     {
