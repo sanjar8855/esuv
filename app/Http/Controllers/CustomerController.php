@@ -211,6 +211,9 @@ class CustomerController extends Controller
         $user = auth()->user();
         $hasWaterMeter = $request->boolean('has_water_meter');
 
+        $cleanedAccountMeterNumber = str_replace(' ', '', $request->input('account_meter_number'));
+        $request->merge(['account_meter_number' => $cleanedAccountMeterNumber]);
+
         $rules = [
             'company_id' => $user->hasRole('admin') ? 'required|exists:companies,id' : '',
             'street_id' => 'required|exists:streets,id',
@@ -362,6 +365,11 @@ class CustomerController extends Controller
     public function update(Request $request, Customer $customer)
     {
         $user = auth()->user();
+
+        if ($request->has('account_number')) {
+            $cleanedAccountNumber = str_replace(' ', '', $request->input('account_number'));
+            $request->merge(['account_number' => $cleanedAccountNumber]);
+        }
 
         $validated = $request->validate([
             'company_id' => $user->hasRole('admin') ? 'required|exists:companies,id' : '',

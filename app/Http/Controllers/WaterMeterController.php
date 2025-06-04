@@ -120,6 +120,11 @@ class WaterMeterController extends Controller
 
     public function store(Request $request)
     {
+        if ($request->has('meter_number')) {
+            $cleanedMeterNumber = str_replace(' ', '', $request->input('meter_number'));
+            $request->merge(['meter_number' => $cleanedMeterNumber]);
+        }
+
         $request->validate([
             'customer_id' => 'required|exists:customers,id',
             'meter_number' => 'required|string|max:20|unique:water_meters',
@@ -151,6 +156,11 @@ class WaterMeterController extends Controller
 
     public function update(Request $request, WaterMeter $waterMeter)
     {
+        if ($request->has('meter_number')) {
+            $cleanedMeterNumber = str_replace(' ', '', $request->input('meter_number'));
+            $request->merge(['meter_number' => $cleanedMeterNumber]);
+        }
+
         $request->validate([
             'customer_id' => 'required|exists:customers,id',
             'meter_number' => 'required|string|max:20|unique:water_meters,meter_number,' . $waterMeter->id,
