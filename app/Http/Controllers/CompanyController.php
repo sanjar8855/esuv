@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Tariff;
 use Illuminate\Http\Request;
 use App\Models\Company;
 use Illuminate\Support\Facades\Storage;
@@ -77,7 +78,13 @@ class CompanyController extends Controller
                 $query->orderBy('id', 'desc');
             }])
             ->first();
-        return view('companies.show', compact('company'));
+
+        $tariff = Tariff::where('company_id', $id)
+                ->where('is_active', true)
+                ->latest('created_at')
+                ->first() ?? new Tariff(['price_per_m3' => 0]);
+
+        return view('companies.show', compact('company', 'tariff'));
     }
 
     /**

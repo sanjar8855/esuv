@@ -2,6 +2,13 @@
 
 namespace App\Http\Controllers;
 
+use Maatwebsite\Excel\Facades\Excel;
+use App\Imports\BasicExcelImport; // Import klassini chaqirish
+use Illuminate\Support\Facades\DB; // Tranzaksiya uchun
+use Illuminate\Support\Facades\Validator; // Validatsiya uchun
+use Maatwebsite\Excel\Validators\ValidationException as ExcelValidationException;
+use PhpOffice\PhpSpreadsheet\Shared\Date as ExcelDate;
+use App\Imports\CustomersImport;
 use App\Models\MeterReading;
 use App\Models\Street;
 use App\Models\Tariff;
@@ -211,8 +218,10 @@ class CustomerController extends Controller
         $user = auth()->user();
         $hasWaterMeter = $request->boolean('has_water_meter');
 
-        $cleanedAccountMeterNumber = str_replace(' ', '', $request->input('account_meter_number'));
-        $request->merge(['account_meter_number' => $cleanedAccountMeterNumber]);
+        if ($request->has('account_meter_number')) {
+            $cleanedAccountMeterNumber = str_replace(' ', '', $request->input('account_meter_number'));
+            $request->merge(['account_meter_number' => $cleanedAccountMeterNumber]);
+        }
 
         $rules = [
             'company_id' => $user->hasRole('admin') ? 'required|exists:companies,id' : '',
@@ -223,16 +232,18 @@ class CustomerController extends Controller
             'account_meter_number' => [
                 'required',
                 'string',
-                'max:20',
-                Rule::unique('customers', 'account_number'), // customers.account_number ga unique
-                Rule::unique('water_meters', 'meter_number'), // water_meters.meter_number ga unique
+                'max:50', // Bazadagi ustun turiga moslang
+                Rule::unique('customers', 'account_number'), // customers jadvalida unikal bo'lishi shart
             ],
-            'family_members' => 'nullable|integer|min:1',
+            'family_members' => $hasWaterMeter ? 'nullable|integer|min:1' : 'required|integer|min:1', // Shartli majburiy
             'has_water_meter' => 'nullable|boolean',
-
-            'initial_reading' => ['nullable', 'numeric', 'min:0'],
-            'reading_date' => ['nullable', 'date'],
+            'initial_reading' => ['nullable', Rule::requiredIf($hasWaterMeter), 'numeric', 'min:0'],
+            'reading_date' => ['nullable', Rule::requiredIf($hasWaterMeter), 'date'],
         ];
+
+        if ($hasWaterMeter) {
+            $rules['account_meter_number'][] = Rule::unique('water_meters', 'meter_number');
+        }
 
         if (!$user->hasRole('admin')) {
             unset($rules['company_id']); // Admin bo'lmasa, validatsiyadan olib tashlaymiz
@@ -251,14 +262,14 @@ class CustomerController extends Controller
         $accountMeterNumber = $validated['account_meter_number'];
 
         $customerData = [
-            'company_id' => $validated['company_id'],
+            'company_id' => $validated['company_id'] ?? $user->company_id,
             'street_id' => $validated['street_id'],
             'name' => $validated['name'],
             'phone' => $validated['phone'],
             'address' => $validated['address'],
-            'account_number' => $accountMeterNumber, // Yagona qiymatni ishlatamiz
+            'account_number' => $accountMeterNumber,
             'family_members' => $validated['family_members'],
-            'is_active' => 1, // Har doim aktiv
+            'is_active' => 1,
             'has_water_meter' => $hasWaterMeter,
             'balance' => 0,
         ];
@@ -266,16 +277,16 @@ class CustomerController extends Controller
         $customer = Customer::create($customerData);
 
         if ($hasWaterMeter) {
-            $installationDate = Carbon::now(); // Bugungi sana
-            $validityPeriod = 8; // 8 yil
+            $installationDate = Carbon::now();
+            $validityPeriod = 8;
             $expirationDate = $installationDate->copy()->addYears($validityPeriod);
 
             $waterMeterData = [
                 'customer_id' => $customer->id,
-                'meter_number' => $accountMeterNumber, // Yagona qiymatni ishlatamiz
-                'installation_date' => $installationDate->toDateString(), // Avto-to'ldirilgan sana
-                'validity_period' => $validityPeriod, // Avto-to'ldirilgan muddat
-                'expiration_date' => $expirationDate->toDateString(), // Hisoblangan sana
+                'meter_number' => $accountMeterNumber,
+                'installation_date' => $installationDate->toDateString(),
+                'validity_period' => $validityPeriod,
+                'expiration_date' => $expirationDate->toDateString(),
             ];
 
             $waterMeter = WaterMeter::create($waterMeterData);
@@ -284,7 +295,7 @@ class CustomerController extends Controller
                 'water_meter_id' => $waterMeter->id,
                 'reading' => $validated['initial_reading'],
                 'reading_date' => $validated['reading_date'],
-                'confirmed' => 1, // Birinchi o'qish avtomatik tasdiqlanadi
+                'confirmed' => 1,
             ]);
         }
 
@@ -449,4 +460,162 @@ class CustomerController extends Controller
         ]);
     }
 
+    public function showImportForm()
+    {
+        // Bu yerda adminlar uchun ekanligini tekshirish (Policy yoki middleware)
+        return view('customers.import'); // Yangi view fayli
+    }
+
+    public function handleImport(Request $request)
+    {
+        $request->validate(['excel_file' => 'required|mimes:xlsx,xls,csv|max:10240']);
+
+        $file = $request->file('excel_file');
+        $importErrors = [];
+
+        DB::beginTransaction();
+
+        try {
+            $rows = Excel::toCollection(new BasicExcelImport, $file)->first();
+
+            if ($rows->isEmpty()) {
+                throw new \Exception("Excel fayl bo'sh yoki noto'g'ri formatda.");
+            }
+
+            foreach ($rows as $index => $row) {
+                $rowNumber = $index + 2;
+                $rowData = $row->toArray();
+
+                // 1-QADAM: MA'LUMOTLARNI TAYYORLASH
+                $preparedData = [
+                    'kompaniya_id' => $rowData['kompaniya_id'] ?? null,
+                    'kocha_id' => $rowData['kocha_id'] ?? null,
+                    'fio' => $rowData['fio'] ?? null,
+                    'telefon_raqami' => (string) ($rowData['telefon_raqami'] ?? ''),
+                    'uy_raqami' => (string) ($rowData['uy_raqami'] ?? ''),
+                    'hisob_raqam' => isset($rowData['hisob_raqam']) ? str_replace(' ', '', (string)$rowData['hisob_raqam']) : null,
+                    'oila_azolari' => $rowData['oila_azolari'] ?? null,
+                    'hisoblagich_bormi' => $rowData['hisoblagich_bormi'] ?? null,
+                    'amal_qilish_muddati' => $rowData['amal_qilish_muddati'] ?? null,
+                    'boshlangich_korsatkich' => $rowData['boshlangich_korsatkich'] ?? null,
+                    'hisoblagich_ornatilgan_sana' => $rowData['hisoblagich_ornatilgan_sana'] ?? null,
+                    'korsatkich_sanasi' => $rowData['korsatkich_sanasi'] ?? null,
+                ];
+
+                $hasWaterMeter = filter_var($preparedData['hisoblagich_bormi'], FILTER_VALIDATE_BOOLEAN);
+
+                // 2-QADAM: SANALARNI SHARTLI RAVISHDA TO'LDIRISH VA FORMATLASH
+                $dateFields = ['hisoblagich_ornatilgan_sana', 'korsatkich_sanasi'];
+                foreach ($dateFields as $field) {
+                    if (!empty($preparedData[$field])) {
+                        try {
+                            $preparedData[$field] = Carbon::instance(ExcelDate::excelToDateTimeObject($preparedData[$field]))->format('Y-m-d');
+                        } catch (\Throwable $th) {
+                            $preparedData[$field] = null; // Agar format noto'g'ri bo'lsa, validatsiya ushlashi uchun
+                        }
+                    }
+                }
+
+                if ($hasWaterMeter && empty($preparedData['korsatkich_sanasi'])) {
+                    $preparedData['korsatkich_sanasi'] = now()->format('Y-m-d');
+                }
+
+                // 3-QADAM: VALIDATSIYA QOIDALARINI YARATISH
+                $rules = [
+                    'kompaniya_id' => ['required', 'integer', 'exists:companies,id'],
+                    'kocha_id' => ['required', 'integer', 'exists:streets,id'],
+                    'fio' => ['required', 'string', 'max:255'],
+                    'hisob_raqam' => ['required', 'string', 'max:50', Rule::unique('customers', 'account_number')],
+                    'telefon_raqami' => ['nullable', 'string', 'max:30'],
+                    'uy_raqami' => ['nullable', 'string', 'max:255'],
+                    'hisoblagich_bormi' => ['required', 'boolean'],
+                ];
+
+                if ($hasWaterMeter) {
+                    $rules['hisob_raqam'][] = Rule::unique('water_meters', 'meter_number');
+                    $rules['boshlangich_korsatkich'] = ['required', 'numeric', 'min:0'];
+                    $rules['korsatkich_sanasi'] = ['required', 'date_format:Y-m-d'];
+                    $rules['amal_qilish_muddati'] = ['nullable', 'integer', 'min:0'];
+                    $rules['hisoblagich_ornatilgan_sana'] = ['nullable', 'date_format:Y-m-d'];
+                } else {
+                    $rules['oila_azolari'] = ['required', 'integer', 'min:1'];
+                }
+
+                // 4-QADAM: VALIDATSIYADAN O'TKAZISH
+                $validator = Validator::make($preparedData, $rules);
+
+                if ($validator->fails()) {
+                    foreach ($validator->errors()->all() as $error) {
+                        $importErrors[] = "{$rowNumber}-qatorda xatolik: " . $error;
+                    }
+                    continue; // Keyingi qatorga o'tish (tranzaksiya oxirida bekor bo'ladi)
+                }
+
+                // 5-QADAM: SAQLASH
+                $validatedData = $validator->validated();
+
+                $customer = Customer::create([
+                    'company_id'       => $validatedData['kompaniya_id'],
+                    'street_id'        => $validatedData['kocha_id'],
+                    'name'             => $validatedData['fio'],
+                    'phone'            => $validatedData['telefon_raqami'] ?? null,
+                    'address'          => $validatedData['uy_raqami'] ?? null,
+                    'account_number'   => $validatedData['hisob_raqam'],
+                    'has_water_meter'  => $hasWaterMeter,
+                    'family_members'   => $hasWaterMeter ? null : ($validatedData['oila_azolari'] ?? null),
+                    'is_active'        => true,
+                    'balance'          => 0,
+                ]);
+
+                if ($hasWaterMeter) {
+                    $installationDate = isset($validatedData['hisoblagich_ornatilgan_sana']) ? Carbon::parse($validatedData['hisoblagich_ornatilgan_sana']) : Carbon::now();
+                    $validityPeriod = (int)($validatedData['amal_qilish_muddati'] ?? 8);
+
+                    $waterMeter = $customer->waterMeter()->create([
+                        'meter_number'      => $validatedData['hisob_raqam'],
+                        'installation_date' => $installationDate->toDateString(),
+                        'validity_period'   => $validityPeriod,
+                        'expiration_date'   => $installationDate->copy()->addYears($validityPeriod)->toDateString(),
+                    ]);
+
+                    if ($waterMeter && isset($validatedData['boshlangich_korsatkich'])) {
+                        // $validatedData da 'korsatkich_sanasi' endi to'g'ri formatda bo'lishi kerak
+                        $readingDate = Carbon::parse($validatedData['korsatkich_sanasi']);
+                        MeterReading::create([
+                            'water_meter_id' => $waterMeter->id,
+                            'reading'        => $validatedData['boshlangich_korsatkich'],
+                            'reading_date'   => $readingDate->toDateString(),
+                            'confirmed'      => true,
+                        ]);
+                    }
+                }
+            } // foreach sikli tugadi
+
+            // Agar biror xatolik yig'ilgan bo'lsa, tranzaksiyani bekor qilish uchun Exception tashlaymiz
+            if (!empty($importErrors)) {
+                $finalValidator = Validator::make([], []);
+                foreach ($importErrors as $key => $errorMsg) {
+                    $finalValidator->errors()->add("excel_row_error_" . $key, $errorMsg);
+                }
+                throw new \Illuminate\Validation\ValidationException($finalValidator);
+            }
+
+            // Xatolik bo'lmasa, tranzaksiyani tasdiqlaymiz
+            DB::commit();
+
+            return redirect()->route('customers.import.form')->with('success', 'Mijozlar muvaffaqiyatli import qilindi!');
+
+        } catch (\Illuminate\Validation\ValidationException $e) {
+            DB::rollBack(); // Validatsiya xatosi bo'lsa ham bekor qilish
+            return redirect()->back()->withErrors($e->errors())->withInput();
+        } catch (\Exception $e) {
+            DB::rollBack(); // Boshqa har qanday xatolikda tranzaksiyani bekor qilish
+            Log::error('Excel import error: ' . $e->getMessage() . ' Trace: ' . $e->getTraceAsString());
+            $errorMessage = 'Import qilishda kutilmagan tizim xatoligi yuz berdi.';
+            if (config('app.debug')) { // Agar debug rejimi yoqilgan bo'lsa, aniq xatoni ko'rsatamiz
+                $errorMessage .= ' Aniq xato: ' . $e->getMessage();
+            }
+            return redirect()->back()->withErrors(['umumiy_xato' => $errorMessage])->withInput();
+        }
+    }
 }

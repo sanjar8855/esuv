@@ -56,10 +56,18 @@ Route::middleware('auth')->group(function () {
     });
 
     Route::middleware('can:customers')->group(function () {
+        // Mijozlarni import qilish formasini ko'rsatish uchun marshrut
+        Route::get('/customers/import', [CustomerController::class, 'showImportForm'])
+            ->name('customers.import.form');
+        // Yuklangan Excel faylini qayta ishlash uchun marshrut
+        Route::post('/customers/import', [CustomerController::class, 'handleImport'])
+            ->name('customers.import.handle');
+
         Route::resource('customers', CustomerController::class);
         Route::delete('/customers/{customer}/telegram/{telegram}', [CustomerController::class, 'detachTelegramAccount'])
             ->name('customers.detachTelegram');
     });
+
     Route::middleware('can:tariffs')->group(function () {
         Route::resource('tariffs', TariffController::class);
     });
