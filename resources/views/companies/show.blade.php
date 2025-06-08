@@ -104,7 +104,7 @@
                                             @foreach($user->roles as $role)
                                                 @switch($role->name)
                                                     @case('company_owner')
-                                                    <span class="badge bg-green text-green-fg">Direktor</span>
+                                                    <span class="badge bg-green text-green-fg">Boshqaruv</span>
                                                     @break
                                                     @case('employee')
                                                     <span class="badge bg-secondary text-secondary-fg">Ishchi xodim</span>
