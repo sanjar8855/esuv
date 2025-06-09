@@ -4,7 +4,7 @@
     <div class="page-body">
         <div class="container-xl">
             <div class="row">
-                <div class="col-md-4">
+                <div class="col-md-6 col-lg-4">
                     <h2>Mijoz Tafsilotlari</h2>
 
                     <table class="table table-bordered">
@@ -282,7 +282,7 @@
 
                 </div>
 
-                <div class="col-md-4">
+                <div class="col-md-6 col-lg-4">
                     <h3>Invoyslar tarixi</h3>
                     <ul class="list-group">
                         @foreach($invoices as $invoice)
@@ -432,7 +432,7 @@
                     {{-- ------------- YANGI INVOYS QO'SHISH FORMASI TUGADI ------------- --}}
                 </div>
 
-                <div class="col-md-4">
+                <div class="col-md-6 col-lg-4">
                     <h3>To‘lovlar Tarixi</h3>
                     <ul class="list-group">
                         @foreach($payments as $payment)
