@@ -77,6 +77,34 @@
                         </button>
                     </form>
 
+                    <div class="card">
+                        <div class="card-header">
+                            <h3 class="card-title">Mijozlar (Operatorlar Bo'yicha)</h3>
+                        </div>
+                        <div class="table-responsive">
+                            <table class="table table-vcenter card-table">
+                                <thead>
+                                <tr>
+                                    <th>Operator</th>
+                                    <th class="text-end">Mijozlar Soni</th>
+                                </tr>
+                                </thead>
+                                <tbody>
+                                @forelse($finalOperatorStats as $operatorName => $count)
+                                    <tr>
+                                        <td>{{ $operatorName }}</td>
+                                        <td class="text-end">{{ $count }} ta</td>
+                                    </tr>
+                                @empty
+                                    <tr>
+                                        <td colspan="2" class="text-center">Telefon raqamlari bo'yicha ma'lumot mavjud emas</td>
+                                    </tr>
+                                @endforelse
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+
                     <h2>Xodimlar</h2>
                     <div class="card">
                         <div class="table-responsive">

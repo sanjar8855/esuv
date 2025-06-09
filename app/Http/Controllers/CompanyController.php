@@ -8,6 +8,7 @@ use App\Models\Neighborhood;
 use App\Models\Street;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Facades\DB;
 
 class CompanyController extends Controller
 {
@@ -93,7 +94,40 @@ class CompanyController extends Controller
             ->latest()
             ->paginate(10, ['*'], 'streets_page');
 
-        return view('companies.show', compact('company', 'tariff', 'neighborhoods', 'streets'));
+        $operatorMap = [
+            '90' => 'Beeline', '91' => 'Beeline',
+            '93' => 'Ucell',    '94' => 'Ucell',
+            '97' => 'Mobiuz',
+            '95' => 'Uzmobile', '99' => 'Uzmobile',
+            '33' => 'Humans',   '77' => 'Humans', '88' => 'Humans',
+            '98' => 'Perfectum',
+        ];
+
+        // Ma'lumotlar bazasidan telefon raqamlari kodlarini ajratib olib, sanash
+        $statsFromDb = DB::table('customers')
+            ->select(
+                DB::raw("SUBSTRING(phone, 2, 2) as operator_code"), // Qavs ichidagi 2 ta raqamni ajratib oladi. Masalan, '(91)' dan '91' ni.
+                DB::raw("COUNT(*) as total")
+            )
+            ->where('company_id', $company->id)
+            ->whereNotNull('phone')
+            ->where('phone', 'LIKE', '(%)%') // Faqat (XX) formatidagilarni olish
+            ->groupBy('operator_code')
+            ->get();
+
+        // Natijalarni birlashtirish (masalan, 90 va 91 kodlari Beeline ga tegishli)
+        $finalOperatorStats = collect(); // Bo'sh kolleksiya
+        foreach($statsFromDb as $stat) {
+            // Operator nomini xaritadan topamiz
+            $name = $operatorMap[$stat->operator_code] ?? 'Boshqa (' . $stat->operator_code . ')';
+            // Agar bu operator nomi oldin ham uchragan bo'lsa, sonini qo'shamiz
+            $currentCount = $finalOperatorStats->get($name, 0);
+            $finalOperatorStats->put($name, $currentCount + $stat->total);
+        }
+        // Natijani kamayish tartibida saralash
+        $finalOperatorStats = $finalOperatorStats->sortDesc();
+
+        return view('companies.show', compact('company', 'tariff', 'neighborhoods', 'streets', 'finalOperatorStats'));
     }
 
     /**
