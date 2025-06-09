@@ -4,7 +4,7 @@
     <div class="page-body">
         <div class="container-xl">
             <div class="row row-cards">
-                <div class="col-3">
+                <div class="col-12 col-md-6">
                     <h2>{{ $company->name }} kompaniyasi</h2>
 
                     <table class="table">
@@ -76,9 +76,7 @@
                                 onclick="return confirm('Haqiqatan ham o‘chirilsinmi?')">O‘chirish
                         </button>
                     </form>
-                </div>
 
-                <div class="col-3">
                     <h2>Xodimlar</h2>
                     <div class="card">
                         <div class="table-responsive">
@@ -87,7 +85,7 @@
                                 <tr>
                                     <th>F.I.O</th>
                                     <th>Lavozim</th>
-{{--                                    <th>Ish boshlagan sana</th>--}}
+                                    {{--                                    <th>Ish boshlagan sana</th>--}}
                                     <th>Rol</th>
                                 </tr>
                                 </thead>
@@ -99,7 +97,7 @@
                                                class="badge badge-outline text-blue">{{ $user->name }}</a>
                                         </td>
                                         <td>{{ $user->rank }}</td>
-{{--                                        <td>{{ $user->work_start ? date('d.m.Y', strtotime($user->work_start)) : 'Ko\'rsatilmagan' }}</td>--}}
+                                        {{--                                        <td>{{ $user->work_start ? date('d.m.Y', strtotime($user->work_start)) : 'Ko\'rsatilmagan' }}</td>--}}
                                         <td>
                                             @foreach($user->roles as $role)
                                                 @switch($role->name)
@@ -107,7 +105,8 @@
                                                     <span class="badge bg-green text-green-fg">Boshqaruv</span>
                                                     @break
                                                     @case('employee')
-                                                    <span class="badge bg-secondary text-secondary-fg">Ishchi xodim</span>
+                                                    <span
+                                                        class="badge bg-secondary text-secondary-fg">Ishchi xodim</span>
                                                     @break
                                                 @endswitch
                                             @endforeach
@@ -124,6 +123,93 @@
                     </div>
                 </div>
 
+                <div class="col-12 col-md-6">
+                    <div class="card">
+                        <div class="card-header">
+                            <h3 class="card-title">Biriktirilgan Mahallalar</h3>
+                        </div>
+                        <div class="table-responsive">
+                            <table class="table table-vcenter card-table">
+                                <thead>
+                                <tr>
+                                    <th>ID</th>
+                                    <th>Mahalla Nomi</th>
+                                    <th>Shahar/Tuman</th>
+                                </tr>
+                                </thead>
+                                <tbody>
+                                @forelse($neighborhoods as $neighborhood)
+                                    <tr>
+                                        <td>{{ $neighborhood->id }}</td>
+                                        <td>
+                                            <a href="{{ route('neighborhoods.show', $neighborhood->id) }}"
+                                               class="text-reset">
+                                                {{ $neighborhood->name }}
+                                            </a>
+                                        </td>
+                                        <td>
+                                            <span class="text-muted">{{ $neighborhood->city->name ?? '-' }}</span>
+                                        </td>
+                                    </tr>
+                                @empty
+                                    <tr>
+                                        <td colspan="3" class="text-center">Bu kompaniyaga mahallalar biriktirilmagan.
+                                        </td>
+                                    </tr>
+                                @endforelse
+                                </tbody>
+                            </table>
+                        </div>
+                        @if ($neighborhoods->hasPages())
+                            <div class="card-footer d-flex align-items-center">
+                                {{ $neighborhoods->links() }} {{-- Pagination --}}
+                            </div>
+                        @endif
+                    </div>
+
+                    <div class="card">
+                        <div class="card-header">
+                            <h3 class="card-title">Biriktirilgan Ko'chalar</h3>
+                        </div>
+                        <div class="table-responsive">
+                            <table class="table table-vcenter card-table">
+                                <thead>
+                                <tr>
+                                    <th>ID</th>
+                                    <th>Ko'cha Nomi</th>
+                                    <th>Mahalla</th>
+                                </tr>
+                                </thead>
+                                <tbody>
+                                @forelse($streets as $street)
+                                    <tr>
+                                        <td>{{ $street->id }}</td>
+                                        <td>
+                                            <a href="{{ route('streets.show', $street->id) }}" class="text-reset">
+                                                {{ $street->name }}
+                                            </a>
+                                        </td>
+                                        <td>
+                                            <span class="text-muted">{{ $street->neighborhood->name ?? '-' }}</span>
+                                        </td>
+                                    </tr>
+                                @empty
+                                    <tr>
+                                        <td colspan="3" class="text-center">Bu kompaniyaga ko'chalar biriktirilmagan.
+                                        </td>
+                                    </tr>
+                                @endforelse
+                                </tbody>
+                            </table>
+                        </div>
+                        @if ($streets->hasPages())
+                            <div class="card-footer d-flex align-items-center">
+                                {{ $streets->links() }} {{-- Pagination --}}
+                            </div>
+                        @endif
+                    </div>
+
+                </div>
             </div>
         </div>
     </div>

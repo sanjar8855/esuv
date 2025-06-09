@@ -25,4 +25,14 @@ class Company extends Model
     {
         return $this->hasMany(Tariff::class);
     }
+
+    public function neighborhoods()
+    {
+        return $this->hasMany(Neighborhood::class);
+    }
+
+    public function streets()
+    {
+        return $this->hasMany(Street::class);
+    }
 }

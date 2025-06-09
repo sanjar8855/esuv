@@ -2,9 +2,11 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\Tariff;
-use Illuminate\Http\Request;
 use App\Models\Company;
+use App\Models\Tariff;
+use App\Models\Neighborhood;
+use App\Models\Street;
+use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
 
 class CompanyController extends Controller
@@ -67,24 +69,31 @@ class CompanyController extends Controller
     /**
      * Bitta kompaniya ma’lumotlarini ko‘rsatish.
      */
-    public function show($id)
+    public function show(Company $company)
     {
-        $company = Company::where('id', $id)
-            ->with(['users' => function($query) {
-                // users id bo'yicha o'sish tartibida
+        $company->load([
+            'users' => function($query) {
                 $query->orderBy('id', 'asc');
-            }, 'tariffs' => function($query) {
-                // tariffs yanadan eskiga tartibda (eng oxirgi qo'shilgani birinchi)
+            },
+            'tariffs' => function($query) {
                 $query->orderBy('id', 'desc');
-            }])
-            ->first();
+            }
+        ]);
 
-        $tariff = Tariff::where('company_id', $id)
-                ->where('is_active', true)
-                ->latest('created_at')
-                ->first() ?? new Tariff(['price_per_m3' => 0]);
+        $tariff = $company->tariffs()->where('is_active', true)->latest()->first()
+            ?? new Tariff(['price_per_m3' => 0, 'for_one_person' => 0]);
 
-        return view('companies.show', compact('company', 'tariff'));
+        $neighborhoods = $company->neighborhoods()
+            ->with('city')
+            ->latest()
+            ->paginate(10, ['*'], 'neighborhoods_page');
+
+        $streets = $company->streets()
+            ->with('neighborhood')
+            ->latest()
+            ->paginate(10, ['*'], 'streets_page');
+
+        return view('companies.show', compact('company', 'tariff', 'neighborhoods', 'streets'));
     }
 
     /**
