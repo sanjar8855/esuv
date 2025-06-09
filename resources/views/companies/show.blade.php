@@ -143,12 +143,15 @@
                                         <td>{{ $neighborhood->id }}</td>
                                         <td>
                                             <a href="{{ route('neighborhoods.show', $neighborhood->id) }}"
-                                               class="text-reset">
+                                               class="badge badge-outline text-blue">
                                                 {{ $neighborhood->name }}
                                             </a>
                                         </td>
                                         <td>
-                                            <span class="text-muted">{{ $neighborhood->city->name ?? '-' }}</span>
+                                            <a href="{{ route('cities.show', $neighborhood->city->id) }}"
+                                               class="badge badge-outline text-blue">
+                                                {{ $neighborhood->city->name }}
+                                            </a>
                                         </td>
                                     </tr>
                                 @empty
@@ -185,12 +188,16 @@
                                     <tr>
                                         <td>{{ $street->id }}</td>
                                         <td>
-                                            <a href="{{ route('streets.show', $street->id) }}" class="text-reset">
+                                            <a href="{{ route('streets.show', $street->id) }}"
+                                               class="badge badge-outline text-blue">
                                                 {{ $street->name }}
                                             </a>
                                         </td>
                                         <td>
-                                            <span class="text-muted">{{ $street->neighborhood->name ?? '-' }}</span>
+                                            <a href="{{ route('neighborhoods.show', $street->neighborhood->id) }}"
+                                               class="badge badge-outline text-blue">
+                                                {{ $street->neighborhood->name }}
+                                            </a>
                                         </td>
                                     </tr>
                                 @empty
