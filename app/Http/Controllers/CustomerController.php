@@ -486,41 +486,51 @@ class CustomerController extends Controller
                 $rowNumber = $index + 2;
                 $rowData = $row->toArray();
 
-                // 1-QADAM: MA'LUMOTLARNI TAYYORLASH
-                $preparedData = [
-                    'kompaniya_id' => $rowData['kompaniya_id'] ?? null,
-                    'kocha_id' => $rowData['kocha_id'] ?? null,
-                    'fio' => $rowData['fio'] ?? null,
-                    'telefon_raqami' => (string) ($rowData['telefon_raqami'] ?? ''),
-                    'uy_raqami' => (string) ($rowData['uy_raqami'] ?? ''),
-                    'hisob_raqam' => isset($rowData['hisob_raqam']) ? str_replace(' ', '', (string)$rowData['hisob_raqam']) : null,
-                    'oila_azolari' => $rowData['oila_azolari'] ?? null,
-                    'hisoblagich_bormi' => $rowData['hisoblagich_bormi'] ?? null,
-                    'amal_qilish_muddati' => $rowData['amal_qilish_muddati'] ?? null,
-                    'boshlangich_korsatkich' => $rowData['boshlangich_korsatkich'] ?? null,
-                    'hisoblagich_ornatilgan_sana' => $rowData['hisoblagich_ornatilgan_sana'] ?? null,
-                    'korsatkich_sanasi' => $rowData['korsatkich_sanasi'] ?? null,
-                ];
+                // =====================================================================
+                // 1-QADAM: BARCHA MA'LUMOTLARNI TAYYORLASH (TOZALASH, FORMATLASH)
+                // =====================================================================
+                $preparedData = $rowData; // Barcha ma'lumotlarni vaqtinchalik massivga olamiz
 
-                $hasWaterMeter = filter_var($preparedData['hisoblagich_bormi'], FILTER_VALIDATE_BOOLEAN);
+                // --- Hisob raqamini tozalash va 7 xonali qilish ---
+                if (isset($preparedData['hisob_raqam'])) {
+                    $cleanedNumber = str_replace(' ', '', (string)$preparedData['hisob_raqam']);
+                    $preparedData['hisob_raqam'] = str_pad($cleanedNumber, 7, '0', STR_PAD_LEFT);
+                } else {
+                    $preparedData['hisob_raqam'] = null;
+                }
 
-                // 2-QADAM: SANALARNI SHARTLI RAVISHDA TO'LDIRISH VA FORMATLASH
+                // --- Sanalarni to'g'rilash ---
                 $dateFields = ['hisoblagich_ornatilgan_sana', 'korsatkich_sanasi'];
                 foreach ($dateFields as $field) {
                     if (!empty($preparedData[$field])) {
-                        try {
-                            $preparedData[$field] = Carbon::instance(ExcelDate::excelToDateTimeObject($preparedData[$field]))->format('Y-m-d');
-                        } catch (\Throwable $th) {
-                            $preparedData[$field] = null; // Agar format noto'g'ri bo'lsa, validatsiya ushlashi uchun
+                        $dateValue = $preparedData[$field];
+                        if (is_numeric($dateValue) && strlen((string)$dateValue) === 4) { // Agar faqat yil bo'lsa
+                            $preparedData[$field] = Carbon::createFromDate((int)$dateValue, 1, 1)->format('Y-m-d');
+                        } else { // Agar to'liq sana (Excel formati yoki matn) bo'lsa
+                            try {
+                                $preparedData[$field] = Carbon::instance(ExcelDate::excelToDateTimeObject($dateValue))->format('Y-m-d');
+                            } catch (\Throwable $th) {
+                                $preparedData[$field] = null; // Agar format noto'g'ri bo'lsa, keyingi validatsiya ushlashi uchun
+                            }
                         }
                     }
                 }
 
+                // --- hisoblagich bor-yo'qligini aniqlash ---
+                $hasWaterMeter = filter_var($preparedData['hisoblagich_bormi'] ?? false, FILTER_VALIDATE_BOOLEAN);
+
+                // --- korsatkich_sanasi bo'sh bo'lsa, bugungi kunni qo'yish ---
                 if ($hasWaterMeter && empty($preparedData['korsatkich_sanasi'])) {
                     $preparedData['korsatkich_sanasi'] = now()->format('Y-m-d');
                 }
 
-                // 3-QADAM: VALIDATSIYA QOIDALARINI YARATISH
+                // --- Boshqa maydonlarni stringga o'tkazish (validatsiya uchun) ---
+                $preparedData['telefon_raqami'] = (string)($preparedData['telefon_raqami'] ?? '');
+                $preparedData['uy_raqami'] = (string)($preparedData['uy_raqami'] ?? '');
+
+                // =====================================================================
+                // 2-QADAM: VALIDATSIYA QOIDALARINI YARATISH
+                // =====================================================================
                 $rules = [
                     'kompaniya_id' => ['required', 'integer', 'exists:companies,id'],
                     'kocha_id' => ['required', 'integer', 'exists:streets,id'],
@@ -534,32 +544,36 @@ class CustomerController extends Controller
                 if ($hasWaterMeter) {
                     $rules['hisob_raqam'][] = Rule::unique('water_meters', 'meter_number');
                     $rules['boshlangich_korsatkich'] = ['required', 'numeric', 'min:0'];
-                    $rules['korsatkich_sanasi'] = ['required', 'date_format:Y-m-d'];
+                    $rules['korsatkich_sanasi'] = ['required', 'date'];
                     $rules['amal_qilish_muddati'] = ['nullable', 'integer', 'min:0'];
-                    $rules['hisoblagich_ornatilgan_sana'] = ['nullable', 'date_format:Y-m-d'];
+                    $rules['hisoblagich_ornatilgan_sana'] = ['nullable', 'date'];
                 } else {
                     $rules['oila_azolari'] = ['required', 'integer', 'min:1'];
                 }
 
-                // 4-QADAM: VALIDATSIYADAN O'TKAZISH
+                // =====================================================================
+                // 3-QADAM: VALIDATSIYADAN O'TKAZISH
+                // =====================================================================
                 $validator = Validator::make($preparedData, $rules);
 
                 if ($validator->fails()) {
                     foreach ($validator->errors()->all() as $error) {
                         $importErrors[] = "{$rowNumber}-qatorda xatolik: " . $error;
                     }
-                    continue; // Keyingi qatorga o'tish (tranzaksiya oxirida bekor bo'ladi)
+                    continue;
                 }
 
-                // 5-QADAM: SAQLASH
+                // =====================================================================
+                // 4-QADAM: SAQLASH
+                // =====================================================================
                 $validatedData = $validator->validated();
 
                 $customer = Customer::create([
                     'company_id'       => $validatedData['kompaniya_id'],
                     'street_id'        => $validatedData['kocha_id'],
                     'name'             => $validatedData['fio'],
-                    'phone'            => $validatedData['telefon_raqami'] ?? null,
-                    'address'          => $validatedData['uy_raqami'] ?? null,
+                    'phone'            => $validatedData['telefon_raqami'],
+                    'address'          => $validatedData['uy_raqami'],
                     'account_number'   => $validatedData['hisob_raqam'],
                     'has_water_meter'  => $hasWaterMeter,
                     'family_members'   => $hasWaterMeter ? null : ($validatedData['oila_azolari'] ?? null),
@@ -579,7 +593,6 @@ class CustomerController extends Controller
                     ]);
 
                     if ($waterMeter && isset($validatedData['boshlangich_korsatkich'])) {
-                        // $validatedData da 'korsatkich_sanasi' endi to'g'ri formatda bo'lishi kerak
                         $readingDate = Carbon::parse($validatedData['korsatkich_sanasi']);
                         MeterReading::create([
                             'water_meter_id' => $waterMeter->id,
@@ -591,7 +604,6 @@ class CustomerController extends Controller
                 }
             } // foreach sikli tugadi
 
-            // Agar biror xatolik yig'ilgan bo'lsa, tranzaksiyani bekor qilish uchun Exception tashlaymiz
             if (!empty($importErrors)) {
                 $finalValidator = Validator::make([], []);
                 foreach ($importErrors as $key => $errorMsg) {
@@ -600,19 +612,17 @@ class CustomerController extends Controller
                 throw new \Illuminate\Validation\ValidationException($finalValidator);
             }
 
-            // Xatolik bo'lmasa, tranzaksiyani tasdiqlaymiz
             DB::commit();
-
             return redirect()->route('customers.import.form')->with('success', 'Mijozlar muvaffaqiyatli import qilindi!');
 
         } catch (\Illuminate\Validation\ValidationException $e) {
-            DB::rollBack(); // Validatsiya xatosi bo'lsa ham bekor qilish
+            DB::rollBack();
             return redirect()->back()->withErrors($e->errors())->withInput();
         } catch (\Exception $e) {
-            DB::rollBack(); // Boshqa har qanday xatolikda tranzaksiyani bekor qilish
+            DB::rollBack();
             Log::error('Excel import error: ' . $e->getMessage() . ' Trace: ' . $e->getTraceAsString());
             $errorMessage = 'Import qilishda kutilmagan tizim xatoligi yuz berdi.';
-            if (config('app.debug')) { // Agar debug rejimi yoqilgan bo'lsa, aniq xatoni ko'rsatamiz
+            if (config('app.debug')) {
                 $errorMessage .= ' Aniq xato: ' . $e->getMessage();
             }
             return redirect()->back()->withErrors(['umumiy_xato' => $errorMessage])->withInput();
