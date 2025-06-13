@@ -50,6 +50,19 @@
                     {{-- Filtrlarni alohida card'ga olish mumkin (ixtiyoriy) --}}
                     <div class="card card-body mb-3">
                         <div class="row g-3">
+                            @if(auth()->user()->hasRole('admin'))
+                                <div class="col-md-12">
+                                    <label for="companyFilterSelect" class="form-label">Kompaniya:</label>
+                                    <select name="company_id" id="companyFilterSelect" class="form-select">
+                                        <option value="">Barcha kompaniyalar</option>
+                                        @foreach($companies as $company)
+                                            <option value="{{ $company->id }}" {{ request('company_id') == $company->id ? 'selected' : '' }}>
+                                                {{ $company->name }}
+                                            </option>
+                                        @endforeach
+                                    </select>
+                                </div>
+                            @endif
                             {{-- Qidiruv Formasi --}}
                             <div class="col-md-4">
                                 <form method="GET" id="customerSearchForm" class="filter-form">
@@ -184,6 +197,7 @@
                         d.search_text = $('#customerSearchInput').val(); // Qidiruv maydoni
                         d.street_id = $('#StreetSelect').val();       // Ko'cha tanlovi
                         d.debt = $('#debtFilterSelect').val();       // Qarzdorlik tanlovi
+                        d.company_id = $('#companyFilterSelect').val();
                     },
                     // Xatoliklarni ushlash (ixtiyoriy)
                     error: function (xhr, error, thrown) {
@@ -237,6 +251,10 @@
                 },
                 // Sekin yozganda qidiruvni jo'natish (debounce) - ixtiyoriy
                 searchDelay: 500 // 500ms kutib turadi
+            });
+
+            $('#companyFilterSelect').on('change', function () {
+                customersTable.ajax.reload();
             });
 
             // --- Tashqi filtrlar o'zgarganda DataTables'ni yangilash ---

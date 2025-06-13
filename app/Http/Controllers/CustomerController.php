@@ -36,15 +36,19 @@ class CustomerController extends Controller
     {
         $user = Auth::user();
 
-        // Ko'chalar ro'yxatini olish (bu filtr uchun kerak)
+        // Bu ma'lumotlar sahifa birinchi marta ochilganda tashqi filtrlar uchun kerak bo'ladi
+        $companies = collect();
         if ($user->hasRole('admin')) {
-            $streets = Street::with('neighborhood.city.region')->get(); // <-- Optimallashtirish uchun eager load
+            $companies = Company::orderBy('name')->get();
+        }
+
+        $streets = collect();
+        if ($user->hasRole('admin')) {
+            // Admin uchun barcha kompaniyalarga tegishli ko'chalarni chiqarish
+            $streets = Street::with('neighborhood.city.region', 'company')->orderBy('name')->get();
         } else {
-            $streets = $user->company
-                ? Street::whereHas('customers', function ($query) use ($user) {
-                    $query->where('company_id', $user->company->id);
-                })->with('neighborhood.city.region')->get() // <-- Optimallashtirish uchun eager load
-                : collect();
+            // Admin bo'lmagan foydalanuvchi uchun faqat o'z kompaniyasining ko'chalari
+            $streets = $user->company ? Street::where('company_id', $user->company->id)->with('neighborhood.city.region')->get() : collect();
         }
 
         // ----- AJAX so'rovini tekshirish -----
@@ -58,14 +62,15 @@ class CustomerController extends Controller
             ->where('customers.is_active', 1);
 
             // **📌 Admin bo‘lmasa, faqat o‘z kompaniyasidagi mijozlarni olish**
-            if (!$user->hasRole('admin') && $user->company) {
+            if (!$user->hasRole('admin') && $user->company_id) {
                 $query->where('company_id', $user->company_id);
             }
 
             // ----- Tashqi filtrlarni qo'llash -----
-            $searchText = request('search_text'); // JS dan keladigan nom
+            $searchText = request('search_text');
             $streetId = request('street_id');
             $debtFilter = request('debt');
+            $companyId = request('company_id'); // Kompaniya filtrini requestdan olish
 
             if ($searchText) {
                 $query->where(function ($q) use ($searchText) {
@@ -80,25 +85,24 @@ class CustomerController extends Controller
             }
 
             if ($debtFilter == 'has_debt') {
-                // Qarzdorlikni hisoblash uchun Invoice va Payment'lar kerak bo'ladi
-                // Bu qismni optimallashtirish kerak bo'lishi mumkin, masalan, balansni DBda saqlash
-                // Hozircha Customer modelidagi getBalanceAttribute ishlatilishiga tayanib ko'ramiz
-                // Lekin bu har bir qator uchun alohida query chaqirishi mumkin!
-                // Yaxshiroq yechim: balansni jadvalda saqlash yoki HAVING bilan ishlash
-                // $query->where('balance', '<', 0); // Agar 'balance' ustuni DBda bo'lsa
                 $query->withSum('invoices as total_due', 'amount_due')
                     ->withSum('payments as total_paid', 'amount')
-                    ->havingRaw('IFNULL(total_due, 0) > IFNULL(total_paid, 0)'); // HAVING bilan ishlash ancha yaxshi
+                    ->havingRaw('IFNULL(total_due, 0) > IFNULL(total_paid, 0)');
+            }
+
+            // Admin tanlagan kompaniya bo'yicha filtrlash
+            if ($user->hasRole('admin') && !empty($companyId)) {
+                $query->where('company_id', $companyId);
             }
 
             // ----- DataTables ga uzatish -----
             return DataTables::eloquent($query)
-                ->addIndexColumn() // "N" ustuni uchun (DT_RowIndex)
-                ->addColumn('company_name', function (Customer $customer) { // Admin uchun kompaniya
-                    return $customer->company ? '<a href="' . route('companies.show', $customer->company->id) . '" class="badge badge-outline text-blue">' . $customer->company->name . '</a>' : '-';
+                ->addIndexColumn()
+                ->addColumn('company_name', function (Customer $customer) {
+                    return $customer->company ? '<a href="' . route('companies.show', $customer->company->id) . '" class="badge badge-outline text-blue">' . e($customer->company->name) . '</a>' : '-';
                 })
-                ->addColumn('street_name', function (Customer $customer) { // Ko'cha nomi
-                    return $customer->street ? '<a href="' . route('streets.show', $customer->street->id) . '" class="badge badge-outline text-blue">' . $customer->street->name . '</a>' : '-';
+                ->addColumn('street_name', function (Customer $customer) {
+                    return $customer->street ? '<a href="' . route('streets.show', $customer->street->id) . '" class="badge badge-outline text-blue">' . e($customer->street->name) . '</a>' : '-';
                 })
                 ->addColumn('name_status', function (Customer $customer) {
                     $nameLink = '<a href="' . route('customers.show', $customer->id) . '" class="badge badge-outline text-blue">'. e($customer->name) . '</a>';
@@ -111,15 +115,12 @@ class CustomerController extends Controller
                     if ($customer->waterMeter) {
                         return '<a href="' . route('water_meters.show', $customer->waterMeter->id) . '" class="badge badge-outline text-blue">' . e($customer->waterMeter->meter_number) . '</a>';
                     } else {
-                        // Agar hisoblagich yo'q bo'lsa, qo'shish tugmasini qaytaramiz
                         $addMeterUrl = route('water_meters.create', ['customer_id' => $customer->id]);
-                        // Kichikroq tugma uchun 'btn-sm' yoki 'btn-xs' klassini ishlatish mumkin
                         return '<a href="' . $addMeterUrl . '" class="btn btn-sm btn-outline-success">Qo\'shish</a>';
                     }
                 })
-                ->addColumn('balance_formatted', function (Customer $customer) { // Balansni formatlash
-                    // Modelda hisoblangan balansni olamiz (lekin bu sekin bo'lishi mumkin)
-                    $balance = $customer->balance; // Model getBalanceAttribute ishlaydi
+                ->addColumn('balance_formatted', function (Customer $customer) {
+                    $balance = $customer->balance;
                     $balanceClass = $balance < 0 ? 'text-red' : ($balance > 0 ? 'text-green' : 'text-info');
                     return '<span class="badge ' . $balanceClass . '">' . ($balance >= 0 ? '+' : '') . number_format($balance) . ' UZS</span>';
                 })
@@ -127,48 +128,44 @@ class CustomerController extends Controller
                     if (!$customer->waterMeter) {
                         return '—';
                     }
-
-                    // waterMeter->readings() query builder obyektini qaytaradi
                     $lastConfirmedReading = $customer->waterMeter->readings()
-                        ->where('confirmed', true) // Faqat tasdiqlanganlarni olamiz
-                        ->orderBy('created_at', 'desc') // Ko'rsatkich sanasi bo'yicha (eng yangisi birinchi)
-                        ->orderBy('id', 'desc') // Agar sanalar bir xil bo'lsa, ID si kattasi birinchi
-                        ->first(); // Birinchi topilgan yozuvni (eng oxirgisini) olamiz
-
+                        ->where('confirmed', true)
+                        ->orderBy('reading_date', 'desc') // reading_date bo'yicha saralash yaxshiroq
+                        ->orderBy('id', 'desc')
+                        ->first();
                     return $lastConfirmedReading ? $lastConfirmedReading->reading : '—';
                 })
-                ->addColumn('actions', function (Customer $customer) { // Amallar tugmalari
+                ->addColumn('actions', function (Customer $customer) {
                     $showUrl = route('customers.show', $customer->id);
                     $editUrl = route('customers.edit', $customer->id);
                     $deleteUrl = route('customers.destroy', $customer->id);
                     $csrf = csrf_field();
                     $method = method_field('DELETE');
                     return <<<HTML
-                        <a href="{$showUrl}" class="btn btn-info btn-sm">Batafsil</a>
-                        <a href="{$editUrl}" class="btn btn-warning btn-sm">Tahrirlash</a>
-                        <form action="{$deleteUrl}" method="POST" class="d-inline" onsubmit="return confirm('Haqiqatan ham o‘chirmoqchimisiz?')">
-                            {$csrf}
-                            {$method}
-                            <button type="submit" class="btn btn-danger btn-sm">O‘chirish</button>
-                        </form>
-                    HTML;
+                    <a href="{$showUrl}" class="btn btn-info btn-sm">Batafsil</a>
+                    <a href="{$editUrl}" class="btn btn-warning btn-sm">Tahrirlash</a>
+                    <form action="{$deleteUrl}" method="POST" class="d-inline" onsubmit="return confirm('Haqiqatan ham o‘chirmoqchimisiz?')">
+                        {$csrf}
+                        {$method}
+                        <button type="submit" class="btn btn-danger btn-sm">O‘chirish</button>
+                    </form>
+                HTML;
                 })
-                ->filterColumn('company_name', function ($query, $keyword) { // Kompaniya nomini qidirish (agar admin bo'lsa)
+                ->filterColumn('company_name', function ($query, $keyword) {
                     $query->whereHas('company', function ($q) use ($keyword) {
                         $q->where('name', 'like', "%{$keyword}%");
                     });
                 })
-                ->filterColumn('street_name', function ($query, $keyword) { // Ko'cha nomini qidirish
+                ->filterColumn('street_name', function ($query, $keyword) {
                     $query->whereHas('street', function ($q) use ($keyword) {
                         $q->where('name', 'like', "%{$keyword}%");
                     });
                 })
-                ->rawColumns(['company_name', 'street_name', 'name_status', 'meter_link', 'balance_formatted', 'actions']) // HTML ustunlar
-                ->make(true); // JSON javobni qaytarish
+                ->rawColumns(['company_name', 'street_name', 'name_status', 'meter_link', 'balance_formatted', 'actions'])
+                ->make(true);
         }
 
         // ----- Oddiy GET so'rov uchun (sahifa birinchi ochilganda) -----
-        // Jami mijozlar sonini olish (boshlang'ich holat uchun)
         $customersQueryForCount = Customer::query()->where('customers.is_active', 1);
         if (!$user->hasRole('admin') && $user->company) {
             $customersQueryForCount->where('company_id', $user->company_id);
@@ -176,7 +173,7 @@ class CustomerController extends Controller
         $customersCount = $customersQueryForCount->count();
 
         // Faqat kerakli ma'lumotlarni view'ga uzatamiz
-        return view('customers.index', compact('streets', 'customersCount'));
+        return view('customers.index', compact('streets', 'customersCount', 'companies'));
     }
 
     /**
@@ -489,7 +486,21 @@ class CustomerController extends Controller
                 // =====================================================================
                 // 1-QADAM: BARCHA MA'LUMOTLARNI TAYYORLASH (TOZALASH, FORMATLASH)
                 // =====================================================================
-                $preparedData = $rowData; // Barcha ma'lumotlarni vaqtinchalik massivga olamiz
+                // --- hisoblagich bor-yo'qligini aniqlash ---
+                $hasWaterMeter = filter_var($preparedData['hisoblagich_bormi'] ?? false, FILTER_VALIDATE_BOOLEAN);
+
+                $preparedData = [
+                    'kompaniya_id' => $rowData['kompaniya_id'] ?? null,
+                    'kocha_id' => $rowData['kocha_id'] ?? null,
+                    'fio' => $rowData['fio'] ?? null,
+                    'telefon_raqami' => (string) ($rowData['telefon_raqami'] ?? ''),
+                    'uy_raqami' => (string) ($rowData['uy_raqami'] ?? ''),
+                    'oila_azolari' => $rowData['oila_azolari'] ?? null,
+                    'hisob_raqam' => isset($rowData['hisob_raqam']) ? str_replace(' ', '', (string)$rowData['hisob_raqam']) : null,
+                    'amal_qilish_muddati' => $rowData['amal_qilish_muddati'] ?? null,
+                    'boshlangich_korsatkich' => $rowData['boshlangich_korsatkich'] ?? null,
+                    'hisoblagich_bormi' => $hasWaterMeter, // <-- TO'G'RI boolean qiymatni yozamiz
+                ];
 
                 // --- Hisob raqamini tozalash va 7 xonali qilish ---
                 if (isset($preparedData['hisob_raqam'])) {
@@ -502,22 +513,21 @@ class CustomerController extends Controller
                 // --- Sanalarni to'g'rilash ---
                 $dateFields = ['hisoblagich_ornatilgan_sana', 'korsatkich_sanasi'];
                 foreach ($dateFields as $field) {
-                    if (!empty($preparedData[$field])) {
-                        $dateValue = $preparedData[$field];
-                        if (is_numeric($dateValue) && strlen((string)$dateValue) === 4) { // Agar faqat yil bo'lsa
+                    $dateValue = $rowData[$field] ?? null;
+                    if (!empty($dateValue)) {
+                        if (is_numeric($dateValue) && strlen((string)$dateValue) === 4) {
                             $preparedData[$field] = Carbon::createFromDate((int)$dateValue, 1, 1)->format('Y-m-d');
-                        } else { // Agar to'liq sana (Excel formati yoki matn) bo'lsa
+                        } else {
                             try {
-                                $preparedData[$field] = Carbon::instance(ExcelDate::excelToDateTimeObject($dateValue))->format('Y-m-d');
+                                $preparedData[$field] = Carbon::instance(\PhpOffice\PhpSpreadsheet\Shared\Date::excelToDateTimeObject($dateValue))->format('Y-m-d');
                             } catch (\Throwable $th) {
-                                $preparedData[$field] = null; // Agar format noto'g'ri bo'lsa, keyingi validatsiya ushlashi uchun
+                                $preparedData[$field] = null;
                             }
                         }
+                    } else {
+                        $preparedData[$field] = null; // Agar bo'sh bo'lsa, null qilib o'rnatamiz
                     }
                 }
-
-                // --- hisoblagich bor-yo'qligini aniqlash ---
-                $hasWaterMeter = filter_var($preparedData['hisoblagich_bormi'] ?? false, FILTER_VALIDATE_BOOLEAN);
 
                 // --- korsatkich_sanasi bo'sh bo'lsa, bugungi kunni qo'yish ---
                 if ($hasWaterMeter && empty($preparedData['korsatkich_sanasi'])) {
