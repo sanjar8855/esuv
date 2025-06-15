@@ -44,14 +44,8 @@
                             </td>
                         </tr>
                         <tr>
-                            <th>So'ngi ko'rsatkich</th>
-                            <td>
-                                @if($customer->waterMeter && $customer->waterMeter->readings->count())
-                                    {{ $customer->waterMeter->readings->last()->reading }}
-                                @else
-                                    <em>Ko‘rsatkich mavjud emas</em>
-                                @endif
-                            </td>
+                            <th>Hisob Raqami</th>
+                            <td>{{ $customer->account_number }}</td>
                         </tr>
                         <tr>
                             <th>Oila a'zolari soni</th>
@@ -60,6 +54,24 @@
                         <tr>
                             <th>Telefon</th>
                             <td>{{ $customer->phone }}</td>
+                        </tr>
+                        <tr>
+                            <th>Ulangan telegram akkauntlar</th>
+                            <td>
+                                @foreach($customer->telegramAccounts as $tg)
+                                    <a href="https://t.me/{{$tg->username}}" target="_blank">{{$tg->username}}</a>
+
+                                    <!-- O‘chirish tugmasi faqat adminlar uchun -->
+                                    <form
+                                        action="{{ route('customers.detachTelegram', ['customer' => $customer->id, 'telegram' => $tg->id]) }}"
+                                        method="POST" style="display:inline;">
+                                        @csrf
+                                        @method('DELETE')
+                                        <button type="submit" class="btn btn-danger btn-sm">❌</button>
+                                    </form>
+                                    <br>
+                                @endforeach
+                            </td>
                         </tr>
                         <tr>
                             <th>Hisoblagich unikal raqami</th>
@@ -87,21 +99,13 @@
                             </td>
                         </tr>
                         <tr>
-                            <th>Ulangan telegram akkauntlar</th>
+                            <th>So'ngi ko'rsatkich</th>
                             <td>
-                                @foreach($customer->telegramAccounts as $tg)
-                                    <a href="https://t.me/{{$tg->username}}" target="_blank">{{$tg->username}}</a>
-
-                                    <!-- O‘chirish tugmasi faqat adminlar uchun -->
-                                    <form
-                                        action="{{ route('customers.detachTelegram', ['customer' => $customer->id, 'telegram' => $tg->id]) }}"
-                                        method="POST" style="display:inline;">
-                                        @csrf
-                                        @method('DELETE')
-                                        <button type="submit" class="btn btn-danger btn-sm">❌</button>
-                                    </form>
-                                    <br>
-                                @endforeach
+                                @if($customer->waterMeter && $customer->waterMeter->readings->count())
+                                    {{ $customer->waterMeter->readings->last()->reading }}
+                                @else
+                                    <em>Ko‘rsatkich mavjud emas</em>
+                                @endif
                             </td>
                         </tr>
                         <tr>
@@ -149,10 +153,6 @@
                                     {{ $customer->street->neighborhood->city->region->name }}
                                 </a>
                             </td>
-                        </tr>
-                        <tr>
-                            <th>Hisob Raqami</th>
-                            <td>{{ $customer->account_number }}</td>
                         </tr>
                         <tr>
                             <th>Tizimga qo'shgan xodim</th>
