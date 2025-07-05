@@ -245,6 +245,76 @@
                     </div>
 
                 </div>
+
+                <div class="col-12 mt-4"> {{-- Sahifaning to'liq eni bo'yicha, yuqoridan joy tashlab --}}
+                    <div class="card">
+                        <div class="card-header">
+                            <h3 class="card-title">Kompaniya To'lovlari Tarixi</h3>
+                        </div>
+                        <div class="table-responsive">
+                            <table class="table table-vcenter card-table table-striped">
+                                <thead>
+                                <tr>
+                                    <th>To'lov Sanasi</th>
+                                    <th>To'lov Davri (Oy)</th>
+                                    <th>Summa (UZS)</th>
+                                    <th>Usul</th>
+                                    <th>Izohlar</th>
+                                    <th>Kim Qo'shdi</th>
+                                    <th>Amallar</th>
+                                </tr>
+                                </thead>
+                                <tbody>
+                                @forelse($saasPayments as $payment)
+                                    <tr>
+                                        <td>{{ \Carbon\Carbon::parse($payment->payment_date)->format('d.m.Y') }}</td>
+                                        <td>{{ $payment->payment_period }}</td>
+                                        <td>{{ number_format($payment->amount, 0, '.', ' ') }}</td>
+                                        <td>
+                                            {{-- Agar metodlar standart bo'lsa, ularni tarjima qilish mumkin --}}
+                                            @switch($payment->payment_method)
+                                                @case('cash') Naqd pul @break
+                                                @case('card') Karta orqali @break
+                                                @case('transfer') Bank o'tkazmasi @break
+                                                @default {{ $payment->payment_method }}
+                                            @endswitch
+                                        </td>
+                                        <td>{{ $payment->notes }}</td>
+                                        <td>
+                                            @if($payment->createdBy)
+                                                <a href="{{ route('users.show', $payment->createdBy->id) }}">
+                                                    {{ $payment->createdBy->name }}
+                                                </a>
+                                            @else
+                                                -
+                                            @endif
+                                        </td>
+                                        <td>
+                                            {{-- Bu linklar saas.payments resource route'iga ishora qiladi --}}
+                                            <a href="{{ route('saas.payments.edit', $payment->id) }}" class="btn btn-sm btn-warning">Tahrirlash</a>
+                                            <form action="{{ route('saas.payments.destroy', $payment->id) }}" method="POST" class="d-inline" onsubmit="return confirm('Haqiqatan ham o‘chirmoqchimisiz?');">
+                                                @csrf
+                                                @method('DELETE')
+                                                <button type="submit" class="btn btn-sm btn-danger">O‘chirish</button>
+                                            </form>
+                                        </td>
+                                    </tr>
+                                @empty
+                                    <tr>
+                                        <td colspan="7" class="text-center">Bu kompaniya uchun hali to'lovlar kiritilmagan.</td>
+                                    </tr>
+                                @endforelse
+                                </tbody>
+                            </table>
+                        </div>
+                        {{-- Pagination linklari --}}
+                        @if ($saasPayments->hasPages())
+                            <div class="card-footer">
+                                {{ $saasPayments->links() }}
+                            </div>
+                        @endif
+                    </div>
+                </div>
             </div>
         </div>
     </div>

@@ -40,7 +40,7 @@
                                         </td>
 {{--                                        <td class="text-secondary">{{ $company->email }}</td>--}}
                                         <td class="text-secondary">{{ $company->phone }}</td>
-                                        <td class="text-secondary">{{ $company->plan }}</td>
+                                        <td class="text-secondary">{{ $company->plan->name }}</td>
                                         <td class="text-secondary">{{ $company->users_count }}</td>
                                         <td class="text-secondary">{{ $company->customers_count }}</td>
                                         <td class="text-secondary">{{ $company->description }}</td>

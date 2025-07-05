@@ -9,7 +9,7 @@ class Company extends Model
 {
     use HasFactory;
 
-    protected $fillable = ['name', 'email', 'phone', 'plan', 'address', 'logo', 'schet', 'inn', 'description', 'is_active'];
+    protected $fillable = ['name', 'email', 'phone', 'plan', 'plan_id', 'address', 'logo', 'schet', 'inn', 'description', 'is_active'];
 
     public function users()
     {
@@ -34,5 +34,15 @@ class Company extends Model
     public function streets()
     {
         return $this->hasMany(Street::class);
+    }
+
+    public function plan()
+    {
+        return $this->belongsTo(Plan::class);
+    }
+
+    public function saasPayments()
+    {
+        return $this->hasMany(SaasPayment::class)->orderBy('payment_date', 'desc');
     }
 }

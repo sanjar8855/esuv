@@ -6,6 +6,8 @@ use App\Models\Company;
 use App\Models\Tariff;
 use App\Models\Neighborhood;
 use App\Models\Street;
+use App\Models\Plan;
+use App\Models\SaasPayment;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\DB;
@@ -26,7 +28,9 @@ class CompanyController extends Controller
      */
     public function create()
     {
-        return view('companies.create');
+        $plans = Plan::where('is_active', true)->get();
+
+        return view('companies.create', compact('plans'));
     }
 
     /**
@@ -40,6 +44,7 @@ class CompanyController extends Controller
             'email' => 'nullable|email|unique:companies,email', // email ustuni companies jadvalida unique bo'lishi kerak
             'phone' => 'required|string|max:20',
             'plan' => 'nullable|in:basic,premium', // Reja majburiy bo'lmasligi mumkin
+            'plan_id' => 'nullable|exists:plans,id',
             'address' => 'nullable|string|max:255',
             'logo' => 'nullable|file|mimes:jpg,png,svg,webp|max:4096', // Logo validatsiyasi
             'schet' => 'nullable|string|digits:20',
@@ -127,16 +132,22 @@ class CompanyController extends Controller
         // Natijani kamayish tartibida saralash
         $finalOperatorStats = $finalOperatorStats->sortDesc();
 
-        return view('companies.show', compact('company', 'tariff', 'neighborhoods', 'streets', 'finalOperatorStats'));
+        $saasPayments = $company->saasPayments() // Company modelida yaratgan bog'liqlik
+        ->with('createdBy') // To'lovni qo'shgan adminni ham yuklaymiz
+        ->latest('payment_date') // To'lov sanasi bo'yicha saralaymiz (eng yangisi birinchi)
+        ->paginate(10, ['*'], 'saas_payments_page');
+
+        return view('companies.show', compact('company', 'tariff', 'neighborhoods', 'streets', 'finalOperatorStats', 'saasPayments'));
     }
 
     /**
      * Kompaniyani tahrirlash formasi.
      */
-    public function edit($id)
+    public function edit(Company $company)
     {
-        $company = Company::findOrFail($id);
-        return view('companies.edit', compact('company'));
+        $plans = Plan::where('is_active', true)->get(); // Barcha aktiv tarif rejalarini olish
+
+        return view('companies.edit', compact('company', 'plans'));
     }
 
     /**
@@ -154,6 +165,7 @@ class CompanyController extends Controller
             'email' => 'nullable|email|unique:companies,email,' . $id,
             'phone' => 'required|string|max:20',
             'plan' => 'nullable|in:basic,premium', // Reja majburiy bo'lmasligi mumkin
+            'plan_id' => 'nullable|exists:plans,id',
             'address' => 'nullable|string|max:255',
             'logo' => 'nullable|file|mimes:jpg,png,svg,webp|max:4096', // Yangi logo uchun validatsiya
             'schet' => 'nullable|string|digits:20',

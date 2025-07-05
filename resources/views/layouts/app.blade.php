@@ -23,6 +23,7 @@
         .navbar-brand .logo-compact {
             display: none;
         }
+
         .navbar-brand .logo-full {
             /* Tabler standartiga qarab block yoki inline-block bo'lishi mumkin */
             display: inline-block;
@@ -37,6 +38,7 @@
                 /* width: 250px !important; */
                 transition: width 0.2s ease-in-out;
             }
+
             aside.navbar-vertical.sidebar-compact {
                 width: 72px !important; /* Ixcham menyu kengligi */
                 overflow: hidden;
@@ -49,25 +51,30 @@
                 padding-right: 0 !important;
                 justify-content: center;
             }
+
             aside.navbar-vertical.sidebar-compact .navbar-brand .logo-full {
                 display: none !important;
             }
+
             aside.navbar-vertical.sidebar-compact .navbar-brand .logo-compact {
                 display: block !important;
                 margin: 0 auto !important;
             }
+
             aside.navbar-vertical.sidebar-compact .nav-link-title {
                 display: none !important;
                 opacity: 0;
                 visibility: hidden;
                 transition: opacity 0.1s ease-in-out, visibility 0.1s ease-in-out;
             }
+
             aside.navbar-vertical.sidebar-compact .nav-link {
                 display: flex;
                 align-items: center;
                 justify-content: center;
                 padding: 0.75rem 0.5rem !important;
             }
+
             aside.navbar-vertical.sidebar-compact .nav-link .nav-link-icon {
                 margin-right: 0 !important;
             }
@@ -83,20 +90,33 @@
                 padding-left: 72px !important;
                 margin-left: 0 !important;
             }
-            #desktop-sidebar-compact-toggle svg{
-                margin-top:0px;
-                margin-bottom:0px;
+
+            #desktop-sidebar-compact-toggle svg {
+                margin-top: 0px;
+                margin-bottom: 0px;
             }
-            .navbar-collapse .navbar-nav .nav-item .nav-link .nav-link-icon{
-                margin-left:10px;
+
+            .navbar-collapse .navbar-nav .nav-item .nav-link .nav-link-icon {
+                margin-left: 10px;
             }
         }
 
         /* Kichik ekranlar uchun (< 992px) */
         @media (max-width: 991.98px) {
-            #desktop-sidebar-compact-toggle { display: none !important; }
-            .page .page-wrapper { padding-left: 0; margin-left: 0; }
-            .page.page-sidebar-compacted .page-wrapper { padding-left: 0; margin-left: 0; }
+            #desktop-sidebar-compact-toggle {
+                display: none !important;
+            }
+
+            .page .page-wrapper {
+                padding-left: 0;
+                margin-left: 0;
+            }
+
+            .page.page-sidebar-compacted .page-wrapper {
+                padding-left: 0;
+                margin-left: 0;
+            }
+
             /* ... mobil uchun ixcham menyu stillarini bekor qilish ... */
         }
     </style>
@@ -111,7 +131,13 @@
     <button class="btn btn-icon d-none d-lg-block" type="button" id="desktop-sidebar-compact-toggle"
             style="position: fixed; top: 15px; left: 15px; z-index: 1050; background-color: #206bc4; color:white;"
             aria-label="Yon menyuni ixchamlashtirish">
-        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="icon icon-tabler icon-tabler-menu-2"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M4 6l16 0" /><path d="M4 12l16 0" /><path d="M4 18l16 0" /></svg>
+        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+             stroke-linecap="round" stroke-linejoin="round" class="icon icon-tabler icon-tabler-menu-2">
+            <path stroke="none" d="M0 0h24v24H0z" fill="none"/>
+            <path d="M4 6l16 0"/>
+            <path d="M4 12l16 0"/>
+            <path d="M4 18l16 0"/>
+        </svg>
     </button>
 
     <aside class="navbar navbar-vertical navbar-expand-lg" data-bs-theme="dark">
@@ -296,8 +322,8 @@
                                 <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24"
                                      fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
                                      stroke-linejoin="round" class="icon icon-1"><path d="M5 12l-2 0l9 -9l9 9l-2 0"/><path
-                                        d="M5 12v7a2 2 0 0 0 2 2h10a2 2 0 0 0 2 -2v-7"/><path
-                                        d="M9 21v-6a2 2 0 0 1 2 -2h2a2 2 0 0 1 2 2v6"/></svg>
+                                            d="M5 12v7a2 2 0 0 0 2 2h10a2 2 0 0 0 2 -2v-7"/><path
+                                            d="M9 21v-6a2 2 0 0 1 2 -2h2a2 2 0 0 1 2 2v6"/></svg>
                             </span>
                                 <span class="nav-link-title">
                                 Kompaniyalar
@@ -305,6 +331,24 @@
                             </a>
                         </li>
                     @endcan
+                    @hasrole('admin') {{-- Faqat adminlar uchun ko'rinadi --}}
+                    <li class="nav-item {{ request()->routeIs('saas.payments*') ? 'active' : '' }}">
+                        <a class="nav-link" href="{{ route('saas.payments.index') }}">
+                            <span class="nav-link-icon d-md-none d-lg-inline-block">
+                                <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-receipt-2" width="24" height="24"
+                                     viewBox="0 0 24 24"
+                                     stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+                                    <path stroke="none" d="M0 0h24v24H0z" fill="none"/>
+                                    <path d="M5 21v-16a2 2 0 0 1 2 -2h10a2 2 0 0 1 2 2v16l-3 -2l-2 2l-2 -2l-2 2l-2 -2l-3 2"/>
+                                    <path d="M14 8h-2.5a1.5 1.5 0 0 0 0 3h1a1.5 1.5 0 0 1 0 3h-2.5m2 0v1.5m0 -9v1.5"/>
+                                </svg>
+                            </span>
+                            <span class="nav-link-title">
+                                Kompaniya To'lovlari
+                            </span>
+                        </a>
+                    </li>
+                    @endhasrole
                     @can('users')
                         <li class="nav-item {{ request()->routeIs('users*') ? 'active' : '' }}">
                             <a class="nav-link" href="{{ route('users.index') }}">
@@ -314,12 +358,12 @@
                                      fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
                                      stroke-linejoin="round"
                                      class="icon icon-tabler icons-tabler-outline icon-tabler-users-group"><path
-                                        stroke="none" d="M0 0h24v24H0z" fill="none"/><path
-                                        d="M10 13a2 2 0 1 0 4 0a2 2 0 0 0 -4 0"/><path
-                                        d="M8 21v-1a2 2 0 0 1 2 -2h4a2 2 0 0 1 2 2v1"/><path
-                                        d="M15 5a2 2 0 1 0 4 0a2 2 0 0 0 -4 0"/><path d="M17 10h2a2 2 0 0 1 2 2v1"/><path
-                                        d="M5 5a2 2 0 1 0 4 0a2 2 0 0 0 -4 0"/><path
-                                        d="M3 13v-1a2 2 0 0 1 2 -2h2"/></svg>
+                                            stroke="none" d="M0 0h24v24H0z" fill="none"/><path
+                                            d="M10 13a2 2 0 1 0 4 0a2 2 0 0 0 -4 0"/><path
+                                            d="M8 21v-1a2 2 0 0 1 2 -2h4a2 2 0 0 1 2 2v1"/><path
+                                            d="M15 5a2 2 0 1 0 4 0a2 2 0 0 0 -4 0"/><path d="M17 10h2a2 2 0 0 1 2 2v1"/><path
+                                            d="M5 5a2 2 0 1 0 4 0a2 2 0 0 0 -4 0"/><path
+                                            d="M3 13v-1a2 2 0 0 1 2 -2h2"/></svg>
                             </span>
                                 <span class="nav-link-title">
                                 Xodimlar
@@ -338,8 +382,8 @@
                                      class="icon icon-tabler icons-tabler-outline icon-tabler-news"><path stroke="none"
                                                                                                           d="M0 0h24v24H0z"
                                                                                                           fill="none"/><path
-                                        d="M16 6h3a1 1 0 0 1 1 1v11a2 2 0 0 1 -4 0v-13a1 1 0 0 0 -1 -1h-10a1 1 0 0 0 -1 1v12a3 3 0 0 0 3 3h11"/><path
-                                        d="M8 8l4 0"/><path d="M8 12l4 0"/><path d="M8 16l4 0"/></svg>
+                                            d="M16 6h3a1 1 0 0 1 1 1v11a2 2 0 0 1 -4 0v-13a1 1 0 0 0 -1 -1h-10a1 1 0 0 0 -1 1v12a3 3 0 0 0 3 3h11"/><path
+                                            d="M8 8l4 0"/><path d="M8 12l4 0"/><path d="M8 16l4 0"/></svg>
                             </span>
                                 <span class="nav-link-title">
                                 Tariflar
@@ -356,10 +400,10 @@
                                      fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
                                      stroke-linejoin="round"
                                      class="icon icon-tabler icons-tabler-outline icon-tabler-user-dollar"><path
-                                        stroke="none" d="M0 0h24v24H0z" fill="none"/><path
-                                        d="M8 7a4 4 0 1 0 8 0a4 4 0 0 0 -8 0"/><path d="M6 21v-2a4 4 0 0 1 4 -4h3"/><path
-                                        d="M21 15h-2.5a1.5 1.5 0 0 0 0 3h1a1.5 1.5 0 0 1 0 3h-2.5"/><path
-                                        d="M19 21v1m0 -8v1"/></svg>
+                                            stroke="none" d="M0 0h24v24H0z" fill="none"/><path
+                                            d="M8 7a4 4 0 1 0 8 0a4 4 0 0 0 -8 0"/><path d="M6 21v-2a4 4 0 0 1 4 -4h3"/><path
+                                            d="M21 15h-2.5a1.5 1.5 0 0 0 0 3h1a1.5 1.5 0 0 1 0 3h-2.5"/><path
+                                            d="M19 21v1m0 -8v1"/></svg>
                             </span>
                                 <span class="nav-link-title">
                                 Mijozlar
@@ -376,9 +420,9 @@
                                      fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
                                      stroke-linejoin="round"
                                      class="icon icon-tabler icons-tabler-outline icon-tabler-dashboard"><path
-                                        stroke="none" d="M0 0h24v24H0z" fill="none"/><path
-                                        d="M12 13m-2 0a2 2 0 1 0 4 0a2 2 0 1 0 -4 0"/><path
-                                        d="M13.45 11.55l2.05 -2.05"/><path d="M6.4 20a9 9 0 1 1 11.2 0z"/></svg>
+                                            stroke="none" d="M0 0h24v24H0z" fill="none"/><path
+                                            d="M12 13m-2 0a2 2 0 1 0 4 0a2 2 0 1 0 -4 0"/><path
+                                            d="M13.45 11.55l2.05 -2.05"/><path d="M6.4 20a9 9 0 1 1 11.2 0z"/></svg>
                             </span>
                                 <span class="nav-link-title">
                                 Hisoblagichlar
@@ -395,9 +439,9 @@
                                      fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
                                      stroke-linejoin="round"
                                      class="icon icon-tabler icons-tabler-outline icon-tabler-droplet-plus"><path
-                                        stroke="none" d="M0 0h24v24H0z" fill="none"/><path
-                                        d="M18.602 12.004a6.66 6.66 0 0 0 -.538 -1.127l-4.89 -7.26c-.42 -.625 -1.287 -.803 -1.936 -.397a1.376 1.376 0 0 0 -.41 .397l-4.893 7.26c-1.695 2.838 -1.035 6.441 1.567 8.546a7.16 7.16 0 0 0 5.033 1.56"/><path
-                                        d="M16 19h6"/><path d="M19 16v6"/></svg>
+                                            stroke="none" d="M0 0h24v24H0z" fill="none"/><path
+                                            d="M18.602 12.004a6.66 6.66 0 0 0 -.538 -1.127l-4.89 -7.26c-.42 -.625 -1.287 -.803 -1.936 -.397a1.376 1.376 0 0 0 -.41 .397l-4.893 7.26c-1.695 2.838 -1.035 6.441 1.567 8.546a7.16 7.16 0 0 0 5.033 1.56"/><path
+                                            d="M16 19h6"/><path d="M19 16v6"/></svg>
                             </span>
                                 <span class="nav-link-title">
                                 Hisoblagichlar tarixi
@@ -414,10 +458,10 @@
                                      fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
                                      stroke-linejoin="round"
                                      class="icon icon-tabler icons-tabler-outline icon-tabler-file-dollar"><path
-                                        stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M14 3v4a1 1 0 0 0 1 1h4"/><path
-                                        d="M17 21h-10a2 2 0 0 1 -2 -2v-14a2 2 0 0 1 2 -2h7l5 5v11a2 2 0 0 1 -2 2z"/><path
-                                        d="M14 11h-2.5a1.5 1.5 0 0 0 0 3h1a1.5 1.5 0 0 1 0 3h-2.5"/><path
-                                        d="M12 17v1m0 -8v1"/></svg>
+                                            stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M14 3v4a1 1 0 0 0 1 1h4"/><path
+                                            d="M17 21h-10a2 2 0 0 1 -2 -2v-14a2 2 0 0 1 2 -2h7l5 5v11a2 2 0 0 1 -2 2z"/><path
+                                            d="M14 11h-2.5a1.5 1.5 0 0 0 0 3h1a1.5 1.5 0 0 1 0 3h-2.5"/><path
+                                            d="M12 17v1m0 -8v1"/></svg>
                             </span>
                                 <span class="nav-link-title">
                                 Invoyslar
@@ -434,9 +478,9 @@
                                      fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
                                      stroke-linejoin="round"
                                      class="icon icon-tabler icons-tabler-outline icon-tabler-currency-dollar"><path
-                                        stroke="none" d="M0 0h24v24H0z" fill="none"/><path
-                                        d="M16.7 8a3 3 0 0 0 -2.7 -2h-4a3 3 0 0 0 0 6h4a3 3 0 0 1 0 6h-4a3 3 0 0 1 -2.7 -2"/><path
-                                        d="M12 3v3m0 12v3"/></svg>
+                                            stroke="none" d="M0 0h24v24H0z" fill="none"/><path
+                                            d="M16.7 8a3 3 0 0 0 -2.7 -2h-4a3 3 0 0 0 0 6h4a3 3 0 0 1 0 6h-4a3 3 0 0 1 -2.7 -2"/><path
+                                            d="M12 3v3m0 12v3"/></svg>
                             </span>
                                 <span class="nav-link-title">
                                 To'lovlar
@@ -455,8 +499,8 @@
                                      class="icon icon-tabler icons-tabler-outline icon-tabler-mail"><path stroke="none"
                                                                                                           d="M0 0h24v24H0z"
                                                                                                           fill="none"/><path
-                                        d="M3 7a2 2 0 0 1 2 -2h14a2 2 0 0 1 2 2v10a2 2 0 0 1 -2 2h-14a2 2 0 0 1 -2 -2v-10z"/><path
-                                        d="M3 7l9 6l9 -6"/></svg>
+                                            d="M3 7a2 2 0 0 1 2 -2h14a2 2 0 0 1 2 2v10a2 2 0 0 1 -2 2h-14a2 2 0 0 1 -2 -2v-10z"/><path
+                                            d="M3 7l9 6l9 -6"/></svg>
                             </span>
                                 <span class="nav-link-title">
                                 Xabarnomalar
@@ -472,9 +516,9 @@
                                      fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
                                      stroke-linejoin="round"
                                      class="icon icon-tabler icons-tabler-outline icon-tabler-building-warehouse"><path
-                                        stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M3 21v-13l9 -4l9 4v13"/><path
-                                        d="M13 13h4v8h-10v-6h6"/><path
-                                        d="M13 21v-9a1 1 0 0 0 -1 -1h-2a1 1 0 0 0 -1 1v3"/></svg>
+                                            stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M3 21v-13l9 -4l9 4v13"/><path
+                                            d="M13 13h4v8h-10v-6h6"/><path
+                                            d="M13 21v-9a1 1 0 0 0 -1 -1h-2a1 1 0 0 0 -1 1v3"/></svg>
                             </span>
                             <span class="nav-link-title">
                                 Ko'chalar
@@ -489,10 +533,10 @@
                                      fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
                                      stroke-linejoin="round"
                                      class="icon icon-tabler icons-tabler-outline icon-tabler-building"><path
-                                        stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M3 21l18 0"/><path
-                                        d="M9 8l1 0"/><path d="M9 12l1 0"/><path d="M9 16l1 0"/><path d="M14 8l1 0"/><path
-                                        d="M14 12l1 0"/><path d="M14 16l1 0"/><path
-                                        d="M5 21v-16a2 2 0 0 1 2 -2h10a2 2 0 0 1 2 2v16"/></svg>
+                                            stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M3 21l18 0"/><path
+                                            d="M9 8l1 0"/><path d="M9 12l1 0"/><path d="M9 16l1 0"/><path d="M14 8l1 0"/><path
+                                            d="M14 12l1 0"/><path d="M14 16l1 0"/><path
+                                            d="M5 21v-16a2 2 0 0 1 2 -2h10a2 2 0 0 1 2 2v16"/></svg>
                             </span>
                             <span class="nav-link-title">
                                 Mahallalar
@@ -507,11 +551,11 @@
                                      fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
                                      stroke-linejoin="round"
                                      class="icon icon-tabler icons-tabler-outline icon-tabler-buildings"><path
-                                        stroke="none" d="M0 0h24v24H0z" fill="none"/><path
-                                        d="M4 21v-15c0 -1 1 -2 2 -2h5c1 0 2 1 2 2v15"/><path
-                                        d="M16 8h2c1 0 2 1 2 2v11"/><path d="M3 21h18"/><path d="M10 12v0"/><path
-                                        d="M10 16v0"/><path d="M10 8v0"/><path d="M7 12v0"/><path d="M7 16v0"/><path
-                                        d="M7 8v0"/><path d="M17 12v0"/><path d="M17 16v0"/></svg>
+                                            stroke="none" d="M0 0h24v24H0z" fill="none"/><path
+                                            d="M4 21v-15c0 -1 1 -2 2 -2h5c1 0 2 1 2 2v15"/><path
+                                            d="M16 8h2c1 0 2 1 2 2v11"/><path d="M3 21h18"/><path d="M10 12v0"/><path
+                                            d="M10 16v0"/><path d="M10 8v0"/><path d="M7 12v0"/><path d="M7 16v0"/><path
+                                            d="M7 8v0"/><path d="M17 12v0"/><path d="M17 16v0"/></svg>
                             </span>
                             <span class="nav-link-title">
                                 Shaharlar
@@ -526,9 +570,9 @@
                                      fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
                                      stroke-linejoin="round"
                                      class="icon icon-tabler icons-tabler-outline icon-tabler-building-skyscraper"><path
-                                        stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M3 21l18 0"/><path
-                                        d="M5 21v-14l8 -4v18"/><path d="M19 21v-10l-6 -4"/><path d="M9 9l0 .01"/><path
-                                        d="M9 12l0 .01"/><path d="M9 15l0 .01"/><path d="M9 18l0 .01"/></svg>
+                                            stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M3 21l18 0"/><path
+                                            d="M5 21v-14l8 -4v18"/><path d="M19 21v-10l-6 -4"/><path d="M9 9l0 .01"/><path
+                                            d="M9 12l0 .01"/><path d="M9 15l0 .01"/><path d="M9 18l0 .01"/></svg>
                             </span>
                             <span class="nav-link-title">
                                 Viloyatlar
@@ -576,7 +620,7 @@
 
 <!-- Libs JS -->
 <script>
-    document.addEventListener('DOMContentLoaded', function() {
+    document.addEventListener('DOMContentLoaded', function () {
         const desktopToggleBtn = document.getElementById('desktop-sidebar-compact-toggle');
         const sidebar = document.querySelector('aside.navbar-vertical');
         const page = document.querySelector('.page'); // Asosiy .page elementi
@@ -606,7 +650,7 @@
             const savedStateIsCompact = localStorage.getItem('sidebarCompactState') === 'true';
             applyCompactState(savedStateIsCompact);
 
-            desktopToggleBtn.addEventListener('click', function() {
+            desktopToggleBtn.addEventListener('click', function () {
                 if (window.innerWidth >= 992) { // Faqat katta ekranlar uchun
                     const currentIsCompact = sidebar.classList.contains(SIDEBAR_COMPACT_CLASS);
                     const newStateIsCompact = !currentIsCompact;
@@ -618,7 +662,7 @@
         }
 
         // Ekran o'lchami o'zgarganda menyu holatini to'g'rilash
-        window.addEventListener('resize', function() {
+        window.addEventListener('resize', function () {
             const savedStateIsCompact = localStorage.getItem('sidebarCompactState') === 'true';
             applyCompactState(savedStateIsCompact); // Holatni qayta o'rnatish
         });

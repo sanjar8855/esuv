@@ -36,12 +36,18 @@
                         </div>
 
                         <div class="mb-3">
-                            <label class="form-label">Plan</label>
-                            <select name="plan" id="plan" class="form-control">
-                                <option value="basic" {{$company->plan == "basic" ? 'selected' : ''}}>Standart</option>
-                                <option value="premium" {{$company->plan == "premium" ? 'selected' : ''}}>Premium
-                                </option>
+                            <label class="form-label" for="plan_id">Tarif Rejasi:</label>
+                            <select name="plan_id" id="plan_id" class="form-select @error('plan_id') is-invalid @enderror">
+                                <option value="">-- Tarifni Tanlang --</option>
+                                @foreach($plans as $plan)
+                                    <option value="{{ $plan->id }}" {{ old('plan_id', $company->plan_id) == $plan->id ? 'selected' : '' }}>
+                                        {{ $plan->name }} ({{ number_format($plan->price, 0, '', ' ') }} UZS/oy)
+                                    </option>
+                                @endforeach
                             </select>
+                            @error('plan_id')
+                            <div class="invalid-feedback">{{ $message }}</div>
+                            @enderror
                         </div>
 
                         <div class="mb-3">

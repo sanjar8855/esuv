@@ -20,6 +20,7 @@ use App\Http\Controllers\PaymentController;
 use App\Http\Controllers\NotificationController;
 use Telegram\Bot\Laravel\Facades\Telegram;
 use App\Http\Controllers\SubscriberController;
+use App\Http\Controllers\SaasPaymentController;
 
 Route::post('/subscribe', [SubscriberController::class, 'store'])->name('subscribe.store');
 
@@ -47,6 +48,7 @@ Route::middleware('auth')->group(function () {
         Route::resource('cities', CityController::class);
         Route::resource('neighborhoods', NeighborhoodController::class);
         Route::resource('streets', StreetController::class);
+        Route::resource('saas-payments', SaasPaymentController::class)->names('saas.payments');
     });
 //    Route::middleware('can:locations')->group(function () {
 //    });
