@@ -135,7 +135,7 @@
 
             // To'lov sanasi uchun Litepicker
             if (window.Litepicker) {
-                new Litepicker({ element: document.getElementById('payment-date-picker'), format: 'YYYY-MM-DD', autoApply: true });
+                new Litepicker({ element: document.getElementById('payment-date-picker'), format: 'YYYY-MM-DD', autoApply: true, dropdowns: {months: true, years: true} });
                 new Litepicker({ element: document.getElementById('payment-period-picker'), format: 'YYYY-MM', autoApply: true, dropdowns: {months: true, years: true} });
             }
         });
