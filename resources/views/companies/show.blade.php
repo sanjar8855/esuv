@@ -22,7 +22,7 @@
                         </tr>
                         <tr>
                             <th>Plan:</th>
-                            <td>{{ $company->plan }}</td>
+                            <td>{{ $company->plan->name, $company->plan->price }}</td>
                         </tr>
                         <tr>
                             <th>1 m³ narxi:</th>
