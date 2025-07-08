@@ -116,46 +116,16 @@ class SaasPaymentController extends Controller
 
     public function history(Request $request)
     {
-        if ($request->ajax()) {
-            $query = SaasPayment::query()
-                ->with(['company', 'createdBy']) // Ma'lumotlarni qulay olish uchun with() qoladi
-                // Saralash va qidiruv uchun jadvallarni JOIN qilamiz
-                ->leftJoin('companies', 'saas_payments.company_id', '=', 'companies.id')
-                ->leftJoin('users', 'saas_payments.created_by_user_id', '=', 'users.id')
-                // JOINlarda bir xil nomli ustunlar (masalan, id, created_at) chalkashmasligi uchun
-                // asosiy jadval ustunlarini aniq ko'rsatamiz
-                ->select('saas_payments.*');
+        // DataTables uchun AJAX logikasi olib tashlandi.
 
-            return DataTables::eloquent($query)
-                ->addIndexColumn()
-                ->addColumn('company_name', function (SaasPayment $payment) {
-                    return $payment->company
-                        ? '<a href="'.route('companies.show', $payment->company->id).'">'.e($payment->company->name).'</a>'
-                        : 'Kompaniya o\'chirilgan';
-                })
-                ->editColumn('amount', fn($p) => number_format($p->amount, 0, '.', ' ') . ' UZS')
-                ->editColumn('payment_date', function (SaasPayment $payment) {
-                    return $payment->payment_date ? Carbon::parse($payment->payment_date)->format('d.m.Y') : '-';
-                })
-                ->editColumn('payment_period', fn($p) => $p->payment_period ? Carbon::parse($p->payment_period . '-01')->format('F Y') : '-')
-                ->addColumn('created_by_user', function (SaasPayment $payment) {
-                    return $payment->createdBy?->name ?? 'Noma\'lum';
-                })
-                ->addColumn('actions', function (SaasPayment $payment) {
-                    $editUrl = route('saas.payments.edit', $payment->id);
-                    $deleteUrl = route('saas.payments.destroy', $payment->id);
-                    $csrf = csrf_field();
-                    $method = method_field('DELETE');
+        // To'lovlarni olamiz, eng yangisi birinchi bo'lib
+        $saasPayments = SaasPayment::query()
+            ->with(['company', 'createdBy']) // N+1 muammosini oldini olish uchun
+            ->latest('payment_date') // To'lov sanasi bo'yicha saralaymiz
+            ->latest('id')           // Bir xil sanadagilarni ID bo'yicha
+            ->paginate(25); // Masalan, har sahifada 25 tadan
 
-                    return '<a href="'.$editUrl.'" class="btn btn-warning btn-sm">Tahrirlash</a> ' .
-                        '<form action="'.$deleteUrl.'" method="POST" class="d-inline" onsubmit="return confirm(\'Haqiqatan ham o‘chirmoqchimisiz?\');">'
-                        . $csrf . $method .
-                        '<button type="submit" class="btn btn-danger btn-sm">O‘chirish</button></form>';
-                })
-                ->rawColumns(['company_name', 'actions'])
-                ->make(true);
-        }
-
-        return view('saas_payments.history');
+        // Ma'lumotlarni view'ga uzatamiz
+        return view('saas_payments.history', compact('saasPayments'));
     }
 }
