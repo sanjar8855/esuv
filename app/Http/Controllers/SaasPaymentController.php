@@ -113,4 +113,38 @@ class SaasPaymentController extends Controller
     {
         //
     }
+
+    public function history(Request $request)
+    {
+        // DataTables uchun AJAX so'rovini tekshirish
+        if ($request->ajax()) {
+            // Barcha to'lovlarni kompaniyasi va qo'shgan admini bilan birga olamiz
+            $query = SaasPayment::with(['company', 'createdBy'])->select('saas_payments.*');
+
+            return DataTables::eloquent($query)
+                    ->addIndexColumn() // 'N' ustuni uchun
+                    ->addColumn('company_name', function (SaasPayment $payment) {
+                        return $payment->company
+                            ? '<a href="'.route('companies.show', $payment->company->id).'">'.e($payment->company->name).'</a>'
+                            : 'Kompaniya o\'chirilgan';
+                    })
+                    ->editColumn('amount', fn($p) => number_format($p->amount, 0, '.', ' ') . ' UZS')
+                    ->editColumn('payment_date', fn($p) => $p->payment_date ? Carbon::parse($p->payment_date)->format('d.m.Y') : '-')
+                    ->editColumn('payment_period', fn($p) => $p->payment_period ? Carbon::parse($p->payment_period . '-01')->format('F Y') : '-')
+                    ->addColumn('created_by_user', fn($p) => $p->createdBy?->name ?? 'Noma\'lum')
+                ->addColumn('actions', function (SaasPayment $payment) {
+                $editUrl = route('saas.payments.edit', $payment->id);
+                $deleteUrl = route('saas.payments.destroy', $payment->id);
+                return '<a href="'.$editUrl.'" class="btn btn-warning btn-sm">Tahrirlash</a> ' .
+                    '<form action="'.$deleteUrl.'" method="POST" class="d-inline" onsubmit="return confirm(\'Haqiqatan ham o‘chirmoqchimisiz?\');">'
+                    . csrf_field() . method_field('DELETE') .
+                    '<button type="submit" class="btn btn-danger btn-sm">O‘chirish</button></form>';
+            })
+                ->rawColumns(['company_name', 'actions'])
+                ->make(true);
+        }
+
+        // Oddiy GET so'rovi uchun
+        return view('saas_payments.history'); // Yangi view fayli
+    }
 }

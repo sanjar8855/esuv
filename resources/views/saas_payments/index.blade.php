@@ -12,7 +12,10 @@
                 <div class="col-12">
                     <div class="d-flex justify-content-between align-items-center mb-3">
                         <h1>Kompaniya To'lovlari</h1>
-                        <a href="{{ route('saas.payments.create') }}" class="btn btn-primary">Yangi To'lov Qo'shish</a>
+                        <div> {{-- Tugmalarni guruhlash uchun --}}
+                            <a href="{{ route('saas.payments.history') }}" class="btn btn-outline-info">To'lovlar Jurnali</a>
+                            <a href="{{ route('saas.payments.create') }}" class="btn btn-primary ms-2">Yangi To'lov Qo'shish</a>
+                        </div>
                     </div>
 
                     {{-- ------------- OY BO'YICHA FILTRLASH FORMASI ------------- --}}
