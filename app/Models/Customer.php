@@ -38,6 +38,16 @@ class Customer extends Model
         $this->attributes['name'] = mb_convert_case($value, MB_CASE_TITLE, "UTF-8");
     }
 
+    public function setAccountNumberAttribute($value)
+    {
+        if ($value) {
+            $cleaned = str_replace(' ', '', (string)$value);
+            $this->attributes['account_number'] = str_pad($cleaned, 7, '0', STR_PAD_LEFT);
+        } else {
+            $this->attributes['account_number'] = null;
+        }
+    }
+
     public function company()
     {
         return $this->belongsTo(Company::class);

@@ -476,15 +476,9 @@ class CustomerController extends Controller
                     'fio' => $rowData['fio'] ?? null,
                     'telefon_raqami' => $rowData['telefon_raqami'] ?? null,
                     'uy_raqami' => $rowData['uy_raqami'] ?? null,
-                    'hisob_raqam' => isset($rowData['hisob_raqam']) ? str_replace(' ', '', (string)$rowData['hisob_raqam']) : null,
+                    'hisob_raqam' => $rowData['hisob_raqam'] ?? null,
                     'oila_azolari' => $rowData['oila_azolari'] ?? null,
                 ];
-
-                if (isset($preparedData['hisob_raqam'])) {
-                    $cleanedNumber = str_replace(' ', '', (string)$preparedData['hisob_raqam']);
-                    // Raqamning boshiga 7 xonali bo'lguncha "0" qo'shib chiqamiz
-                    $preparedData['hisob_raqam'] = str_pad($cleanedNumber, 7, '0', STR_PAD_LEFT);
-                }
 
                 $validator = Validator::make($preparedData, [
                     'kompaniya_id' => ['required', 'integer', 'exists:companies,id'],
@@ -557,19 +551,13 @@ class CustomerController extends Controller
                     'fio' => $rowData['fio'] ?? null,
                     'telefon_raqami' => isset($rowData['telefon_raqami']) ? (string)$rowData['telefon_raqami'] : null,
                     'uy_raqami'      => isset($rowData['uy_raqami']) ? (string)$rowData['uy_raqami'] : null,
-                    'hisob_raqam' => isset($rowData['hisob_raqam']) ? str_replace(' ', '', (string)$rowData['hisob_raqam']) : null,
+                    'hisob_raqam' => $rowData['fio'] ?? null,
                     'hisoblagich_ornatilgan_sana' => $rowData['hisoblagich_ornatilgan_sana'] ?? null,
                     'amal_qilish_muddati' => $rowData['amal_qilish_muddati'] ?? null,
                     'boshlangich_korsatkich' => $rowData['boshlangich_korsatkich'] ?? null,
                     'korsatkich_sanasi' => $rowData['korsatkich_sanasi'] ?? null,
                     'oila_azolari' => $rowData['oila_azolari'] ?? null,
                 ];
-
-                if (isset($preparedData['hisob_raqam'])) {
-                    $cleanedNumber = str_replace(' ', '', (string)$preparedData['hisob_raqam']);
-                    // Raqamning boshiga 7 xonali bo'lguncha "0" qo'shib chiqamiz
-                    $preparedData['hisob_raqam'] = str_pad($cleanedNumber, 7, '0', STR_PAD_LEFT);
-                }
 
                 if (!empty($preparedData['hisoblagich_ornatilgan_sana'])) {
                     $dateValue = $preparedData['hisoblagich_ornatilgan_sana'];
