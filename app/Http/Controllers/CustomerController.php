@@ -584,7 +584,7 @@ class CustomerController extends Controller
                     'kompaniya_id' => ['required', 'integer', 'exists:companies,id'],
                     'kocha_id' => ['required', 'integer', 'exists:streets,id'],
                     'fio' => ['required', 'string', 'max:255'],
-                    'hisob_raqam' => ['required','string','max:50', Rule::unique('customers', 'account_number'), Rule::unique('water_meters', 'meter_number')],
+                    'hisob_raqam' => ['required','integer', Rule::unique('customers', 'account_number'), Rule::unique('water_meters', 'meter_number')],
                     'boshlangich_korsatkich' => ['required', 'numeric', 'min:0'],
                     'amal_qilish_muddati' => ['nullable', 'integer', 'min:0'],
                     'hisoblagich_ornatilgan_sana' => ['nullable', 'date'],
