@@ -551,7 +551,7 @@ class CustomerController extends Controller
                     'fio' => $rowData['fio'] ?? null,
                     'telefon_raqami' => isset($rowData['telefon_raqami']) ? (string)$rowData['telefon_raqami'] : null,
                     'uy_raqami'      => isset($rowData['uy_raqami']) ? (string)$rowData['uy_raqami'] : null,
-                    'hisob_raqam' => $rowData['fio'] ?? null,
+                    'hisob_raqam' => $rowData['hisob_raqam'] ?? null,
                     'hisoblagich_ornatilgan_sana' => $rowData['hisoblagich_ornatilgan_sana'] ?? null,
                     'amal_qilish_muddati' => $rowData['amal_qilish_muddati'] ?? null,
                     'boshlangich_korsatkich' => $rowData['boshlangich_korsatkich'] ?? null,
