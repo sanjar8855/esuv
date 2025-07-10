@@ -48,6 +48,27 @@ class Customer extends Model
         }
     }
 
+    public function setPhoneAttribute($value)
+    {
+        if (empty($value)) {
+            $this->attributes['phone'] = null;
+            return;
+        }
+
+        // Kiritilgan qiymatdan faqat sonlarni ajratib olamiz
+        $digits = preg_replace('/[^0-9]/', '', $value);
+
+        // Agar sonlar 9 ta bo'lsa (O'zbekiston mobil raqamlari standarti)
+        if (strlen($digits) === 9) {
+            // Raqamni kerakli formatga o'tkazamiz
+            $formatted = preg_replace('/^(\d{2})(\d{3})(\d{2})(\d{2})$/', '($1) $2-$3-$4', $digits);
+            $this->attributes['phone'] = $formatted;
+        } else {
+            // Agar raqam 9 xonali bo'lmasa, uni o'z holicha saqlaymiz
+            $this->attributes['phone'] = $value;
+        }
+    }
+
     public function company()
     {
         return $this->belongsTo(Company::class);
