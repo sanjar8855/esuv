@@ -249,6 +249,30 @@ class CustomerController extends Controller
             }
         }
 
+        // 1. Mijoz qo'shilayotgan kompaniyani topamiz
+        $company = Company::with('plan')->find($validated['company_id']);
+
+        if (!$company) {
+            // Bu holat deyarli yuz bermaydi, chunki validatsiyada 'exists:companies' bor, lekin ehtiyot shart
+            return back()->with('error', 'Kompaniya topilmadi.')->withInput();
+        }
+
+        // 2. Kompaniyaning tarif rejasida limit borligini tekshiramiz
+        // customer_limit > 0 bo'lsa, bu cheklangan tarif degani (0 yoki null - cheklanmagan)
+        if ($company->plan && $company->plan->customer_limit > 0) {
+
+            // 3. Kompaniyaning hozirgi mijozlari sonini sanaymiz
+            $currentCustomerCount = $company->customers()->count();
+
+            // 4. Joriy sonni limit bilan solishtiramiz
+            if ($currentCustomerCount >= $company->plan->customer_limit) {
+                // Agar limitga yetgan bo'lsa, xatolik bilan ortga qaytaramiz
+                return redirect()->back()
+                    ->with('error', 'Siz o\'z tarif rejangizdagi mijozlar limitiga yetdingiz. Cheklov: ' . $company->plan->customer_limit . ' ta. Tarifni yangilash uchun administratorga murojaat qiling.')
+                    ->withInput();
+            }
+        }
+
         $accountMeterNumber = $validated['account_meter_number'];
 
         $customerData = [
