@@ -25,9 +25,6 @@ use Illuminate\Support\Facades\Auth;
 use Yajra\DataTables\Facades\DataTables;
 use Carbon\Carbon;
 
-// Buni qo'shing
-
-
 class CustomerController extends Controller
 {
     /**
@@ -508,7 +505,7 @@ class CustomerController extends Controller
                     'kompaniya_id' => ['required', 'integer', 'exists:companies,id'],
                     'kocha_id' => ['required', 'integer', 'exists:streets,id'],
                     'fio' => ['required', 'string', 'max:255'],
-                    'hisob_raqam' => ['required', 'string', 'max:50', Rule::unique('customers', 'account_number')],
+                    'hisob_raqam' => ['required', 'integer', 'max:50', Rule::unique('customers', 'account_number')],
                     'oila_azolari' => ['required', 'integer', 'min:1'],
                 ]);
 
