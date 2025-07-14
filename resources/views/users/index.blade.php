@@ -81,9 +81,9 @@
                 columns: [
                     // `data` - Controller'dan keladigan JSON javobidagi kalit nomi
                     // `name` - Server tomonida saralash/qidirish uchun ishlatiladigan ustun nomi (odatda bazadagi nom)
-                    {data: 'id', name: 'id'},
-                    {data: 'company_name', name: 'company.name', orderable: false, searchable: false},
-                    {data: 'name', name: 'name'},
+                    {data: 'id', name: 'users.id'},
+                    {data: 'company_name', name: 'companies.name', orderable: true, searchable: true},
+                    {data: 'name', name: 'users.name'},
                     {data: 'roles', name: 'roles', orderable: false, searchable: false}, // Controller'da `addColumn` bilan qo'shilgan
                     {data: 'email', name: 'email'},
                     {data: 'rank', name: 'rank'}, // User modelida 'rank' maydoni borligiga ishonch hosil qiling
@@ -92,7 +92,7 @@
                 ],
                 order: [[0, 'desc']], // Boshlang'ich saralash (masalan, ID bo'yicha kamayish tartibida)
                 pageLength: 25,
-                language: { // <-- MANA SHU QISM
+                language: {
                     search: "Qidiruv:",
                     lengthMenu: "_MENU_ ta yozuv ko'rsatish",
                     info: "_TOTAL_ ta yozuvdan _START_ dan _END_ gachasi ko'rsatilmoqda",
@@ -113,7 +113,6 @@
                     }
 
                 }
-                // Boshqa DataTables sozlamalari...
             });
         });
     </script>

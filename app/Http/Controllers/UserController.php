@@ -14,61 +14,52 @@ class UserController extends Controller
 {
     public function index()
     {
-        $loggedInUser = Auth::user(); // O'zgaruvchi nomini o'zgartirdim tushunarli bo'lishi uchun
+        $loggedInUser = Auth::user();
 
-        // Asosiy query builder (boshlang'ich holat)
-        $usersQuery = User::with('company', 'roles')->select('users.*'); // Agar kerak bo'lsa select() ni qoldiring
+        // Asosiy so'rovga JOIN qo'shamiz, bu kompaniya nomi bo'yicha saralash imkonini beradi
+        $usersQuery = User::query()
+            ->with(['company', 'roles']) // `with` ma'lumotlarni qulay olish uchun qoladi
+            ->leftJoin('companies', 'users.company_id', '=', 'companies.id') // Saralash uchun JOIN
+            ->select('users.*'); // Asosiy jadval ustunlarini aniq tanlash
 
         // Admin bo'lmaganlar uchun kompaniya bo'yicha filtr
         if (!$loggedInUser->hasRole('admin')) {
-            $usersQuery->where('company_id', $loggedInUser->company_id);
+            $usersQuery->where('users.company_id', $loggedInUser->company_id);
         }
 
         // Agar so'rov AJAX orqali DataTables'dan kelsa
         if (request()->ajax()) {
             return DataTables::eloquent($usersQuery)
                 ->addColumn('roles', function (User $user) {
-                    // Rollarni ustuvorlik tartibida tekshiramiz
-                    // Agar bir nechta rol bo'lsa, eng muhimi (masalan, admin) ko'rsatiladi
-                    if ($user->hasRole('admin')) {
-                        return 'Admin'; // Rol 'admin' bo'lsa
-                    } elseif ($user->hasRole('company_owner')) {
-                        // Rol 'company_owner' bo'lsa (va 'admin' bo'lmasa)
-                        // Siz buni "Boshqaruv" deb nomladingiz
-                        return 'Boshqaruv';
-                    } elseif ($user->hasRole('employee')) {
-                        // Rol 'employee' bo'lsa (va yuqoridagilar bo'lmasa)
-                        return 'Ishchi';
-                    } else {
-                        // Agar yuqoridagi uchta roldan hech biri bo'lmasa
-                        // Qanday ko'rsatishni hal qilish kerak. Masalan, "Noma'lum" yoki birinchi rol nomi.
-                        return 'Noma\'lum'; // Yoki: $user->roles->first()?->name ?? '-'
-                    }
-                })
-                ->addColumn('company_name', function (User $user) use ($loggedInUser) {
-                    if ($loggedInUser->hasRole('admin')) {
-                        if ($user->company) {
-                            // Kompaniyaning 'show' sahifasi uchun URL generatsiya qilamiz
-                            // 'companies.show' - sizning marshrutingiz nomi bo'lishi kerak
-                            // Agar marshrut boshqacha bo'lsa, mos ravishda o'zgartiring
-                            $url = route('companies.show', $user->company->id);
-                            // <a> tegi yordamida havolani yaratamiz
-                            return '<a href="' . $url . '">' . e($user->company->name) . '</a>';
-                        } else {
-                            return '-'; // Kompaniya yo'q bo'lsa
+                    // Rol nomlarini chiroyli formatda chiqarish
+                    $roles = $user->getRoleNames()->map(function ($name) {
+                        switch ($name) {
+                            case 'admin':
+                                return '<span class="badge bg-primary text-primary-fg">Admin</span>';
+                            case 'company_owner':
+                                return '<span class="badge bg-purple text-purple-fg">Direktor</span>';
+                            case 'employee':
+                                return '<span class="badge bg-green text-green-fg">Ishchi</span>';
+                            default:
+                                return '<span class="badge bg-secondary text-secondary-fg">' . ucfirst($name) . '</span>';
                         }
+                    })->implode(' ');
+                    return $roles ?: '-';
+                })
+                ->addColumn('company_name', function (User $user) {
+                    if ($user->company) {
+                        $url = route('companies.show', $user->company->id);
+                        return '<a href="' . $url . '" class="badge badge-outline text-blue">' . e($user->company->name) . '</a>';
                     }
-                    return '-'; // Admin bo'lmasa
+                    return '-';
                 })
                 ->addColumn('actions', function (User $user) {
-                    // Amallar tugmalarini generatsiya qilish
                     $showUrl = route('users.show', $user->id);
                     $editUrl = route('users.edit', $user->id);
                     $deleteUrl = route('users.destroy', $user->id);
                     $csrf = csrf_field();
                     $method = method_field('DELETE');
 
-                    // O'chirish uchun formani ham qo'shamiz
                     return <<<HTML
                         <a href="{$showUrl}" class="btn btn-info btn-sm">Batafsil</a>
                         <a href="{$editUrl}" class="btn btn-warning btn-sm">Tahrirlash</a>
@@ -78,26 +69,18 @@ class UserController extends Controller
                             <button type="submit" class="btn btn-danger btn-sm">O‘chirish</button>
                         </form>
                     HTML;
-                    // Yoki alohida blade fayl (\`users.actions\`) ishlatishingiz mumkin:
-                    // return view('users.actions', compact('user'))->render();
                 })
                 ->editColumn('phone', function(User $user) {
                     return $user->phone ?? '-';
                 })
-//                ->editColumn('work_start', function(User $user) {
-//                    // Sanani formatlash (agar kerak bo'lsa)
-//                    return $user->work_start ? \Carbon\Carbon::parse($user->work_start)->format('Y-m-d') : '-';
-//                })
-                ->rawColumns(['actions', 'company_name']) // Bu ustunlarda HTML borligini DataTables'ga aytamiz
-                ->orderColumn('id', '-id $1') // Agar ID bo'yicha default sort kerak bo'lsa
+                ->rawColumns(['actions', 'company_name', 'roles']) // `roles` ham HTML bo'lgani uchun qo'shildi
                 ->toJson();
         }
 
-        // Oddiy GET so'rov uchun (sahifa birinchi marta ochilganda)
-        // Faqat umumiy sonni (agar sarlavhada kerak bo'lsa) va view'ni qaytaramiz
-        $usersCount = (clone $usersQuery)->count(); // Umumiy son (filtr hisobga olingan)
+        // Oddiy GET so'rov uchun umumiy sonni hisoblash
+        $usersCount = (clone $usersQuery)->count();
 
-        return view('users.index', compact('usersCount')); // Endi $users'ni o'tkazish shart emas
+        return view('users.index', compact('usersCount'));
     }
 
     public function create()
