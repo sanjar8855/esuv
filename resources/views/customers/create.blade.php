@@ -9,10 +9,12 @@
             <div class="row row-cards">
                 <div class="col-12">
                     <h2>Yangi mijoz qo‘shish</h2>
-                    <h4 class="d-flex">
-                        <label class="form-label required"></label>
-                        &nbsp; Majburiy to'ldirilishi kerak bo'lgan ma'lumotlar
-                    </h4>
+                    @if(session('success'))
+                        <div class="alert alert-success">{{ session('success') }}</div>
+                    @endif
+                    @if(session('error'))
+                        <div class="alert alert-danger">{{ session('error') }}</div>
+                    @endif
                     @if ($errors->any())
                         <div class="alert alert-danger">
                             <ul>
@@ -22,6 +24,10 @@
                             </ul>
                         </div>
                     @endif
+                    <h4 class="d-flex">
+                        <label class="form-label required"></label>
+                        &nbsp; Majburiy to'ldirilishi kerak bo'lgan ma'lumotlar
+                    </h4>
                     <form action="{{ route('customers.store') }}" method="POST" enctype="multipart/form-data">
                         @csrf
                         <div class="mb-3">
@@ -84,7 +90,7 @@
                         <div id="meter_number_div">
                             <div class="mb-3">
                                 <label class="form-label required">Boshlang‘ich Ko‘rsatkich</label>
-                                <input type="number" name="initial_reading" class="form-control">
+                                <input type="number" name="initial_reading" class="form-control" value="{{ old('initial_reading')}}">
                             </div>
 
                             <div class="mb-3">

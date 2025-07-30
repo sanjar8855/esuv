@@ -265,7 +265,7 @@ class CustomerController extends Controller
             if ($currentCustomerCount >= $company->plan->customer_limit) {
                 // Agar limitga yetgan bo'lsa, xatolik bilan ortga qaytaramiz
                 return redirect()->back()
-                    ->with('error', 'Siz o\'z tarif rejangizdagi mijozlar limitiga yetdingiz. Cheklov: ' . $company->plan->customer_limit . ' ta. Tarifni yangilash uchun administratorga murojaat qiling.')
+                    ->withErrors(['limit_error' => 'Siz o\'z tarif rejangizdagi mijozlar limitiga yetdingiz. Cheklov: ' . $company->plan->customer_limit . ' ta. Tarifni yangilash uchun administratorga murojaat qiling.'])
                     ->withInput();
             }
         }
