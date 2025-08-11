@@ -96,4 +96,5 @@
             </div>
         </div>
     </div>
+    <script src="{{ asset('tabler/libs/litepicker/dist/litepicker.js') }}" defer></script>
 @endsection
