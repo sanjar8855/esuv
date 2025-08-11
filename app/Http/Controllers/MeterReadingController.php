@@ -210,10 +210,10 @@ class MeterReadingController extends Controller
         $meterReading->load('waterMeter.customer');
         $customer = $meterReading->waterMeter->customer;
         if (!$customer) {
-            // Yoki boshqa sahifaga yo'naltirish
             abort(404, 'Ushbu ko\'rsatkichga tegishli mijoz topilmadi.');
         }
-        return view('meter_readings.edit', compact('meterReading', 'customer'));
+        $waterMeters = WaterMeter::with('customer')->get();
+        return view('meter_readings.edit', compact('meterReading', 'waterMeters', 'customer'));
     }
 
     public function update(Request $request, MeterReading $meterReading)
