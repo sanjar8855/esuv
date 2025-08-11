@@ -52,7 +52,7 @@
                                             d="M12 15v3"/></svg>
                                 </span>
                                 <input name="reading_date" type="text" class="form-control" placeholder="Sanani tanlang"
-                                       required value="{{ $customer->reading_date }}"
+                                       required value="{{ old('reading_date', $meterReading->reading_date->format('Y-m-d')) }}"
                                        id="datepicker-icon-prepend"/>
                             </div>
                             <script>
