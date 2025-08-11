@@ -14,6 +14,7 @@ class MeterReading extends Model
     protected $fillable = ['water_meter_id', 'reading', 'reading_date', 'photo_url', 'photo', 'confirmed'];
 
     protected $casts = [
+        'reading_date' => 'datetime',
         'confirmed' => 'boolean',
     ];
     /**
