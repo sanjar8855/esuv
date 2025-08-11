@@ -207,8 +207,13 @@ class MeterReadingController extends Controller
 
     public function edit(MeterReading $meterReading)
     {
-        $waterMeters = WaterMeter::with('customer')->get();
-        return view('meter_readings.edit', compact('meterReading', 'waterMeters'));
+        $meterReading->load('waterMeter.customer');
+        $customer = $meterReading->waterMeter->customer;
+        if (!$customer) {
+            // Yoki boshqa sahifaga yo'naltirish
+            abort(404, 'Ushbu ko\'rsatkichga tegishli mijoz topilmadi.');
+        }
+        return view('meter_readings.edit', compact('meterReading', 'customer'));
     }
 
     public function update(Request $request, MeterReading $meterReading)
