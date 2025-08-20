@@ -74,7 +74,7 @@ class CustomersExport implements FromQuery, WithHeadings, WithMapping, ShouldAut
             $customer->phone,
             $customer->address,
             "'" . $customer->account_number, // Excelda '0012345' kabi raqamlar to'g'ri ko'rinishi uchun
-            $customer->has_water_meter ? '-' : $customer->family_members, // Faqat me'yoriylar uchun
+            $customer->family_members, // Faqat me'yoriylar uchun
             $customer->has_water_meter ? $customer->latest_reading : 'Me\'yoriy', // So'nggi ko'rsatkich yoki "Me'yoriy" yozuvi
         ];
     }
