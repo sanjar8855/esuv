@@ -10,6 +10,7 @@ use Illuminate\Support\Facades\Validator; // Validatsiya uchun
 use Maatwebsite\Excel\Validators\ValidationException as ExcelValidationException;
 use PhpOffice\PhpSpreadsheet\Shared\Date as ExcelDate;
 use App\Imports\CustomersImport;
+use App\Exports\CustomersExport;
 use App\Models\MeterReading;
 use App\Models\Street;
 use App\Models\Tariff;
@@ -677,5 +678,19 @@ class CustomerController extends Controller
             Log::error('Excel import error (With Meter): ' . $e->getMessage());
             return redirect()->back()->withErrors(['umumiy_xato' => 'Import qilishda xatolik yuz berdi: ' . $e->getMessage()])->withInput();
         }
+    }
+
+    public function export(Request $request)
+    {
+        $companyId = $request->query('company_id');
+
+        // Foydalanuvchi huquqini tekshirish (ixtiyoriy, lekin tavsiya etiladi)
+        if (!auth()->user()->hasRole('admin') && auth()->user()->company_id != $companyId) {
+            abort(403, 'Sizda bu kompaniya ma\'lumotlarini yuklab olishga ruxsat yo\'q.');
+        }
+
+        $fileName = 'mijozlar_royxati_' . now()->format('Y-m-d') . '.xlsx';
+
+        return Excel::download(new CustomersExport($companyId), $fileName);
     }
 }

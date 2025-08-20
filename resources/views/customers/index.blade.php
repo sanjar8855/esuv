@@ -13,6 +13,7 @@
     .filter-form {
         margin-bottom: 1rem;
     }
+
     .dataTables_length select.form-select,
     .dataTables_filter input.form-control {
         height: calc(2.25rem + 2px); /* Bootstrap standart balandligi */
@@ -31,18 +32,83 @@
                 <div class="col-12">
                     <h2>Mijozlar <span class="text-muted">({{ $customersCount }} ta)</span></h2>
 
-{{--                    <a href="{{ route('customers.create') }}" class="btn btn-primary mb-3">Yangi mijoz qo‘shish</a>--}}
+                    {{--                    <a href="{{ route('customers.create') }}" class="btn btn-primary mb-3">Yangi mijoz qo‘shish</a>--}}
+
+                    @if(auth()->user()->hasRole('admin'))
+                        <div class="card card-body mb-3">
+                            <form action="{{ route('customers.export') }}" method="GET" class="row align-items-end">
+                                <div class="col-md-4">
+                                    <label for="company_filter" class="form-label">Kompaniya bo'yicha eksport:</label>
+                                    <select name="company_id" id="company_filter" class="form-select">
+                                        <option value="">Barcha Kompaniyalar</option>
+                                        @foreach($companies as $company)
+                                            <option value="{{ $company->id }}">{{ $company->name }}</option>
+                                        @endforeach
+                                    </select>
+                                </div>
+                                <div class="col-auto">
+                                    <button type="submit" class="btn btn-success">
+                                        <svg xmlns="http://www.w3.org/2000/svg"
+                                             class="icon icon-tabler icon-tabler-file-spreadsheet" width="24"
+                                             height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"
+                                             fill="none" stroke-linecap="round" stroke-linejoin="round">
+                                            <path stroke="none" d="M0 0h24v24H0z" fill="none"></path>
+                                            <path d="M14 3v4a1 1 0 0 0 1 1h4"></path>
+                                            <path
+                                                d="M17 21h-10a2 2 0 0 1 -2 -2v-14a2 2 0 0 1 2 -2h7l5 5v11a2 2 0 0 1 -2 2z"></path>
+                                            <path d="M8 11h8v7h-8z"></path>
+                                            <path d="M8 15h8"></path>
+                                            <path d="M11 11v7"></path>
+                                        </svg>
+                                        Excelga Yuklash
+                                    </button>
+                                </div>
+                            </form>
+                        </div>
+                    @else
+                        <div class="mb-3">
+                            <a href="{{ route('customers.export', ['company_id' => auth()->user()->company_id]) }}"
+                               class="btn btn-success">
+                                <svg xmlns="http://www.w3.org/2000/svg"
+                                     class="icon icon-tabler icon-tabler-file-spreadsheet" width="24" height="24"
+                                     viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none"
+                                     stroke-linecap="round" stroke-linejoin="round">
+                                    <path stroke="none" d="M0 0h24v24H0z" fill="none"></path>
+                                    <path d="M14 3v4a1 1 0 0 0 1 1h4"></path>
+                                    <path
+                                        d="M17 21h-10a2 2 0 0 1 -2 -2v-14a2 2 0 0 1 2 -2h7l5 5v11a2 2 0 0 1 -2 2z"></path>
+                                    <path d="M8 11h8v7h-8z"></path>
+                                    <path d="M8 15h8"></path>
+                                    <path d="M11 11v7"></path>
+                                </svg>
+                                Ro'yxatni Excelga Yuklash
+                            </a>
+                        </div>
+                    @endif
 
                     <div class="d-flex mb-3">
                         <a href="{{ route('customers.create') }}" class="btn btn-primary">
-                            <svg xmlns="http://www.w3.org/2000/svg" class="icon" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M12 5l0 14" /><path d="M5 12l14 0" /></svg>
+                            <svg xmlns="http://www.w3.org/2000/svg" class="icon" width="24" height="24"
+                                 viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none"
+                                 stroke-linecap="round" stroke-linejoin="round">
+                                <path stroke="none" d="M0 0h24v24H0z" fill="none"/>
+                                <path d="M12 5l0 14"/>
+                                <path d="M5 12l14 0"/>
+                            </svg>
                             Yangi mijoz qo‘shish
                         </a>
 
                         {{-- FAQAT ADMINLAR UCHUN IMPORT TUGMASI --}}
                         @hasrole('admin')
                         <a href="{{ route('customers.import.form') }}" class="btn btn-outline-success ms-2">
-                            <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-file-import" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M14 3v4a1 1 0 0 0 1 1h4" /><path d="M5 13v-8a2 2 0 0 1 2 -2h7l5 5v11a2 2 0 0 1 -2 2h-5.5m-9.5 -2h7m-3 -3l3 3l-3 3" /></svg>
+                            <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-file-import"
+                                 width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"
+                                 fill="none" stroke-linecap="round" stroke-linejoin="round">
+                                <path stroke="none" d="M0 0h24v24H0z" fill="none"/>
+                                <path d="M14 3v4a1 1 0 0 0 1 1h4"/>
+                                <path
+                                    d="M5 13v-8a2 2 0 0 1 2 -2h7l5 5v11a2 2 0 0 1 -2 2h-5.5m-9.5 -2h7m-3 -3l3 3l-3 3"/>
+                            </svg>
                             Exceldan Import Qilish
                         </a>
                         @endhasrole
@@ -56,7 +122,8 @@
                                     <select name="company_id" id="companyFilterSelect" class="form-select">
                                         <option value="">Barcha kompaniyalar</option>
                                         @foreach($companies as $company)
-                                            <option value="{{ $company->id }}" {{ request('company_id') == $company->id ? 'selected' : '' }}>
+                                            <option
+                                                value="{{ $company->id }}" {{ request('company_id') == $company->id ? 'selected' : '' }}>
                                                 {{ $company->name }}
                                             </option>
                                         @endforeach
@@ -136,7 +203,7 @@
                                     <th>Hisob raqam</th>
                                     <th>Balans (UZS)</th>
                                     <th>Oxirgi ko'rsatkich</th>
-{{--                                    <th>Oila a'zolari</th> --}}
+                                    {{--                                    <th>Oila a'zolari</th> --}}
                                     <th>Amallar</th>
                                 </tr>
                                 </thead>

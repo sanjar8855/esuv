@@ -67,7 +67,7 @@ Route::middleware('auth')->group(function () {
 
         // HISOBlagichi BORlar uchun marshrut
         Route::post('/customers/import/with-meter', [CustomerController::class, 'handleImportWithMeter'])->name('customers.import.handle.with_meter');
-
+        Route::get('/customers/export', [CustomerController::class, 'export'])->name('customers.export');
         Route::resource('customers', CustomerController::class);
 
         Route::delete('/customers/{customer}/telegram/{telegram}', [CustomerController::class, 'detachTelegramAccount'])
