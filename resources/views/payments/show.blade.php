@@ -16,7 +16,7 @@
                             <th>Invoice raqami</th>
                             <td>
                                 @if($payment->invoice && $payment->invoice->invoice_number)
-                                    {{ number_format($payment->invoice->invoice_number, 0, '.', ' ') }}
+                                    {{ $payment->invoice->invoice_number }}
                                 @else
                                     Noma’lum
                                 @endif
