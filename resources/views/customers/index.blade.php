@@ -196,13 +196,12 @@
                                     @if(auth()->user()->hasRole('admin'))
                                         <th>Kompaniya</th>
                                     @endif
+                                    <th>Ism va Status</th>
                                     <th>Ko‘cha</th>
                                     <th>Uy raqami</th>
-                                    <th>Ism va Status</th>
                                     <th>Telefon</th>
                                     <th>Hisob raqam</th>
                                     <th>Balans (UZS)</th>
-                                    <th>Oxirgi ko'rsatkich</th>
                                     {{--                                    <th>Oila a'zolari</th> --}}
                                     <th>Amallar</th>
                                 </tr>
@@ -280,15 +279,14 @@
                         data: 'company_name', name: 'company.name'
                     }, // Kompaniya nomi (name='company.name' saralash/qidirish uchun)
                         @endif
+                    {data: 'name_status', name: 'name'}, // Saralash/qidirish 'name' bo'yicha
                     {
                         data: 'street_name', name: 'street.name'
                     }, // Ko'cha nomi
                     {data: 'address', name: 'address'},
-                    {data: 'name_status', name: 'name'}, // Saralash/qidirish 'name' bo'yicha
                     {data: 'phone', name: 'phone'},
                     {data: 'account_number', name: 'account_number'},
                     {data: 'balance_formatted', name: 'balance', searchable: false}, // Balans (saralash 'balance' bo'yicha)
-                    {data: 'last_reading', name: 'last_reading', orderable: false, searchable: false}, // Oxirgi ko'rsatkich (serverda alohida tayyorlanadi)
                     // {data: 'family_members', name: 'family_members'},
                     {data: 'actions', name: 'actions', orderable: false, searchable: false} // Amallar
                 ],
