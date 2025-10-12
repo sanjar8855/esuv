@@ -120,7 +120,7 @@
             /* ... mobil uchun ixcham menyu stillarini bekor qilish ... */
         }
     </style>
-
+    @stack('styles')
 </head>
 <body class=" layout-fluid">
 <script src="{{ asset('tabler/js/demo-theme.min.js?1738096685') }}"></script>

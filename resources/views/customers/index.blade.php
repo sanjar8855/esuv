@@ -1,29 +1,30 @@
 @extends('layouts.app')
+@push('styles')
+    {{-- TomSelect CSS --}}
+    <link href="https://cdn.jsdelivr.net/npm/tom-select@2.2.2/dist/css/tom-select.css" rel="stylesheet">
+    {{-- DataTables CSS --}}
+    <link rel="stylesheet" href="https://cdn.datatables.net/1.13.6/css/dataTables.bootstrap5.min.css">
 
-{{-- TomSelect CSS --}}
-<link href="https://cdn.jsdelivr.net/npm/tom-select@2.2.2/dist/css/tom-select.css" rel="stylesheet">
-{{-- DataTables CSS --}}
-<link rel="stylesheet" href="https://cdn.datatables.net/1.13.6/css/dataTables.bootstrap5.min.css">
-<style>
-    #customersTable {
-        width: 100% !important;
-    }
+    <style>
+        #customersTable {
+            width: 100% !important;
+        }
 
-    /* TomSelect va DT filtrlari orasida joy tashlash */
-    .filter-form {
-        margin-bottom: 1rem;
-    }
+        .filter-form {
+            margin-bottom: 1rem;
+        }
 
-    .dataTables_length select.form-select,
-    .dataTables_filter input.form-control {
-        height: calc(2.25rem + 2px); /* Bootstrap standart balandligi */
-        padding-top: 0.375rem;
-        padding-bottom: 0.375rem;
-        padding-left: 0.75rem;
-        font-size: 0.875rem; /* Bootstrap standart shrift o'lchami */
-        line-height: 1.5;
-    }
-</style>
+        .dataTables_length select.form-select,
+        .dataTables_filter input.form-control {
+            height: calc(2.25rem + 2px);
+            padding-top: 0.375rem;
+            padding-bottom: 0.375rem;
+            padding-left: 0.75rem;
+            font-size: 0.875rem;
+            line-height: 1.5;
+        }
+    </style>
+@endpush
 
 @section('content')
     <div class="page-body">
@@ -39,8 +40,8 @@
                             <form action="{{ route('customers.export') }}" method="GET" class="row align-items-end">
                                 <div class="col-md-4">
                                     <label for="company_filter" class="form-label">Kompaniya bo'yicha eksport:</label>
-                                    <select name="company_id" id="company_filter" class="form-select">
-                                        <option value="">Barcha Kompaniyalar</option>
+                                    <select name="company_id" id="company_filter" class="form-select" required>
+                                        {{-- ✅ Bo'sh option o'chirildi --}}
                                         @foreach($companies as $company)
                                             <option value="{{ $company->id }}">{{ $company->name }}</option>
                                         @endforeach
@@ -54,8 +55,7 @@
                                              fill="none" stroke-linecap="round" stroke-linejoin="round">
                                             <path stroke="none" d="M0 0h24v24H0z" fill="none"></path>
                                             <path d="M14 3v4a1 1 0 0 0 1 1h4"></path>
-                                            <path
-                                                d="M17 21h-10a2 2 0 0 1 -2 -2v-14a2 2 0 0 1 2 -2h7l5 5v11a2 2 0 0 1 -2 2z"></path>
+                                            <path d="M17 21h-10a2 2 0 0 1 -2 -2v-14a2 2 0 0 1 2 -2h7l5 5v11a2 2 0 0 1 -2 2z"></path>
                                             <path d="M8 11h8v7h-8z"></path>
                                             <path d="M8 15h8"></path>
                                             <path d="M11 11v7"></path>
@@ -67,22 +67,27 @@
                         </div>
                     @else
                         <div class="mb-3">
-                            <a href="{{ route('customers.export', ['company_id' => auth()->user()->company_id]) }}"
-                               class="btn btn-success">
-                                <svg xmlns="http://www.w3.org/2000/svg"
-                                     class="icon icon-tabler icon-tabler-file-spreadsheet" width="24" height="24"
-                                     viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none"
-                                     stroke-linecap="round" stroke-linejoin="round">
-                                    <path stroke="none" d="M0 0h24v24H0z" fill="none"></path>
-                                    <path d="M14 3v4a1 1 0 0 0 1 1h4"></path>
-                                    <path
-                                        d="M17 21h-10a2 2 0 0 1 -2 -2v-14a2 2 0 0 1 2 -2h7l5 5v11a2 2 0 0 1 -2 2z"></path>
-                                    <path d="M8 11h8v7h-8z"></path>
-                                    <path d="M8 15h8"></path>
-                                    <path d="M11 11v7"></path>
-                                </svg>
-                                Ro'yxatni Excelga Yuklash
-                            </a>
+                            @if(auth()->user()->company_id)
+                                <a href="{{ route('customers.export', ['company_id' => auth()->user()->company_id]) }}"
+                                   class="btn btn-success">
+                                    <svg xmlns="http://www.w3.org/2000/svg"
+                                         class="icon icon-tabler icon-tabler-file-spreadsheet" width="24" height="24"
+                                         viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none"
+                                         stroke-linecap="round" stroke-linejoin="round">
+                                        <path stroke="none" d="M0 0h24v24H0z" fill="none"></path>
+                                        <path d="M14 3v4a1 1 0 0 0 1 1h4"></path>
+                                        <path d="M17 21h-10a2 2 0 0 1 -2 -2v-14a2 2 0 0 1 2 -2h7l5 5v11a2 2 0 0 1 -2 2z"></path>
+                                        <path d="M8 11h8v7h-8z"></path>
+                                        <path d="M8 15h8"></path>
+                                        <path d="M11 11v7"></path>
+                                    </svg>
+                                    Ro'yxatni Excelga Yuklash
+                                </a>
+                            @else
+                                <div class="alert alert-warning">
+                                    Sizga kompaniya biriktirilmagan. Eksport qilish uchun administratorga murojaat qiling.
+                                </div>
+                            @endif
                         </div>
                     @endif
 
@@ -225,7 +230,12 @@
 
 @push('scripts')
     {{-- jQuery --}}
-    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script>
+        if (typeof jQuery === 'undefined') {
+            document.write('<script src="https://code.jquery.com/jquery-3.6.0.min.js"><\/script>');
+        }
+    </script>
+
     {{-- TomSelect JS --}}
     <script src="https://cdn.jsdelivr.net/npm/tom-select@2.2.2/dist/js/tom-select.complete.min.js"></script>
     {{-- DataTables JS --}}
@@ -314,7 +324,6 @@
                     }
                 },
                 // Sekin yozganda qidiruvni jo'natish (debounce) - ixtiyoriy
-                searchDelay: 500 // 500ms kutib turadi
             });
 
             $('#companyFilterSelect').on('change', function () {
