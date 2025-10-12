@@ -7,12 +7,36 @@ use Illuminate\Database\Eloquent\Model;
 use App\Traits\RecordUserStamps;
 use App\Traits\TracksUser;
 use Illuminate\Support\Facades\DB;
+use App\Models\Scopes\CompanyScope;
 
 class Invoice extends Model
 {
     use HasFactory, RecordUserStamps, TracksUser;
 
     protected $fillable = ['customer_id', 'tariff_id', 'invoice_number', 'billing_period', 'amount_due', 'due_date', 'status'];
+
+    protected static function booted()
+    {
+        parent::boot();
+
+        // ✅ Global Scope (invoice.customer.company_id orqali)
+        static::addGlobalScope(new class implements \Illuminate\Database\Eloquent\Scope {
+            public function apply($builder, $model)
+            {
+                if (auth()->check() && !auth()->user()->hasRole('admin')) {
+                    $builder->whereHas('customer', function($q) {
+                        $q->where('company_id', auth()->user()->company_id);
+                    });
+                }
+            }
+        });
+
+        // Invoice number generator (eski kod)
+        static::creating(function ($invoice) {
+            $year = $invoice->created_at ? date('Y', strtotime($invoice->created_at)) : date('Y');
+            $invoice->invoice_number = self::generateNextInvoiceNumberForYear((int)$year);
+        });
+    }
 
     protected static function boot()
     {

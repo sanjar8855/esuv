@@ -12,75 +12,32 @@ use Illuminate\Support\Facades\Auth; // Auth facade'ni import qiling
 
 class UserController extends Controller
 {
-    public function index()
+    public function index(Request $request)
     {
-        $loggedInUser = Auth::user();
+        $user = auth()->user();
 
-        // Asosiy so'rovga JOIN qo'shamiz, bu kompaniya nomi bo'yicha saralash imkonini beradi
-        $usersQuery = User::query()
-            ->with(['company', 'roles']) // `with` ma'lumotlarni qulay olish uchun qoladi
-            ->leftJoin('companies', 'users.company_id', '=', 'companies.id') // Saralash uchun JOIN
-            ->select('users.*'); // Asosiy jadval ustunlarini aniq tanlash
+        // ✅ Eager Loading - birdaniga barcha relation larni olish
+        $usersQuery = User::with(['company', 'roles']); // 3 query (users + companies + roles)
 
-        // Admin bo'lmaganlar uchun kompaniya bo'yicha filtr
-        if (!$loggedInUser->hasRole('admin')) {
-            $usersQuery->where('users.company_id', $loggedInUser->company_id);
+        // Admin bo'lmasa filtr
+        if (!$user->hasRole('admin')) {
+            $usersQuery->where('company_id', $user->company_id);
         }
 
-        // Agar so'rov AJAX orqali DataTables'dan kelsa
-        if (request()->ajax()) {
-            return DataTables::eloquent($usersQuery)
-                ->addColumn('roles', function (User $user) {
-                    // Rol nomlarini chiroyli formatda chiqarish
-                    $roles = $user->getRoleNames()->map(function ($name) {
-                        switch ($name) {
-                            case 'admin':
-                                return '<span class="badge bg-primary text-primary-fg">Admin</span>';
-                            case 'company_owner':
-                                return '<span class="badge bg-purple text-purple-fg">Direktor</span>';
-                            case 'employee':
-                                return '<span class="badge bg-green text-green-fg">Ishchi</span>';
-                            default:
-                                return '<span class="badge bg-secondary text-secondary-fg">' . ucfirst($name) . '</span>';
-                        }
-                    })->implode(' ');
-                    return $roles ?: '-';
+        if ($request->ajax()) {
+            return DataTables::of($usersQuery)
+                ->addColumn('company_name', function(User $user) {
+                    // ✅ Qo'shimcha query YO'Q! (allaqachon yuklangan)
+                    return $user->company->name ?? '-';
                 })
-                ->addColumn('company_name', function (User $user) {
-                    if ($user->company) {
-                        $url = route('companies.show', $user->company->id);
-                        return '<a href="' . $url . '" class="badge badge-outline text-blue">' . e($user->company->name) . '</a>';
-                    }
-                    return '-';
+                ->addColumn('roles', function(User $user) {
+                    // ✅ Qo'shimcha query YO'Q!
+                    return $user->roles->pluck('name')->implode(', ');
                 })
-                ->addColumn('actions', function (User $user) {
-                    $showUrl = route('users.show', $user->id);
-                    $editUrl = route('users.edit', $user->id);
-                    $deleteUrl = route('users.destroy', $user->id);
-                    $csrf = csrf_field();
-                    $method = method_field('DELETE');
-
-                    return <<<HTML
-                        <a href="{$showUrl}" class="btn btn-info btn-sm">Batafsil</a>
-                        <a href="{$editUrl}" class="btn btn-warning btn-sm">Tahrirlash</a>
-                        <form action="{$deleteUrl}" method="POST" style="display:inline;" onsubmit="return confirm('Haqiqatan ham o‘chirmoqchimisiz?');">
-                            {$csrf}
-                            {$method}
-                            <button type="submit" class="btn btn-danger btn-sm">O‘chirish</button>
-                        </form>
-                    HTML;
-                })
-                ->editColumn('phone', function(User $user) {
-                    return $user->phone ?? '-';
-                })
-                ->rawColumns(['actions', 'company_name', 'roles']) // `roles` ham HTML bo'lgani uchun qo'shildi
                 ->toJson();
         }
 
-        // Oddiy GET so'rov uchun umumiy sonni hisoblash
-        $usersCount = (clone $usersQuery)->count();
-
-        return view('users.index', compact('usersCount'));
+        return view('users.index');
     }
 
     public function create()

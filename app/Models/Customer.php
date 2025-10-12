@@ -3,9 +3,11 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use App\Models\Scopes\CompanyScope;
 use Illuminate\Database\Eloquent\Casts\Attribute;
 use App\Traits\RecordUserStamps;
 use App\Traits\TracksUser;
+use Illuminate\Support\Facades\Storage;
 
 class Customer extends Model
 {
@@ -67,6 +69,39 @@ class Customer extends Model
             // Agar raqam 9 xonali bo'lmasa, uni o'z holicha saqlaymiz
             $this->attributes['phone'] = $value;
         }
+    }
+
+    protected static function booted()
+    {
+        // ✅ 1. Global Scope qo'shish
+        static::addGlobalScope(new CompanyScope());
+
+        // ✅ 2. Yangi yozuvda company_id avtomatik
+        static::creating(function ($customer) {
+            if (auth()->check() && !$customer->company_id) {
+                $customer->company_id = auth()->user()->company_id;
+            }
+        });
+
+        static::deleting(function ($customer) {
+            // 1. PDF faylni o'chirish
+            if ($customer->pdf_file) {
+                Storage::disk('public')->delete($customer->pdf_file);
+            }
+
+            // 2. WaterMeter va uning readings larini o'chirish
+            if ($customer->waterMeter) {
+                $customer->waterMeter->readings()->delete();
+                $customer->waterMeter->delete();
+            }
+
+            // 3. Invoices va Payments ni o'chirish
+            $customer->invoices()->delete();
+            $customer->payments()->delete();
+
+            // 4. Telegram akkauntlarni ajratish
+            $customer->telegramAccounts()->detach();
+        });
     }
 
     public function company()

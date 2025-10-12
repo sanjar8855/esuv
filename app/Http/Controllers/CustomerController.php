@@ -2,6 +2,8 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Requests\StoreCustomerRequest;
+use App\Http\Requests\UpdateCustomerRequest;
 use Illuminate\Support\Facades\Log;
 use Maatwebsite\Excel\Facades\Excel;
 use App\Imports\BasicExcelImport; // Import klassini chaqirish
@@ -35,41 +37,42 @@ class CustomerController extends Controller
     {
         $user = Auth::user();
 
-        // Bu ma'lumotlar sahifa birinchi marta ochilganda tashqi filtrlar uchun kerak bo'ladi
-        $companies = collect();
-        if ($user->hasRole('admin')) {
-            $companies = Company::orderBy('name')->get();
-        }
+        $companies = $user->hasRole('admin')
+            ? Company::orderBy('name')->get()
+            : Company::where('id', $user->company_id)->get();
 
-        $streets = collect();
+        // ✅ 1. Streets ni to'g'ri qo'shamiz
         if ($user->hasRole('admin')) {
-            // Admin uchun barcha kompaniyalarga tegishli ko'chalarni chiqarish
-            $streets = Street::with('neighborhood.city.region', 'company')->orderBy('name')->get();
+            $streets = Street::with('neighborhood.city.region', 'company')
+                ->orderBy('name')
+                ->get();
         } else {
-            // Admin bo'lmagan foydalanuvchi uchun faqat o'z kompaniyasining ko'chalari
-            $streets = $user->company ? Street::where('company_id', $user->company->id)->with('neighborhood.city.region')->get() : collect();
+            $streets = Street::where('company_id', $user->company_id)
+                ->with('neighborhood.city.region')
+                ->orderBy('name')
+                ->get();
         }
 
         // ----- AJAX so'rovini tekshirish -----
         if (request()->ajax()) {
-            // Asosiy query (AJAX uchun)
+            // ✅ 2. Eager Loading - readings ham yuklash
             $query = Customer::with([
-                'company', // Admin uchun kerak
-                'street',  // Ko'cha nomi uchun kerak
-                'waterMeter' // Hisoblagich va ko'rsatkich uchun kerak
-            ])->select('customers.*') // DT bilan ishlaganda select() kerak bo'lishi mumkin
-            ->where('customers.is_active', 1);
-
-            // **📌 Admin bo‘lmasa, faqat o‘z kompaniyasidagi mijozlarni olish**
-            if (!$user->hasRole('admin') && $user->company_id) {
-                $query->where('company_id', $user->company_id);
-            }
+                'company',
+                'street',
+                'waterMeter.readings' => function($q) {
+                    $q->where('confirmed', true)
+                        ->orderBy('reading_date', 'desc')
+                        ->orderBy('id', 'desc')
+                        ->limit(1);
+                }
+            ])->select('customers.*')
+                ->where('customers.is_active', 1);
 
             // ----- Tashqi filtrlarni qo'llash -----
             $searchText = request('search_text');
             $streetId = request('street_id');
             $debtFilter = request('debt');
-            $companyId = request('company_id'); // Kompaniya filtrini requestdan olish
+            $companyId = request('company_id');
 
             if ($searchText) {
                 $query->where(function ($q) use ($searchText) {
@@ -89,7 +92,6 @@ class CustomerController extends Controller
                     ->havingRaw('IFNULL(total_due, 0) > IFNULL(total_paid, 0)');
             }
 
-            // Admin tanlagan kompaniya bo'yicha filtrlash
             if ($user->hasRole('admin') && !empty($companyId)) {
                 $query->where('company_id', $companyId);
             }
@@ -115,15 +117,12 @@ class CustomerController extends Controller
                     $balanceClass = $balance < 0 ? 'text-red' : ($balance > 0 ? 'text-green' : 'text-info');
                     return '<span class="badge ' . $balanceClass . '">' . ($balance >= 0 ? '+' : '') . number_format($balance) . ' UZS</span>';
                 })
+                // ✅ 3. Last reading tuzatildi - qo'shimcha query yo'q
                 ->addColumn('last_reading', function (Customer $customer) {
-                    if (!$customer->waterMeter) {
+                    if (!$customer->waterMeter || $customer->waterMeter->readings->isEmpty()) {
                         return '—';
                     }
-                    $lastConfirmedReading = $customer->waterMeter->readings()
-                        ->where('confirmed', true)
-                        ->orderBy('reading_date', 'desc') // reading_date bo'yicha saralash yaxshiroq
-                        ->orderBy('id', 'desc')
-                        ->first();
+                    $lastConfirmedReading = $customer->waterMeter->readings->first();
                     return $lastConfirmedReading ? $lastConfirmedReading->reading : '—';
                 })
                 ->addColumn('actions', function (Customer $customer) {
@@ -133,13 +132,13 @@ class CustomerController extends Controller
                     $csrf = csrf_field();
                     $method = method_field('DELETE');
                     return <<<HTML
-                    <a href="{$showUrl}" class="btn btn-info btn-sm">Batafsil</a>
-                    <a href="{$editUrl}" class="btn btn-warning btn-sm">Tahrirlash</a>
-                    <form action="{$deleteUrl}" method="POST" class="d-inline" onsubmit="return confirm('Haqiqatan ham o‘chirmoqchimisiz?')">
-                        {$csrf}
-                        {$method}
-                        <button type="submit" class="btn btn-danger btn-sm">O‘chirish</button>
-                    </form>
+                <a href="{$showUrl}" class="btn btn-info btn-sm">Batafsil</a>
+                <a href="{$editUrl}" class="btn btn-warning btn-sm">Tahrirlash</a>
+                <form action="{$deleteUrl}" method="POST" class="d-inline" onsubmit="return confirm('Haqiqatan ham o'chirmoqchimisiz?')">
+                    {$csrf}
+                    {$method}
+                    <button type="submit" class="btn btn-danger btn-sm">O'chirish</button>
+                </form>
                 HTML;
                 })
                 ->filterColumn('company_name', function ($query, $keyword) {
@@ -163,7 +162,6 @@ class CustomerController extends Controller
         }
         $customersCount = $customersQueryForCount->count();
 
-        // Faqat kerakli ma'lumotlarni view'ga uzatamiz
         return view('customers.index', compact('streets', 'customersCount', 'companies'));
     }
 
@@ -173,25 +171,28 @@ class CustomerController extends Controller
     public function create()
     {
         $user = auth()->user();
-        $companies = collect(); // Bo'sh kolleksiya bilan initsializatsiya qilamiz
-        $streets = collect();   // Bo'sh kolleksiya bilan initsializatsiya qilamiz
 
-        // Agar admin bo‘lsa, barcha kompaniyalarning mahallalarini oladi
-        if ($user->hasRole('admin')) {
-            $companies = Company::all();
-            $streets = Street::all();
-        } else {
-            if (!$user->company_id) {
-                // Agar foydalanuvchiga kompaniya biriktirilmagan bo'lsa, xatolik yoki bosh sahifaga yo'naltirish
-                return redirect()->route('dashboard') // Yoki customers.index
+        if (!$user->company_id && !$user->hasRole('admin')) {
+            return redirect()->route('dashboard')
                 ->with('error', 'Sizga kompaniya biriktirilmagan. Mijoz qo\'sha olmaysiz.');
-            }
-            // Faqat o'z kompaniyasini olamiz (formada ko'rsatish yoki yashirincha ishlatish uchun)
+        }
+
+        // ✅ Eager Loading - barcha relation lar
+        if ($user->hasRole('admin')) {
+            $companies = Company::orderBy('name')->get();
+
+            // ✅ Admin uchun HAM eager loading qo'shamiz!
+            $streets = Street::with([
+                'neighborhood.city.region',
+                'company'  // ✅ Company ham kerak
+            ])->orderBy('name')->get();
+
+        } else {
             $companies = Company::where('id', $user->company_id)->get();
-            // Faqat o'z kompaniyasiga tegishli ko'chalarni olamiz
+
             $streets = Street::where('company_id', $user->company_id)
                 ->with('neighborhood.city.region')
-                ->orderBy('name', 'asc')
+                ->orderBy('name')
                 ->get();
         }
 
@@ -201,117 +202,69 @@ class CustomerController extends Controller
     /**
      * Mijozni saqlash.
      */
-    public function store(Request $request)
+    public function store(StoreCustomerRequest $request)
     {
+        // ✅ Validatsiya avtomatik bajarilgan!
+        // ✅ account_meter_number tozalangan!
+        $validated = $request->validated();
         $user = auth()->user();
         $hasWaterMeter = $request->boolean('has_water_meter');
 
-        if ($request->has('account_meter_number')) {
-            $cleanedAccountMeterNumber = str_replace(' ', '', $request->input('account_meter_number'));
-            $request->merge(['account_meter_number' => $cleanedAccountMeterNumber]);
-        }
-
-        $rules = [
-            'company_id' => $user->hasRole('admin') ? 'required|exists:companies,id' : '',
-            'street_id' => 'required|exists:streets,id',
-            'name' => 'required|string|max:255',
-            'phone' => 'nullable|string|max:255',
-            'address' => 'nullable|string',
-            'account_meter_number' => [
-                'required',
-                'string',
-                'max:50', // Bazadagi ustun turiga moslang
-                Rule::unique('customers', 'account_number'), // customers jadvalida unikal bo'lishi shart
-            ],
-            'family_members' => $hasWaterMeter ? 'nullable|integer|min:1' : 'required|integer|min:1', // Shartli majburiy
-            'has_water_meter' => 'nullable|boolean',
-            'initial_reading' => ['nullable', Rule::requiredIf($hasWaterMeter), 'numeric', 'min:0'],
-            'reading_date' => ['nullable', Rule::requiredIf($hasWaterMeter), 'date'],
-        ];
-
-        if ($hasWaterMeter) {
-            $rules['account_meter_number'][] = Rule::unique('water_meters', 'meter_number');
-        }
-
+        // ✅ Admin bo'lmasa - company_id avtomatik
         if (!$user->hasRole('admin')) {
-            unset($rules['company_id']); // Admin bo'lmasa, validatsiyadan olib tashlaymiz
+            $validated['company_id'] = $user->company_id;
         }
 
-        $validated = $request->validate($rules);
-
-        // Oddiy foydalanuvchilar uchun kompaniyani avtomatik qo‘shish
-        if (!$user->hasRole('admin')) {
-            $validated['company_id'] = $user->company_id; // company_id ni qo'lda qo'shamiz
-            if (!$validated['company_id']) {
-                return redirect()->back()->withErrors(['msg' => 'Sizga kompaniya biriktirilmagan!'])->withInput();
-            }
-        }
-
-        // 1. Mijoz qo'shilayotgan kompaniyani topamiz
+        // ✅ Tarif rejasi limitini tekshirish
         $company = Company::with('plan')->find($validated['company_id']);
 
-        if (!$company) {
-            // Bu holat deyarli yuz bermaydi, chunki validatsiyada 'exists:companies' bor, lekin ehtiyot shart
-            return back()->with('error', 'Kompaniya topilmadi.')->withInput();
-        }
-
-        // 2. Kompaniyaning tarif rejasida limit borligini tekshiramiz
-        // customer_limit > 0 bo'lsa, bu cheklangan tarif degani (0 yoki null - cheklanmagan)
         if ($company->plan && $company->plan->customer_limit > 0) {
+            $currentCount = $company->customers()->count();
 
-            // 3. Kompaniyaning hozirgi mijozlari sonini sanaymiz
-            $currentCustomerCount = $company->customers()->count();
-
-            // 4. Joriy sonni limit bilan solishtiramiz
-            if ($currentCustomerCount >= $company->plan->customer_limit) {
-                // Agar limitga yetgan bo'lsa, xatolik bilan ortga qaytaramiz
-                return redirect()->back()
-                    ->withErrors(['limit_error' => 'Siz o\'z tarif rejangizdagi mijozlar limitiga yetdingiz. Cheklov: ' . $company->plan->customer_limit . ' ta. Tarifni yangilash uchun administratorga murojaat qiling.'])
-                    ->withInput();
+            if ($currentCount >= $company->plan->customer_limit) {
+                return back()->withErrors([
+                    'limit_error' => "Tarif rejasidagi limit tugadi ({$company->plan->customer_limit} ta). Administratorga murojaat qiling."
+                ])->withInput();
             }
         }
 
-        $accountMeterNumber = $validated['account_meter_number'];
-
-        $customerData = [
-            'company_id' => $validated['company_id'] ?? $user->company_id,
+        // ✅ Mijoz yaratish
+        $customer = Customer::create([
+            'company_id' => $validated['company_id'],
             'street_id' => $validated['street_id'],
             'name' => $validated['name'],
-            'phone' => $validated['phone'],
-            'address' => $validated['address'],
-            'account_number' => $accountMeterNumber,
-            'family_members' => $validated['family_members'],
-            'is_active' => 1,
+            'phone' => $validated['phone'] ?? null,
+            'address' => $validated['address'] ?? null,
+            'account_number' => $validated['account_meter_number'],
+            'family_members' => $validated['family_members'] ?? null,
+            'is_active' => true,
             'has_water_meter' => $hasWaterMeter,
             'balance' => 0,
-        ];
+        ]);
 
-        $customer = Customer::create($customerData);
-
+        // ✅ Hisoblagich yaratish (agar bor bo'lsa)
         if ($hasWaterMeter) {
             $installationDate = Carbon::now();
             $validityPeriod = 8;
-            $expirationDate = $installationDate->copy()->addYears($validityPeriod);
 
-            $waterMeterData = [
+            $waterMeter = WaterMeter::create([
                 'customer_id' => $customer->id,
-                'meter_number' => $accountMeterNumber,
+                'meter_number' => $validated['account_meter_number'],
                 'installation_date' => $installationDate->toDateString(),
                 'validity_period' => $validityPeriod,
-                'expiration_date' => $expirationDate->toDateString(),
-            ];
-
-            $waterMeter = WaterMeter::create($waterMeterData);
+                'expiration_date' => $installationDate->copy()->addYears($validityPeriod)->toDateString(),
+            ]);
 
             MeterReading::create([
                 'water_meter_id' => $waterMeter->id,
                 'reading' => $validated['initial_reading'],
                 'reading_date' => $validated['reading_date'],
-                'confirmed' => 1,
+                'confirmed' => true,
             ]);
         }
 
-        return redirect()->route('customers.index')->with('success', 'Mijoz muvaffaqiyatli qo‘shildi!');
+        return redirect()->route('customers.index')
+            ->with('success', 'Mijoz muvaffaqiyatli qo\'shildi!');
     }
 
     public function show(Customer $customer)
@@ -322,16 +275,26 @@ class CustomerController extends Controller
             'telegramAccounts',
             'createdBy',
             'updatedBy',
+            'waterMeter',  // ✅ Qo'shildi
         ]);
 
         $readings = $customer->waterMeter
             ? $customer->waterMeter->readings()
+                ->with('createdBy')  // ✅ Kim yaratganini yuklash
                 ->latest()
                 ->orderBy('id', 'desc')
                 ->paginate(5, ['*'], 'reading_page')
             : new LengthAwarePaginator([], 0, 5, 1, ['path' => request()->url(), 'pageName' => 'reading_page']);
-        $invoices = $customer->invoices()->latest()->paginate(5, ['*'], 'invoice_page');
-        $payments = $customer->payments()->latest()->paginate(5, ['*'], 'payment_page');
+
+        $invoices = $customer->invoices()
+            ->with('tariff')  // ✅ Tariff ham yuklash
+            ->latest()
+            ->paginate(5, ['*'], 'invoice_page');
+
+        $payments = $customer->payments()
+            ->with(['invoice', 'createdBy'])  // ✅ Invoice va kim yaratganini yuklash
+            ->latest()
+            ->paginate(5, ['*'], 'payment_page');
 
         $activeTariffs = collect(); // Bo'sh kolleksiya bilan boshlaymiz
         if ($customer->company_id) { // Agar mijoz kompaniyaga biriktirilgan bo'lsa
@@ -358,25 +321,19 @@ class CustomerController extends Controller
         $user = auth()->user();
 
         $customer->loadMissing(['company', 'street']);
-        $companies = collect();
-        $streets = collect();
 
-        // Agar admin bo‘lsa, barcha kompaniyalarning mahallalarini oladi
         if ($user->hasRole('admin')) {
-            $companies = Company::all();
-            $streets = Street::all();
+            $companies = Company::orderBy('name')->get();
+            $streets = Street::with([
+                'neighborhood.city.region',
+                'company'
+            ])->orderBy('name')->get();
         } else {
-            // Oddiy foydalanuvchilar faqat o‘z kompaniyasining ma’lumotlarini ko‘radi
-            if ($customer->company_id != $user->company_id) {
-                return redirect()->route('customers.index')->with('error', 'Siz faqat o\'z kompaniyangiz mijozlarini tahrirlay olasiz.');
-            }
-
-            // Kompaniyasi o'zgarmaydi, faqat o'zining kompaniyasi
             $companies = Company::where('id', $user->company_id)->get();
-            // Faqat o'z kompaniyasiga tegishli ko'chalar
             $streets = Street::where('company_id', $user->company_id)
                 ->with('neighborhood.city.region')
-                ->orderBy('name')->get();
+                ->orderBy('name')
+                ->get();
         }
 
         return view('customers.edit', compact('customer', 'companies', 'streets'));
@@ -385,78 +342,81 @@ class CustomerController extends Controller
     /**
      * Mijoz ma’lumotlarini yangilash.
      */
-    public function update(Request $request, Customer $customer)
+    // ✅ YANGI
+    public function update(UpdateCustomerRequest $request, Customer $customer)
     {
-        $user = auth()->user();
+        $validated = $request->validated();
 
-        if ($request->has('account_number')) {
-            $cleanedAccountNumber = str_replace(' ', '', $request->input('account_number'));
-            $request->merge(['account_number' => $cleanedAccountNumber]);
-        }
-
-        $validated = $request->validate([
-            'company_id' => $user->hasRole('admin') ? 'required|exists:companies,id' : '',
-            'street_id' => 'required|exists:streets,id',
-            'name' => 'required|string|max:255',
-            'phone' => 'nullable|string|max:255',
-            'address' => 'required|string',
-            'account_number' => 'required|string|max:20|unique:customers,account_number,' . $customer->id,
-            'family_members' => 'nullable|integer|min:1',
-            'pdf_file' => 'nullable|mimes:pdf|max:2048',
-        ]);
-
+        // ✅ 1. PDF fayl bilan ishlash (agar yangi fayl yuklangan bo'lsa)
         if ($request->hasFile('pdf_file')) {
+            // Eski faylni o'chirish
             if ($customer->pdf_file) {
-                Storage::disk('public')->delete($customer->pdf_file); // Eski PDFni o‘chirish
+                Storage::disk('public')->delete($customer->pdf_file);
             }
-            $customer->pdf_file = $request->file('pdf_file')->store('pdfs', 'public');
+            // ✅ Yangi faylni $validated ga qo'shish
+            $validated['pdf_file'] = $request->file('pdf_file')->store('pdfs', 'public');
         }
 
-        $validated['is_active'] = $request->has('is_active') ? 1 : 0;
-        $validated['has_water_meter'] = $request->has('has_water_meter') ? 1 : 0;
-        $validated['pdf_file'] = $customer->pdf_file;
+        // ✅ 2. Boolean qiymatlar
+        $validated['is_active'] = $request->boolean('is_active');
+        $validated['has_water_meter'] = $request->boolean('has_water_meter');
 
+        // ✅ 3. Yangilash
         $customer->update($validated);
 
-        return redirect()->route('customers.index')->with('success', 'Mijoz muvaffaqiyatli yangilandi!');
+        return redirect()->route('customers.index')
+            ->with('success', 'Mijoz muvaffaqiyatli yangilandi!');
     }
 
     /**
      * Mijozni o‘chirish.
      */
-    public function destroy($id)
+    public function destroy(Customer $customer)
     {
-        $customer = Customer::findOrFail($id);
-        if ($customer->pdf_file) {
-            Storage::disk('public')->delete($customer->pdf_file); // PDF faylni o‘chirish
-        }
+        // ✅ 1. Ruxsat tekshiruvi (Policy orqali)
+        $this->authorize('delete', $customer);
+
+        // ✅ 2. O'chirish (cascade yoki model event ishlaydi)
         $customer->delete();
 
-        return redirect()->route('customers.index')->with('success', 'Mijoz muvaffaqiyatli o‘chirildi!');
+        return redirect()->route('customers.index')
+            ->with('success', 'Mijoz va unga tegishli barcha ma\'lumotlar muvaffaqiyatli o\'chirildi!');
     }
 
     public function detachTelegramAccount(Request $request, $customerId, $telegramAccountId)
     {
         $customer = Customer::findOrFail($customerId);
 
+        // ✅ 1. Ruxsat tekshiruvi
         if (!auth()->user()->hasRole('admin')) {
-            return redirect()->back()->withErrors('Sizda bu amalni bajarish uchun ruxsat yo‘q.');
+            return redirect()->back()
+                ->with('error', 'Sizda bu amalni bajarish uchun ruxsat yo\'q.');
         }
 
-        $telegramAccount = $customer->telegramAccounts()->where('telegram_accounts.id', $telegramAccountId)->first();
+        // ✅ 2. Telegram akkauntni topish
+        $telegramAccount = $customer->telegramAccounts()
+            ->where('telegram_accounts.id', $telegramAccountId)
+            ->first();
 
         if (!$telegramAccount) {
-            return redirect()->back()->withErrors('Telegram akkaunt topilmadi.');
+            return redirect()->back()
+                ->with('error', 'Telegram akkaunt topilmadi.');
         }
 
-        // 🔴 Telegram akkauntni ajratish
+        // ✅ 3. Akkauntni ajratish
         $customer->telegramAccounts()->detach($telegramAccountId);
+
+        // ✅ 4. Cache dan o'chirish
         cache()->forget("active_customer_id_{$telegramAccount->telegram_chat_id}");
 
-        // 📩 Telegram orqali bildirish yuborish
-        $this->notifyTelegramAccountDeleted($telegramAccount->telegram_chat_id, $customer->account_number);
+        // ✅ 5. Telegram orqali xabar yuborish (xatosiz)
+        $this->notifyTelegramAccountDeleted(
+            $telegramAccount->telegram_chat_id,
+            $customer->account_number
+        );
 
-        return redirect()->back()->with('success', 'Telegram akkaunt muvaffaqiyatli uzildi.');
+        return redirect()->back()
+            ->with('success', 'Telegram akkaunt muvaffaqiyatli uzildi.');
     }
 
     /**
@@ -464,232 +424,317 @@ class CustomerController extends Controller
      */
     private function notifyTelegramAccountDeleted($telegramChatId, $accountNumber)
     {
-        Telegram::sendMessage([
-            'chat_id' => $telegramChatId,
-            'text' => "🚨 Sizning <b>{$accountNumber}</b> hisob raqamingiz botdan o‘chirildi.\n🔢 Yangi hisob raqamini kiriting.",
-            'parse_mode' => 'HTML',
-            'reply_markup' => json_encode(['remove_keyboard' => true]), // ❌ Menyuni olib tashlash
-        ]);
+        try {
+            Telegram::sendMessage([
+                'chat_id' => $telegramChatId,
+                'text' => "🚨 Sizning <b>{$accountNumber}</b> hisob raqamingiz botdan o'chirildi.\n🔢 Yangi hisob raqamini kiriting.",
+                'parse_mode' => 'HTML',
+                'reply_markup' => json_encode(['remove_keyboard' => true]),
+            ]);
+        } catch (\Exception $e) {
+            // ✅ Xatoni log ga yozish (lekin metodning davom etishiga xalaqit bermaydi)
+            \Log::warning('Telegram notification failed', [
+                'chat_id' => $telegramChatId,
+                'account_number' => $accountNumber,
+                'error' => $e->getMessage()
+            ]);
+
+            // ✅ Davom etish (akkaunt ajratiladi, faqat notification yuborilmaydi)
+        }
     }
 
     public function showImportForm()
     {
-        // Bu yerda adminlar uchun ekanligini tekshirish (Policy yoki middleware)
-        return view('customers.import'); // Yangi view fayli
+        // Faqat admin va company_owner kirishi mumkin
+        if (!auth()->user()->hasAnyRole(['admin', 'company_owner'])) {
+            return redirect()->route('customers.index')
+                ->with('error', 'Sizda import sahifasiga kirish uchun ruxsat yo\'q.');
+        }
+
+        return view('customers.import');
     }
 
     public function handleImportNoMeter(Request $request)
     {
-        $request->validate(['excel_file' => 'required|mimes:xlsx,xls,csv|max:10240']);
+        return $this->processImport($request, false);
+    }
+
+    /**
+     * ✅ Hisoblagichli mijozlar import (public metod)
+     */
+    public function handleImportWithMeter(Request $request)
+    {
+        return $this->processImport($request, true);
+    }
+
+    /**
+     * ✅ Umumiy import logikasi
+     */
+    private function processImport(Request $request, bool $hasWaterMeter)
+    {
+        // Validatsiya
+        $request->validate([
+            'excel_file' => 'required|file|mimes:xlsx,xls,csv|max:10240'  // 10MB
+        ]);
+
         $file = $request->file('excel_file');
         $importErrors = [];
+        $successCount = 0;
+
         DB::beginTransaction();
+
         try {
             $rows = Excel::toCollection(new BasicExcelImport, $file)->first();
-            if ($rows->isEmpty()) { throw new \Exception("Excel fayl bo'sh."); }
 
-            foreach ($rows as $index => $row) {
-                $rowNumber = $index + 2;
-                $rowData = $row->toArray();
-
-                $preparedData = [
-                    'kompaniya_id' => $rowData['kompaniya_id'] ?? null,
-                    'kocha_id' => $rowData['kocha_id'] ?? null,
-                    'fio' => $rowData['fio'] ?? null,
-                    'telefon_raqami' => $rowData['telefon_raqami'] ?? null,
-                    'uy_raqami' => $rowData['uy_raqami'] ?? null,
-                    'hisob_raqam' => $rowData['hisob_raqam'] ?? null,
-                    'oila_azolari' => $rowData['oila_azolari'] ?? null,
-                ];
-
-                $validator = Validator::make($preparedData, [
-                    'kompaniya_id' => ['required', 'integer', 'exists:companies,id'],
-                    'kocha_id' => ['required', 'integer', 'exists:streets,id'],
-                    'fio' => ['required', 'string', 'max:255'],
-                    'hisob_raqam' => ['required', 'integer', Rule::unique('customers', 'account_number')],
-                    'oila_azolari' => ['required', 'integer', 'min:1'],
-                ]);
-
-                if ($validator->fails()) {
-                    foreach ($validator->errors()->all() as $error) { $importErrors[] = "{$rowNumber}-qatorda xatolik: " . $error; }
-                    continue;
-                }
-
-                $validatedData = $validator->validated();
-                Customer::create([
-                    'company_id'       => $validatedData['kompaniya_id'],
-                    'street_id'        => $validatedData['kocha_id'],
-                    'name'             => $validatedData['fio'],
-                    'phone'            => $preparedData['telefon_raqami'],
-                    'address'          => $preparedData['uy_raqami'],
-                    'account_number'   => $validatedData['hisob_raqam'],
-                    'has_water_meter'  => false,
-                    'family_members'   => $validatedData['oila_azolari'],
-                    'is_active'        => true,
-                    'balance'          => 0,
-                ]);
+            if ($rows->isEmpty()) {
+                throw new \Exception("Excel fayl bo'sh yoki noto'g'ri formatda.");
             }
 
-            if (!empty($importErrors)) {
-                // --- MANA SHU BLOK TUZATILDI ---
-                $finalValidator = Validator::make([], []); // Bo'sh validator yaratamiz
-                foreach ($importErrors as $errorMsg) {
-                    $finalValidator->errors()->add('excel_error', $errorMsg); // Unga xatolarni qo'shamiz
+            foreach ($rows as $index => $row) {
+                $rowNumber = $index + 2;  // Excel da 1-qator sarlavha, 2-qatordan boshlanadi
+
+                try {
+                    if ($hasWaterMeter) {
+                        $this->importCustomerWithMeter($row->toArray(), $rowNumber);
+                    } else {
+                        $this->importCustomerNoMeter($row->toArray(), $rowNumber);
+                    }
+                    $successCount++;
+                } catch (\Illuminate\Validation\ValidationException $e) {
+                    foreach ($e->errors() as $field => $errors) {
+                        foreach ($errors as $error) {
+                            $importErrors[] = "Qator {$rowNumber}: {$error}";
+                        }
+                    }
+                } catch (\Exception $e) {
+                    $importErrors[] = "Qator {$rowNumber}: {$e->getMessage()}";
                 }
-                throw new \Illuminate\Validation\ValidationException($finalValidator); // Keyin exception chaqiramiz
-                // --- TUZATISH TUGADI ---
+            }
+
+            // ✅ Agar xatoliklar bo'lsa
+            if (!empty($importErrors)) {
+                DB::rollBack();
+
+                $finalValidator = Validator::make([], []);
+                foreach ($importErrors as $error) {
+                    $finalValidator->errors()->add('import_errors', $error);
+                }
+
+                throw new \Illuminate\Validation\ValidationException($finalValidator);
             }
 
             DB::commit();
-            return redirect()->route('customers.import.form')->with('success', 'Hisoblagichsiz mijozlar muvaffaqiyatli import qilindi!');
+
+            $type = $hasWaterMeter ? 'hisoblagichli' : 'hisoblagichsiz';
+            return redirect()->route('customers.import.form')
+                ->with('success', "{$successCount} ta {$type} mijoz muvaffaqiyatli import qilindi!");
 
         } catch (\Illuminate\Validation\ValidationException $e) {
             DB::rollBack();
             return redirect()->back()->withErrors($e->errors())->withInput();
         } catch (\Exception $e) {
             DB::rollBack();
-            Log::error('Excel import error (No Meter): ' . $e->getMessage());
-            return redirect()->back()->withErrors(['umumiy_xato' => 'Import qilishda xatolik yuz berdi: ' . $e->getMessage()])->withInput();
+            Log::error('Excel import error: ' . $e->getMessage());
+            return redirect()->back()
+                ->withErrors(['file_error' => 'Import qilishda xatolik: ' . $e->getMessage()])
+                ->withInput();
         }
     }
 
-    public function handleImportWithMeter(Request $request)
+    /**
+     * ✅ Hisoblagichsiz mijoz import qilish
+     */
+    private function importCustomerNoMeter(array $rowData, int $rowNumber)
     {
-        $request->validate(['excel_file' => 'required|mimes:xlsx,xls,csv|max:10240']);
-        $file = $request->file('excel_file');
-        $importErrors = [];
-        DB::beginTransaction();
+        $preparedData = [
+            'kompaniya_id' => $rowData['kompaniya_id'] ?? null,
+            'kocha_id' => $rowData['kocha_id'] ?? null,
+            'fio' => $rowData['fio'] ?? null,
+            'telefon_raqami' => $rowData['telefon_raqami'] ?? null,
+            'uy_raqami' => $rowData['uy_raqami'] ?? null,
+            'hisob_raqam' => $rowData['hisob_raqam'] ?? null,
+            'oila_azolari' => $rowData['oila_azolari'] ?? null,
+        ];
+
+        // ✅ Validatsiya
+        $validator = Validator::make($preparedData, [
+            'kompaniya_id' => 'required|integer|exists:companies,id',
+            'kocha_id' => 'required|integer|exists:streets,id',
+            'fio' => 'required|string|max:255',
+            'hisob_raqam' => [
+                'required',
+                'integer',
+                Rule::unique('customers', 'account_number')
+            ],
+            'oila_azolari' => 'required|integer|min:1|max:50',
+            'telefon_raqami' => 'nullable|string|max:30',
+            'uy_raqami' => 'nullable|string|max:255',
+        ], [
+            'kompaniya_id.required' => 'Kompaniya ID majburiy',
+            'kompaniya_id.exists' => 'Kompaniya topilmadi',
+            'kocha_id.required' => 'Ko\'cha ID majburiy',
+            'kocha_id.exists' => 'Ko\'cha topilmadi',
+            'fio.required' => 'FIO majburiy',
+            'hisob_raqam.required' => 'Hisob raqam majburiy',
+            'hisob_raqam.unique' => 'Bu hisob raqam allaqachon mavjud',
+            'oila_azolari.required' => 'Oila a\'zolari soni majburiy',
+        ]);
+
+        if ($validator->fails()) {
+            throw new \Illuminate\Validation\ValidationException($validator);
+        }
+
+        $validated = $validator->validated();
+
+        // ✅ Mijoz yaratish
+        Customer::create([
+            'company_id' => $validated['kompaniya_id'],
+            'street_id' => $validated['kocha_id'],
+            'name' => $validated['fio'],
+            'phone' => $validated['telefon_raqami'] ?? null,
+            'address' => $validated['uy_raqami'] ?? null,
+            'account_number' => $validated['hisob_raqam'],
+            'has_water_meter' => false,
+            'family_members' => $validated['oila_azolari'],
+            'is_active' => true,
+            'balance' => 0,
+        ]);
+    }
+
+    /**
+     * ✅ Hisoblagichli mijoz import qilish
+     */
+    private function importCustomerWithMeter(array $rowData, int $rowNumber)
+    {
+        $preparedData = [
+            'kompaniya_id' => $rowData['kompaniya_id'] ?? null,
+            'kocha_id' => $rowData['kocha_id'] ?? null,
+            'fio' => $rowData['fio'] ?? null,
+            'telefon_raqami' => isset($rowData['telefon_raqami']) ? (string)$rowData['telefon_raqami'] : null,
+            'uy_raqami' => isset($rowData['uy_raqami']) ? (string)$rowData['uy_raqami'] : null,
+            'hisob_raqam' => $rowData['hisob_raqam'] ?? null,
+            'hisoblagich_ornatilgan_sana' => $this->parseExcelDate($rowData['hisoblagich_ornatilgan_sana'] ?? null),
+            'amal_qilish_muddati' => $rowData['amal_qilish_muddati'] ?? 8,
+            'boshlangich_korsatkich' => $rowData['boshlangich_korsatkich'] ?? null,
+            'korsatkich_sanasi' => $this->parseExcelDate($rowData['korsatkich_sanasi'] ?? null) ?? now()->format('Y-m-d'),
+            'oila_azolari' => $rowData['oila_azolari'] ?? null,
+        ];
+
+        // ✅ Validatsiya
+        $validator = Validator::make($preparedData, [
+            'kompaniya_id' => 'required|integer|exists:companies,id',
+            'kocha_id' => 'required|integer|exists:streets,id',
+            'fio' => 'required|string|max:255',
+            'hisob_raqam' => [
+                'required',
+                'integer',
+                Rule::unique('customers', 'account_number'),
+                Rule::unique('water_meters', 'meter_number')
+            ],
+            'boshlangich_korsatkich' => 'required|numeric|min:0',
+            'amal_qilish_muddati' => 'nullable|integer|min:1|max:20',
+            'hisoblagich_ornatilgan_sana' => 'nullable|date|before_or_equal:today',
+            'korsatkich_sanasi' => 'required|date|before_or_equal:today',
+            'telefon_raqami' => 'nullable|string|max:30',
+            'uy_raqami' => 'nullable|string|max:255',
+            'oila_azolari' => 'nullable|integer|min:0|max:50',
+        ]);
+
+        if ($validator->fails()) {
+            throw new \Illuminate\Validation\ValidationException($validator);
+        }
+
+        $validated = $validator->validated();
+
+        // ✅ Mijoz yaratish
+        $customer = Customer::create([
+            'company_id' => $validated['kompaniya_id'],
+            'street_id' => $validated['kocha_id'],
+            'name' => $validated['fio'],
+            'phone' => $validated['telefon_raqami'] ?? null,
+            'address' => $validated['uy_raqami'] ?? null,
+            'account_number' => $validated['hisob_raqam'],
+            'family_members' => $validated['oila_azolari'] ?? null,
+            'has_water_meter' => true,
+            'is_active' => true,
+            'balance' => 0,
+        ]);
+
+        // ✅ WaterMeter yaratish
+        $installationDate = $validated['hisoblagich_ornatilgan_sana']
+            ? Carbon::parse($validated['hisoblagich_ornatilgan_sana'])
+            : Carbon::now();
+
+        $validityPeriod = (int)$validated['amal_qilish_muddati'];
+
+        $waterMeter = $customer->waterMeter()->create([
+            'meter_number' => $validated['hisob_raqam'],
+            'installation_date' => $installationDate->toDateString(),
+            'validity_period' => $validityPeriod,
+            'expiration_date' => $installationDate->copy()->addYears($validityPeriod)->toDateString(),
+        ]);
+
+        // ✅ Boshlang'ich reading yaratish
+        MeterReading::create([
+            'water_meter_id' => $waterMeter->id,
+            'reading' => $validated['boshlangich_korsatkich'],
+            'reading_date' => $validated['korsatkich_sanasi'],
+            'confirmed' => true,
+        ]);
+    }
+
+    /**
+     * ✅ Excel sanasini parse qilish
+     */
+    private function parseExcelDate($dateValue)
+    {
+        if (empty($dateValue)) {
+            return null;
+        }
+
+        // Agar faqat yil kiritilgan bo'lsa (masalan: 2023)
+        if (is_numeric($dateValue) && strlen((string)$dateValue) === 4) {
+            return Carbon::createFromDate((int)$dateValue, 1, 1)->format('Y-m-d');
+        }
+
+        // Excel serial date format
+        if (is_numeric($dateValue)) {
+            try {
+                return Carbon::instance(\PhpOffice\PhpSpreadsheet\Shared\Date::excelToDateTimeObject($dateValue))
+                    ->format('Y-m-d');
+            } catch (\Exception $e) {
+                return null;
+            }
+        }
+
+        // Oddiy sana string
         try {
-            $rows = Excel::toCollection(new BasicExcelImport, $file)->first();
-            if ($rows->isEmpty()) { throw new \Exception("Excel fayl bo'sh."); }
-
-            foreach ($rows as $index => $row) {
-                $rowNumber = $index + 2;
-                $rowData = $row->toArray();
-
-                $preparedData = [
-                    'kompaniya_id' => $rowData['kompaniya_id'] ?? null,
-                    'kocha_id' => $rowData['kocha_id'] ?? null,
-                    'fio' => $rowData['fio'] ?? null,
-                    'telefon_raqami' => isset($rowData['telefon_raqami']) ? (string)$rowData['telefon_raqami'] : null,
-                    'uy_raqami'      => isset($rowData['uy_raqami']) ? (string)$rowData['uy_raqami'] : null,
-                    'hisob_raqam' => $rowData['hisob_raqam'] ?? null,
-                    'hisoblagich_ornatilgan_sana' => $rowData['hisoblagich_ornatilgan_sana'] ?? null,
-                    'amal_qilish_muddati' => $rowData['amal_qilish_muddati'] ?? null,
-                    'boshlangich_korsatkich' => $rowData['boshlangich_korsatkich'] ?? null,
-                    'korsatkich_sanasi' => $rowData['korsatkich_sanasi'] ?? null,
-                    'oila_azolari' => $rowData['oila_azolari'] ?? null,
-                ];
-
-                if (!empty($preparedData['hisoblagich_ornatilgan_sana'])) {
-                    $dateValue = $preparedData['hisoblagich_ornatilgan_sana'];
-                    if (is_numeric($dateValue) && strlen((string)$dateValue) === 4) { // Agar faqat yil kiritilgan bo'lsa
-                        $preparedData['hisoblagich_ornatilgan_sana'] = Carbon::createFromDate((int)$dateValue, 1, 1)->format('Y-m-d');
-                    } else { // Agar to'liq sana (Excel formati yoki matn) bo'lsa
-                        try {
-                            $preparedData['hisoblagich_ornatilgan_sana'] = Carbon::instance(ExcelDate::excelToDateTimeObject($dateValue))->format('Y-m-d');
-                        } catch (\Throwable $th) {
-                            $preparedData['hisoblagich_ornatilgan_sana'] = null; // Format noto'g'ri bo'lsa
-                        }
-                    }
-                }
-
-                if (!empty($preparedData['korsatkich_sanasi'])) {
-                    try {
-                        $preparedData['korsatkich_sanasi'] = Carbon::instance(ExcelDate::excelToDateTimeObject($preparedData['korsatkich_sanasi']))->format('Y-m-d');
-                    } catch (\Throwable $th) { $preparedData['korsatkich_sanasi'] = null; }
-                } else {
-                    $preparedData['korsatkich_sanasi'] = now()->format('Y-m-d');
-                }
-
-                $validator = Validator::make($preparedData, [
-                    'kompaniya_id' => ['required', 'integer', 'exists:companies,id'],
-                    'kocha_id' => ['required', 'integer', 'exists:streets,id'],
-                    'fio' => ['required', 'string', 'max:255'],
-                    'hisob_raqam' => ['required','integer', Rule::unique('customers', 'account_number'), Rule::unique('water_meters', 'meter_number')],
-                    'boshlangich_korsatkich' => ['required', 'numeric', 'min:0'],
-                    'amal_qilish_muddati' => ['nullable', 'integer', 'min:0'],
-                    'hisoblagich_ornatilgan_sana' => ['nullable', 'date'],
-                    'telefon_raqami' => ['nullable', 'string', 'max:30'],
-                    'uy_raqami' => ['nullable', 'string', 'max:255'],
-                    'oila_azolari' => ['nullable', 'integer', 'min:0'],
-                ]);
-
-                if ($validator->fails()) {
-                    foreach ($validator->errors()->all() as $error) { $importErrors[] = "{$rowNumber}-qatorda xatolik: " . $error; }
-                    continue;
-                }
-
-                $validatedData = $validator->validated();
-
-                $customer = Customer::create([
-                    'company_id' => $validatedData['kompaniya_id'],
-                    'street_id' => $validatedData['kocha_id'],
-                    'name' => $validatedData['fio'],
-                    'account_number' => $validatedData['hisob_raqam'],
-
-                    'phone' => $validatedData['telefon_raqami'],
-                    'address' => $validatedData['uy_raqami'],
-                    'family_members'   => $validatedData['oila_azolari'],
-
-                    'has_water_meter' => true,
-                    'is_active' => true,
-                    'balance' => 0,
-                ]);
-
-                $installationDate = isset($validatedData['hisoblagich_ornatilgan_sana']) ? Carbon::parse($validatedData['hisoblagich_ornatilgan_sana']) : Carbon::now();
-
-                $validityPeriod = (int)($validatedData['amal_qilish_muddati'] ?? 8);
-
-                $waterMeter = $customer->waterMeter()->create([
-                    'meter_number'      => $validatedData['hisob_raqam'],
-                    'installation_date' => $installationDate->toDateString(),
-                    'validity_period'   => $validityPeriod,
-
-                    // 1. expiration_date ni hisoblaymiz: installationDate + validityPeriod (8 yil)
-                    'expiration_date'   => $installationDate->copy()->addYears($validityPeriod)->toDateString(),
-                ]);
-
-                MeterReading::create([
-                    'water_meter_id' => $waterMeter->id,
-                    'reading'        => $validatedData['boshlangich_korsatkich'],
-                    'reading_date'   => now()->toDateString(),
-                    'confirmed'      => true,
-                ]);
-            }
-
-            if (!empty($importErrors)) {
-                // --- MANA SHU BLOK TUZATILDI ---
-                $finalValidator = Validator::make([], []);
-                foreach ($importErrors as $errorMsg) {
-                    $finalValidator->errors()->add('excel_error', $errorMsg);
-                }
-                throw new \Illuminate\Validation\ValidationException($finalValidator);
-                // --- TUZATISH TUGADI ---
-            }
-
-            DB::commit();
-            return redirect()->route('customers.import.form')->with('success', 'Hisoblagichli mijozlar muvaffaqiyatli import qilindi!');
-        } catch (\Illuminate\Validation\ValidationException $e) {
-            DB::rollBack();
-            return redirect()->back()->withErrors($e->errors())->withInput();
+            return Carbon::parse($dateValue)->format('Y-m-d');
         } catch (\Exception $e) {
-            DB::rollBack();
-            Log::error('Excel import error (With Meter): ' . $e->getMessage());
-            return redirect()->back()->withErrors(['umumiy_xato' => 'Import qilishda xatolik yuz berdi: ' . $e->getMessage()])->withInput();
+            return null;
         }
     }
 
     public function export(Request $request)
     {
-        $companyId = $request->query('company_id');
+        $user = auth()->user();
 
-        // Foydalanuvchi huquqini tekshirish (ixtiyoriy, lekin tavsiya etiladi)
-        if (!auth()->user()->hasRole('admin') && auth()->user()->company_id != $companyId) {
+        // ✅ 1. Validatsiya
+        $validated = $request->validate([
+            'company_id' => 'required|integer|exists:companies,id'
+        ]);
+
+        $companyId = $validated['company_id'];
+
+        // ✅ 2. Ruxsat tekshiruvi
+        if (!$user->hasRole('admin') && $user->company_id != $companyId) {
             abort(403, 'Sizda bu kompaniya ma\'lumotlarini yuklab olishga ruxsat yo\'q.');
         }
 
-        $fileName = 'mijozlar_royxati_' . now()->format('Y-m-d') . '.xlsx';
+        // ✅ 3. Fayl nomini kompaniya bilan
+        $company = Company::find($companyId);
+        $companyName = $company ? \Str::slug($company->name) : 'company';
+        $fileName = "mijozlar_{$companyName}_" . now()->format('Y-m-d') . '.xlsx';
 
         return Excel::download(new CustomersExport($companyId), $fileName);
     }
