@@ -38,18 +38,6 @@ class Invoice extends Model
         });
     }
 
-    protected static function boot()
-    {
-        parent::boot();
-
-        static::creating(function ($invoice) {
-            // Agar created_at invoys yaratilishidan oldin o'rnatilgan bo'lsa, o'sha yilni olamiz,
-            // aks holda joriy yilni olamiz.
-            $year = $invoice->created_at ? date('Y', strtotime($invoice->created_at)) : date('Y');
-            $invoice->invoice_number = self::generateNextInvoiceNumberForYear((int)$year);
-        });
-    }
-
     public static function generateNextInvoiceNumberForYear(int $year)
     {
         // Atomik tarzda raqamni olish va yangilash
@@ -85,5 +73,18 @@ class Invoice extends Model
     public function payments()
     {
         return $this->hasMany(Payment::class);
+    }
+
+    public function createdBy()
+    {
+        return $this->belongsTo(User::class, 'created_by');
+    }
+
+    /**
+     * ✅ Relation: Kim yangilagan
+     */
+    public function updatedBy()
+    {
+        return $this->belongsTo(User::class, 'updated_by');
     }
 }

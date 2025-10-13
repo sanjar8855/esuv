@@ -3,45 +3,92 @@
 namespace App\Observers;
 
 use App\Models\MeterReading;
-use Telegram\Bot\Laravel\Facades\Telegram;
 use App\Jobs\SendMeterReadingNotificationJob;
+use Illuminate\Support\Facades\Log;
 
 class MeterReadingObserver
 {
     /**
-     * Tasdiqlangan meter reading qo'shilganda ishlaydi.
+     * ✅ Yaratilganda
      */
-    public function created(MeterReading $meterReading)
+    public function created(MeterReading $meterReading): void
     {
+        Log::info('Meter reading created', ['reading_id' => $meterReading->id]);
+
         $this->sendNotificationIfConfirmed($meterReading);
     }
 
-    public function updated(MeterReading $meterReading)
+    /**
+     * ✅ Yangilanganda
+     */
+    public function updated(MeterReading $meterReading): void
     {
-        if ($meterReading->isDirty('confirmed') && $meterReading->confirmed === true) {
+        Log::info('Meter reading updated', [
+            'reading_id' => $meterReading->id,
+            'changes' => $meterReading->getChanges()
+        ]);
+
+        // ✅ Faqat confirmed true ga o'zgarganda
+        if ($meterReading->wasChanged('confirmed') && $meterReading->confirmed === true) {
             $this->sendNotificationIfConfirmed($meterReading);
         }
     }
 
-    protected function sendNotificationIfConfirmed(MeterReading $meterReading)
+    /**
+     * ✅ Notification yuborish
+     */
+    protected function sendNotificationIfConfirmed(MeterReading $meterReading): void
     {
-        \Log::info('sendNotificationIfConfirmed called: ' . $meterReading->id);
+        // ✅ Faqat tasdiqlangan bo'lsa
+        if ($meterReading->confirmed !== true) {
+            return;
+        }
 
-        if ($meterReading->confirmed === true) {
-            \Log::info('Confirmed: ' . $meterReading->id);
-            $customer = $meterReading->customer;
+        // ✅ Eager loading
+        $meterReading->loadMissing('waterMeter.customer.telegramAccounts');
 
-            $message = "✅ Hisoblagich ko'rsatkich tasdiqlandi!\n";
-            $message .= "👤 Mijoz: <b>{$customer->name}</b>\n";
-            $message .= "📏 Ko'rsatkich: <b>{$meterReading->reading}</b>\n";
-            $message .= "📅 Sana: <b>" . date('d.m.Y', strtotime($meterReading->reading_date)) . "</b>";
+        // ✅ Validation
+        if (!$meterReading->waterMeter) {
+            Log::warning('Water meter not found for reading', [
+                'reading_id' => $meterReading->id
+            ]);
+            return;
+        }
 
-            \Log::info('Message: ' . $message);
+        $customer = $meterReading->waterMeter->customer;
 
-            foreach ($customer->telegramAccounts as $tgAccount) {
-                \Log::info('Sending to: ' . $tgAccount->telegram_chat_id);
-                SendMeterReadingNotificationJob::dispatch($tgAccount->telegram_chat_id, $message);
-            }
+        if (!$customer) {
+            Log::warning('Customer not found for reading', [
+                'reading_id' => $meterReading->id
+            ]);
+            return;
+        }
+
+        if ($customer->telegramAccounts->isEmpty()) {
+            Log::info('No telegram accounts for customer', [
+                'customer_id' => $customer->id
+            ]);
+            return;
+        }
+
+        // ✅ Xabar tayyorlash
+        $message = "✅ Hisoblagich ko'rsatkich tasdiqlandi!\n\n"
+            . "👤 Mijoz: <b>{$customer->name}</b>\n"
+            . "🔢 Hisob raqam: <b>{$customer->account_number}</b>\n"
+            . "📏 Ko'rsatkich: <b>{$meterReading->reading} m³</b>\n"
+            . "📅 Sana: <b>" . $meterReading->reading_date->format('d.m.Y') . "</b>";
+
+        // ✅ Har bir telegram account ga yuborish
+        foreach ($customer->telegramAccounts as $tgAccount) {
+            Log::info('Dispatching meter reading notification', [
+                'chat_id' => $tgAccount->telegram_chat_id,
+                'reading_id' => $meterReading->id
+            ]);
+
+            SendMeterReadingNotificationJob::dispatch(
+                $tgAccount->telegram_chat_id,
+                $message
+            );
         }
     }
 }

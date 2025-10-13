@@ -9,6 +9,7 @@ use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Bus\Dispatchable;
 use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Queue\SerializesModels;
+use Illuminate\Support\Facades\Log;
 
 class SendPaymentNotificationJob implements ShouldQueue
 {
@@ -17,11 +18,22 @@ class SendPaymentNotificationJob implements ShouldQueue
     protected $payment;
 
     /**
+     * Qayta urinishlar soni
+     */
+    public $tries = 3;
+
+    /**
+     * Timeout
+     */
+    public $timeout = 60;
+
+    /**
      * Create a new job instance.
      */
     public function __construct(Payment $payment)
     {
-        $this->payment = $payment;
+        // ✅ Eager loading
+        $this->payment = $payment->load('customer.telegramAccounts');
     }
 
     /**
@@ -31,21 +43,70 @@ class SendPaymentNotificationJob implements ShouldQueue
     {
         $customer = $this->payment->customer;
 
-        if ($this->payment->payment_method == 'cash') {
-            $payment_method = 'Naqd pul';
-        } elseif ($this->payment->payment_method == 'card') {
-            $payment_method = 'Plastik orqali';
-        } elseif ($this->payment->payment_method == 'transfer') {
-            $payment_method = 'Bank orqali';
-        } else {
-            $payment_method = 'Noaniq';
+        // ✅ Validation
+        if (!$customer) {
+            Log::warning('Payment customer not found', ['payment_id' => $this->payment->id]);
+            return;
         }
 
-        foreach ($customer->telegramAccounts as $telegramAccount) {
-            Telegram::sendMessage([
-                'chat_id' => $telegramAccount->telegram_chat_id,
-                'text' => "💰 To‘lov qabul qilindi! To‘langan summa: " . $this->payment->amount . ". To‘lov turi: " . $payment_method . ". Hisob raqam: " . $this->payment->customer->account_number
+        if ($customer->telegramAccounts->isEmpty()) {
+            Log::info('No telegram accounts for customer', [
+                'customer_id' => $customer->id,
+                'payment_id' => $this->payment->id
             ]);
+            return;
         }
+
+        // ✅ Match expression (PHP 8+)
+        $paymentMethod = match($this->payment->payment_method) {
+            'cash' => 'Naqd pul',
+            'card' => 'Plastik orqali',
+            'transfer' => 'Bank o\'tkazmasi',
+            'online' => 'Onlayn to\'lov',
+            default => 'Noma\'lum'
+        };
+
+        // ✅ Xabar tayyorlash
+        $message = "✅ To'lov qabul qilindi!\n\n"
+            . "💰 Summa: " . number_format($this->payment->amount, 0, '.', ' ') . " so'm\n"
+            . "💳 To'lov turi: {$paymentMethod}\n"
+            . "🔢 Hisob raqam: {$customer->account_number}\n"
+            . "📅 Sana: " . $this->payment->payment_date->format('d.m.Y H:i');
+
+        // ✅ Har bir telegram account ga yuborish
+        foreach ($customer->telegramAccounts as $telegramAccount) {
+            try {
+                Telegram::sendMessage([
+                    'chat_id' => $telegramAccount->telegram_chat_id,
+                    'text' => $message,
+                    'parse_mode' => 'HTML'
+                ]);
+
+                Log::info('Payment notification sent', [
+                    'payment_id' => $this->payment->id,
+                    'chat_id' => $telegramAccount->telegram_chat_id
+                ]);
+
+            } catch (\Exception $e) {
+                Log::error('Failed to send payment notification', [
+                    'payment_id' => $this->payment->id,
+                    'chat_id' => $telegramAccount->telegram_chat_id,
+                    'error' => $e->getMessage()
+                ]);
+
+                continue; // ✅ Davom etish
+            }
+        }
+    }
+
+    /**
+     * ✅ Job fail bo'lganda
+     */
+    public function failed(\Throwable $exception)
+    {
+        Log::error('SendPaymentNotificationJob failed', [
+            'payment_id' => $this->payment->id,
+            'error' => $exception->getMessage()
+        ]);
     }
 }

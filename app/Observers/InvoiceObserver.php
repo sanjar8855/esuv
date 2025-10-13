@@ -5,49 +5,93 @@ namespace App\Observers;
 use App\Models\Invoice;
 use App\Models\Customer;
 use App\Jobs\SendInvoiceNotificationJob;
+use Illuminate\Support\Facades\Log;
 
 class InvoiceObserver
 {
-    public function created(Invoice $invoice)
-    {
-        SendInvoiceNotificationJob::dispatch($invoice);
-    }
-
     /**
-     * Handle the Invoice "saved" event (yaratilganda yoki yangilanganda ishlaydi).
+     * ✅ Faqat yaratilganda
      */
-    public function saved(Invoice $invoice): void
+    public function created(Invoice $invoice): void
     {
-        // Mijoz balansini yangilash
-        if ($invoice->customer) { // Mijoz mavjudligini tekshirish
-            // Agar $invoice->customer allaqachon yuklangan bo'lsa ishlaydi
-            // Aks holda, $customer = Customer::find($invoice->customer_id); qilib topish mumkin
-            $invoice->customer->updateBalance();
-            \Log::info("Balance updated for customer ID {$invoice->customer_id} due to invoice ID {$invoice->id} saved.");
-        }
+        Log::info('Invoice created', ['invoice_id' => $invoice->id]);
 
-        // Xabarnoma yuborish (faqat yangi yaratilganda yuborish uchun)
-        if ($invoice->wasRecentlyCreated) {
+        // ✅ Eager load qilish
+        $invoice->loadMissing('customer.telegramAccounts');
+
+        // ✅ Notification yuborish
+        if ($invoice->customer && $invoice->customer->telegramAccounts->isNotEmpty()) {
             SendInvoiceNotificationJob::dispatch($invoice);
         }
-        // Agar har qanday o'zgarishda xabarnoma kerak bo'lsa, yuqoridagi if ni olib tashlang.
+
+        // ✅ Balance yangilash
+        $this->updateCustomerBalance($invoice);
     }
 
     /**
-     * Handle the Invoice "deleted" event.
+     * ✅ Yangilanganda
+     */
+    public function updated(Invoice $invoice): void
+    {
+        Log::info('Invoice updated', [
+            'invoice_id' => $invoice->id,
+            'changes' => $invoice->getChanges()
+        ]);
+
+        // ✅ Faqat amount_due yoki status o'zgarganda balance yangilash
+        if ($invoice->wasChanged(['amount_due', 'status'])) {
+            $this->updateCustomerBalance($invoice);
+        }
+
+        // ✅ Status o'zgarganda notification (ixtiyoriy)
+        if ($invoice->wasChanged('status')) {
+            $invoice->loadMissing('customer.telegramAccounts');
+
+            if ($invoice->customer && $invoice->customer->telegramAccounts->isNotEmpty()) {
+                // TODO: Status o'zgarishi haqida alohida notification
+                // SendInvoiceStatusChangedJob::dispatch($invoice);
+            }
+        }
+    }
+
+    /**
+     * ✅ O'chirilganda
      */
     public function deleted(Invoice $invoice): void
     {
-        // Mijoz balansini yangilash
-        // Invoys o'chirilganda, customer relation orqali topishga harakat qilamiz
-        // yoki customer_id orqali to'g'ridan-to'g'ri.
-        // Eng ishonchlisi customer_id orqali qayta topish:
-        if ($invoice->customer_id) {
-            $customer = Customer::find($invoice->customer_id);
-            if ($customer) {
-                $customer->updateBalance();
-                \Log::info("Balance updated for customer ID {$invoice->customer_id} due to invoice ID {$invoice->id} deleted.");
-            }
+        Log::info('Invoice deleted', ['invoice_id' => $invoice->id]);
+
+        // ✅ Balance yangilash
+        $this->updateCustomerBalance($invoice);
+    }
+
+    /**
+     * ✅ Helper metod - cheksiz loop oldini olish
+     */
+    protected function updateCustomerBalance(Invoice $invoice): void
+    {
+        if (!$invoice->customer_id) {
+            return;
         }
+
+        $customer = Customer::find($invoice->customer_id);
+
+        if (!$customer) {
+            Log::warning('Customer not found for invoice', [
+                'customer_id' => $invoice->customer_id,
+                'invoice_id' => $invoice->id
+            ]);
+            return;
+        }
+
+        // ✅ Observer ni vaqtincha o'chirish (cheksiz loop oldini olish)
+        Customer::withoutEvents(function () use ($customer) {
+            $customer->updateBalance();
+        });
+
+        Log::info('Balance updated for customer', [
+            'customer_id' => $customer->id,
+            'new_balance' => $customer->balance
+        ]);
     }
 }

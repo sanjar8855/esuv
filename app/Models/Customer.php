@@ -1,13 +1,14 @@
 <?php
+
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use App\Models\Scopes\CompanyScope;
-use Illuminate\Database\Eloquent\Casts\Attribute;
 use App\Traits\RecordUserStamps;
 use App\Traits\TracksUser;
 use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Facades\Log;
 
 class Customer extends Model
 {
@@ -27,29 +28,44 @@ class Customer extends Model
         'pdf_file'
     ];
 
+    protected $casts = [
+        'is_active' => 'boolean',
+        'has_water_meter' => 'boolean',
+        'balance' => 'decimal:2',
+        'family_members' => 'integer',
+    ];
+
     /**
-     * "name" atributini o'rnatishdan oldin birinchi harflarini kattalashtiradi.
-     *
-     * @param  string  $value
-     * @return void
+     * ✅ Name mutator - har bir so'zning birinchi harfini katta qilish
      */
     public function setNameAttribute($value)
     {
-        // mb_convert_case o'zbekcha harflarni ham to'g'ri ishlaydi (masalan, "ismoil" -> "Ismoil")
-        // MB_CASE_TITLE har bir so'zning birinchi harfini kattalashtiradi
         $this->attributes['name'] = mb_convert_case($value, MB_CASE_TITLE, "UTF-8");
     }
 
+    /**
+     * ✅ Account number mutator
+     */
     public function setAccountNumberAttribute($value)
     {
-        if ($value) {
-            $cleaned = str_replace(' ', '', (string)$value);
+        if (empty($value)) {
+            $this->attributes['account_number'] = null;
+            return;
+        }
+
+        $cleaned = str_replace(' ', '', (string)$value);
+
+        // ✅ Faqat 7 xonadan qisqa bo'lsa 0 qo'shish
+        if (strlen($cleaned) < 7) {
             $this->attributes['account_number'] = str_pad($cleaned, 7, '0', STR_PAD_LEFT);
         } else {
-            $this->attributes['account_number'] = null;
+            $this->attributes['account_number'] = $cleaned;
         }
     }
 
+    /**
+     * ✅ Phone mutator - format: (99) 123-45-67
+     */
     public function setPhoneAttribute($value)
     {
         if (empty($value)) {
@@ -57,53 +73,63 @@ class Customer extends Model
             return;
         }
 
-        // Kiritilgan qiymatdan faqat sonlarni ajratib olamiz
         $digits = preg_replace('/[^0-9]/', '', $value);
 
-        // Agar sonlar 9 ta bo'lsa (O'zbekiston mobil raqamlari standarti)
         if (strlen($digits) === 9) {
-            // Raqamni kerakli formatga o'tkazamiz
-            $formatted = preg_replace('/^(\d{2})(\d{3})(\d{2})(\d{2})$/', '($1) $2-$3-$4', $digits);
-            $this->attributes['phone'] = $formatted;
+            $this->attributes['phone'] = preg_replace(
+                '/^(\d{2})(\d{3})(\d{2})(\d{2})$/',
+                '($1) $2-$3-$4',
+                $digits
+            );
         } else {
-            // Agar raqam 9 xonali bo'lmasa, uni o'z holicha saqlaymiz
             $this->attributes['phone'] = $value;
         }
     }
 
+    /**
+     * ✅ Model events
+     */
     protected static function booted()
     {
-        // ✅ 1. Global Scope qo'shish
+        // 1. Global Scope
         static::addGlobalScope(new CompanyScope());
 
-        // ✅ 2. Yangi yozuvda company_id avtomatik
+        // 2. Creating event - company_id avtomatik
         static::creating(function ($customer) {
             if (auth()->check() && !$customer->company_id) {
                 $customer->company_id = auth()->user()->company_id;
             }
         });
 
+        // 3. Deleting event - cascade delete
         static::deleting(function ($customer) {
-            // 1. PDF faylni o'chirish
+            // PDF fayl
             if ($customer->pdf_file) {
                 Storage::disk('public')->delete($customer->pdf_file);
             }
 
-            // 2. WaterMeter va uning readings larini o'chirish
+            // WaterMeter va readings
             if ($customer->waterMeter) {
                 $customer->waterMeter->readings()->delete();
                 $customer->waterMeter->delete();
             }
 
-            // 3. Invoices va Payments ni o'chirish
+            // Invoices va Payments
             $customer->invoices()->delete();
             $customer->payments()->delete();
 
-            // 4. Telegram akkauntlarni ajratish
+            // Telegram accounts
             $customer->telegramAccounts()->detach();
+
+            Log::info('Customer deleted with related data', [
+                'customer_id' => $customer->id
+            ]);
         });
     }
 
+    /**
+     * ✅ Relationlar
+     */
     public function company()
     {
         return $this->belongsTo(Company::class);
@@ -131,69 +157,72 @@ class Customer extends Model
 
     public function telegramAccounts()
     {
-        return $this->belongsToMany(TelegramAccount::class, 'customer_telegram_account', 'customer_id', 'telegram_account_id');
-    }
-
-    // 🔹 Jami qarzdorlikni hisoblash
-    protected function totalDue(): Attribute
-    {
-        return Attribute::make(
-            get: fn() => $this->invoices()->sum('amount_due')
+        return $this->belongsToMany(
+            TelegramAccount::class,
+            'customer_telegram_account',
+            'customer_id',
+            'telegram_account_id'
         );
     }
 
-    // 🔹 Jami to‘langan miqdorni hisoblash
-    protected function totalPaid(): Attribute
-    {
-        return Attribute::make(
-            get: fn() => $this->payments()->sum('amount')
-        );
-    }
-
-    // 🔹 Balansni avtomatik hisoblash
-    public function getBalanceAttribute()
-    {
-        $totalDue = $this->invoices()->sum('amount_due');
-        $totalPaid = $this->payments()->sum('amount');
-
-        return $totalPaid - $totalDue; // **Ortib qolgan to‘lov +, yetishmayotgan - bo‘lishi kerak**
-    }
-
-    public function updateBalance()
+    /**
+     * ✅ Balansni yangilash
+     * Observer lardan chaqiriladi (InvoiceObserver, PaymentObserver)
+     */
+    public function updateBalance(): void
     {
         $totalDue = $this->invoices()
-            ->whereIn('status', ['pending', 'unpaid'])
+            ->whereIn('status', ['pending', 'unpaid', 'overdue'])
             ->sum('amount_due');
 
         $totalPaid = $this->payments()
             ->where('status', 'completed')
             ->sum('amount');
 
-        // **Faqat haqiqatdan ham o‘zgarish bo‘lsa `save()` chaqiramiz**
-        if ($this->balance != ($totalPaid - $totalDue)) {
-            $this->balance = $totalPaid - $totalDue;
-            $this->attributes['balance'] = $this->balance; // **DB ga yozishni oldini oladi**
-            self::withoutEvents(function () {
-                $this->save(); // **Cheksiz aylanishni oldini oladi**
-            });
+        $newBalance = $totalPaid - $totalDue;
+
+        // ✅ Faqat o'zgarganda saqlash
+        if ($this->balance != $newBalance) {
+            $this->balance = $newBalance;
+            $this->saveQuietly(); // ✅ Observer siz
+
+            Log::info('Customer balance updated', [
+                'customer_id' => $this->id,
+                'new_balance' => $newBalance
+            ]);
         }
     }
 
-    // 🔹 Avtomatik balans yangilash (invoice yoki payment qo‘shilganda)
-    protected static function boot()
+    /**
+     * ✅ Helper metodlar
+     */
+    public function getTotalDue()
     {
-        parent::boot();
+        return $this->invoices()
+            ->whereIn('status', ['pending', 'unpaid', 'overdue'])
+            ->sum('amount_due');
+    }
 
-        static::created(function ($customer) {
-            $customer->updateBalance();
-        });
+    public function getTotalPaid()
+    {
+        return $this->payments()
+            ->where('status', 'completed')
+            ->sum('amount');
+    }
 
-        static::updated(function ($customer) {
-            // **Agar faqat to‘lov yoki invoice o‘zgargan bo‘lsa, balansni yangilaymiz**
-            if ($customer->wasChanged(['balance'])) {
-                return;
-            }
-            $customer->updateBalance();
-        });
+    /**
+     * ✅ Scope: Aktiv mijozlar
+     */
+    public function scopeActive($query)
+    {
+        return $query->where('is_active', true);
+    }
+
+    /**
+     * ✅ Scope: Qarzdorlar
+     */
+    public function scopeWithDebt($query)
+    {
+        return $query->where('balance', '<', 0);
     }
 }
