@@ -1,9 +1,10 @@
 @extends('layouts.app')
 
-@section('content')
+{{-- ✅ CSS ni head ga qo'shish --}}
+@push('styles')
     <link href="https://cdn.jsdelivr.net/npm/tom-select@2.2.2/dist/css/tom-select.css" rel="stylesheet">
-    <script src="https://cdn.jsdelivr.net/npm/tom-select@2.2.2/dist/js/tom-select.complete.min.js"></script>
-
+@endpush
+@section('content')
     <div class="page-body">
         <div class="container-xl">
             <div class="row row-cards">
@@ -18,7 +19,7 @@
                             </ul>
                         </div>
                     @endif
-                    <form action="{{ route('customers.update', $customer->id) }}" method="POST">
+                    <form action="{{ route('customers.update', $customer->id) }}" method="POST" enctype="multipart/form-data">
                         @csrf
                         @method('PUT')
 
@@ -39,8 +40,14 @@
                         </div>
 
                         <div class="mb-3">
-                            <label class="form-label">Ismi</label>
-                            <input type="text" name="name" class="form-control" value="{{ $customer->name }}" required>
+                            <label class="form-label required">Ism</label>
+                            <input type="text" name="name"
+                                   class="form-control @error('name') is-invalid @enderror"
+                                   value="{{ old('name', $customer->name) }}"
+                                   required>
+                            @error('name')
+                            <div class="invalid-feedback">{{ $message }}</div>
+                            @enderror
                         </div>
 
                         <div class="mb-3">
@@ -63,25 +70,68 @@
 
                         <div class="mb-3">
                             <label class="form-label">Telefon</label>
-                            <input type="text" name="phone" class="form-control" value="{{ $customer->phone }}"
-                                   data-mask="(00) 000-00-00" data-mask-visible="true" placeholder="(00) 000-00-00"
+                            <input type="text" name="phone"
+                                   class="form-control @error('phone') is-invalid @enderror"
+                                   value="{{ old('phone', $customer->phone) }}"
+                                   data-mask="(00) 000-00-00"
+                                   data-mask-visible="true"
+                                   placeholder="(00) 000-00-00"
                                    autocomplete="off"/>
+                            @error('phone')
+                            <div class="invalid-feedback">{{ $message }}</div>
+                            @enderror
                         </div>
 
                         <div class="mb-3">
-                            <label class="form-label">Uy raqami</label>
-                            <input type="text" name="address" class="form-control" value="{{ $customer->address }}">
+                            <label class="form-label required">Uy raqami</label>
+                            <input type="text" name="address"
+                                   class="form-control @error('address') is-invalid @enderror"
+                                   value="{{ old('address', $customer->address) }}">
+                            @error('address')
+                            <div class="invalid-feedback">{{ $message }}</div>
+                            @enderror
                         </div>
 
                         <div class="mb-3">
-                            <label class="form-label">Hisob raqami</label>
-                            <input type="text" name="account_number" class="form-control"
-                                   value="{{ $customer->account_number }}" required>
+                            <label class="form-label required">Hisob raqami</label>
+                            <input type="text" name="account_number"
+                                   class="form-control @error('account_number') is-invalid @enderror"
+                                   value="{{ old('account_number', $customer->account_number) }}"
+                                   required>
+                            @error('account_number')
+                            <div class="invalid-feedback">{{ $message }}</div>
+                            @enderror
                         </div>
 
                         <div class="mb-3">
                             <label for="pdf_file" class="form-label">Shartnoma PDF</label>
-                            <input type="file" name="pdf_file" class="form-control">
+
+                            {{-- ✅ Eski fayl ko'rsatish --}}
+                            @if($customer->pdf_file)
+                                <div class="mb-2">
+                                    <span class="text-muted">Hozirgi fayl:</span>
+                                    <a href="{{ asset('storage/' . $customer->pdf_file) }}" target="_blank" class="btn btn-sm btn-info ms-2">
+                                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><polyline points="14 2 14 8 20 8"></polyline></svg>
+                                        PDF ni ko'rish
+                                    </a>
+                                </div>
+                            @endif
+
+                            <input type="file" name="pdf_file" id="pdf_file"
+                                   class="form-control @error('pdf_file') is-invalid @enderror"
+                                   accept=".pdf">
+
+                            @error('pdf_file')
+                            <div class="invalid-feedback">{{ $message }}</div>
+                            @enderror
+
+                            <small class="form-hint">
+                                @if($customer->pdf_file)
+                                    Yangi fayl yuklasangiz, eski fayl o'chiriladi.
+                                @else
+                                    PDF formatdagi fayl yuklashingiz mumkin (Maksimal: 2MB)
+                                @endif
+                            </small>
                         </div>
 
                         <div class="mb-3">
@@ -95,8 +145,13 @@
 
                         <div class="mb-3">
                             <label class="form-label">Oila a'zolari soni</label>
-                            <input type="number" name="family_members" id="family_members" class="form-control"
-                                   value="{{ $customer->family_members }}" min="1">
+                            <input type="number" name="family_members" id="family_members"
+                                   class="form-control @error('family_members') is-invalid @enderror"
+                                   value="{{ old('family_members', $customer->family_members) }}"
+                                   min="1" max="50">
+                            @error('family_members')
+                            <div class="invalid-feedback">{{ $message }}</div>
+                            @enderror
                         </div>
 
                         <div class="mb-3">
@@ -115,25 +170,11 @@
         </div>
     </div>
 
-    {{--    <script>--}}
-    {{--        document.addEventListener("DOMContentLoaded", function () {--}}
-    {{--            const hasWaterMeterCheckbox = document.getElementById("has_water_meter");--}}
-    {{--            const familyMembersDiv = document.getElementById("family_members_div");--}}
-    {{--            const familyMembersInput = document.getElementById("family_members");--}}
+@endsection
 
-    {{--            function toggleFields() {--}}
-    {{--                if (hasWaterMeterCheckbox.checked) {--}}
-    {{--                    familyMembersDiv.style.display = "none";--}}
-    {{--                    familyMembersInput.value = ""; // Oiladagi odam soni olinmaydi--}}
-    {{--                } else {--}}
-    {{--                    familyMembersDiv.style.display = "block";--}}
-    {{--                }--}}
-    {{--            }--}}
+@push('scripts')
+    <script src="https://cdn.jsdelivr.net/npm/tom-select@2.2.2/dist/js/tom-select.complete.min.js"></script>
 
-    {{--            hasWaterMeterCheckbox.addEventListener("change", toggleFields);--}}
-    {{--            toggleFields(); // Sahifa yuklanganda avtomatik tekshirish--}}
-    {{--        });--}}
-    {{--    </script>--}}
     <script>
         document.addEventListener("DOMContentLoaded", function () {
             new TomSelect("#StreetSelect", {
@@ -142,10 +183,9 @@
                     field: "text",
                     direction: "asc"
                 },
-                placeholder: "Mahalla nomini yozing...",
+                placeholder: "Ko'chani tanlang...",
                 allowEmptyOption: true
             });
         });
     </script>
-
-@endsection
+@endpush
