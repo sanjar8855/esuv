@@ -186,7 +186,7 @@ class PaymentController extends Controller
         $validated = $request->validate([
             'customer_id' => 'required|exists:customers,id',
             'amount' => 'required|numeric|min:1',
-            'payment_method' => 'required|in:cash,card,transfer,online',
+            'payment_method' => 'required|in:cash,card,transfer',
             'confirmed' => 'sometimes|boolean',
         ]);
 

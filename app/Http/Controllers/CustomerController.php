@@ -269,55 +269,70 @@ class CustomerController extends Controller
 
     public function show(Customer $customer)
     {
+        // ✅ EAGER LOADING - N+1 muammosini oldini olish
         $customer->load([
             'company',
             'street.neighborhood.city.region',
             'waterMeter.readings' => function($query) {
-                $query->latest()->limit(10);
+                $query->latest()->limit(1);  // Faqat eng oxirgi ko'rsatkich
             },
-            'invoices' => function($query) {
-                $query->latest()->limit(10);
-            },
-            'payments' => function($query) {
-                $query->latest()->limit(20);
-
-                // ✅ Faqat ustun mavjud bo'lsa yuklash
-                if (\Schema::hasColumn('payments', 'confirmed_by')) {
-                    $query->with('confirmedBy');
-                }
-
-                if (\Schema::hasColumn('payments', 'created_by')) {
-                    $query->with('createdBy');
-                }
-            },
-            'telegramAccounts'
+            'telegramAccounts',
+            'createdBy',
+            'updatedBy'
         ]);
 
-        $isCompanyOwner = auth()->user()->hasRole('company_owner');
+        // ✅ ROL TEKSHIRUVI
+        $user = auth()->user();
+        $isCompanyOwner = $user->hasRole('company_owner') || $user->hasRole('admin');
 
+        // ✅ HISOBLAGICH KO'RSATGICHLARI (Pagination bilan)
         $readings = $customer->waterMeter
             ? $customer->waterMeter->readings()
-                ->with('createdBy')  // ✅ Kim yaratganini yuklash
-                ->latest()
+                ->with(['createdBy', 'updatedBy'])  // ✅ Kim yaratgan/yangilagan
+                ->orderBy('reading_date', 'desc')
                 ->orderBy('id', 'desc')
                 ->paginate(5, ['*'], 'reading_page')
-            : new LengthAwarePaginator([], 0, 5, 1, ['path' => request()->url(), 'pageName' => 'reading_page']);
+            : new LengthAwarePaginator([], 0, 5, 1, [
+                'path' => request()->url(),
+                'pageName' => 'reading_page'
+            ]);
 
+        // ✅ INVOICELAR (Pagination bilan)
         $invoices = $customer->invoices()
-            ->with('tariff')  // ✅ Tariff ham yuklash
-            ->latest()
+            ->with(['tariff', 'createdBy'])  // ✅ Tariff va kim yaratgan
+            ->orderBy('billing_period', 'desc')
+            ->orderBy('id', 'desc')
             ->paginate(5, ['*'], 'invoice_page');
 
-        $payments = $customer->payments()
-            ->with(['invoice', 'createdBy'])  // ✅ Invoice va kim yaratganini yuklash
-            ->latest()
-            ->paginate(5, ['*'], 'payment_page');
+        // ✅ TO'LOVLAR (Pagination bilan + Conditional Loading)
+        $paymentsQuery = $customer->payments()
+            ->with('invoice');  // Invoice har doim yuklanadi
 
-        $activeTariffs = collect(); // Bo'sh kolleksiya bilan boshlaymiz
-        if ($customer->company_id) { // Agar mijoz kompaniyaga biriktirilgan bo'lsa
+        // ✅ Faqat ustun mavjud bo'lsa yuklash (Migration bajarilmagan bo'lsa xatolik bermasin)
+        if (\Schema::hasColumn('payments', 'created_by')) {
+            $paymentsQuery->with('createdBy');
+        }
+
+        if (\Schema::hasColumn('payments', 'updated_by')) {
+            $paymentsQuery->with('updatedBy');
+        }
+
+        if (\Schema::hasColumn('payments', 'confirmed_by')) {
+            $paymentsQuery->with('confirmedBy');
+        }
+
+        $payments = $paymentsQuery
+            ->orderBy('created_at', 'desc')
+            ->orderBy('id', 'desc')
+            ->paginate(15, ['*'], 'payment_page');
+
+        // ✅ AKTIV TARIFLAR (To'lov formasi uchun)
+        $activeTariffs = collect(); // Bo'sh kolleksiya
+        if ($customer->company_id) {
             $activeTariffs = Tariff::where('company_id', $customer->company_id)
                 ->where('is_active', true)
-                ->orderBy('name') // Yoki valid_from bo'yicha saralash
+                ->orderBy('valid_from', 'desc')
+                ->orderBy('name')
                 ->get();
         }
 

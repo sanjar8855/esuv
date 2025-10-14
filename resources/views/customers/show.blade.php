@@ -304,6 +304,7 @@
                 </div>
 
                 <div class="col-md-6 col-lg-4">
+                    {{-- ✅ TO'LOVLAR TARIXI JADVALI --}}
                     <div class="card mt-3">
                         <div class="card-header">
                             <h3 class="card-title">
@@ -332,7 +333,7 @@
                                             <th style="width: 15%;">Sana va Vaqt</th>
                                             <th style="width: 18%;">Summa</th>
                                             <th style="width: 15%;">Usul</th>
-                                            {{-- ❌ "Holat" ustuni BUTUNLAY OLIB TASHLANDI --}}
+                                            {{-- ❌ "Holat" ustuni OLIB TASHLANDI --}}
                                             @if($isCompanyOwner)
                                                 <th style="width: 18%;">Kim yaratgan</th>
                                                 <th style="width: 24%;">Tasdiqlangan</th>
@@ -345,7 +346,7 @@
                                             {{-- ✅ Tasdiqlanmagan to'lovlarni yorqin ko'rsatish --}}
                                             <tr class="{{ !$payment->confirmed ? 'bg-yellow-lt' : '' }}">
                                                 <td>
-                                                    {{-- ✅ TO'LIQ SANA VA VAQT (created_at dan) --}}
+                                                    {{-- ✅ TO'LIQ SANA VA VAQT --}}
                                                     <span class="text-muted">{{ $payment->created_at->format('d.m.Y H:i') }}</span>
                                                 </td>
                                                 <td>
@@ -354,29 +355,28 @@
                                                 <td>
                                                     {{ $payment->payment_method_name }}
                                                 </td>
-                                                {{-- ❌ "Holat" ustuni BUTUNLAY OLIB TASHLANDI --}}
+                                                {{-- ❌ "Holat" ustuni OLIB TASHLANDI --}}
                                                 @if($isCompanyOwner)
                                                     <td>
-                                                        {{-- ✅ ENDI TO'G'RI ISHLAYDI: created_by ustuni bilan --}}
-                                                        <span class="text-muted">
-                                        {{ optional($payment->createdBy)->name ?? 'Noma\'lum' }}
-                                    </span>
+                                        <span class="text-muted">
+                                            {{ optional($payment->createdBy)->name ?? 'Noma\'lum' }}
+                                        </span>
                                                     </td>
                                                     <td>
                                                         @if($payment->confirmed)
-                                                            {{-- ✅ IKONKASIZ, FAQAT MATN --}}
+                                                            {{-- ✅ TASDIQLANGAN --}}
                                                             <span class="text-success">
-                                            {{ optional($payment->confirmedBy)->name ?? 'Admin' }}<br>
-                                            <small class="text-muted">{{ $payment->confirmed_at->format('d.m.Y H:i') }}</small>
-                                        </span>
+                                                {{ optional($payment->confirmedBy)->name ?? 'Admin' }}<br>
+                                                <small class="text-muted">{{ $payment->confirmed_at->format('d.m.Y H:i') }}</small>
+                                            </span>
                                                         @else
-                                                            {{-- ✅ IKONKASIZ, FAQAT MATN --}}
+                                                            {{-- ✅ TASDIQLANMAGAN --}}
                                                             <span class="text-warning">Tasdiqlanmagan</span>
                                                         @endif
                                                     </td>
                                                     <td>
                                                         @if(!$payment->confirmed)
-                                                            {{-- ✅ SVG IKONKA OLIB TASHLANDI --}}
+                                                            {{-- ✅ TASDIQLASH TUGMASI --}}
                                                             <form action="{{ route('payments.confirm', $payment) }}" method="POST" style="display:inline;">
                                                                 @csrf
                                                                 @method('PATCH')
@@ -404,32 +404,138 @@
                         {{ $payments->appends(request()->except('payment_page'))->links() }}
                     </div>
 
-                    {{-- ✅ TO'LOV QABUL QILISH FORMASI --}}
-                    <h3>To'lov qabul qilish</h3>
-                    <form action="{{ route('payments.store') }}" method="POST" class="mb-3">
-                        @csrf
-                        <input type="hidden" name="customer_id" value="{{ $customer->id }}">
-                        <input type="hidden" name="redirect_back" value="1">
-
-                        <div class="mb-3">
-                            <label for="amount">To'lov summasi:</label>
-                            <input type="number" name="amount" class="form-control" required>
+                    {{-- ✅ TO'LOV QABUL QILISH FORMASI (ROL ASOSIDA) --}}
+                    <div class="card mt-3">
+                        <div class="card-header">
+                            <h3 class="card-title">To'lov qabul qilish</h3>
                         </div>
+                        <div class="card-body">
+                            @if(session('payment_success'))
+                                <div class="alert alert-success alert-dismissible fade show" role="alert">
+                                    {{ session('payment_success') }}
+                                    <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                                </div>
+                            @endif
 
-                        <div class="mb-3">
-                            <label for="payment_method">To'lov usuli:</label>
-                            <select name="payment_method" class="form-control">
-                                <option value="cash">Naqd</option>
-                                <option value="card">Karta</option>
-                                <option value="transfer">Bank o'tkazmasi</option>
-                            </select>
+                            @if($errors->any())
+                                <div class="alert alert-danger">
+                                    <ul class="mb-0">
+                                        @foreach($errors->all() as $error)
+                                            <li>{{ $error }}</li>
+                                        @endforeach
+                                    </ul>
+                                </div>
+                            @endif
+
+                            <form action="{{ route('payments.store') }}" method="POST">
+                                @csrf
+                                <input type="hidden" name="customer_id" value="{{ $customer->id }}">
+                                <input type="hidden" name="redirect_back" value="1">
+
+                                <div class="mb-3">
+                                    <label for="amount" class="form-label required">To'lov summasi:</label>
+                                    <input type="number"
+                                           name="amount"
+                                           id="amount"
+                                           class="form-control @error('amount') is-invalid @enderror"
+                                           value="{{ old('amount') }}"
+                                           placeholder="Masalan: 50000"
+                                           required>
+                                    @error('amount')
+                                    <div class="invalid-feedback">{{ $message }}</div>
+                                    @enderror
+                                    <small class="form-hint">
+                                        Joriy qarzdorlik:
+                                        <strong class="text-{{ $customer->balance < 0 ? 'danger' : 'success' }}">
+                                            {{ number_format(abs($customer->balance), 0, '.', ' ') }} UZS
+                                        </strong>
+                                    </small>
+                                </div>
+
+                                <div class="mb-3">
+                                    <label for="payment_method" class="form-label required">To'lov usuli:</label>
+                                    <select name="payment_method"
+                                            id="payment_method"
+                                            class="form-select @error('payment_method') is-invalid @enderror"
+                                            required>
+                                        <option value="cash" {{ old('payment_method') == 'cash' ? 'selected' : '' }}>💵 Naqd pul</option>
+                                        <option value="card" {{ old('payment_method') == 'card' ? 'selected' : '' }}>💳 Plastik karta</option>
+                                        <option value="transfer" {{ old('payment_method') == 'transfer' ? 'selected' : '' }}>🏦 Bank o'tkazmasi</option>
+                                    </select>
+                                    @error('payment_method')
+                                    <div class="invalid-feedback">{{ $message }}</div>
+                                    @enderror
+                                </div>
+
+                                {{-- ✅ FAQAT DIREKTOR UCHUN: Tasdiqlanganmi? --}}
+                                @if($isCompanyOwner)
+                                    <div class="mb-3">
+                                        <label class="form-label">Tasdiqlanganmi?</label>
+                                        <div class="form-selectgroup">
+                                            <label class="form-selectgroup-item">
+                                                <input type="radio"
+                                                       name="confirmed"
+                                                       value="1"
+                                                       class="form-selectgroup-input"
+                                                    {{ old('confirmed', '1') == '1' ? 'checked' : '' }}>
+                                                <span class="form-selectgroup-label">
+                                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="text-success me-1">
+                                        <polyline points="20 6 9 17 4 12"></polyline>
+                                    </svg>
+                                    Ha, tasdiqlangan
+                                </span>
+                                            </label>
+                                            <label class="form-selectgroup-item">
+                                                <input type="radio"
+                                                       name="confirmed"
+                                                       value="0"
+                                                       class="form-selectgroup-input"
+                                                    {{ old('confirmed') == '0' ? 'checked' : '' }}>
+                                                <span class="form-selectgroup-label">
+                                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="text-warning me-1">
+                                        <circle cx="12" cy="12" r="10"></circle>
+                                        <line x1="12" y1="8" x2="12" y2="12"></line>
+                                        <line x1="12" y1="16" x2="12.01" y2="16"></line>
+                                    </svg>
+                                    Yo'q, keyinroq
+                                </span>
+                                            </label>
+                                        </div>
+                                        <small class="form-hint text-muted">
+                                            💡 "Ha" tanlasangiz, to'lov darhol tasdiqlangan bo'ladi.
+                                            "Yo'q" tanlasangiz, keyinroq tasdiqlanishi kerak.
+                                        </small>
+                                    </div>
+                                @else
+                                    {{-- ✅ ODDIY ISHCHI UCHUN: Hidden input --}}
+                                    <input type="hidden" name="confirmed" value="0">
+                                    <div class="alert alert-info mb-3" role="alert">
+                                        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="me-2">
+                                            <circle cx="12" cy="12" r="10"></circle>
+                                            <line x1="12" y1="16" x2="12" y2="12"></line>
+                                            <line x1="12" y1="8" x2="12.01" y2="8"></line>
+                                        </svg>
+                                        Sizning to'lovlaringiz direktor tomonidan tasdiqlanadi.
+                                    </div>
+                                @endif
+
+                                <div class="d-flex gap-2">
+                                    <button type="submit" class="btn btn-success">
+                                        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="me-1">
+                                            <polyline points="20 6 9 17 4 12"></polyline>
+                                        </svg>
+                                        To'lovni kiritish
+                                    </button>
+                                    <button type="reset" class="btn btn-outline-secondary">
+                                        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="me-1">
+                                            <polyline points="1 4 1 10 7 10"></polyline>
+                                            <path d="M3.51 15a9 9 0 1 0 2.13-9.36L1 10"></path>
+                                        </svg>
+                                        Tozalash
+                                    </button>
+                                </div>
+                            </form>
                         </div>
-
-                        <button type="submit" class="btn btn-success">To'lovni kiritish</button>
-                    </form>
-                    {{-- ✅ PAGINATION --}}
-                    <div class="mt-3">
-                        {{ $payments->appends(request()->except('payment_page'))->links() }}
                     </div>
                 </div>
             </div>
