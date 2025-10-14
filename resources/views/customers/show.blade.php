@@ -359,7 +359,7 @@
                                                         <span class="badge bg-warning">⏳ Kutilmoqda</span>
                                                     @endif
                                                 </td>
-                                                @if($$isCompanyOwner)
+                                                @if($isCompanyOwner)
                                                     <td>
                                                         {{-- ✅ Xavfsiz ko'rsatish --}}
                                                         <span class="text-muted">
