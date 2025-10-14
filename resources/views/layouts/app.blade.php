@@ -493,7 +493,7 @@
                             </a>
                         </li>
                     @endcan
-                    @if(auth()->user()->hasRole('company_owner'))
+                    @if(auth()->user()->hasRole('admin') || auth()->user()->hasRole('company_owner'))
                         <li class="nav-item {{ request()->routeIs('daily-reports.*') ? 'active' : '' }}">
                             <a class="nav-link" href="{{ route('daily-reports.index') }}">
                                 <span class="nav-link-icon d-md-none d-lg-inline-block">

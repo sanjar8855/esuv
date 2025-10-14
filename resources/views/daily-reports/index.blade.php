@@ -14,16 +14,53 @@
                         </h2>
                         <div class="text-muted mt-1">{{ $selectedDate->format('d.m.Y') }} - {{ $selectedDate->locale('uz')->dayName }}</div>
                     </div>
-                    <div class="col-auto ms-auto">
-                        {{-- ============ SANA TANLASH ============ --}}
-                        <form action="{{ route('daily-reports.index') }}" method="GET" class="d-inline-flex">
-                            <input type="date" name="date" class="form-control" value="{{ $selectedDate->format('Y-m-d') }}" onchange="this.form.submit()">
-                        </form>
-                    </div>
                 </div>
             </div>
 
-            {{-- ============ STATISTIKA KARTOCHKALARI ============ --}}
+            {{-- ============ FILTERLAR ============ --}}
+            <div class="card mt-3">
+                <div class="card-body">
+                    <form action="{{ route('daily-reports.index') }}" method="GET" class="row g-3">
+
+                        {{-- Sana --}}
+                        <div class="col-md-6">
+                            <label class="form-label">Sana</label>
+                            <input type="date" name="date" class="form-control" value="{{ $selectedDate->format('Y-m-d') }}">
+                        </div>
+
+                        {{-- ✅ ADMIN UCHUN KOMPANIYA FILTER --}}
+                        @if(auth()->user()->hasRole('admin'))
+                            <div class="col-md-6">
+                                <label class="form-label">Kompaniya</label>
+                                <select name="company_id" class="form-select">
+                                    <option value="all" {{ $selectedCompanyId === 'all' ? 'selected' : '' }}>🌐 Barcha kompaniyalar</option>
+                                    @foreach($companies as $company)
+                                        <option value="{{ $company->id }}" {{ $selectedCompanyId == $company->id ? 'selected' : '' }}>
+                                            {{ $company->name }}
+                                        </option>
+                                    @endforeach
+                                </select>
+                            </div>
+                        @endif
+
+                        {{-- Qidirish tugmasi --}}
+                        <div class="col-12">
+                            <button type="submit" class="btn btn-primary">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"></circle><path d="m21 21-4.35-4.35"></path></svg>
+                                Qidirish
+                            </button>
+                            @if($selectedCompanyId !== 'all' || $selectedDate->format('Y-m-d') !== today()->format('Y-m-d'))
+                                <a href="{{ route('daily-reports.index') }}" class="btn btn-secondary">
+                                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"></path><path d="M3 3v5h5"></path></svg>
+                                    Tozalash
+                                </a>
+                            @endif
+                        </div>
+                    </form>
+                </div>
+            </div>
+
+            {{-- ============ UMUMIY STATISTIKA ============ --}}
             <div class="row row-cards mt-3">
                 <div class="col-sm-6 col-lg-3">
                     <div class="card">
@@ -79,8 +116,65 @@
                 </div>
             </div>
 
-            {{-- ============ TASDIQLANMAGAN TO'LOVLAR (CHECKBOX BILAN) ============ --}}
-            @if($pendingPayments->isNotEmpty())
+            {{-- ============ ADMIN: KOMPANIYA BO'YICHA STATISTIKA ============ --}}
+            @if(auth()->user()->hasRole('admin') && $selectedCompanyId === 'all' && $companyStats->isNotEmpty())
+                <div class="card mt-3">
+                    <div class="card-header">
+                        <h3 class="card-title">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 3v18h18"></path><path d="m19 9-5 5-4-4-3 3"></path></svg>
+                            Kompaniyalar bo'yicha statistika
+                        </h3>
+                    </div>
+                    <div class="card-body">
+                        <div class="table-responsive">
+                            <table class="table table-vcenter card-table">
+                                <thead>
+                                <tr>
+                                    <th>Kompaniya</th>
+                                    <th>Jami</th>
+                                    <th>Tasdiqlangan</th>
+                                    <th>Kutilmoqda</th>
+                                    <th>Foiz</th>
+                                </tr>
+                                </thead>
+                                <tbody>
+                                @foreach($companyStats as $stat)
+                                    @if($stat['company'])
+                                        <tr>
+                                            <td>
+                                                <strong>{{ $stat['company']->name }}</strong>
+                                            </td>
+                                            <td>
+                                                {{ $stat['total_count'] }} ta<br>
+                                                <small class="text-muted">{{ number_format($stat['total_amount'], 0, '.', ' ') }} UZS</small>
+                                            </td>
+                                            <td>
+                                                <span class="badge bg-success">{{ $stat['confirmed_count'] }} ta</span><br>
+                                                <small class="text-muted">{{ number_format($stat['confirmed_amount'], 0, '.', ' ') }} UZS</small>
+                                            </td>
+                                            <td>
+                                                <span class="badge bg-warning">{{ $stat['pending_count'] }} ta</span><br>
+                                                <small class="text-muted">{{ number_format($stat['pending_amount'], 0, '.', ' ') }} UZS</small>
+                                            </td>
+                                            <td>
+                                                @if($stat['total_count'] > 0)
+                                                    <strong>{{ round(($stat['confirmed_count'] / $stat['total_count']) * 100) }}%</strong>
+                                                @else
+                                                    0%
+                                                @endif
+                                            </td>
+                                        </tr>
+                                    @endif
+                                @endforeach
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            @endif
+
+            {{-- ============ TASDIQLANMAGAN TO'LOVLAR ============ --}}
+            @if($pendingPayments->isNotEmpty() && auth()->user()->hasRole('company_owner'))
                 <div class="card mt-3">
                     <div class="card-header bg-warning-lt">
                         <h3 class="card-title">
@@ -155,13 +249,16 @@
                     @if($payments->isEmpty())
                         <div class="empty">
                             <p class="empty-title">To'lovlar topilmadi</p>
-                            <p class="empty-subtitle text-muted">Tanlangan sana uchun to'lovlar mavjud emas.</p>
+                            <p class="empty-subtitle text-muted">Tanlangan sana va kompaniya uchun to'lovlar mavjud emas.</p>
                         </div>
                     @else
                         <div class="table-responsive">
                             <table class="table table-vcenter card-table">
                                 <thead>
                                 <tr>
+                                    @if(auth()->user()->hasRole('admin'))
+                                        <th>Kompaniya</th>
+                                    @endif
                                     <th>Mijoz</th>
                                     <th>Summa</th>
                                     <th>To'lov usuli</th>
@@ -173,6 +270,13 @@
                                 <tbody>
                                 @foreach($payments as $payment)
                                     <tr class="{{ !$payment->confirmed ? 'bg-yellow-lt' : '' }}">
+                                        @if(auth()->user()->hasRole('admin'))
+                                            <td>
+                                                <span class="badge badge-outline text-blue">
+                                                    {{ $payment->customer->company->name ?? 'N/A' }}
+                                                </span>
+                                            </td>
+                                        @endif
                                         <td>
                                             <a href="{{ route('customers.show', $payment->customer) }}">
                                                 {{ $payment->customer->name }}<br>

@@ -96,7 +96,8 @@ Route::middleware('auth')->group(function () {
     // ✅ Kunlik hisobot (faqat direktor)
     Route::get('daily-reports', [DailyReportController::class, 'index'])
         ->name('daily-reports.index')
-        ->middleware('role:company_owner');
+        ->middleware('role:admin,company_owner');
+
     Route::middleware('can:water_meters')->group(function () {
         Route::resource('water_meters', WaterMeterController::class);
     });
