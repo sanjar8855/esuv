@@ -279,7 +279,16 @@ class CustomerController extends Controller
                 $query->latest()->limit(10);
             },
             'payments' => function($query) {
-                $query->with('confirmedBy')->latest()->limit(20);
+                $query->latest()->limit(20);
+
+                // ✅ Faqat ustun mavjud bo'lsa yuklash
+                if (\Schema::hasColumn('payments', 'confirmed_by')) {
+                    $query->with('confirmedBy');
+                }
+
+                if (\Schema::hasColumn('payments', 'created_by')) {
+                    $query->with('createdBy');
+                }
             },
             'telegramAccounts'
         ]);

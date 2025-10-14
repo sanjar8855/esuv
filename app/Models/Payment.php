@@ -6,13 +6,12 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Carbon;
-//use App\Traits\RecordUserStamps;
-//use App\Traits\TracksUser;
+use App\Traits\RecordUserStamps;
+use App\Traits\TracksUser;
 
 class Payment extends Model
 {
-//    use HasFactory, RecordUserStamps, TracksUser;
-    use HasFactory;
+    use HasFactory, RecordUserStamps, TracksUser;
 
     protected $fillable = [
         'customer_id',
@@ -24,8 +23,6 @@ class Payment extends Model
         'confirmed',
         'confirmed_by',
         'confirmed_at',
-        'created_by',
-        'updated_by',
     ];
 
     protected $casts = [
@@ -36,7 +33,6 @@ class Payment extends Model
 
     protected static function booted()
     {
-        // ✅ Global Scope
         static::addGlobalScope(new class implements \Illuminate\Database\Eloquent\Scope {
             public function apply($builder, $model)
             {
@@ -50,7 +46,7 @@ class Payment extends Model
     }
 
     /**
-     * ✅ Relationlar
+     * ✅ RELATIONLAR
      */
     public function customer()
     {
@@ -62,13 +58,26 @@ class Payment extends Model
         return $this->belongsTo(Invoice::class);
     }
 
+    // ✅ QO'SHILDI: Kim tasdiqlagan
     public function confirmedBy()
     {
         return $this->belongsTo(User::class, 'confirmed_by');
     }
 
+    // ✅ QO'SHILDI: Kim yaratgan
+    public function createdBy()
+    {
+        return $this->belongsTo(User::class, 'created_by');
+    }
+
+    // ✅ QO'SHILDI: Kim yangilagan
+    public function updatedBy()
+    {
+        return $this->belongsTo(User::class, 'updated_by');
+    }
+
     /**
-     * ✅ Scopes
+     * ✅ SCOPES
      */
     public function scopeConfirmed($query)
     {
@@ -85,13 +94,8 @@ class Payment extends Model
         return $query->whereDate('payment_date', today());
     }
 
-    public function scopeForDateRange($query, $startDate, $endDate)
-    {
-        return $query->whereBetween('payment_date', [$startDate, $endDate]);
-    }
-
     /**
-     * ✅ Accessors
+     * ✅ ACCESSORS
      */
     public function getPaymentMethodNameAttribute()
     {
