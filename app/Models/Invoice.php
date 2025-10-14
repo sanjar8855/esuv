@@ -5,13 +5,12 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use App\Traits\RecordUserStamps;
-use App\Traits\TracksUser;
 use Illuminate\Support\Facades\DB;
 use App\Models\Scopes\CompanyScope;
 
 class Invoice extends Model
 {
-    use HasFactory, RecordUserStamps, TracksUser;
+    use HasFactory, RecordUserStamps;
 
     protected $fillable = ['customer_id', 'tariff_id', 'invoice_number', 'billing_period', 'amount_due', 'due_date', 'status'];
 
@@ -73,18 +72,5 @@ class Invoice extends Model
     public function payments()
     {
         return $this->hasMany(Payment::class);
-    }
-
-    public function createdBy()
-    {
-        return $this->belongsTo(User::class, 'created_by');
-    }
-
-    /**
-     * ✅ Relation: Kim yangilagan
-     */
-    public function updatedBy()
-    {
-        return $this->belongsTo(User::class, 'updated_by');
     }
 }

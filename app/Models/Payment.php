@@ -5,13 +5,11 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
-use Illuminate\Support\Carbon;
 use App\Traits\RecordUserStamps;
-use App\Traits\TracksUser;
 
 class Payment extends Model
 {
-    use HasFactory, RecordUserStamps, TracksUser;
+    use HasFactory, RecordUserStamps;  // ✅ Faqat bitta trait
 
     protected $fillable = [
         'customer_id',
@@ -31,6 +29,9 @@ class Payment extends Model
         'confirmed_at' => 'datetime',
     ];
 
+    /**
+     * ✅ GLOBAL SCOPE: Faqat o'z kompaniyasining to'lovlarini ko'rish
+     */
     protected static function booted()
     {
         static::addGlobalScope(new class implements \Illuminate\Database\Eloquent\Scope {
@@ -46,7 +47,7 @@ class Payment extends Model
     }
 
     /**
-     * ✅ RELATIONLAR - TO'G'IRLANDI!
+     * ✅ RELATIONSHIPS
      */
     public function customer()
     {
@@ -58,23 +59,14 @@ class Payment extends Model
         return $this->belongsTo(Invoice::class);
     }
 
-    // ✅ TO'G'RILANDI: Bazadagi ustun nomiga mos keladi
+    // ✅ Kim tasdiqlagan (bu alohida, RecordUserStamps'dan tashqari)
     public function confirmedBy()
     {
         return $this->belongsTo(User::class, 'confirmed_by');
     }
 
-    // ✅ TO'G'RILANDI: 'created_by' emas, 'created_by_user_id'
-    public function createdBy()
-    {
-        return $this->belongsTo(User::class, 'created_by_user_id');
-    }
-
-    // ✅ TO'G'RILANDI: 'updated_by' emas, 'updated_by_user_id'
-    public function updatedBy()
-    {
-        return $this->belongsTo(User::class, 'updated_by_user_id');
-    }
+    // ✅ createdBy va updatedBy - RecordUserStamps traitida!
+    // Bu yerda yozmaslik kerak, chunki traitda bor
 
     /**
      * ✅ SCOPES
@@ -113,10 +105,22 @@ class Payment extends Model
         return number_format($this->amount, 0, '.', ' ') . ' UZS';
     }
 
-    // ✅ YANGI: To'liq sana va vaqtni formatlash
-    public function getFormattedPaymentDateAttribute()
+    // ✅ To'lov vaqti (created_at'dan)
+    public function getPaymentTimeAttribute()
     {
-        // payment_date faqat sana, lekin created_at dan vaqtni olamiz
-        return $this->created_at->format('d.m.Y H:i:s');
+        return $this->created_at->format('d.m.Y H:i');
     }
 }
+
+/*
+📌 MUHIM:
+1. ❌ TracksUser traitini olib tashladik
+2. ✅ Faqat RecordUserStamps ishlatamiz
+3. ✅ createdBy() va updatedBy() metodlarini bu yerda yozmaslik kerak
+4. ✅ Ular RecordUserStamps traitida avtomatik qo'shiladi
+
+📌 BARCHA BOSHQA MODELLARDA HAM SHUNDAY:
+- use RecordUserStamps; qo'shing
+- TracksUser traitini olib tashlang
+- createdBy() va updatedBy() metodlarini o'chiring
+*/

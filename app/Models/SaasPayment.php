@@ -5,11 +5,10 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use App\Traits\RecordUserStamps;
-use App\Traits\TracksUser;
 
 class SaasPayment extends Model
 {
-    use HasFactory, RecordUserStamps, TracksUser;
+    use HasFactory, RecordUserStamps;
 
     protected $fillable = [
         'company_id',

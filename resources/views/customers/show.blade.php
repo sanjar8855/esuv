@@ -332,7 +332,7 @@
                                             <th style="width: 15%;">Sana va Vaqt</th>
                                             <th style="width: 18%;">Summa</th>
                                             <th style="width: 15%;">Usul</th>
-                                            {{-- ❌ "Holat" ustuni OLIB TASHLANDI --}}
+                                            {{-- ❌ "Holat" ustuni BUTUNLAY OLIB TASHLANDI --}}
                                             @if($isCompanyOwner)
                                                 <th style="width: 18%;">Kim yaratgan</th>
                                                 <th style="width: 24%;">Tasdiqlangan</th>
@@ -345,7 +345,7 @@
                                             {{-- ✅ Tasdiqlanmagan to'lovlarni yorqin ko'rsatish --}}
                                             <tr class="{{ !$payment->confirmed ? 'bg-yellow-lt' : '' }}">
                                                 <td>
-                                                    {{-- ✅ TO'LIQ SANA VA VAQT --}}
+                                                    {{-- ✅ TO'LIQ SANA VA VAQT (created_at dan) --}}
                                                     <span class="text-muted">{{ $payment->created_at->format('d.m.Y H:i') }}</span>
                                                 </td>
                                                 <td>
@@ -357,7 +357,7 @@
                                                 {{-- ❌ "Holat" ustuni BUTUNLAY OLIB TASHLANDI --}}
                                                 @if($isCompanyOwner)
                                                     <td>
-                                                        {{-- ✅ TO'G'RILANDI: createdBy relationsiga mos keladi --}}
+                                                        {{-- ✅ ENDI TO'G'RI ISHLAYDI: created_by ustuni bilan --}}
                                                         <span class="text-muted">
                                         {{ optional($payment->createdBy)->name ?? 'Noma\'lum' }}
                                     </span>
@@ -398,6 +398,44 @@
                             @endif
                         </div>
                     </div>
+
+                    {{-- ✅ PAGINATION --}}
+                    <div class="mt-3">
+                        {{ $payments->appends(request()->except('payment_page'))->links() }}
+                    </div>
+
+                    {{-- ✅ TO'LOV QABUL QILISH FORMASI --}}
+                    <h3>To'lov qabul qilish</h3>
+                    <form action="{{ route('payments.store') }}" method="POST" class="mb-3">
+                        @csrf
+                        <input type="hidden" name="customer_id" value="{{ $customer->id }}">
+                        <input type="hidden" name="redirect_back" value="1">
+
+                        <div class="mb-3">
+                            <label for="amount">To'lov summasi:</label>
+                            <input type="number" name="amount" class="form-control" required>
+                        </div>
+
+                        <div class="mb-3">
+                            <label for="payment_method">To'lov usuli:</label>
+                            <select name="payment_method" class="form-control">
+                                <option value="cash">Naqd</option>
+                                <option value="card">Karta</option>
+                                <option value="transfer">Bank o'tkazmasi</option>
+                            </select>
+                        </div>
+
+                        <button type="submit" class="btn btn-success">To'lovni kiritish</button>
+                    </form>
+
+                    {{--
+                    📌 STANDARTLASHTIRILGAN KOD:
+                    ✅ Endi created_by ustuni ishlatiladi
+                    ✅ Vaqt to'liq ko'rsatiladi (created_at dan)
+                    ✅ "Holat" ustuni olib tashlandi
+                    ✅ Ikonkalar olib tashlandi
+                    ✅ Jadval ixchamroq (table-sm)
+                    --}}
 
                     {{-- ✅ PAGINATION --}}
                     <div class="mt-3">

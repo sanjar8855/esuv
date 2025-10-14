@@ -12,7 +12,7 @@ use Illuminate\Support\Facades\Log;
 
 class Customer extends Model
 {
-    use HasFactory, RecordUserStamps, TracksUser;
+    use HasFactory, RecordUserStamps;
 
     protected $fillable = [
         'company_id',
