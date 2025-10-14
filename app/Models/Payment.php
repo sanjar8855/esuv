@@ -21,15 +21,17 @@ class Payment extends Model
         'payment_date',
         'payment_method',
         'status',
-        'confirmed',         // ✅ Qo'shildi
-        'confirmed_by',      // ✅ Qo'shildi
-        'confirmed_at',      // ✅ Qo'shildi
+        'confirmed',
+        'confirmed_by',
+        'confirmed_at',
+        'created_by',
+        'updated_by',
     ];
 
     protected $casts = [
         'payment_date' => 'date',
-        'confirmed' => 'boolean',          // ✅ Qo'shildi
-        'confirmed_at' => 'datetime',      // ✅ Qo'shildi
+        'confirmed' => 'boolean',
+        'confirmed_at' => 'datetime',
     ];
 
     protected static function booted()
