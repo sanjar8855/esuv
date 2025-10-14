@@ -175,18 +175,18 @@ class Customer extends Model
             ->whereIn('status', ['pending', 'unpaid', 'overdue'])
             ->sum('amount_due');
 
+        // ✅ FAQAT tasdiqlangan to'lovlar
         $totalPaid = $this->payments()
-            ->where('status', 'completed')
+            ->where('confirmed', true)  // ✅ Qo'shildi
             ->sum('amount');
 
         $newBalance = $totalPaid - $totalDue;
 
-        // ✅ Faqat o'zgarganda saqlash
         if ($this->balance != $newBalance) {
             $this->balance = $newBalance;
-            $this->saveQuietly(); // ✅ Observer siz
+            $this->saveQuietly();
 
-            Log::info('Customer balance updated', [
+            \Log::info('Customer balance updated', [
                 'customer_id' => $this->id,
                 'new_balance' => $newBalance
             ]);

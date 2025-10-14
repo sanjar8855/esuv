@@ -1,4 +1,5 @@
 <?php
+// app/Models/Payment.php
 
 namespace App\Models;
 
@@ -7,17 +8,32 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Carbon;
 use App\Traits\RecordUserStamps;
 use App\Traits\TracksUser;
-use App\Models\Scopes\CompanyScope;
 
 class Payment extends Model
 {
     use HasFactory, RecordUserStamps, TracksUser;
 
-    protected $fillable = ['customer_id', 'invoice_id', 'amount', 'payment_date', 'payment_method', 'status'];
+    protected $fillable = [
+        'customer_id',
+        'invoice_id',
+        'amount',
+        'payment_date',
+        'payment_method',
+        'status',
+        'confirmed',         // ✅ Qo'shildi
+        'confirmed_by',      // ✅ Qo'shildi
+        'confirmed_at',      // ✅ Qo'shildi
+    ];
+
+    protected $casts = [
+        'payment_date' => 'date',
+        'confirmed' => 'boolean',          // ✅ Qo'shildi
+        'confirmed_at' => 'datetime',      // ✅ Qo'shildi
+    ];
 
     protected static function booted()
     {
-        // ✅ Global Scope (payment.customer.company_id orqali)
+        // ✅ Global Scope
         static::addGlobalScope(new class implements \Illuminate\Database\Eloquent\Scope {
             public function apply($builder, $model)
             {
@@ -30,13 +46,9 @@ class Payment extends Model
         });
     }
 
-    protected $dates = ['payment_date'];
-
-    public function getPaymentDateAttribute($value)
-    {
-        return Carbon::parse($value);
-    }
-
+    /**
+     * ✅ Relationlar
+     */
     public function customer()
     {
         return $this->belongsTo(Customer::class);
@@ -45,5 +57,52 @@ class Payment extends Model
     public function invoice()
     {
         return $this->belongsTo(Invoice::class);
+    }
+
+    public function confirmedBy()
+    {
+        return $this->belongsTo(User::class, 'confirmed_by');
+    }
+
+    /**
+     * ✅ Scopes
+     */
+    public function scopeConfirmed($query)
+    {
+        return $query->where('confirmed', true);
+    }
+
+    public function scopePending($query)
+    {
+        return $query->where('confirmed', false);
+    }
+
+    public function scopeToday($query)
+    {
+        return $query->whereDate('payment_date', today());
+    }
+
+    public function scopeForDateRange($query, $startDate, $endDate)
+    {
+        return $query->whereBetween('payment_date', [$startDate, $endDate]);
+    }
+
+    /**
+     * ✅ Accessors
+     */
+    public function getPaymentMethodNameAttribute()
+    {
+        return match($this->payment_method) {
+            'cash' => 'Naqd pul',
+            'card' => 'Plastik karta',
+            'transfer' => 'Bank o\'tkazmasi',
+            'online' => 'Onlayn to\'lov',
+            default => 'Noma\'lum'
+        };
+    }
+
+    public function getFormattedAmountAttribute()
+    {
+        return number_format($this->amount, 0, '.', ' ') . ' UZS';
     }
 }

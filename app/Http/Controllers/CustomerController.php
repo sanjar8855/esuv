@@ -272,11 +272,19 @@ class CustomerController extends Controller
         $customer->load([
             'company',
             'street.neighborhood.city.region',
-            'telegramAccounts',
-            'createdBy',
-            'updatedBy',
-            'waterMeter',  // ✅ Qo'shildi
+            'waterMeter.readings' => function($query) {
+                $query->latest()->limit(10);
+            },
+            'invoices' => function($query) {
+                $query->latest()->limit(10);
+            },
+            'payments' => function($query) {
+                $query->with('confirmedBy')->latest()->limit(20);
+            },
+            'telegramAccounts'
         ]);
+
+        $isCompanyOwner = auth()->user()->hasRole('company_owner');
 
         $readings = $customer->waterMeter
             ? $customer->waterMeter->readings()
@@ -309,7 +317,8 @@ class CustomerController extends Controller
             'readings',
             'invoices',
             'payments',
-            'activeTariffs'
+            'activeTariffs',
+            'isCompanyOwner'
         ));
     }
 

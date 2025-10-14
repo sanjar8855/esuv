@@ -21,6 +21,7 @@ use App\Http\Controllers\NotificationController;
 use Telegram\Bot\Laravel\Facades\Telegram;
 use App\Http\Controllers\SubscriberController;
 use App\Http\Controllers\SaasPaymentController;
+use App\Http\Controllers\DailyReportController;
 
 Route::post('/subscribe', [SubscriberController::class, 'store'])->name('subscribe.store');
 
@@ -83,6 +84,19 @@ Route::middleware('auth')->group(function () {
     Route::middleware('can:payments')->group(function () {
         Route::resource('payments', PaymentController::class);
     });
+    Route::patch('payments/{payment}/confirm', [PaymentController::class, 'confirm'])
+        ->name('payments.confirm')
+        ->middleware('role:company_owner');
+
+    // Ko'plab to'lovlarni tasdiqlash
+    Route::post('payments/confirm-multiple', [PaymentController::class, 'confirmMultiple'])
+        ->name('payments.confirm-multiple')
+        ->middleware('role:company_owner');
+
+    // ✅ Kunlik hisobot (faqat direktor)
+    Route::get('daily-reports', [DailyReportController::class, 'index'])
+        ->name('daily-reports.index')
+        ->middleware('role:company_owner');
     Route::middleware('can:water_meters')->group(function () {
         Route::resource('water_meters', WaterMeterController::class);
     });

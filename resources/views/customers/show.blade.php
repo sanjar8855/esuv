@@ -304,50 +304,92 @@
                 </div>
 
                 <div class="col-md-6 col-lg-4">
-                    <h3>To‘lovlar Tarixi</h3>
-                    <ul class="list-group">
-                        @foreach($payments as $payment)
-                            <li class="list-group-item">
-                                <strong>To‘lov: {{ number_format($payment->amount, 0, '.', ' ') }} UZS</strong><br>
-                                <small>
-                                    Usul:
-                                    @switch($payment->payment_method)
-                                        @case('cash')
-                                            Naqd pul
-                                            @break
-                                        @case('card')
-                                            Plastik orqali
-                                            @break
-                                        @case('transfer')
-                                            Bank orqali
-                                            @break
-                                        @default
-                                            Noaniq
-                                    @endswitch
-                                </small><br>
-                                <small>Sana: {{ $payment->created_at }}</small><br>
-                                <small>Status:
-                                    @switch($payment->status)
-                                        @case('completed')
-                                            To'langan
-                                            @break
-                                        @case('failed')
-                                            Xatolik
-                                            @break
-                                        @case('pending')
-                                            To'lanmoqda
-                                            @break
-                                        @default
-                                            Noaniq
-                                    @endswitch
-                                </small>
-                                <a href="{{ route('payments.show', $payment->id) }}"
-                                   class="badge badge-outline text-blue">
-                                    Batafsil
-                                </a>
-                            </li>
-                        @endforeach
-                    </ul>
+                    <div class="card mt-3">
+                        <div class="card-header">
+                            <h3 class="card-title">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="1" y="4" width="22" height="16" rx="2" ry="2"></rect><line x1="1" y1="10" x2="23" y2="10"></line></svg>
+                                To'lovlar tarixi
+                            </h3>
+                        </div>
+                        <div class="card-body">
+                            @if($customer->payments->isEmpty())
+                                <div class="empty">
+                                    <p class="empty-title">To'lovlar mavjud emas</p>
+                                    <p class="empty-subtitle text-muted">Hozircha hech qanday to'lov qilinmagan.</p>
+                                </div>
+                            @else
+                                <div class="table-responsive">
+                                    <table class="table table-vcenter card-table">
+                                        <thead>
+                                        <tr>
+                                            <th>Sana</th>
+                                            <th>Summa</th>
+                                            <th>To'lov usuli</th>
+                                            <th>Holat</th>
+                                            @if($isCompanyOwner)
+                                                <th>Kim yaratgan</th>
+                                                <th>Tasdiqlangan</th>
+                                                <th class="w-1">Amallar</th>
+                                            @endif
+                                        </tr>
+                                        </thead>
+                                        <tbody>
+                                        @foreach($customer->payments as $payment)
+                                            <tr class="{{ !$payment->confirmed ? 'bg-yellow-lt' : '' }}">
+                                                <td>
+                                                    <span class="text-muted">{{ $payment->payment_date->format('d.m.Y') }}</span>
+                                                </td>
+                                                <td>
+                                                    <strong>{{ number_format($payment->amount, 0, '.', ' ') }} UZS</strong>
+                                                </td>
+                                                <td>
+                                                    {{ $payment->payment_method_name }}
+                                                </td>
+                                                <td>
+                                                    @if($payment->confirmed)
+                                                        <span class="badge bg-success">✅ Tasdiqlangan</span>
+                                                    @else
+                                                        <span class="badge bg-warning">⏳ Kutilmoqda</span>
+                                                    @endif
+                                                </td>
+                                                @if($$isCompanyOwner)
+                                                    <td>
+                                                        <span class="text-muted">{{ $payment->createdBy->name ?? 'Noma\'lum' }}</span>
+                                                    </td>
+                                                    <td>
+                                                        @if($payment->confirmed)
+                                                            <span class="text-success">
+                                                        ✅ {{ $payment->confirmedBy->name ?? 'Admin' }}<br>
+                                                        <small class="text-muted">{{ $payment->confirmed_at->format('d.m.Y H:i') }}</small>
+                                                    </span>
+                                                        @else
+                                                            <span class="text-warning">⏳ Tasdiqlanmagan</span>
+                                                        @endif
+                                                    </td>
+                                                    <td>
+                                                        @if(!$payment->confirmed)
+                                                            <form action="{{ route('payments.confirm', $payment) }}" method="POST" style="display:inline;">
+                                                                @csrf
+                                                                @method('PATCH')
+                                                                <button type="submit" class="btn btn-sm btn-success"
+                                                                        onclick="return confirm('To\'lovni tasdiqlaysizmi?')">
+                                                                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"></polyline></svg>
+                                                                    Tasdiqlash
+                                                                </button>
+                                                            </form>
+                                                        @else
+                                                            <span class="text-muted">—</span>
+                                                        @endif
+                                                    </td>
+                                                @endif
+                                            </tr>
+                                        @endforeach
+                                        </tbody>
+                                    </table>
+                                </div>
+                            @endif
+                        </div>
+                    </div>
                     <div class="mt-3">
                         {{ $payments->appends(request()->except('payment_page'))->links() }}
 

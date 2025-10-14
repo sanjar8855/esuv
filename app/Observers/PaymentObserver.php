@@ -1,4 +1,5 @@
 <?php
+// app/Observers/PaymentObserver.php
 
 namespace App\Observers;
 
@@ -19,13 +20,15 @@ class PaymentObserver
         // ✅ Eager loading
         $payment->loadMissing('customer.telegramAccounts');
 
-        // ✅ Notification yuborish
-        if ($payment->customer && $payment->customer->telegramAccounts->isNotEmpty()) {
+        // ✅ Notification (faqat tasdiqlangan to'lovlar uchun)
+        if ($payment->confirmed && $payment->customer && $payment->customer->telegramAccounts->isNotEmpty()) {
             SendPaymentNotificationJob::dispatch($payment);
         }
 
-        // ✅ Balance yangilash
-        $this->updateCustomerBalance($payment);
+        // ✅ Balance yangilash (faqat tasdiqlangan to'lovlar)
+        if ($payment->confirmed) {
+            $this->updateCustomerBalance($payment);
+        }
     }
 
     /**
@@ -38,19 +41,21 @@ class PaymentObserver
             'changes' => $payment->getChanges()
         ]);
 
-        // ✅ Faqat amount yoki status o'zgarganda balance yangilash
-        if ($payment->wasChanged(['amount', 'status'])) {
+        // ✅ Agar confirmed true ga o'zgardi
+        if ($payment->wasChanged('confirmed') && $payment->confirmed) {
+            // Balance yangilash
             $this->updateCustomerBalance($payment);
+
+            // Notification yuborish
+            $payment->loadMissing('customer.telegramAccounts');
+            if ($payment->customer && $payment->customer->telegramAccounts->isNotEmpty()) {
+                SendPaymentNotificationJob::dispatch($payment);
+            }
         }
 
-        // ✅ Status o'zgarganda notification (ixtiyoriy)
-        if ($payment->wasChanged('status')) {
-            $payment->loadMissing('customer.telegramAccounts');
-
-            if ($payment->customer && $payment->customer->telegramAccounts->isNotEmpty()) {
-                // TODO: Status o'zgarishi haqida alohida notification
-                // SendPaymentStatusChangedJob::dispatch($payment);
-            }
+        // ✅ Agar amount o'zgarsa va tasdiqlangan bo'lsa
+        if ($payment->wasChanged('amount') && $payment->confirmed) {
+            $this->updateCustomerBalance($payment);
         }
     }
 
@@ -61,12 +66,14 @@ class PaymentObserver
     {
         Log::info('Payment deleted', ['payment_id' => $payment->id]);
 
-        // ✅ Balance yangilash
-        $this->updateCustomerBalance($payment);
+        // ✅ Faqat tasdiqlangan to'lovlar balansni o'zgartiradi
+        if ($payment->confirmed) {
+            $this->updateCustomerBalance($payment);
+        }
     }
 
     /**
-     * ✅ Helper metod - cheksiz loop oldini olish
+     * ✅ Helper metod
      */
     protected function updateCustomerBalance(Payment $payment): void
     {
@@ -84,12 +91,12 @@ class PaymentObserver
             return;
         }
 
-        // ✅ Observer ni vaqtincha o'chirish (cheksiz loop oldini olish)
+        // ✅ Observer siz
         Customer::withoutEvents(function () use ($customer) {
             $customer->updateBalance();
         });
 
-        Log::info('Balance updated for customer', [
+        Log::info('Customer balance updated', [
             'customer_id' => $customer->id,
             'new_balance' => $customer->balance
         ]);
