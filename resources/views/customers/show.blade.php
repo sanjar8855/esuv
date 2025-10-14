@@ -324,28 +324,29 @@
                                 </div>
                             @else
                                 <div class="table-responsive">
-                                    {{-- ✅ JADVALNI IXCHAM QILISH: table-sm klassini qo'shdik --}}
+                                    {{-- ✅ JADVALNI IXCHAM QILISH --}}
                                     <table class="table table-sm table-vcenter card-table">
                                         <thead>
                                         <tr>
-                                            {{-- ✅ Ustunlar kengligini optimallashtirish --}}
-                                            <th style="width: 12%;">Sana</th>
+                                            {{-- ✅ Ustun kengliklarini optimallashtirish --}}
+                                            <th style="width: 15%;">Sana va Vaqt</th>
                                             <th style="width: 18%;">Summa</th>
                                             <th style="width: 15%;">Usul</th>
-                                            {{-- ❌ "Holat" ustuni BUTUNLAY OLIB TASHLANDI --}}
+                                            {{-- ❌ "Holat" ustuni OLIB TASHLANDI --}}
                                             @if($isCompanyOwner)
-                                                <th style="width: 20%;">Kim yaratgan</th>
-                                                <th style="width: 25%;">Tasdiqlangan</th>
+                                                <th style="width: 18%;">Kim yaratgan</th>
+                                                <th style="width: 24%;">Tasdiqlangan</th>
                                                 <th style="width: 10%;">Amallar</th>
                                             @endif
                                         </tr>
                                         </thead>
                                         <tbody>
                                         @foreach($customer->payments as $payment)
-                                            {{-- ✅ Tasdiqlanmagan to'lovlarni yorqin ko'rsatish saqlanadi --}}
+                                            {{-- ✅ Tasdiqlanmagan to'lovlarni yorqin ko'rsatish --}}
                                             <tr class="{{ !$payment->confirmed ? 'bg-yellow-lt' : '' }}">
                                                 <td>
-                                                    <span class="text-muted">{{ $payment->payment_date->format('d.m.Y') }}</span>
+                                                    {{-- ✅ TO'LIQ SANA VA VAQT --}}
+                                                    <span class="text-muted">{{ $payment->created_at->format('d.m.Y H:i') }}</span>
                                                 </td>
                                                 <td>
                                                     <strong>{{ number_format($payment->amount, 0, '.', ' ') }} UZS</strong>
@@ -356,17 +357,18 @@
                                                 {{-- ❌ "Holat" ustuni BUTUNLAY OLIB TASHLANDI --}}
                                                 @if($isCompanyOwner)
                                                     <td>
-                        <span class="text-muted">
-                            {{ optional($payment->createdBy)->name ?? 'Noma\'lum' }}
-                        </span>
+                                                        {{-- ✅ TO'G'RILANDI: createdBy relationsiga mos keladi --}}
+                                                        <span class="text-muted">
+                                        {{ optional($payment->createdBy)->name ?? 'Noma\'lum' }}
+                                    </span>
                                                     </td>
                                                     <td>
                                                         @if($payment->confirmed)
                                                             {{-- ✅ IKONKASIZ, FAQAT MATN --}}
                                                             <span class="text-success">
-                                {{ optional($payment->confirmedBy)->name ?? 'Admin' }}<br>
-                                <small class="text-muted">{{ $payment->confirmed_at->format('d.m.Y H:i') }}</small>
-                            </span>
+                                            {{ optional($payment->confirmedBy)->name ?? 'Admin' }}<br>
+                                            <small class="text-muted">{{ $payment->confirmed_at->format('d.m.Y H:i') }}</small>
+                                        </span>
                                                         @else
                                                             {{-- ✅ IKONKASIZ, FAQAT MATN --}}
                                                             <span class="text-warning">Tasdiqlanmagan</span>
@@ -374,7 +376,7 @@
                                                     </td>
                                                     <td>
                                                         @if(!$payment->confirmed)
-                                                            {{-- ✅ SVG IKONKA OLIB TASHLANDI, FAQAT MATN --}}
+                                                            {{-- ✅ SVG IKONKA OLIB TASHLANDI --}}
                                                             <form action="{{ route('payments.confirm', $payment) }}" method="POST" style="display:inline;">
                                                                 @csrf
                                                                 @method('PATCH')
@@ -396,6 +398,50 @@
                             @endif
                         </div>
                     </div>
+
+                    {{-- ✅ PAGINATION --}}
+                    <div class="mt-3">
+                        {{ $payments->appends(request()->except('payment_page'))->links() }}
+                    </div>
+
+                    {{-- ✅ TO'LOV QABUL QILISH FORMASI --}}
+                    <h3>To'lov qabul qilish</h3>
+                    <form action="{{ route('payments.store') }}" method="POST" class="mb-3">
+                        @csrf
+                        <input type="hidden" name="customer_id" value="{{ $customer->id }}">
+                        <input type="hidden" name="redirect_back" value="1">
+
+                        <div class="mb-3">
+                            <label for="amount">To'lov summasi:</label>
+                            <input type="number" name="amount" class="form-control" required>
+                        </div>
+
+                        <div class="mb-3">
+                            <label for="payment_method">To'lov usuli:</label>
+                            <select name="payment_method" class="form-control">
+                                <option value="cash">Naqd</option>
+                                <option value="card">Karta</option>
+                                <option value="transfer">Bank o'tkazmasi</option>
+                            </select>
+                        </div>
+
+                        <button type="submit" class="btn btn-success">To'lovni kiritish</button>
+                    </form>
+
+                    {{--
+                    📌 KELAJAKDA O'ZGARISH MUMKIN:
+                    1. Agar to'lov sanasida ham vaqt kerak bo'lsa (payment_date):
+                       - Migration orqali payment_date ni 'datetime' ga o'zgartirish
+                       - Model castingda 'datetime' qilish
+
+                    2. Agar "Holat" ustunini qayta ko'rmoqchi bo'lsa:
+                       - <th>Holat</th> qo'shish
+                       - Badge'lar bilan ko'rsatish (lekin ikonkasiz)
+
+                    3. Agar bazadagi ustun nomlarini o'zgartirmoqchi bo'lsangiz:
+                       - Migration yozib 'created_by_user_id' -> 'created_by' ga rename qilish
+                       - Lekin bu xavfli, mavjud ma'lumotlar yo'qolishi mumkin
+                    --}}
                     <div class="mt-3">
                         {{ $payments->appends(request()->except('payment_page'))->links() }}
 

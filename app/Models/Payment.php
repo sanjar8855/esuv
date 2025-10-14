@@ -46,7 +46,7 @@ class Payment extends Model
     }
 
     /**
-     * ✅ RELATIONLAR
+     * ✅ RELATIONLAR - TO'G'IRLANDI!
      */
     public function customer()
     {
@@ -58,22 +58,22 @@ class Payment extends Model
         return $this->belongsTo(Invoice::class);
     }
 
-    // ✅ QO'SHILDI: Kim tasdiqlagan
+    // ✅ TO'G'RILANDI: Bazadagi ustun nomiga mos keladi
     public function confirmedBy()
     {
         return $this->belongsTo(User::class, 'confirmed_by');
     }
 
-    // ✅ QO'SHILDI: Kim yaratgan
+    // ✅ TO'G'RILANDI: 'created_by' emas, 'created_by_user_id'
     public function createdBy()
     {
-        return $this->belongsTo(User::class, 'created_by');
+        return $this->belongsTo(User::class, 'created_by_user_id');
     }
 
-    // ✅ QO'SHILDI: Kim yangilagan
+    // ✅ TO'G'RILANDI: 'updated_by' emas, 'updated_by_user_id'
     public function updatedBy()
     {
-        return $this->belongsTo(User::class, 'updated_by');
+        return $this->belongsTo(User::class, 'updated_by_user_id');
     }
 
     /**
@@ -111,5 +111,12 @@ class Payment extends Model
     public function getFormattedAmountAttribute()
     {
         return number_format($this->amount, 0, '.', ' ') . ' UZS';
+    }
+
+    // ✅ YANGI: To'liq sana va vaqtni formatlash
+    public function getFormattedPaymentDateAttribute()
+    {
+        // payment_date faqat sana, lekin created_at dan vaqtni olamiz
+        return $this->created_at->format('d.m.Y H:i:s');
     }
 }
