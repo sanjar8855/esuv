@@ -6,12 +6,13 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Carbon;
-use App\Traits\RecordUserStamps;
-use App\Traits\TracksUser;
+//use App\Traits\RecordUserStamps;
+//use App\Traits\TracksUser;
 
 class Payment extends Model
 {
-    use HasFactory, RecordUserStamps, TracksUser;
+//    use HasFactory, RecordUserStamps, TracksUser;
+    use HasFactory;
 
     protected $fillable = [
         'customer_id',
