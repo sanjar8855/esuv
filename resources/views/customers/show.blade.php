@@ -427,84 +427,9 @@
 
                         <button type="submit" class="btn btn-success">To'lovni kiritish</button>
                     </form>
-
-                    {{--
-                    📌 STANDARTLASHTIRILGAN KOD:
-                    ✅ Endi created_by ustuni ishlatiladi
-                    ✅ Vaqt to'liq ko'rsatiladi (created_at dan)
-                    ✅ "Holat" ustuni olib tashlandi
-                    ✅ Ikonkalar olib tashlandi
-                    ✅ Jadval ixchamroq (table-sm)
-                    --}}
-
                     {{-- ✅ PAGINATION --}}
                     <div class="mt-3">
                         {{ $payments->appends(request()->except('payment_page'))->links() }}
-                    </div>
-
-                    {{-- ✅ TO'LOV QABUL QILISH FORMASI --}}
-                    <h3>To'lov qabul qilish</h3>
-                    <form action="{{ route('payments.store') }}" method="POST" class="mb-3">
-                        @csrf
-                        <input type="hidden" name="customer_id" value="{{ $customer->id }}">
-                        <input type="hidden" name="redirect_back" value="1">
-
-                        <div class="mb-3">
-                            <label for="amount">To'lov summasi:</label>
-                            <input type="number" name="amount" class="form-control" required>
-                        </div>
-
-                        <div class="mb-3">
-                            <label for="payment_method">To'lov usuli:</label>
-                            <select name="payment_method" class="form-control">
-                                <option value="cash">Naqd</option>
-                                <option value="card">Karta</option>
-                                <option value="transfer">Bank o'tkazmasi</option>
-                            </select>
-                        </div>
-
-                        <button type="submit" class="btn btn-success">To'lovni kiritish</button>
-                    </form>
-
-                    {{--
-                    📌 KELAJAKDA O'ZGARISH MUMKIN:
-                    1. Agar to'lov sanasida ham vaqt kerak bo'lsa (payment_date):
-                       - Migration orqali payment_date ni 'datetime' ga o'zgartirish
-                       - Model castingda 'datetime' qilish
-
-                    2. Agar "Holat" ustunini qayta ko'rmoqchi bo'lsa:
-                       - <th>Holat</th> qo'shish
-                       - Badge'lar bilan ko'rsatish (lekin ikonkasiz)
-
-                    3. Agar bazadagi ustun nomlarini o'zgartirmoqchi bo'lsangiz:
-                       - Migration yozib 'created_by_user_id' -> 'created_by' ga rename qilish
-                       - Lekin bu xavfli, mavjud ma'lumotlar yo'qolishi mumkin
-                    --}}
-                    <div class="mt-3">
-                        {{ $payments->appends(request()->except('payment_page'))->links() }}
-
-                        <h3>To‘lov qabul qilish</h3>
-                        <form action="{{ route('payments.store') }}" method="POST" class="mb-3">
-                            @csrf
-                            <input type="hidden" name="customer_id" value="{{ $customer->id }}">
-                            <input type="hidden" name="redirect_back" value="1">
-
-                            <div class="mb-3">
-                                <label for="amount">To‘lov summasi:</label>
-                                <input type="number" name="amount" class="form-control" required>
-                            </div>
-
-                            <div class="mb-3">
-                                <label for="payment_method">To‘lov usuli:</label>
-                                <select name="payment_method" class="form-control">
-                                    <option value="cash">Naqd</option>
-                                    <option value="card">Karta</option>
-                                    <option value="transfer">Bank o'tkazmasi</option>
-                                </select>
-                            </div>
-
-                            <button type="submit" class="btn btn-success">To‘lovni kiritish</button>
-                        </form>
                     </div>
                 </div>
             </div>
