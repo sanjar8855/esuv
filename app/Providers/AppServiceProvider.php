@@ -25,5 +25,9 @@ class AppServiceProvider extends ServiceProvider
 
         Paginator::useBootstrap();
 
+        // ✅ Observer registratsiyasi
+        \App\Models\Invoice::observe(\App\Observers\InvoiceObserver::class);
+        \App\Models\Payment::observe(\App\Observers\PaymentObserver::class);
+        \App\Models\MeterReading::observe(\App\Observers\MeterReadingObserver::class);
     }
 }

@@ -245,7 +245,7 @@ class CustomerController extends Controller
         // ✅ Hisoblagich yaratish (agar bor bo'lsa)
         if ($hasWaterMeter) {
             $installationDate = Carbon::now();
-            $validityPeriod = 8;
+            $validityPeriod = config('water_meter.default_validity_period', 8);
 
             $waterMeter = WaterMeter::create([
                 'customer_id' => $customer->id,
@@ -501,20 +501,20 @@ class CustomerController extends Controller
     }
 
     /**
-     * ✅ Umumiy import logikasi
+     * ✅ Umumiy import logikasi (YAXSHILANDI: Partial success)
      */
     private function processImport(Request $request, bool $hasWaterMeter)
     {
         // Validatsiya
+        $maxFileSize = config('water_meter.import_max_file_size', 10) * 1024; // KB ga o'tkazish
         $request->validate([
-            'excel_file' => 'required|file|mimes:xlsx,xls,csv|max:10240'  // 10MB
+            'excel_file' => "required|file|mimes:xlsx,xls,csv|max:{$maxFileSize}"
         ]);
 
         $file = $request->file('excel_file');
         $importErrors = [];
         $successCount = 0;
-
-        DB::beginTransaction();
+        $failedRows = [];
 
         try {
             $rows = Excel::toCollection(new BasicExcelImport, $file)->first();
@@ -527,46 +527,74 @@ class CustomerController extends Controller
                 $rowNumber = $index + 2;  // Excel da 1-qator sarlavha, 2-qatordan boshlanadi
 
                 try {
+                    // ✅ Har bir qator uchun alohida transaction
+                    DB::beginTransaction();
+
                     if ($hasWaterMeter) {
                         $this->importCustomerWithMeter($row->toArray(), $rowNumber);
                     } else {
                         $this->importCustomerNoMeter($row->toArray(), $rowNumber);
                     }
+
+                    DB::commit();
                     $successCount++;
+
                 } catch (\Illuminate\Validation\ValidationException $e) {
-                    foreach ($e->errors() as $field => $errors) {
-                        foreach ($errors as $error) {
-                            $importErrors[] = "Qator {$rowNumber}: {$error}";
+                    DB::rollBack();
+                    $errors = [];
+                    foreach ($e->errors() as $field => $fieldErrors) {
+                        foreach ($fieldErrors as $error) {
+                            $errors[] = $error;
                         }
                     }
+                    $failedRows[] = [
+                        'row' => $rowNumber,
+                        'errors' => implode(', ', $errors)
+                    ];
                 } catch (\Exception $e) {
-                    $importErrors[] = "Qator {$rowNumber}: {$e->getMessage()}";
+                    DB::rollBack();
+                    $failedRows[] = [
+                        'row' => $rowNumber,
+                        'errors' => $e->getMessage()
+                    ];
                 }
             }
 
-            // ✅ Agar xatoliklar bo'lsa
-            if (!empty($importErrors)) {
-                DB::rollBack();
+            // ✅ Natijani qaytarish
+            $type = $hasWaterMeter ? 'hisoblagichli' : 'hisoblagichsiz';
+
+            if ($successCount > 0 && empty($failedRows)) {
+                // Hammasi muvaffaqiyatli
+                return redirect()->route('customers.import.form')
+                    ->with('success', "{$successCount} ta {$type} mijoz muvaffaqiyatli import qilindi!");
+            } elseif ($successCount > 0 && !empty($failedRows)) {
+                // Qisman muvaffaqiyatli
+                $errorMessages = [];
+                foreach ($failedRows as $failed) {
+                    $errorMessages[] = "Qator {$failed['row']}: {$failed['errors']}";
+                }
+
+                return redirect()->route('customers.import.form')
+                    ->with('warning', "{$successCount} ta {$type} mijoz import qilindi, " . count($failedRows) . " ta qatorda xatolik bor.")
+                    ->withErrors(['import_errors' => $errorMessages]);
+            } else {
+                // Hech narsa import qilinmadi
+                $errorMessages = [];
+                foreach ($failedRows as $failed) {
+                    $errorMessages[] = "Qator {$failed['row']}: {$failed['errors']}";
+                }
 
                 $finalValidator = Validator::make([], []);
-                foreach ($importErrors as $error) {
+                foreach ($errorMessages as $error) {
                     $finalValidator->errors()->add('import_errors', $error);
                 }
 
                 throw new \Illuminate\Validation\ValidationException($finalValidator);
             }
 
-            DB::commit();
-
-            $type = $hasWaterMeter ? 'hisoblagichli' : 'hisoblagichsiz';
-            return redirect()->route('customers.import.form')
-                ->with('success', "{$successCount} ta {$type} mijoz muvaffaqiyatli import qilindi!");
-
         } catch (\Illuminate\Validation\ValidationException $e) {
-            DB::rollBack();
             return redirect()->back()->withErrors($e->errors())->withInput();
         } catch (\Exception $e) {
-            DB::rollBack();
             Log::error('Excel import error: ' . $e->getMessage());
             return redirect()->back()
                 ->withErrors(['file_error' => 'Import qilishda xatolik: ' . $e->getMessage()])

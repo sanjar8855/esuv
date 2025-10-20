@@ -7,9 +7,11 @@ use App\Models\Invoice;
 use App\Models\Customer;
 use App\Models\Tariff;
 use App\Services\InvoiceService;
-use Illuminate\Support\Facades\Auth; // Auth ni import qiling
-use Yajra\DataTables\Facades\DataTables; // DataTables fasadini import qiling
+use Illuminate\Support\Facades\Auth;
+use Yajra\DataTables\Facades\DataTables;
 use Illuminate\Support\Carbon;
+use App\Http\Requests\StoreInvoiceRequest;
+use App\Http\Requests\UpdateInvoiceRequest;
 
 class InvoiceController extends Controller
 {
@@ -137,16 +139,10 @@ class InvoiceController extends Controller
     /**
      * Yangi hisob-fakturani saqlash.
      */
-    public function store(Request $request)
+    public function store(StoreInvoiceRequest $request)
     {
-        $validatedData = $request->validate([
-            'customer_id' => 'required|exists:customers,id',
-            'tariff_id' => 'required|exists:tariffs,id',
-            'billing_period' => 'required|date_format:Y-m',
-            'amount_due' => 'required|numeric|min:0',
-            'due_date' => 'required|date',
-            'status' => 'required|in:pending,paid,overdue',
-        ]);
+        // ✅ Validation avtomatik bajariladi
+        $validatedData = $request->validated();
 
         Invoice::create($validatedData);
 
@@ -180,18 +176,13 @@ class InvoiceController extends Controller
     /**
      * Hisob-fakturani yangilash.
      */
-    public function update(Request $request, Invoice $invoice)
+    public function update(UpdateInvoiceRequest $request, Invoice $invoice)
     {
-        $request->validate([
-            'customer_id' => 'required|exists:customers,id',
-            'tariff_id' => 'required|exists:tariffs,id',
-            'billing_period' => 'required|string',
-            'amount_due' => 'required|numeric|min:0',
-            'due_date' => 'required|date',
-            'status' => 'required|in:pending,paid,overdue',
-        ]);
+        // ✅ Validation avtomatik bajariladi
+        $validated = $request->validated();
 
-        $invoice->update($request->all());
+        // ✅ TUZATILDI: Mass assignment oldini olish uchun validated() ishlatildi
+        $invoice->update($validated);
 
         return redirect()->route('invoices.index')->with('success', 'Hisob-faktura yangilandi!');
     }

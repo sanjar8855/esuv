@@ -10,6 +10,8 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Yajra\DataTables\Facades\DataTables;
 use Illuminate\Support\Carbon;
+use App\Http\Requests\StorePaymentRequest;
+use App\Http\Requests\UpdatePaymentRequest;
 
 class PaymentController extends Controller
 {
@@ -123,11 +125,69 @@ class PaymentController extends Controller
             return redirect()->back()->with('warning', 'To\'lov allaqachon tasdiqlangan.');
         }
 
-        $payment->update([
-            'confirmed' => true,
-            'confirmed_by' => auth()->id(),
-            'confirmed_at' => now(),
-        ]);
+        // ✅ Agar to'lov invoice bilan bog'lanmagan bo'lsa, avtomatik bog'lash
+        if (!$payment->invoice_id) {
+            $customer = $payment->customer;
+            $remainingAmount = $payment->amount;
+
+            $pendingInvoices = Invoice::where('customer_id', $customer->id)
+                ->where('status', 'pending')
+                ->orderBy('billing_period', 'asc')
+                ->get();
+
+            foreach ($pendingInvoices as $invoice) {
+                $invoiceBalance = $invoice->amount_due - $invoice->payments()->where('confirmed', true)->sum('amount');
+
+                if ($remainingAmount <= 0) break;
+
+                if ($remainingAmount >= $invoiceBalance) {
+                    // To'lovni to'liq invoice ga bog'lash
+                    $payment->update([
+                        'invoice_id' => $invoice->id,
+                        'amount' => $invoiceBalance,
+                        'confirmed' => true,
+                        'confirmed_by' => auth()->id(),
+                        'confirmed_at' => now(),
+                    ]);
+
+                    $invoice->update(['status' => 'paid']);
+                    $remainingAmount -= $invoiceBalance;
+
+                    // Agar ortiqcha qolsa, yangi to'lov yaratish
+                    if ($remainingAmount > 0) {
+                        Payment::create([
+                            'customer_id' => $customer->id,
+                            'invoice_id' => null,
+                            'amount' => $remainingAmount,
+                            'payment_date' => $payment->payment_date,
+                            'payment_method' => $payment->payment_method,
+                            'status' => 'completed',
+                            'confirmed' => true,
+                            'confirmed_by' => auth()->id(),
+                            'confirmed_at' => now(),
+                        ]);
+                    }
+
+                    break;
+                } else {
+                    // Qisman to'lov
+                    $payment->update([
+                        'invoice_id' => $invoice->id,
+                        'confirmed' => true,
+                        'confirmed_by' => auth()->id(),
+                        'confirmed_at' => now(),
+                    ]);
+                    break;
+                }
+            }
+        } else {
+            // Invoice allaqachon bog'langan bo'lsa, faqat tasdiqlash
+            $payment->update([
+                'confirmed' => true,
+                'confirmed_by' => auth()->id(),
+                'confirmed_at' => now(),
+            ]);
+        }
 
         return redirect()->back()->with('success', 'To\'lov muvaffaqiyatli tasdiqlandi!');
     }
@@ -181,14 +241,10 @@ class PaymentController extends Controller
         return view('payments.create', compact('customers'));
     }
 
-    public function store(Request $request)
+    public function store(StorePaymentRequest $request)
     {
-        $validated = $request->validate([
-            'customer_id' => 'required|exists:customers,id',
-            'amount' => 'required|numeric|min:1',
-            'payment_method' => 'required|in:cash,card,transfer',
-            'confirmed' => 'sometimes|boolean',
-        ]);
+        // ✅ Validation avtomatik bajariladi
+        $validated = $request->validated();
 
         $customer = Customer::findOrFail($request->customer_id);
 
@@ -297,20 +353,13 @@ class PaymentController extends Controller
         return view('payments.edit', compact('payment', 'customers'));
     }
 
-    public function update(Request $request, Payment $payment)
+    public function update(UpdatePaymentRequest $request, Payment $payment)
     {
-        $request->validate([
-            'customer_id' => 'required|exists:customers,id',
-            'amount' => 'required|numeric|min:1',
-            'payment_method' => 'required|in:cash,card,transfer,online',
-        ]);
+        // ✅ Validation avtomatik bajariladi
+        $validated = $request->validated();
 
-        $payment->update([
-            'customer_id' => $request->customer_id,
-            'amount' => $request->amount,
-            'payment_date' => now(),
-            'payment_method' => $request->payment_method,
-        ]);
+        // ✅ Faqat validatsiyadan o'tgan ma'lumotlarni yangilash
+        $payment->update($validated);
 
         return redirect()->route('payments.index')->with('success', 'To\'lov muvaffaqiyatli yangilandi.');
     }

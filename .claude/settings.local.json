@@ -1,0 +1,10 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(php artisan route:list --columns=Method,URI,Name,Action)",
+      "Bash(composer show --installed)"
+    ],
+    "deny": [],
+    "ask": []
+  }
+}

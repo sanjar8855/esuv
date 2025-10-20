@@ -9,14 +9,18 @@ return new class extends Migration
     public function up()
     {
         Schema::table('payments', function (Blueprint $table) {
-            // ✅ Tasdiqlanganmi ustuni
-            $table->boolean('confirmed')->default(false)->after('status');
+            // ✅ TUZATILDI: Ustun mavjudligini tekshirish
+            if (!Schema::hasColumn('payments', 'confirmed')) {
+                $table->boolean('confirmed')->default(false)->after('status');
+            }
 
-            // ✅ Kim tasdiqlagan
-            $table->foreignId('confirmed_by')->nullable()->after('confirmed')->constrained('users')->onDelete('set null');
+            if (!Schema::hasColumn('payments', 'confirmed_by')) {
+                $table->foreignId('confirmed_by')->nullable()->after('confirmed')->constrained('users')->onDelete('set null');
+            }
 
-            // ✅ Qachon tasdiqlangan
-            $table->timestamp('confirmed_at')->nullable()->after('confirmed_by');
+            if (!Schema::hasColumn('payments', 'confirmed_at')) {
+                $table->timestamp('confirmed_at')->nullable()->after('confirmed_by');
+            }
         });
     }
 

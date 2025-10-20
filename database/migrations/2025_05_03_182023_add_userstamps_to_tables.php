@@ -15,14 +15,17 @@ return new class extends Migration
 
         foreach ($tables as $tableName) {
             Schema::table($tableName, function (Blueprint $table) use ($tableName){
-                // 'updated_by_user_id' ustunini qo'shish
-                // Agar 'id' ustuni mavjud bo'lsa (ko'pchilikda bor), undan keyin qo'shamiz
-                $afterColumn = Schema::hasColumn($tableName, 'id') ? 'id' : null;
-                $table->foreignId('updated_by_user_id')
-                    ->nullable()
-                    ->after($afterColumn) // 'id' dan keyin joylashtirish (ixtiyoriy)
-                    ->constrained('users') // users jadvalidagi id ga ishora qiladi
-                    ->onDelete('set null'); // Agar user o'chirilsa, null bo'lib qoladi
+                // ✅ TUZATILDI: Ustun allaqachon mavjud emasligini tekshirish
+                if (!Schema::hasColumn($tableName, 'updated_by_user_id')) {
+                    // 'updated_by_user_id' ustunini qo'shish
+                    // Agar 'id' ustuni mavjud bo'lsa (ko'pchilikda bor), undan keyin qo'shamiz
+                    $afterColumn = Schema::hasColumn($tableName, 'id') ? 'id' : null;
+                    $table->foreignId('updated_by_user_id')
+                        ->nullable()
+                        ->after($afterColumn) // 'id' dan keyin joylashtirish (ixtiyoriy)
+                        ->constrained('users') // users jadvalidagi id ga ishora qiladi
+                        ->onDelete('set null'); // Agar user o'chirilsa, null bo'lib qoladi
+                }
             });
         }
     }

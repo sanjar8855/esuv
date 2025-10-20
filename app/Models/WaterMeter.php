@@ -16,7 +16,8 @@ class WaterMeter extends Model
     {
         if ($value) {
             $cleaned = str_replace(' ', '', (string)$value);
-            $this->attributes['meter_number'] = str_pad($cleaned, 7, '0', STR_PAD_LEFT);
+            $length = config('water_meter.meter_number_length', 7);
+            $this->attributes['meter_number'] = str_pad($cleaned, $length, '0', STR_PAD_LEFT);
         } else {
             $this->attributes['meter_number'] = null;
         }

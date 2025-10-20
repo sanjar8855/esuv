@@ -54,10 +54,11 @@ class Customer extends Model
         }
 
         $cleaned = str_replace(' ', '', (string)$value);
+        $length = config('water_meter.account_number_length', 7);
 
-        // ✅ Faqat 7 xonadan qisqa bo'lsa 0 qo'shish
-        if (strlen($cleaned) < 7) {
-            $this->attributes['account_number'] = str_pad($cleaned, 7, '0', STR_PAD_LEFT);
+        // ✅ Faqat belgilangan uzunlikdan qisqa bo'lsa 0 qo'shish
+        if (strlen($cleaned) < $length) {
+            $this->attributes['account_number'] = str_pad($cleaned, $length, '0', STR_PAD_LEFT);
         } else {
             $this->attributes['account_number'] = $cleaned;
         }
@@ -205,8 +206,9 @@ class Customer extends Model
 
     public function getTotalPaid()
     {
+        // ✅ TUZATILDI: updateBalance() bilan bir xil shart
         return $this->payments()
-            ->where('status', 'completed')
+            ->where('confirmed', true)  // ✅ status o'rniga confirmed
             ->sum('amount');
     }
 
