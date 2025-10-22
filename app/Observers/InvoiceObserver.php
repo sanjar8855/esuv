@@ -4,6 +4,7 @@ namespace App\Observers;
 
 use App\Models\Invoice;
 use App\Models\Customer;
+use App\Models\ActivityLog;
 use App\Jobs\SendInvoiceNotificationJob;
 use Illuminate\Support\Facades\Log;
 
@@ -15,6 +16,13 @@ class InvoiceObserver
     public function created(Invoice $invoice): void
     {
         Log::info('Invoice created', ['invoice_id' => $invoice->id]);
+
+        // ✅ Activity Log
+        ActivityLog::log('invoice', 'Invoice yaratildi', $invoice, [
+            'invoice_number' => $invoice->invoice_number,
+            'amount_due' => $invoice->amount_due,
+            'customer_id' => $invoice->customer_id,
+        ]);
 
         // ✅ Eager load qilish
         $invoice->loadMissing('customer.telegramAccounts');

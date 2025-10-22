@@ -46,6 +46,10 @@ class PaymentController extends Controller
                 ->editColumn('amount', function (Payment $payment) {
                     return number_format($payment->amount, 0, '.', ' ') . ' UZS';
                 })
+                // ✅ Amount bo'yicha sorting
+                ->orderColumn('amount', function ($query, $order) {
+                    $query->orderBy('amount', $order);
+                })
                 ->editColumn('payment_method_display', function (Payment $payment) {
                     return match($payment->payment_method) {
                         'cash' => 'Naqd pul',

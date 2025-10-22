@@ -60,6 +60,10 @@ class InvoiceController extends Controller
                 ->editColumn('amount_due', function (Invoice $invoice) {
                     return number_format($invoice->amount_due, 0, '.', ' ') . ' UZS';
                 })
+                // ✅ Amount bo'yicha sorting
+                ->orderColumn('amount_due', function ($query, $order) {
+                    $query->orderBy('amount_due', $order);
+                })
                 ->editColumn('status_display', function (Invoice $invoice) { // Status uchun alohida nom
                     switch ($invoice->status) {
                         case 'pending': return '<span class="badge bg-yellow text-yellow-fg">To\'liq to‘lanmagan</span>';

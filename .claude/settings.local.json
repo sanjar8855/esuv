@@ -2,7 +2,24 @@
   "permissions": {
     "allow": [
       "Bash(php artisan route:list --columns=Method,URI,Name,Action)",
-      "Bash(composer show --installed)"
+      "Bash(composer show --installed)",
+      "Bash(php artisan queue:table)",
+      "Bash(composer require doctrine/dbal --no-interaction)",
+      "Bash(composer require spatie/laravel-activitylog --no-interaction)",
+      "Bash(php artisan make:model ActivityLog -m)",
+      "Bash(php artisan migrate:status)",
+      "Bash(php artisan migrate)",
+      "Bash(php artisan db:table activity_logs --show)",
+      "Bash(php artisan tinker --execute=\"echo \\Illuminate\\Support\\Facades\\Schema::hasTable(''activity_logs'') ? ''exists'' : ''not exists''\")",
+      "Bash(php artisan migrate:rollback --step=1)",
+      "Bash(findstr activity_logs)",
+      "Bash(findstr -i \"pending\")",
+      "Bash(php artisan route:list --columns=Method,URI,Name)",
+      "Bash(findstr \"customer\\|invoice\\|payment\")",
+      "Bash(findstr \"index\\|show\")",
+      "Bash(php artisan config:cache)",
+      "Bash(php artisan route:cache)",
+      "Bash(php artisan view:cache)"
     ],
     "deny": [],
     "ask": []

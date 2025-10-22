@@ -117,6 +117,10 @@ class CustomerController extends Controller
                     $balanceClass = $balance < 0 ? 'text-red' : ($balance > 0 ? 'text-green' : 'text-info');
                     return '<span class="badge ' . $balanceClass . '">' . ($balance >= 0 ? '+' : '') . number_format($balance) . ' UZS</span>';
                 })
+                // ✅ Balance bo'yicha sorting qo'shish
+                ->orderColumn('balance_formatted', function ($query, $order) {
+                    $query->orderBy('balance', $order);
+                })
                 // ✅ 3. Last reading tuzatildi - qo'shimcha query yo'q
                 ->addColumn('last_reading', function (Customer $customer) {
                     if (!$customer->waterMeter || $customer->waterMeter->readings->isEmpty()) {
@@ -443,17 +447,21 @@ class CustomerController extends Controller
         cache()->forget("active_customer_id_{$telegramAccount->telegram_chat_id}");
 
         // ✅ 5. Telegram orqali xabar yuborish (xatosiz)
-        $this->notifyTelegramAccountDeleted(
+        $notificationSent = $this->notifyTelegramAccountDeleted(
             $telegramAccount->telegram_chat_id,
             $customer->account_number
         );
 
-        return redirect()->back()
-            ->with('success', 'Telegram akkaunt muvaffaqiyatli uzildi.');
+        $message = 'Telegram akkaunt muvaffaqiyatli uzildi.';
+        if (!$notificationSent) {
+            $message .= ' (Telegram xabari yuborilmadi, lekin akkaunt uzildi.)';
+        }
+
+        return redirect()->back()->with('success', $message);
     }
 
     /**
-     * 📩 Telegram akkauntga hisob o‘chirilgani haqida bildirish
+     * 📩 Telegram akkauntga hisob o'chirilgani haqida bildirish
      */
     private function notifyTelegramAccountDeleted($telegramChatId, $accountNumber)
     {
@@ -464,8 +472,12 @@ class CustomerController extends Controller
                 'parse_mode' => 'HTML',
                 'reply_markup' => json_encode(['remove_keyboard' => true]),
             ]);
+
+            // ✅ Muvaffaqiyatli yuborildi
+            return true;
+
         } catch (\Exception $e) {
-            // ✅ Xatoni log ga yozish (lekin metodning davom etishiga xalaqit bermaydi)
+            // ✅ Xatoni log ga yozish
             \Log::warning('Telegram notification failed', [
                 'chat_id' => $telegramChatId,
                 'account_number' => $accountNumber,
@@ -473,6 +485,7 @@ class CustomerController extends Controller
             ]);
 
             // ✅ Davom etish (akkaunt ajratiladi, faqat notification yuborilmaydi)
+            return false;
         }
     }
 

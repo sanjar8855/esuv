@@ -5,6 +5,7 @@ namespace App\Observers;
 
 use App\Models\Payment;
 use App\Models\Customer;
+use App\Models\ActivityLog;
 use App\Jobs\SendPaymentNotificationJob;
 use Illuminate\Support\Facades\Log;
 
@@ -43,6 +44,13 @@ class PaymentObserver
 
         // ✅ Agar confirmed true ga o'zgardi
         if ($payment->wasChanged('confirmed') && $payment->confirmed) {
+            // Activity Log
+            ActivityLog::log('payment', 'To\'lov tasdiqlandi', $payment, [
+                'amount' => $payment->amount,
+                'customer_id' => $payment->customer_id,
+                'invoice_id' => $payment->invoice_id,
+            ]);
+
             // Balance yangilash
             $this->updateCustomerBalance($payment);
 
