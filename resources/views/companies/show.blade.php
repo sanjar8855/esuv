@@ -5,84 +5,89 @@
         <div class="container-xl">
             <div class="row row-cards">
                 <div class="col-12 col-md-6">
-                    <h2>{{ $company->name }} kompaniyasi</h2>
-
-                    <table class="table">
-                        <tr>
-                            <th>Nomi:</th>
-                            <td>{{ $company->name }}</td>
-                        </tr>
-                        {{--                        <tr>--}}
-                        {{--                            <th>Email:</th>--}}
-                        {{--                            <td>{{ $company->email }}</td>--}}
-                        {{--                        </tr>--}}
-                        <tr>
-                            <th>Telefon:</th>
-                            <td>{{ $company->phone }}</td>
-                        </tr>
-                        <tr>
-                            <th>Plan:</th>
-                            <td>{{ $company->plan->name, $company->plan->price }}</td>
-                        </tr>
-                        <tr>
-                            <th>1 m³ narxi:</th>
-                            <td>{{ number_format($tariff->price_per_m3, 0, '.', ' ') }} so'm</td>
-                        </tr>
-                        <tr>
-                            <th>1 kishiga narx:</th>
-                            <td>{{ number_format($tariff->for_one_person, 0, '.', ' ') }} so'm</td>
-                        </tr>
-                        <tr>
-                            <th>Manzil:</th>
-                            <td>{{ $company->address ?? 'Ko‘rsatilmagan' }}</td>
-                        </tr>
-                        <tr>
-                            <th>Hisob raqam:</th>
-                            <td>{{ $company->schet ?? 'Ko‘rsatilmagan' }}</td>
-                        </tr>
-                        <tr>
-                            <th>INN:</th>
-                            <td>{{ $company->inn ?? 'Ko‘rsatilmagan' }}</td>
-                        </tr>
-                        <tr>
-                            <th>Izoh:</th>
-                            <td>{{ $company->description ?? 'Ko‘rsatilmagan' }}</td>
-                        </tr>
-                        <tr>
-                            <th>Logo:</th>
-                            <td>
-                                <img src="{{ asset('tabler/img/hero/'.$company->logo) }}" alt="">
-                            </td>
-                        </tr>
-                        <tr>
-                            <th>Holati:</th>
-                            <td>
-                                @if($company->is_active)
-                                    <span class="badge bg-cyan text-cyan-fg">Faol</span>
-                                @else
-                                    <span class="badge bg-red  text-red-fg">Faol emas</span>
-                                @endif
-                            </td>
-                        </tr>
-                    </table>
-
-                    <a href="{{ route('companies.index') }}" class="btn btn-secondary">Orqaga</a>
-                    <a href="{{ route('companies.edit', $company->id) }}" class="btn btn-warning">Tahrirlash</a>
-
-                    <form action="{{ route('companies.destroy', $company->id) }}" method="POST" class="d-inline">
-                        @csrf
-                        @method('DELETE')
-                        <button type="submit" class="btn btn-danger"
-                                onclick="return confirm('Haqiqatan ham o‘chirilsinmi?')">O‘chirish
-                        </button>
-                    </form>
-
                     <div class="card">
+                        <div class="card-header">
+                            <h3 class="card-title">{{ $company->name }}</h3>
+                        </div>
+                        <div class="card-body">
+                            <div class="table-responsive">
+                                <table class="table table-sm table-borderless">
+                                    <tr>
+                                        <th width="35%"><small>Nomi:</small></th>
+                                        <td><small>{{ $company->name }}</small></td>
+                                    </tr>
+                                    <tr>
+                                        <th><small>Telefon:</small></th>
+                                        <td><small>{{ $company->phone }}</small></td>
+                                    </tr>
+                                    <tr>
+                                        <th><small>Plan:</small></th>
+                                        <td><small>{{ $company->plan->name }} - {{ number_format($company->plan->price, 0, '.', ' ') }} so'm</small></td>
+                                    </tr>
+                                    <tr>
+                                        <th><small>1 m³ narxi:</small></th>
+                                        <td><small>{{ number_format($tariff->price_per_m3, 0, '.', ' ') }} so'm</small></td>
+                                    </tr>
+                                    <tr>
+                                        <th><small>1 kishiga narx:</small></th>
+                                        <td><small>{{ number_format($tariff->for_one_person, 0, '.', ' ') }} so'm</small></td>
+                                    </tr>
+                                    <tr>
+                                        <th><small>Manzil:</small></th>
+                                        <td><small>{{ $company->address ?? 'Ko'rsatilmagan' }}</small></td>
+                                    </tr>
+                                    <tr>
+                                        <th><small>Hisob raqam:</small></th>
+                                        <td><small>{{ $company->schet ?? 'Ko'rsatilmagan' }}</small></td>
+                                    </tr>
+                                    <tr>
+                                        <th><small>INN:</small></th>
+                                        <td><small>{{ $company->inn ?? 'Ko'rsatilmagan' }}</small></td>
+                                    </tr>
+                                    <tr>
+                                        <th><small>Izoh:</small></th>
+                                        <td><small>{{ $company->description ?? 'Ko'rsatilmagan' }}</small></td>
+                                    </tr>
+                                    <tr>
+                                        <th><small>Logo:</small></th>
+                                        <td>
+                                            <img src="{{ asset('tabler/img/hero/'.$company->logo) }}" alt="{{ $company->name }}" style="max-width: 100px; height: auto;">
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <th><small>Holati:</small></th>
+                                        <td>
+                                            @if($company->is_active)
+                                                <span class="badge badge-sm bg-cyan">Faol</span>
+                                            @else
+                                                <span class="badge badge-sm bg-red">Faol emas</span>
+                                            @endif
+                                        </td>
+                                    </tr>
+                                </table>
+                            </div>
+                        </div>
+                        <div class="card-footer">
+                            <div class="d-flex gap-2">
+                                <a href="{{ route('companies.index') }}" class="btn btn-sm btn-secondary">Orqaga</a>
+                                <a href="{{ route('companies.edit', $company->id) }}" class="btn btn-sm btn-warning">Tahrirlash</a>
+                                <form action="{{ route('companies.destroy', $company->id) }}" method="POST" class="d-inline">
+                                    @csrf
+                                    @method('DELETE')
+                                    <button type="submit" class="btn btn-sm btn-danger"
+                                            onclick="return confirm('Haqiqatan ham o'chirilsinmi?')">O'chirish
+                                    </button>
+                                </form>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="card mt-3">
                         <div class="card-header">
                             <h3 class="card-title">Mijozlar (Operatorlar Bo'yicha)</h3>
                         </div>
                         <div class="table-responsive">
-                            <table class="table table-vcenter card-table">
+                            <table class="table table-sm table-vcenter card-table">
                                 <thead>
                                 <tr>
                                     <th>Operator</th>
@@ -92,12 +97,12 @@
                                 <tbody>
                                 @forelse($finalOperatorStats as $operatorName => $count)
                                     <tr>
-                                        <td>{{ $operatorName }}</td>
-                                        <td class="text-end">{{ $count }} ta</td>
+                                        <td><small>{{ $operatorName }}</small></td>
+                                        <td class="text-end"><small>{{ $count }} ta</small></td>
                                     </tr>
                                 @empty
                                     <tr>
-                                        <td colspan="2" class="text-center">Telefon raqamlari bo'yicha ma'lumot mavjud emas</td>
+                                        <td colspan="2" class="text-center"><small>Telefon raqamlari bo'yicha ma'lumot mavjud emas</small></td>
                                     </tr>
                                 @endforelse
                                 </tbody>
@@ -105,44 +110,59 @@
                         </div>
                     </div>
 
-                    <h2>Xodimlar</h2>
-                    <div class="card">
+                    <div class="card mt-3">
+                        <div class="card-header">
+                            <h3 class="card-title">Xodimlar ({{ $company->users->count() }} ta)</h3>
+                        </div>
                         <div class="table-responsive">
-                            <table class="table table-vcenter card-table">
+                            <table class="table table-sm table-vcenter card-table">
                                 <thead>
                                 <tr>
                                     <th>F.I.O</th>
                                     <th>Lavozim</th>
-                                    {{--                                    <th>Ish boshlagan sana</th>--}}
+                                    <th>Email</th>
+                                    <th>Telefon</th>
                                     <th>Rol</th>
+                                    <th class="text-end">Amallar</th>
                                 </tr>
                                 </thead>
                                 <tbody>
                                 @forelse($company->users as $user)
                                     <tr>
                                         <td>
-                                            <a href="{{route('users.show', $user->id)}}"
-                                               class="badge badge-outline text-blue">{{ $user->name }}</a>
+                                            <a href="{{route('users.show', $user->id)}}" class="text-reset">
+                                                <small>{{ $user->name }}</small>
+                                            </a>
                                         </td>
-                                        <td>{{ $user->rank }}</td>
-                                        {{--                                        <td>{{ $user->work_start ? date('d.m.Y', strtotime($user->work_start)) : 'Ko\'rsatilmagan' }}</td>--}}
+                                        <td><small>{{ $user->rank ?? '-' }}</small></td>
+                                        <td><small>{{ $user->email }}</small></td>
+                                        <td><small>{{ $user->phone ?? '-' }}</small></td>
                                         <td>
                                             @foreach($user->roles as $role)
                                                 @switch($role->name)
                                                     @case('company_owner')
-                                                    <span class="badge bg-green text-green-fg">Boshqaruv</span>
+                                                    <span class="badge badge-sm bg-green">Boshqaruv</span>
                                                     @break
                                                     @case('employee')
-                                                    <span
-                                                        class="badge bg-secondary text-secondary-fg">Ishchi xodim</span>
+                                                    <span class="badge badge-sm bg-secondary">Ishchi xodim</span>
                                                     @break
+                                                    @default
+                                                    <span class="badge badge-sm bg-info">{{ $role->name }}</span>
                                                 @endswitch
                                             @endforeach
+                                        </td>
+                                        <td class="text-end">
+                                            <a href="{{route('users.show', $user->id)}}" class="btn btn-sm btn-icon btn-ghost-info" title="Batafsil">
+                                                <svg xmlns="http://www.w3.org/2000/svg" class="icon" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M12 12m-2 0a2 2 0 1 0 4 0a2 2 0 1 0 -4 0" /><path d="M22 12c-2.667 4.667 -6 7 -10 7s-7.333 -2.333 -10 -7c2.667 -4.667 6 -7 10 -7s7.333 2.333 10 7" /></svg>
+                                            </a>
+                                            <a href="{{route('users.edit', $user->id)}}" class="btn btn-sm btn-icon btn-ghost-warning" title="Tahrirlash">
+                                                <svg xmlns="http://www.w3.org/2000/svg" class="icon" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M7 7h-1a2 2 0 0 0 -2 2v9a2 2 0 0 0 2 2h9a2 2 0 0 0 2 -2v-1" /><path d="M20.385 6.585a2.1 2.1 0 0 0 -2.97 -2.97l-8.415 8.385v3h3l8.385 -8.415z" /><path d="M16 5l3 3" /></svg>
+                                            </a>
                                         </td>
                                     </tr>
                                 @empty
                                     <tr>
-                                        <td colspan="4" class="text-center">Xodimlar mavjud emas</td>
+                                        <td colspan="6" class="text-center"><small>Xodimlar mavjud emas</small></td>
                                     </tr>
                                 @endforelse
                                 </tbody>
@@ -157,35 +177,32 @@
                             <h3 class="card-title">Biriktirilgan Mahallalar</h3>
                         </div>
                         <div class="table-responsive">
-                            <table class="table table-vcenter card-table">
+                            <table class="table table-sm table-vcenter card-table">
                                 <thead>
                                 <tr>
-                                    <th>ID</th>
-                                    <th>Mahalla Nomi</th>
-                                    <th>Shahar/Tuman</th>
+                                    <th width="10%"><small>ID</small></th>
+                                    <th><small>Mahalla Nomi</small></th>
+                                    <th><small>Shahar/Tuman</small></th>
                                 </tr>
                                 </thead>
                                 <tbody>
                                 @forelse($neighborhoods as $neighborhood)
                                     <tr>
-                                        <td>{{ $neighborhood->id }}</td>
+                                        <td><small>{{ $neighborhood->id }}</small></td>
                                         <td>
-                                            <a href="{{ route('neighborhoods.show', $neighborhood->id) }}"
-                                               class="badge badge-outline text-blue">
-                                                {{ $neighborhood->name }}
+                                            <a href="{{ route('neighborhoods.show', $neighborhood->id) }}" class="text-reset">
+                                                <small>{{ $neighborhood->name }}</small>
                                             </a>
                                         </td>
                                         <td>
-                                            <a href="{{ route('cities.show', $neighborhood->city->id) }}"
-                                               class="badge badge-outline text-blue">
-                                                {{ $neighborhood->city->name }}
+                                            <a href="{{ route('cities.show', $neighborhood->city->id) }}" class="text-reset">
+                                                <small>{{ $neighborhood->city->name }}</small>
                                             </a>
                                         </td>
                                     </tr>
                                 @empty
                                     <tr>
-                                        <td colspan="3" class="text-center">Bu kompaniyaga mahallalar biriktirilmagan.
-                                        </td>
+                                        <td colspan="3" class="text-center"><small>Bu kompaniyaga mahallalar biriktirilmagan.</small></td>
                                     </tr>
                                 @endforelse
                                 </tbody>
@@ -193,45 +210,42 @@
                         </div>
                         @if ($neighborhoods->hasPages())
                             <div class="card-footer d-flex align-items-center">
-                                {{ $neighborhoods->links() }} {{-- Pagination --}}
+                                {{ $neighborhoods->links() }}
                             </div>
                         @endif
                     </div>
 
-                    <div class="card">
+                    <div class="card mt-3">
                         <div class="card-header">
                             <h3 class="card-title">Biriktirilgan Ko'chalar</h3>
                         </div>
                         <div class="table-responsive">
-                            <table class="table table-vcenter card-table">
+                            <table class="table table-sm table-vcenter card-table">
                                 <thead>
                                 <tr>
-                                    <th>ID</th>
-                                    <th>Ko'cha Nomi</th>
-                                    <th>Mahalla</th>
+                                    <th width="10%"><small>ID</small></th>
+                                    <th><small>Ko'cha Nomi</small></th>
+                                    <th><small>Mahalla</small></th>
                                 </tr>
                                 </thead>
                                 <tbody>
                                 @forelse($streets as $street)
                                     <tr>
-                                        <td>{{ $street->id }}</td>
+                                        <td><small>{{ $street->id }}</small></td>
                                         <td>
-                                            <a href="{{ route('streets.show', $street->id) }}"
-                                               class="badge badge-outline text-blue">
-                                                {{ $street->name }}
+                                            <a href="{{ route('streets.show', $street->id) }}" class="text-reset">
+                                                <small>{{ $street->name }}</small>
                                             </a>
                                         </td>
                                         <td>
-                                            <a href="{{ route('neighborhoods.show', $street->neighborhood->id) }}"
-                                               class="badge badge-outline text-blue">
-                                                {{ $street->neighborhood->name }}
+                                            <a href="{{ route('neighborhoods.show', $street->neighborhood->id) }}" class="text-reset">
+                                                <small>{{ $street->neighborhood->name }}</small>
                                             </a>
                                         </td>
                                     </tr>
                                 @empty
                                     <tr>
-                                        <td colspan="3" class="text-center">Bu kompaniyaga ko'chalar biriktirilmagan.
-                                        </td>
+                                        <td colspan="3" class="text-center"><small>Bu kompaniyaga ko'chalar biriktirilmagan.</small></td>
                                     </tr>
                                 @endforelse
                                 </tbody>
@@ -239,75 +253,80 @@
                         </div>
                         @if ($streets->hasPages())
                             <div class="card-footer d-flex align-items-center">
-                                {{ $streets->links() }} {{-- Pagination --}}
+                                {{ $streets->links() }}
                             </div>
                         @endif
                     </div>
 
                 </div>
 
-                <div class="col-12 mt-4"> {{-- Sahifaning to'liq eni bo'yicha, yuqoridan joy tashlab --}}
+                <div class="col-12 mt-3">
                     <div class="card">
                         <div class="card-header">
                             <h3 class="card-title">Kompaniya To'lovlari Tarixi</h3>
                         </div>
                         <div class="table-responsive">
-                            <table class="table table-vcenter card-table table-striped">
+                            <table class="table table-sm table-vcenter card-table table-striped">
                                 <thead>
                                 <tr>
-                                    <th>To'lov Sanasi</th>
-                                    <th>To'lov Davri (Oy)</th>
-                                    <th>Summa (UZS)</th>
-                                    <th>Usul</th>
-                                    <th>Izohlar</th>
-                                    <th>Kim Qo'shdi</th>
-                                    <th>Amallar</th>
+                                    <th><small>To'lov Sanasi</small></th>
+                                    <th><small>To'lov Davri</small></th>
+                                    <th><small>Summa</small></th>
+                                    <th><small>Usul</small></th>
+                                    <th><small>Izohlar</small></th>
+                                    <th><small>Kim Qo'shdi</small></th>
+                                    <th class="text-end"><small>Amallar</small></th>
                                 </tr>
                                 </thead>
                                 <tbody>
                                 @forelse($saasPayments as $payment)
                                     <tr>
-                                        <td>{{ \Carbon\Carbon::parse($payment->payment_date)->format('d.m.Y') }}</td>
-                                        <td>{{ $payment->payment_period }}</td>
-                                        <td>{{ number_format($payment->amount, 0, '.', ' ') }}</td>
+                                        <td><small>{{ \Carbon\Carbon::parse($payment->payment_date)->format('d.m.Y') }}</small></td>
+                                        <td><small>{{ $payment->payment_period }}</small></td>
+                                        <td><small>{{ number_format($payment->amount, 0, '.', ' ') }} UZS</small></td>
                                         <td>
-                                            {{-- Agar metodlar standart bo'lsa, ularni tarjima qilish mumkin --}}
+                                            <small>
                                             @switch($payment->payment_method)
-                                                @case('cash') Naqd pul @break
-                                                @case('card') Karta orqali @break
-                                                @case('transfer') Bank o'tkazmasi @break
+                                                @case('cash') Naqd @break
+                                                @case('card') Karta @break
+                                                @case('transfer') Bank @break
                                                 @default {{ $payment->payment_method }}
                                             @endswitch
+                                            </small>
                                         </td>
-                                        <td>{{ $payment->notes }}</td>
+                                        <td><small>{{ $payment->notes ?? '-' }}</small></td>
                                         <td>
+                                            <small>
                                             @if($payment->createdBy)
-                                                <a href="{{ route('users.show', $payment->createdBy->id) }}">
+                                                <a href="{{ route('users.show', $payment->createdBy->id) }}" class="text-reset">
                                                     {{ $payment->createdBy->name }}
                                                 </a>
                                             @else
                                                 -
                                             @endif
+                                            </small>
                                         </td>
-                                        <td>
-                                            {{-- Bu linklar saas.payments resource route'iga ishora qiladi --}}
-                                            <a href="{{ route('saas.payments.edit', $payment->id) }}" class="btn btn-sm btn-warning">Tahrirlash</a>
-                                            <form action="{{ route('saas.payments.destroy', $payment->id) }}" method="POST" class="d-inline" onsubmit="return confirm('Haqiqatan ham o‘chirmoqchimisiz?');">
+                                        <td class="text-end">
+                                            <a href="{{ route('saas.payments.edit', $payment->id) }}" class="btn btn-sm btn-icon btn-ghost-warning" title="Tahrirlash">
+                                                <svg xmlns="http://www.w3.org/2000/svg" class="icon" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M7 7h-1a2 2 0 0 0 -2 2v9a2 2 0 0 0 2 2h9a2 2 0 0 0 2 -2v-1" /><path d="M20.385 6.585a2.1 2.1 0 0 0 -2.97 -2.97l-8.415 8.385v3h3l8.385 -8.415z" /><path d="M16 5l3 3" /></svg>
+                                            </a>
+                                            <form action="{{ route('saas.payments.destroy', $payment->id) }}" method="POST" class="d-inline" onsubmit="return confirm('Haqiqatan ham o'chirmoqchimisiz?');">
                                                 @csrf
                                                 @method('DELETE')
-                                                <button type="submit" class="btn btn-sm btn-danger">O‘chirish</button>
+                                                <button type="submit" class="btn btn-sm btn-icon btn-ghost-danger" title="O'chirish">
+                                                    <svg xmlns="http://www.w3.org/2000/svg" class="icon" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M4 7l16 0" /><path d="M10 11l0 6" /><path d="M14 11l0 6" /><path d="M5 7l1 12a2 2 0 0 0 2 2h8a2 2 0 0 0 2 -2l1 -12" /><path d="M9 7v-3a1 1 0 0 1 1 -1h4a1 1 0 0 1 1 1v3" /></svg>
+                                                </button>
                                             </form>
                                         </td>
                                     </tr>
                                 @empty
                                     <tr>
-                                        <td colspan="7" class="text-center">Bu kompaniya uchun hali to'lovlar kiritilmagan.</td>
+                                        <td colspan="7" class="text-center"><small>Bu kompaniya uchun hali to'lovlar kiritilmagan.</small></td>
                                     </tr>
                                 @endforelse
                                 </tbody>
                             </table>
                         </div>
-                        {{-- Pagination linklari --}}
                         @if ($saasPayments->hasPages())
                             <div class="card-footer">
                                 {{ $saasPayments->links() }}
