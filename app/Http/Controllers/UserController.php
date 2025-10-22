@@ -37,7 +37,10 @@ class UserController extends Controller
                 ->toJson();
         }
 
-        return view('users.index');
+        // ✅ Users count - sahifa uchun
+        $usersCount = (clone $usersQuery)->count();
+
+        return view('users.index', compact('usersCount'));
     }
 
     public function create()

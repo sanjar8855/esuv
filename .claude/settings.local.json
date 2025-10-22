@@ -19,7 +19,9 @@
       "Bash(findstr \"index\\|show\")",
       "Bash(php artisan config:cache)",
       "Bash(php artisan route:cache)",
-      "Bash(php artisan view:cache)"
+      "Bash(php artisan view:cache)",
+      "Bash(php artisan view:clear)",
+      "Bash(php artisan cache:clear)"
     ],
     "deny": [],
     "ask": []
