@@ -58,9 +58,9 @@
                                         <th><small>Holati:</small></th>
                                         <td>
                                             @if($company->is_active)
-                                                <span class="badge badge-sm bg-cyan">Faol</span>
+                                                <span class="badge bg-success">Faol</span>
                                             @else
-                                                <span class="badge badge-sm bg-red">Faol emas</span>
+                                                <span class="badge bg-danger">Faol emas</span>
                                             @endif
                                         </td>
                                     </tr>
@@ -141,22 +141,22 @@
                                             @foreach($user->roles as $role)
                                                 @switch($role->name)
                                                     @case('company_owner')
-                                                    <span class="badge badge-sm bg-green">Boshqaruv</span>
+                                                    <span class="badge bg-success">Boshqaruv</span>
                                                     @break
                                                     @case('employee')
-                                                    <span class="badge badge-sm bg-secondary">Ishchi xodim</span>
+                                                    <span class="badge bg-secondary">Ishchi xodim</span>
                                                     @break
                                                     @default
-                                                    <span class="badge badge-sm bg-info">{{ $role->name }}</span>
+                                                    <span class="badge bg-info">{{ $role->name }}</span>
                                                 @endswitch
                                             @endforeach
                                         </td>
                                         <td class="text-end">
-                                            <a href="{{route('users.show', $user->id)}}" class="btn btn-sm btn-icon btn-ghost-info" title="Batafsil">
-                                                <svg xmlns="http://www.w3.org/2000/svg" class="icon" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M12 12m-2 0a2 2 0 1 0 4 0a2 2 0 1 0 -4 0" /><path d="M22 12c-2.667 4.667 -6 7 -10 7s-7.333 -2.333 -10 -7c2.667 -4.667 6 -7 10 -7s7.333 2.333 10 7" /></svg>
+                                            <a href="{{route('users.show', $user->id)}}" class="btn btn-sm btn-info" title="Batafsil">
+                                                <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler-eye" width="16" height="16" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M12 12m-2 0a2 2 0 1 0 4 0a2 2 0 1 0 -4 0" /><path d="M22 12c-2.667 4.667 -6 7 -10 7s-7.333 -2.333 -10 -7c2.667 -4.667 6 -7 10 -7s7.333 2.333 10 7" /></svg>
                                             </a>
-                                            <a href="{{route('users.edit', $user->id)}}" class="btn btn-sm btn-icon btn-ghost-warning" title="Tahrirlash">
-                                                <svg xmlns="http://www.w3.org/2000/svg" class="icon" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M7 7h-1a2 2 0 0 0 -2 2v9a2 2 0 0 0 2 2h9a2 2 0 0 0 2 -2v-1" /><path d="M20.385 6.585a2.1 2.1 0 0 0 -2.97 -2.97l-8.415 8.385v3h3l8.385 -8.415z" /><path d="M16 5l3 3" /></svg>
+                                            <a href="{{route('users.edit', $user->id)}}" class="btn btn-sm btn-warning" title="Tahrirlash">
+                                                <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler-edit" width="16" height="16" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M7 7h-1a2 2 0 0 0 -2 2v9a2 2 0 0 0 2 2h9a2 2 0 0 0 2 -2v-1" /><path d="M20.385 6.585a2.1 2.1 0 0 0 -2.97 -2.97l-8.415 8.385v3h3l8.385 -8.415z" /><path d="M16 5l3 3" /></svg>
                                             </a>
                                         </td>
                                     </tr>
@@ -307,14 +307,14 @@
                                             </small>
                                         </td>
                                         <td class="text-end">
-                                            <a href="{{ route('saas.payments.edit', $payment->id) }}" class="btn btn-sm btn-icon btn-ghost-warning" title="Tahrirlash">
-                                                <svg xmlns="http://www.w3.org/2000/svg" class="icon" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M7 7h-1a2 2 0 0 0 -2 2v9a2 2 0 0 0 2 2h9a2 2 0 0 0 2 -2v-1" /><path d="M20.385 6.585a2.1 2.1 0 0 0 -2.97 -2.97l-8.415 8.385v3h3l8.385 -8.415z" /><path d="M16 5l3 3" /></svg>
+                                            <a href="{{ route('saas.payments.edit', $payment->id) }}" class="btn btn-sm btn-warning" title="Tahrirlash">
+                                                <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler-edit" width="16" height="16" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M7 7h-1a2 2 0 0 0 -2 2v9a2 2 0 0 0 2 2h9a2 2 0 0 0 2 -2v-1" /><path d="M20.385 6.585a2.1 2.1 0 0 0 -2.97 -2.97l-8.415 8.385v3h3l8.385 -8.415z" /><path d="M16 5l3 3" /></svg>
                                             </a>
                                             <form action="{{ route('saas.payments.destroy', $payment->id) }}" method="POST" class="d-inline" onsubmit="return confirm('Haqiqatan ham o'chirmoqchimisiz?');">
                                                 @csrf
                                                 @method('DELETE')
-                                                <button type="submit" class="btn btn-sm btn-icon btn-ghost-danger" title="O'chirish">
-                                                    <svg xmlns="http://www.w3.org/2000/svg" class="icon" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M4 7l16 0" /><path d="M10 11l0 6" /><path d="M14 11l0 6" /><path d="M5 7l1 12a2 2 0 0 0 2 2h8a2 2 0 0 0 2 -2l1 -12" /><path d="M9 7v-3a1 1 0 0 1 1 -1h4a1 1 0 0 1 1 1v3" /></svg>
+                                                <button type="submit" class="btn btn-sm btn-danger" title="O'chirish">
+                                                    <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler-trash" width="16" height="16" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M4 7l16 0" /><path d="M10 11l0 6" /><path d="M14 11l0 6" /><path d="M5 7l1 12a2 2 0 0 0 2 2h8a2 2 0 0 0 2 -2l1 -12" /><path d="M9 7v-3a1 1 0 0 1 1 -1h4a1 1 0 0 1 1 1v3" /></svg>
                                                 </button>
                                             </form>
                                         </td>
