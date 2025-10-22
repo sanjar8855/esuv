@@ -34,19 +34,19 @@
                                     </tr>
                                     <tr>
                                         <th><small>Manzil:</small></th>
-                                        <td><small>{{ $company->address ?? 'Ko'rsatilmagan' }}</small></td>
+                                        <td><small>{{ $company->address ?? 'Ko`rsatilmagan' }}</small></td>
                                     </tr>
                                     <tr>
                                         <th><small>Hisob raqam:</small></th>
-                                        <td><small>{{ $company->schet ?? 'Ko'rsatilmagan' }}</small></td>
+                                        <td><small>{{ $company->schet ?? 'Ko`rsatilmagan' }}</small></td>
                                     </tr>
                                     <tr>
                                         <th><small>INN:</small></th>
-                                        <td><small>{{ $company->inn ?? 'Ko'rsatilmagan' }}</small></td>
+                                        <td><small>{{ $company->inn ?? 'Ko`rsatilmagan' }}</small></td>
                                     </tr>
                                     <tr>
                                         <th><small>Izoh:</small></th>
-                                        <td><small>{{ $company->description ?? 'Ko'rsatilmagan' }}</small></td>
+                                        <td><small>{{ $company->description ?? 'Ko`rsatilmagan' }}</small></td>
                                     </tr>
                                     <tr>
                                         <th><small>Logo:</small></th>
@@ -75,7 +75,7 @@
                                     @csrf
                                     @method('DELETE')
                                     <button type="submit" class="btn btn-sm btn-danger"
-                                            onclick="return confirm('Haqiqatan ham o'chirilsinmi?')">O'chirish
+                                            onclick="return confirm('Haqiqatan ham o`chirilsinmi?')">O'chirish
                                     </button>
                                 </form>
                             </div>
