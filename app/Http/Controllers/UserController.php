@@ -34,6 +34,23 @@ class UserController extends Controller
                     // ✅ Qo'shimcha query YO'Q!
                     return $user->roles->pluck('name')->implode(', ');
                 })
+                ->addColumn('actions', function(User $user) {
+                    $showUrl = route('users.show', $user->id);
+                    $editUrl = route('users.edit', $user->id);
+                    $deleteUrl = route('users.destroy', $user->id);
+                    $csrf = csrf_field();
+                    $method = method_field('DELETE');
+                    return <<<HTML
+                <a href="{$showUrl}" class="btn btn-info btn-sm">Batafsil</a>
+                <a href="{$editUrl}" class="btn btn-warning btn-sm">Tahrirlash</a>
+                <form action="{$deleteUrl}" method="POST" class="d-inline" onsubmit="return confirm('Haqiqatan ham o'chirmoqchimisiz?')">
+                    {$csrf}
+                    {$method}
+                    <button type="submit" class="btn btn-danger btn-sm">O'chirish</button>
+                </form>
+                HTML;
+                })
+                ->rawColumns(['actions']) // HTML ni render qilish uchun
                 ->toJson();
         }
 
