@@ -24,6 +24,11 @@ class UserController extends Controller
             $usersQuery->where('company_id', $user->company_id);
         }
 
+        // ✅ Company filter (admin uchun)
+        if ($request->filled('company_id')) {
+            $usersQuery->where('company_id', $request->company_id);
+        }
+
         if ($request->ajax()) {
             return DataTables::of($usersQuery)
                 ->addColumn('company_name', function(User $user) {

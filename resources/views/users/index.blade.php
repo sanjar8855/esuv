@@ -33,6 +33,25 @@
                         <div class="alert alert-success">{{ session('success') }}</div>
                     @endif
 
+                    {{-- Company Filter --}}
+                    @if(auth()->user()->hasRole('admin'))
+                    <div class="card mb-3">
+                        <div class="card-body">
+                            <div class="row">
+                                <div class="col-md-4">
+                                    <label for="companyFilter" class="form-label">Kompaniya bo'yicha filtr</label>
+                                    <select id="companyFilter" class="form-select">
+                                        <option value="">Barcha kompaniyalar</option>
+                                        @foreach(\App\Models\Company::orderBy('name')->get() as $company)
+                                            <option value="{{ $company->id }}">{{ $company->name }}</option>
+                                        @endforeach
+                                    </select>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    @endif
+
                     <div class="card">
                         <div class="table-responsive">
                             {{-- Jadvalga ID beramiz va tbody ni bo'sh qoldiramiz --}}
@@ -71,12 +90,16 @@
     <script>
         $(document).ready(function () {
             // DataTables'ni #usersTable ID'li jadvalga qo'llaymiz
-            $('#usersTable').DataTable({
+            var table = $('#usersTable').DataTable({
                 processing: true, // Ishlov jarayoni indikatorini ko'rsatish
                 serverSide: true, // Server tomonida ishlashni yoqish
                 ajax: {
                     url: "{{ route('users.index') }}", // Ma'lumotlarni olish uchun Controller'dagi route
-                    type: 'GET' // So'rov turi (Controller'dagi route metodi bilan bir xil bo'lishi kerak)
+                    type: 'GET', // So'rov turi (Controller'dagi route metodi bilan bir xil bo'lishi kerak)
+                    data: function (d) {
+                        // Qo'shimcha parametrlarni qo'shish
+                        d.company_id = $('#companyFilter').val();
+                    }
                 },
                 columns: [
                     // `data` - Controller'dan keladigan JSON javobidagi kalit nomi
@@ -113,6 +136,11 @@
                     }
 
                 }
+            });
+
+            // Company filter o'zgarganda
+            $('#companyFilter').on('change', function() {
+                table.draw(); // DataTables'ni qayta yuklash
             });
         });
     </script>
