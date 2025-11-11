@@ -77,14 +77,20 @@ class UserController extends Controller
     {
         $validatedData = $request->validate([
             'company_id' => 'required|exists:companies,id',
-            'name' => 'required|string',
-            'email' => 'required|email|unique:users',
+            'name' => 'required|string|max:255',
+            'login' => 'nullable|string|max:50|unique:users,login',
+            'email' => 'nullable|email|unique:users,email',
+            'phone' => 'required|string|regex:/^[0-9]{9}$/|unique:users,phone',
             'password' => 'required|string|min:6',
             'role' => 'required|in:company_owner,employee',
             'rank' => 'nullable|string',
             'files' => 'nullable|file|max:4096',
             'work_start' => 'nullable|date',
-            'phone' => 'nullable|string|max:25',
+        ], [
+            'phone.required' => 'Telefon raqam majburiy',
+            'phone.regex' => 'Telefon raqam 9 ta raqamdan iborat bo\'lishi kerak',
+            'phone.unique' => 'Bu telefon raqam allaqachon ishlatilmoqda',
+            'login.unique' => 'Bu login allaqachon band',
         ]);
 
         $filePath = null;
@@ -97,12 +103,13 @@ class UserController extends Controller
         $user = User::create([
             'company_id' => $validatedData['company_id'],
             'name' => $validatedData['name'],
-            'email' => $validatedData['email'],
-            'password' => Hash::make($validatedData['password']),
-            'rank' => $validatedData['rank'],
-            'files' => $filePath,
+            'login' => $validatedData['login'] ?? null,
+            'email' => $validatedData['email'] ?? null,
             'phone' => $validatedData['phone'],
-            'work_start' => $validatedData['work_start'],
+            'password' => Hash::make($validatedData['password']),
+            'rank' => $validatedData['rank'] ?? null,
+            'files' => $filePath,
+            'work_start' => $validatedData['work_start'] ?? null,
         ]);
 
         $user->assignRole($validatedData['role']);
@@ -131,16 +138,22 @@ class UserController extends Controller
     public function update(Request $request, User $user)
     {
         // 1. Validatsiya
-        $validatedData = $request->validate([ // Validatsiyadan o'tgan ma'lumotlarni olish
+        $validatedData = $request->validate([
             'company_id' => 'required|exists:companies,id',
-            'name' => 'required|string',
-            'email' => 'required|email|unique:users,email,' . $user->id, // Yangilash uchun to'g'ri unique qoidasi
-            'password' => 'nullable|string|min:6', // Yangilashda parol majburiy emas (nullable)
+            'name' => 'required|string|max:255',
+            'login' => 'nullable|string|max:50|unique:users,login,' . $user->id,
+            'email' => 'nullable|email|unique:users,email,' . $user->id,
+            'phone' => 'required|string|regex:/^[0-9]{9}$/|unique:users,phone,' . $user->id,
+            'password' => 'nullable|string|min:6',
             'role' => 'required|in:company_owner,employee',
             'rank' => 'nullable|string',
-            'files' => 'nullable|file|max:4096', // Fayl ham majburiy emas va hajmi cheklangan
+            'files' => 'nullable|file|max:4096',
             'work_start' => 'nullable|date',
-            'phone' => 'nullable|string|max:25',
+        ], [
+            'phone.required' => 'Telefon raqam majburiy',
+            'phone.regex' => 'Telefon raqam 9 ta raqamdan iborat bo\'lishi kerak',
+            'phone.unique' => 'Bu telefon raqam allaqachon ishlatilmoqda',
+            'login.unique' => 'Bu login allaqachon band',
         ]);
 
         // 2. Fayl bilan ishlash
@@ -161,13 +174,12 @@ class UserController extends Controller
         $updateData = [
             'company_id' => $validatedData['company_id'],
             'name' => $validatedData['name'],
-            'email' => $validatedData['email'],
-            // Parolni faqat yangi parol kiritilgan bo'lsa yangilaymiz
-            // 'password' => $request->password ? Hash::make($request->password) : $user->password, // Bu eski yondashuv
-            'rank' => $validatedData['rank'],
-            'files' => $filePath, // <--- FAYL MANZILINI (string yoki null) TO'G'RI UZATISH
+            'login' => $validatedData['login'] ?? null,
+            'email' => $validatedData['email'] ?? null,
             'phone' => $validatedData['phone'],
-            'work_start' => $validatedData['work_start'],
+            'rank' => $validatedData['rank'] ?? null,
+            'files' => $filePath,
+            'work_start' => $validatedData['work_start'] ?? null,
         ];
 
         // 4. Agar validatsiyadan o'tgan parol bo'sh bo'lmasa (yangi parol kiritilgan bo'lsa)

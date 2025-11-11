@@ -18,12 +18,30 @@ class AuthController extends Controller
     // Login jarayoni
     public function login(Request $request)
     {
-        $credentials = $request->validate([
-            'email' => 'required|email',
+        $request->validate([
+            'login' => 'required|string',
             'password' => 'required',
         ]);
 
         $remember = $request->has('remember');
+        $loginField = $request->input('login');
+
+        // Login yoki phone orqali kirish
+        $credentials = [];
+
+        // Agar faqat raqamlardan iborat bo'lsa - telefon raqami
+        if (preg_match('/^[0-9]+$/', $loginField)) {
+            $credentials = [
+                'phone' => $loginField,
+                'password' => $request->password,
+            ];
+        } else {
+            // Aks holda - login
+            $credentials = [
+                'login' => $loginField,
+                'password' => $request->password,
+            ];
+        }
 
         if (Auth::attempt($credentials, $remember)) {
             $request->session()->regenerate();
@@ -34,7 +52,7 @@ class AuthController extends Controller
             return redirect()->route('dashboard');
         }
 
-        return back()->withErrors(['email' => 'Email yoki parol noto‘g‘ri'])->withInput();
+        return back()->withErrors(['login' => 'Login/Telefon yoki parol noto\'g\'ri'])->withInput();
     }
 
     // Ro‘yxatdan o‘tish sahifasi

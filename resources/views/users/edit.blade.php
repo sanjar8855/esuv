@@ -48,24 +48,50 @@
                         </div>
 
                         <div class="mb-3">
-                            <label for="email">Email:</label>
-                            <input type="email" name="email" class="form-control" value="{{ $user->email }}" required>
+                            <label for="login" class="form-label">Login (ixtiyoriy)</label>
+                            <input type="text" class="form-control @error('login') is-invalid @enderror"
+                                   id="login" name="login" value="{{ old('login', $user->login) }}"
+                                   placeholder="Foydalanuvchi login">
+                            @error('login')
+                            <div class="invalid-feedback">{{ $message }}</div>
+                            @enderror
+                            <small class="form-hint">Agar login kiritilmasa, telefon orqali kirish mumkin</small>
                         </div>
 
                         <div class="mb-3">
-                            <label for="password">Yangi Parol (agar o‘zgartirilmasa, bo‘sh qoldiring):</label>
-                            <input type="password" name="password" class="form-control">
-                        </div>
-
-                        <div class="mb-3">
-                            <label for="rank">Lavozim:</label>
-                            <input type="text" name="rank" class="form-control" value="{{ $user->rank }}">
-                        </div>
-
-                        <div class="mb-3">
-                            <label for="phone" class="form-label">Telefon raqami</label>
-                            <input type="tel" class="form-control @error('phone') is-invalid @enderror" id="phone" name="phone" value="{{ old('phone', $user->phone) }}">
+                            <label for="phone" class="form-label required">Telefon raqami</label>
+                            <input type="text" class="form-control @error('phone') is-invalid @enderror"
+                                   id="phone" name="phone" value="{{ old('phone', $user->phone) }}"
+                                   placeholder="901234567" required>
                             @error('phone')
+                            <div class="invalid-feedback">{{ $message }}</div>
+                            @enderror
+                            <small class="form-hint">9 ta raqamli telefon raqam</small>
+                        </div>
+
+                        <div class="mb-3">
+                            <label for="email" class="form-label">Email (ixtiyoriy)</label>
+                            <input type="email" name="email" class="form-control @error('email') is-invalid @enderror"
+                                   value="{{ old('email', $user->email) }}" placeholder="user@example.com">
+                            @error('email')
+                            <div class="invalid-feedback">{{ $message }}</div>
+                            @enderror
+                        </div>
+
+                        <div class="mb-3">
+                            <label for="password" class="form-label">Yangi Parol (bo'sh qoldirsa o'zgarmaydi)</label>
+                            <input type="password" name="password" class="form-control @error('password') is-invalid @enderror"
+                                   placeholder="Yangi parol">
+                            @error('password')
+                            <div class="invalid-feedback">{{ $message }}</div>
+                            @enderror
+                        </div>
+
+                        <div class="mb-3">
+                            <label for="rank" class="form-label">Lavozim</label>
+                            <input type="text" name="rank" class="form-control @error('rank') is-invalid @enderror"
+                                   value="{{ old('rank', $user->rank) }}">
+                            @error('rank')
                             <div class="invalid-feedback">{{ $message }}</div>
                             @enderror
                         </div>

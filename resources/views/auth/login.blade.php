@@ -22,15 +22,29 @@
                 <form action="{{ route('login') }}" method="POST">
                     @csrf
                     <div class="mb-3">
-                        <label class="form-label">Email address</label>
-                        <input type="email" name="email" class="form-control" placeholder="your@email.com" value="{{old('email')}}">
+                        <label class="form-label">Login yoki Telefon</label>
+                        <input type="text" name="login" class="form-control @error('login') is-invalid @enderror"
+                               placeholder="Login yoki telefon raqam (901234567)"
+                               value="{{old('login')}}"
+                               autocomplete="username"
+                               required>
+                        @error('login')
+                            <div class="invalid-feedback">{{ $message }}</div>
+                        @enderror
+                        <small class="form-hint">Login yoki 9 ta raqamli telefon raqamingizni kiriting</small>
                     </div>
                     <div class="mb-2">
                         <label class="form-label">
                             Parol
                         </label>
                         <div class="input-group input-group-flat">
-                            <input type="password" name="password" class="form-control"  placeholder="Parolingiz">
+                            <input type="password" name="password" class="form-control @error('password') is-invalid @enderror"
+                                   placeholder="Parolingiz"
+                                   autocomplete="current-password"
+                                   required>
+                            @error('password')
+                                <div class="invalid-feedback">{{ $message }}</div>
+                            @enderror
                         </div>
                     </div>
                     <div class="mb-2">
