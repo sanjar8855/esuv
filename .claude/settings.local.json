@@ -22,7 +22,9 @@
       "Bash(php artisan view:cache)",
       "Bash(php artisan view:clear)",
       "Bash(php artisan cache:clear)",
-      "Bash(php artisan:*)"
+      "Bash(php artisan:*)",
+      "Bash(del \"C:\\OSPanel\\domains\\suv\\database\\migrations\\2025_11_11_222400_add_user_stamps_to_customers_table.php\")",
+      "Bash(del \"C:\\OSPanel\\domains\\suv\\database\\migrations\\2025_11_11_222638_add_user_stamps_to_water_meters_table.php\")"
     ],
     "deny": [],
     "ask": []
