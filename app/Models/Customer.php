@@ -65,7 +65,7 @@ class Customer extends Model
     }
 
     /**
-     * ✅ Phone mutator - format: (99) 123-45-67
+     * ✅ Phone mutator - saqlanadi xuddi kiritilganidek
      */
     public function setPhoneAttribute($value)
     {
@@ -74,17 +74,11 @@ class Customer extends Model
             return;
         }
 
+        // Faqat raqamlarni olamiz
         $digits = preg_replace('/[^0-9]/', '', $value);
 
-        if (strlen($digits) === 9) {
-            $this->attributes['phone'] = preg_replace(
-                '/^(\d{2})(\d{3})(\d{2})(\d{2})$/',
-                '($1) $2-$3-$4',
-                $digits
-            );
-        } else {
-            $this->attributes['phone'] = $value;
-        }
+        // 9 ta raqam bo'lsa, shunday saqlaymiz
+        $this->attributes['phone'] = $digits;
     }
 
     /**

@@ -73,9 +73,7 @@
                             <input type="text" name="phone"
                                    class="form-control @error('phone') is-invalid @enderror"
                                    value="{{ old('phone', $customer->phone) }}"
-                                   data-mask="(00) 000-00-00"
-                                   data-mask-visible="true"
-                                   placeholder="(00) 000-00-00"
+                                   placeholder="901234567"
                                    autocomplete="off"/>
                             @error('phone')
                             <div class="invalid-feedback">{{ $message }}</div>

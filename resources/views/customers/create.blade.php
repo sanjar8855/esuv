@@ -127,8 +127,7 @@
                         <div class="mb-3">
                             <label class="form-label">Telefon</label>
                             <input type="text" name="phone" class="form-control" value="{{ old('phone')}}"
-                                   data-mask="(00) 000-00-00" data-mask-visible="true" placeholder="(00) 000-00-00"
-                                   autocomplete="off"/>
+                                   placeholder="901234567" autocomplete="off"/>
                         </div>
 
                         <div class="mb-3">

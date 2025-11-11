@@ -31,8 +31,7 @@ class UpdateCustomerRequest extends FormRequest
             'phone' => [
                 'nullable',
                 'string',
-                'max:255',
-                'regex:/^\+?998[0-9]{9}$/',  // ✅ O'zbekiston format
+                'regex:/^[0-9]{9}$/',  // ✅ Faqat 9 ta raqam
             ],
             'address' => 'nullable|string|max:500',  // ✅ required dan nullable ga
             'account_number' => [
@@ -78,7 +77,7 @@ class UpdateCustomerRequest extends FormRequest
             'account_number.unique' => 'Bu hisob raqam allaqachon mavjud',
             'account_number.max' => 'Hisob raqam 20 ta belgidan oshmasligi kerak',
 
-            'phone.regex' => 'Telefon raqam +998901234567 formatida bo\'lishi kerak',
+            'phone.regex' => 'Telefon raqam 9 ta raqamdan iborat bo\'lishi kerak (masalan: 901234567)',
 
             'family_members.min' => 'Oila a\'zolari soni kamida 1 bo\'lishi kerak',
             'family_members.max' => 'Oila a\'zolari soni 50 dan oshmasligi kerak',

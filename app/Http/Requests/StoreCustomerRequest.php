@@ -31,8 +31,7 @@ class StoreCustomerRequest extends FormRequest
             'phone' => [
                 'nullable',
                 'string',
-                'max:255',
-                'regex:/^\+?998[0-9]{9}$/', // ✅ O'zbekiston format
+                'regex:/^[0-9]{9}$/', // ✅ Faqat 9 ta raqam
             ],
             'address' => 'nullable|string|max:500',
             'account_meter_number' => [
@@ -92,7 +91,7 @@ class StoreCustomerRequest extends FormRequest
             'account_meter_number.unique' => 'Bu hisob raqam allaqachon mavjud',
             'account_meter_number.max' => 'Hisob raqam 50 ta belgidan oshmasligi kerak',
 
-            'phone.regex' => 'Telefon raqam +998901234567 formatida bo\'lishi kerak',
+            'phone.regex' => 'Telefon raqam 9 ta raqamdan iborat bo\'lishi kerak (masalan: 901234567)',
 
             'family_members.required' => 'Oila a\'zolari sonini kiritish majburiy (meyoriy uchun)',
             'family_members.min' => 'Oila a\'zolari soni kamida 1 bo\'lishi kerak',

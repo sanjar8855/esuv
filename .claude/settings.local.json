@@ -21,7 +21,8 @@
       "Bash(php artisan route:cache)",
       "Bash(php artisan view:cache)",
       "Bash(php artisan view:clear)",
-      "Bash(php artisan cache:clear)"
+      "Bash(php artisan cache:clear)",
+      "Bash(php artisan:*)"
     ],
     "deny": [],
     "ask": []
