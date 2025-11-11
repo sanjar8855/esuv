@@ -16,24 +16,26 @@ class UserController extends Controller
     {
         $user = auth()->user();
 
-        // ✅ Eager Loading - birdaniga barcha relation larni olish
-        $usersQuery = User::with(['company', 'roles']); // 3 query (users + companies + roles)
+        // ✅ Join companies jadvali - saralash uchun
+        $usersQuery = User::select('users.*', 'companies.name as company_name')
+            ->leftJoin('companies', 'users.company_id', '=', 'companies.id')
+            ->with(['roles']); // Rollarni eager loading
 
         // Admin bo'lmasa filtr
         if (!$user->hasRole('admin')) {
-            $usersQuery->where('company_id', $user->company_id);
+            $usersQuery->where('users.company_id', $user->company_id);
         }
 
         // ✅ Company filter (admin uchun)
         if ($request->filled('company_id')) {
-            $usersQuery->where('company_id', $request->company_id);
+            $usersQuery->where('users.company_id', $request->company_id);
         }
 
         if ($request->ajax()) {
             return DataTables::of($usersQuery)
                 ->addColumn('company_name', function(User $user) {
-                    // ✅ Qo'shimcha query YO'Q! (allaqachon yuklangan)
-                    return $user->company->name ?? '-';
+                    // ✅ company_name allaqachon select'da bor
+                    return $user->company_name ?? '-';
                 })
                 ->addColumn('roles', function(User $user) {
                     // ✅ Qo'shimcha query YO'Q!
