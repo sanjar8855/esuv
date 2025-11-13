@@ -21,19 +21,35 @@ class CustomersImport implements ToCollection, WithHeadingRow, WithValidation
     {
         foreach ($rows as $row) {
             // Ma'lumotlarni tozalash
-            $accountNumber = isset($row['hisob_raqam']) ? str_replace(' ', '', $row['hisob_raqam']) : null;
+            $accountNumber = isset($row['hisob_raqam']) ? str_replace(' ', '', (string)$row['hisob_raqam']) : null;
             $hasWaterMeter = filter_var($row['hisoblagich_bormi'], FILTER_VALIDATE_BOOLEAN);
+
+            // Telefon raqamini tozalash (integer yoki string bo'lishi mumkin)
+            $phone = isset($row['telefon_raqami']) && !empty($row['telefon_raqami'])
+                ? (string)$row['telefon_raqami']
+                : null;
+
+            // Uy raqamini tozalash (integer yoki string bo'lishi mumkin)
+            $address = isset($row['uy_raqami']) && !empty($row['uy_raqami'])
+                ? (string)$row['uy_raqami']
+                : null;
+
+            // Oila a'zolari - 0 bo'lsa null qilish
+            $familyMembers = null;
+            if (!$hasWaterMeter && isset($row['oila_azolari'])) {
+                $familyMembers = $row['oila_azolari'] > 0 ? (int)$row['oila_azolari'] : null;
+            }
 
             // Customer yaratish
             $customer = Customer::create([
                 'company_id'      => $row['kompaniya_id'],
                 'street_id'       => $row['kocha_id'],
                 'name'            => $row['fio'],
-                'phone'           => $row['telefon_raqami'],
-                'address'         => $row['uy_raqami'],
+                'phone'           => $phone,
+                'address'         => $address,
                 'account_number'  => $accountNumber,
                 'has_water_meter' => $hasWaterMeter,
-                'family_members'  => $hasWaterMeter ? null : $row['oila_azolari'],
+                'family_members'  => $familyMembers,
                 'is_active'       => true,
                 'balance'         => 0,
             ]);
@@ -88,14 +104,14 @@ class CustomersImport implements ToCollection, WithHeadingRow, WithValidation
                     return filter_var($input->hisoblagich_bormi, FILTER_VALIDATE_BOOLEAN);
                 }),
             ],
-            '*.oila_azolari' => ['required_if:*.hisoblagich_bormi,0', 'nullable', 'integer', 'min:1'],
+            '*.oila_azolari' => ['required_if:*.hisoblagich_bormi,0', 'nullable', 'numeric', 'min:1'],
             '*.hisoblagich_ornatilgan_sana' => ['required_if:*.hisoblagich_bormi,1', 'nullable', 'date'],
             '*.amal_qilish_muddati' => ['required_if:*.hisoblagich_bormi,1', 'nullable', 'integer', 'min:0'],
             '*.boshlangich_korsatkich' => ['required_if:*.hisoblagich_bormi,1', 'nullable', 'numeric', 'min:0'],
             '*.korsatkich_sanasi' => ['required_if:*.hisoblagich_bormi,1', 'nullable', 'date'],
             '*.hisoblagich_bormi' => ['required', 'boolean'],
-            '*.telefon_raqami' => ['nullable', 'string', 'max:30'],
-            '*.uy_raqami' => ['nullable', 'string', 'max:255'],
+            '*.telefon_raqami' => ['nullable'], // String yoki numeric - ikkalasi ham bo'lishi mumkin
+            '*.uy_raqami' => ['nullable'], // String yoki numeric - ikkalasi ham bo'lishi mumkin
         ];
     }
 }
