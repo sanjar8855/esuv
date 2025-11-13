@@ -15,6 +15,28 @@ use Maatwebsite\Excel\Concerns\WithValidation;
 class CustomersImport implements ToCollection, WithHeadingRow, WithValidation
 {
     /**
+     * Validatsiyadan oldin ma'lumotlarni tayyorlash
+     */
+    public function prepareForValidation($data, $index)
+    {
+        // Telefon va uy raqamlarini string'ga konvert qilish
+        return [
+            'kompaniya_id' => $data['kompaniya_id'] ?? null,
+            'kocha_id' => $data['kocha_id'] ?? null,
+            'fio' => $data['fio'] ?? null,
+            'hisob_raqam' => $data['hisob_raqam'] ?? null,
+            'oila_azolari' => $data['oila_azolari'] ?? null,
+            'hisoblagich_ornatilgan_sana' => $data['hisoblagich_ornatilgan_sana'] ?? null,
+            'amal_qilish_muddati' => $data['amal_qilish_muddati'] ?? null,
+            'boshlangich_korsatkich' => $data['boshlangich_korsatkich'] ?? null,
+            'korsatkich_sanasi' => $data['korsatkich_sanasi'] ?? null,
+            'hisoblagich_bormi' => $data['hisoblagich_bormi'] ?? null,
+            'telefon_raqami' => isset($data['telefon_raqami']) ? (string)$data['telefon_raqami'] : null,
+            'uy_raqami' => isset($data['uy_raqami']) ? (string)$data['uy_raqami'] : null,
+        ];
+    }
+
+    /**
      * @param Collection $rows
      */
     public function collection(Collection $rows)
@@ -110,8 +132,8 @@ class CustomersImport implements ToCollection, WithHeadingRow, WithValidation
             '*.boshlangich_korsatkich' => ['required_if:*.hisoblagich_bormi,1', 'nullable', 'numeric', 'min:0'],
             '*.korsatkich_sanasi' => ['required_if:*.hisoblagich_bormi,1', 'nullable', 'date'],
             '*.hisoblagich_bormi' => ['required', 'boolean'],
-            '*.telefon_raqami' => ['nullable'], // String yoki numeric - ikkalasi ham bo'lishi mumkin
-            '*.uy_raqami' => ['nullable'], // String yoki numeric - ikkalasi ham bo'lishi mumkin
+            '*.telefon_raqami' => ['nullable', 'string', 'max:30'], // prepareForValidation orqali string bo'ladi
+            '*.uy_raqami' => ['nullable', 'string', 'max:255'], // prepareForValidation orqali string bo'ladi
         ];
     }
 }
