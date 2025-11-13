@@ -126,14 +126,13 @@ class CustomersImport implements ToCollection, WithHeadingRow, WithValidation
                     return filter_var($input->hisoblagich_bormi, FILTER_VALIDATE_BOOLEAN);
                 }),
             ],
-            '*.oila_azolari' => ['required_if:*.hisoblagich_bormi,0', 'nullable', 'numeric', 'min:1'],
+            '*.oila_azolari' => ['nullable', 'numeric', 'min:1'],
             '*.hisoblagich_ornatilgan_sana' => ['required_if:*.hisoblagich_bormi,1', 'nullable', 'date'],
             '*.amal_qilish_muddati' => ['required_if:*.hisoblagich_bormi,1', 'nullable', 'integer', 'min:0'],
             '*.boshlangich_korsatkich' => ['required_if:*.hisoblagich_bormi,1', 'nullable', 'numeric', 'min:0'],
             '*.korsatkich_sanasi' => ['required_if:*.hisoblagich_bormi,1', 'nullable', 'date'],
             '*.hisoblagich_bormi' => ['required', 'boolean'],
-            '*.telefon_raqami' => ['nullable', 'string', 'max:30'], // prepareForValidation orqali string bo'ladi
-            '*.uy_raqami' => ['nullable', 'string', 'max:255'], // prepareForValidation orqali string bo'ladi
+            // Telefon va uy_raqami validation'siz - collection() metodida handle qilinadi
         ];
     }
 }
