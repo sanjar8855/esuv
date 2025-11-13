@@ -40,9 +40,12 @@ return [
             ],
         ],
 
-        //        'mySecondBot' => [
-        //            'token' => '123456:abc',
-        //        ],
+        // WebApp Bot (xodimlar uchun admin panel)
+        'webapp' => [
+            'token' => env('TELEGRAM_WEBAPP_BOT_TOKEN', 'YOUR-WEBAPP-BOT-TOKEN'),
+            'allowed_updates' => null,
+            'commands' => [],
+        ],
     ],
 
     /*

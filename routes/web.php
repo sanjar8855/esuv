@@ -22,6 +22,7 @@ use Telegram\Bot\Laravel\Facades\Telegram;
 use App\Http\Controllers\SubscriberController;
 use App\Http\Controllers\SaasPaymentController;
 use App\Http\Controllers\DailyReportController;
+use App\Http\Controllers\TelegramWebAppController;
 
 Route::post('/subscribe', [SubscriberController::class, 'store'])->name('subscribe.store');
 
@@ -30,6 +31,14 @@ Route::post('/subscribe', [SubscriberController::class, 'store'])->name('subscri
 //});
 
 Route::get('/', [HomeController::class, 'index'])->name('home');
+
+// Telegram WebApp Routes
+Route::prefix('telegram-webapp')->middleware(['telegram.webapp'])->group(function () {
+    Route::get('/', [TelegramWebAppController::class, 'index'])->name('telegram-webapp.index');
+    Route::post('/auth', [TelegramWebAppController::class, 'authenticate'])->name('telegram-webapp.auth');
+    Route::post('/logout', [TelegramWebAppController::class, 'logout'])->name('telegram-webapp.logout');
+    Route::get('/user', [TelegramWebAppController::class, 'user'])->name('telegram-webapp.user');
+});
 
 Route::middleware('guest')->group(function () {
     Route::get('/login', [AuthController::class, 'showLogin'])->name('login');

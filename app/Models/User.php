@@ -21,6 +21,8 @@ class User extends Authenticatable
         'rank',
         'files',
         'work_start',
+        'telegram_username',  // ✅ Telegram WebApp uchun
+        'telegram_user_id',   // ✅ Telegram WebApp uchun
     ];
 
     public function company()
