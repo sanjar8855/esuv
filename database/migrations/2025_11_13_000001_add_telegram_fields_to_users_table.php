@@ -14,7 +14,7 @@ return new class extends Migration
         Schema::table('users', function (Blueprint $table) {
             $table->string('telegram_username')->nullable()->after('password');
             $table->bigInteger('telegram_user_id')->nullable()->unique()->after('telegram_username');
-            $table->string('phone')->nullable()->after('email');
+            // phone field allaqachon 2025_04_28 migration'da qo'shilgan
         });
     }
 
@@ -24,7 +24,8 @@ return new class extends Migration
     public function down(): void
     {
         Schema::table('users', function (Blueprint $table) {
-            $table->dropColumn(['telegram_username', 'telegram_user_id', 'phone']);
+            $table->dropColumn(['telegram_username', 'telegram_user_id']);
+            // phone field eski migration'da qolsin
         });
     }
 };
