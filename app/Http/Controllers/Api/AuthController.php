@@ -12,20 +12,35 @@ class AuthController extends Controller
     public function login(Request $request)
     {
         $credentials = $request->validate([
-            'email' => 'required|email',
+            'login' => 'required|string', // email yoki phone
             'password' => 'required',
         ]);
 
-        if (!Auth::attempt($credentials)) {
-            return response()->json(['message' => 'Noto‘g‘ri login yoki parol'], 401);
+        // Email yoki phone orqali login
+        $user = User::where('email', $credentials['login'])
+            ->orWhere('phone', $credentials['login'])
+            ->orWhere('login', $credentials['login'])
+            ->first();
+
+        if (!$user || !Hash::check($credentials['password'], $user->password)) {
+            return response()->json([
+                'message' => 'Noto\'g\'ri login yoki parol'
+            ], 401);
         }
 
-        $user = Auth::user();
-        $token = $user->createToken('auth_token')->plainTextToken;
+        // Token yaratish
+        $token = $user->createToken('mobile_app')->plainTextToken;
 
         return response()->json([
-            'access_token' => $token,
-            'token_type' => 'Bearer',
+            'token' => $token,
+            'user' => [
+                'id' => $user->id,
+                'name' => $user->name,
+                'email' => $user->email,
+                'phone' => $user->phone,
+                'company_id' => $user->company_id,
+                'company_name' => $user->company?->name,
+            ],
         ]);
     }
 
@@ -33,5 +48,20 @@ class AuthController extends Controller
     {
         $request->user()->tokens()->delete();
         return response()->json(['message' => 'Chiqib ketildi']);
+    }
+
+    public function user(Request $request)
+    {
+        $user = $request->user();
+
+        return response()->json([
+            'id' => $user->id,
+            'name' => $user->name,
+            'email' => $user->email,
+            'phone' => $user->phone,
+            'company_id' => $user->company_id,
+            'company_name' => $user->company?->name,
+            'telegram_username' => $user->telegram_username,
+        ]);
     }
 }
