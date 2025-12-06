@@ -13,8 +13,8 @@ return new class extends Migration {
             $table->string('payment_period', 7); // Qaysi oy uchun to'lov qilingani (Format: YYYY-MM)
             $table->string('payment_method')->nullable(); // To'lov usuli (naqd, click, payme...)
             $table->text('notes')->nullable(); // Admin uchun izohlar
-            $table->foreignId('created_by_user_id')->nullable()->constrained('users')->onDelete('set null');
-            $table->foreignId('updated_by_user_id')->nullable()->constrained('users')->onDelete('set null');
+            $table->foreignId('created_by')->nullable()->constrained('users')->onDelete('set null');
+            $table->foreignId('updated_by')->nullable()->constrained('users')->onDelete('set null');
             $table->timestamps();
         });
     }
