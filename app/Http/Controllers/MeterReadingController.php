@@ -6,9 +6,15 @@ use App\Models\Invoice;
 use App\Models\MeterReading;
 use App\Models\Tariff;
 use App\Models\WaterMeter;
+use App\Models\ImportLog;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;    // Auth Facade
 use Illuminate\Support\Facades\Storage; // Storage Facade (rasm uchun kerak bo'lishi mumkin)
+use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\DB;
+use Maatwebsite\Excel\Facades\Excel;
+use App\Imports\BasicExcelImport;
+use App\Imports\MeterReadingsImport;
 use Yajra\DataTables\Facades\DataTables; // DataTables Facade
 
 class MeterReadingController extends Controller
@@ -323,16 +329,92 @@ class MeterReadingController extends Controller
 
         if (strpos($previousUrl, route('customers.show', $customer->id)) !== false) {
             return redirect()->route('customers.show', $customer->id)
-                ->with('success', 'Hisoblagich o‘qilishi muvaffaqiyatli qo‘shildi!');
+                ->with('success', 'Hisoblagich o'qilishi muvaffaqiyatli qo'shildi!');
         } elseif (strpos($previousUrl, route('meter_readings.create')) !== false) {
             return redirect()->route('meter_readings.index')
-                ->with('success', 'Hisoblagich o‘qilishi muvaffaqiyatli qo‘shildi!');
+                ->with('success', 'Hisoblagich o'qilishi muvaffaqiyatli qo'shildi!');
         } elseif (strpos($previousUrl, route('water_meters.show', $meterReading->water_meter_id)) !== false) {
             return redirect()->route('water_meters.show', $meterReading->water_meter_id)
-                ->with('success', 'Hisoblagich o‘qilishi muvaffaqiyatli qo‘shildi!');
+                ->with('success', 'Hisoblagich o'qilishi muvaffaqiyatli qo'shildi!');
         } else {
             return redirect()->route('meter_readings.index')
-                ->with('success', 'Hisoblagich o‘qilishi muvaffaqiyatli qo‘shildi!');
+                ->with('success', 'Hisoblagich o'qilishi muvaffaqiyatli qo'shildi!');
+        }
+    }
+
+    /**
+     * Ko'rsatkichlarni import qilish formasi
+     */
+    public function showImportForm()
+    {
+        // Faqat admin va company_owner kirishi mumkin
+        if (!auth()->user()->hasAnyRole(['admin', 'company_owner'])) {
+            return redirect()->route('meter_readings.index')
+                ->with('error', 'Sizda import sahifasiga kirish uchun ruxsat yo\'q.');
+        }
+
+        return view('meter_readings.import');
+    }
+
+    /**
+     * Ko'rsatkichlarni Excel'dan import qilish
+     */
+    public function handleImport(Request $request)
+    {
+        $user = auth()->user();
+
+        // Ruxsat tekshiruvi
+        if (!$user->hasAnyRole(['admin', 'company_owner'])) {
+            return redirect()->route('meter_readings.index')
+                ->with('error', 'Sizda import qilish uchun ruxsat yo\'q.');
+        }
+
+        // Validatsiya
+        $maxFileSize = config('water_meter.import_max_file_size', 10) * 1024; // KB ga o'tkazish
+        $request->validate([
+            'excel_file' => "required|file|mimes:xlsx,xls,csv|max:{$maxFileSize}"
+        ]);
+
+        $file = $request->file('excel_file');
+
+        try {
+            // Import log yaratish
+            $importLog = ImportLog::create([
+                'import_type' => 'meter_readings',
+                'file_name' => $file->getClientOriginalName(),
+                'user_id' => $user->id,
+                'company_id' => $user->company_id,
+                'status' => 'processing',
+            ]);
+
+            // Excel faylni o'qish va import qilish
+            $import = new MeterReadingsImport($importLog);
+            Excel::import($import, $file);
+
+            $results = $import->getResults();
+
+            // Natijani qaytarish
+            if ($results['success_count'] > 0 && $results['failed_count'] === 0) {
+                // Hammasi muvaffaqiyatli
+                return redirect()->route('meter_readings.import.form')
+                    ->with('success', "{$results['success_count']} ta ko'rsatkich muvaffaqiyatli import qilindi!");
+            } elseif ($results['success_count'] > 0 && $results['failed_count'] > 0) {
+                // Qisman muvaffaqiyatli
+                return redirect()->route('meter_readings.import.form')
+                    ->with('warning', "{$results['success_count']} ta ko'rsatkich import qilindi, {$results['failed_count']} ta qatorda xatolik bor.")
+                    ->with('import_log_id', $importLog->id);
+            } else {
+                // Hech narsa import qilinmadi
+                return redirect()->route('meter_readings.import.form')
+                    ->with('error', 'Hech qanday ko\'rsatkich import qilinmadi. Barcha qatorlarda xatolik bor.')
+                    ->with('import_log_id', $importLog->id);
+            }
+
+        } catch (\Exception $e) {
+            Log::error('Meter readings import error: ' . $e->getMessage());
+            return redirect()->back()
+                ->withErrors(['file_error' => 'Import qilishda xatolik: ' . $e->getMessage()])
+                ->withInput();
         }
     }
 

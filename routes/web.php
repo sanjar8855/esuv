@@ -18,6 +18,7 @@ use App\Http\Controllers\MeterReadingController;
 use App\Http\Controllers\InvoiceController;
 use App\Http\Controllers\PaymentController;
 use App\Http\Controllers\NotificationController;
+use App\Http\Controllers\ImportLogController;
 use Telegram\Bot\Laravel\Facades\Telegram;
 use App\Http\Controllers\SubscriberController;
 use App\Http\Controllers\SaasPaymentController;
@@ -113,12 +114,22 @@ Route::middleware('auth')->group(function () {
     Route::middleware('can:meter_readings')->group(function () {
         Route::resource('meter_readings', MeterReadingController::class);
         Route::patch('/meter_readings/{id}/confirm', [MeterReadingController::class, 'confirm'])->name('meter_readings.confirm');
+
+        // Ko'rsatkichlarni import qilish
+        Route::get('/meter-readings/import/form', [MeterReadingController::class, 'showImportForm'])->name('meter_readings.import.form');
+        Route::post('/meter-readings/import', [MeterReadingController::class, 'handleImport'])->name('meter_readings.import');
     });
     Route::middleware('can:users')->group(function () {
         Route::resource('users', UserController::class);
     });
     Route::middleware('can:notifications')->group(function () {
         Route::resource('notifications', NotificationController::class);
+    });
+
+    // Import loglarini ko'rish (admin va company_owner uchun)
+    Route::middleware('role:admin|company_owner')->group(function () {
+        Route::get('/import-logs', [ImportLogController::class, 'index'])->name('import_logs.index');
+        Route::get('/import-logs/{importLog}', [ImportLogController::class, 'show'])->name('import_logs.show');
     });
 });
 
