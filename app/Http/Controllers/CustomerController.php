@@ -532,10 +532,26 @@ class CustomerController extends Controller
         $importLog = null;
 
         try {
-            $rows = Excel::toCollection(new BasicExcelImport, $file)->first();
+            // ✅ Excel faylni o'qish
+            $collection = Excel::toCollection(new BasicExcelImport, $file);
+
+            // Debug log
+            Log::info('Excel collection count: ' . $collection->count());
+
+            if ($collection->isEmpty()) {
+                throw new \Exception("Excel fayl bo'sh - hech qanday sheet topilmadi.");
+            }
+
+            $rows = $collection->first();
+
+            // Debug log
+            Log::info('First sheet rows count: ' . $rows->count());
+            if ($rows->count() > 0) {
+                Log::info('First row data: ' . json_encode($rows->first()));
+            }
 
             if ($rows->isEmpty()) {
-                throw new \Exception("Excel fayl bo'sh yoki noto'g'ri formatda.");
+                throw new \Exception("Excel faylning 1-shi sheet'ida ma'lumot yo'q. Iltimos sarlavha qatori va kamida 1 ta ma'lumot qatorini tekshiring.");
             }
 
             // ✅ Import log yaratish
