@@ -514,10 +514,12 @@ class CustomerController extends Controller
     }
 
     /**
-     * ✅ Umumiy import logikasi (YAXSHILANDI: Partial success)
+     * ✅ Umumiy import logikasi (YAXSHILANDI: Partial success va ImportLog)
      */
     private function processImport(Request $request, bool $hasWaterMeter)
     {
+        $user = auth()->user();
+
         // Validatsiya
         $maxFileSize = config('water_meter.import_max_file_size', 10) * 1024; // KB ga o'tkazish
         $request->validate([
@@ -525,9 +527,9 @@ class CustomerController extends Controller
         ]);
 
         $file = $request->file('excel_file');
-        $importErrors = [];
         $successCount = 0;
         $failedRows = [];
+        $importLog = null;
 
         try {
             $rows = Excel::toCollection(new BasicExcelImport, $file)->first();
@@ -535,6 +537,16 @@ class CustomerController extends Controller
             if ($rows->isEmpty()) {
                 throw new \Exception("Excel fayl bo'sh yoki noto'g'ri formatda.");
             }
+
+            // ✅ Import log yaratish
+            $importLog = ImportLog::create([
+                'import_type' => 'customers',
+                'file_name' => $file->getClientOriginalName(),
+                'user_id' => $user->id,
+                'company_id' => $user->company_id,
+                'status' => 'processing',
+                'total_rows' => $rows->count(),
+            ]);
 
             foreach ($rows as $index => $row) {
                 $rowNumber = $index + 2;  // Excel da 1-qator sarlavha, 2-qatordan boshlanadi
@@ -562,16 +574,26 @@ class CustomerController extends Controller
                     }
                     $failedRows[] = [
                         'row' => $rowNumber,
-                        'errors' => implode(', ', $errors)
+                        'errors' => implode(', ', $errors),
+                        'data' => $row->toArray(),
                     ];
                 } catch (\Exception $e) {
                     DB::rollBack();
                     $failedRows[] = [
                         'row' => $rowNumber,
-                        'errors' => $e->getMessage()
+                        'errors' => $e->getMessage(),
+                        'data' => $row->toArray(),
                     ];
                 }
             }
+
+            // ✅ Import logni yangilash
+            $importLog->update([
+                'success_count' => $successCount,
+                'failed_count' => count($failedRows),
+                'errors' => $failedRows,
+                'status' => count($failedRows) === 0 ? 'completed' : 'completed_with_errors',
+            ]);
 
             // ✅ Natijani qaytarish
             $type = $hasWaterMeter ? 'hisoblagichli' : 'hisoblagichsiz';
@@ -582,33 +604,29 @@ class CustomerController extends Controller
                     ->with('success', "{$successCount} ta {$type} mijoz muvaffaqiyatli import qilindi!");
             } elseif ($successCount > 0 && !empty($failedRows)) {
                 // Qisman muvaffaqiyatli
-                $errorMessages = [];
-                foreach ($failedRows as $failed) {
-                    $errorMessages[] = "Qator {$failed['row']}: {$failed['errors']}";
-                }
-
                 return redirect()->route('customers.import.form')
                     ->with('warning', "{$successCount} ta {$type} mijoz import qilindi, " . count($failedRows) . " ta qatorda xatolik bor.")
-                    ->withErrors(['import_errors' => $errorMessages]);
+                    ->with('import_log_id', $importLog->id);
             } else {
                 // Hech narsa import qilinmadi
-                $errorMessages = [];
-                foreach ($failedRows as $failed) {
-                    $errorMessages[] = "Qator {$failed['row']}: {$failed['errors']}";
-                }
-
-                $finalValidator = Validator::make([], []);
-                foreach ($errorMessages as $error) {
-                    $finalValidator->errors()->add('import_errors', $error);
-                }
-
-                throw new \Illuminate\Validation\ValidationException($finalValidator);
+                return redirect()->route('customers.import.form')
+                    ->with('error', 'Hech qanday mijoz import qilinmadi. Barcha qatorlarda xatolik bor.')
+                    ->with('import_log_id', $importLog->id);
             }
 
         } catch (\Illuminate\Validation\ValidationException $e) {
             return redirect()->back()->withErrors($e->errors())->withInput();
         } catch (\Exception $e) {
             Log::error('Excel import error: ' . $e->getMessage());
+
+            // ✅ Import log xatosi
+            if ($importLog) {
+                $importLog->update([
+                    'status' => 'failed',
+                    'errors' => [['row' => 0, 'errors' => $e->getMessage()]],
+                ]);
+            }
+
             return redirect()->back()
                 ->withErrors(['file_error' => 'Import qilishda xatolik: ' . $e->getMessage()])
                 ->withInput();
@@ -690,6 +708,7 @@ class CustomerController extends Controller
             'hisoblagich_ornatilgan_sana' => $this->parseExcelDate($rowData['hisoblagich_ornatilgan_sana'] ?? null),
             'amal_qilish_muddati' => $rowData['amal_qilish_muddati'] ?? 8,
             'boshlangich_korsatkich' => $rowData['boshlangich_korsatkich'] ?? null,
+            'oxirgi_korsatkich' => $rowData['oxirgi_korsatkich'] ?? null,
             'korsatkich_sanasi' => $this->parseExcelDate($rowData['korsatkich_sanasi'] ?? null) ?? now()->format('Y-m-d'),
             'oila_azolari' => $rowData['oila_azolari'] ?? null,
         ];
@@ -706,6 +725,7 @@ class CustomerController extends Controller
                 Rule::unique('water_meters', 'meter_number')
             ],
             'boshlangich_korsatkich' => 'required|numeric|min:0',
+            'oxirgi_korsatkich' => 'nullable|numeric|min:0',
             'amal_qilish_muddati' => 'nullable|integer|min:1|max:20',
             'hisoblagich_ornatilgan_sana' => 'nullable|date|before_or_equal:today',
             'korsatkich_sanasi' => 'required|date|before_or_equal:today',
@@ -720,6 +740,39 @@ class CustomerController extends Controller
 
         $validated = $validator->validated();
 
+        // ✅ Ko'rsatkich va balans hisoblash logikasi
+        $boshlangich = $validated['boshlangich_korsatkich'];
+        $oxirgi = $validated['oxirgi_korsatkich'] ?? null;
+        $finalReading = $boshlangich; // Default
+        $balance = 0; // Default
+
+        // Agar oxirgi ko'rsatkich berilgan bo'lsa
+        if ($oxirgi !== null) {
+            if ($boshlangich > $oxirgi) {
+                // Boshlangich katta bo'lsa -> boshlangichni saqla, balans 0
+                $finalReading = $boshlangich;
+                $balance = 0;
+            } elseif ($oxirgi > $boshlangich) {
+                // Oxirgi katta bo'lsa -> oxirgini saqla, qarz hisobla
+                $finalReading = $oxirgi;
+
+                // Tarifni topish
+                $tariff = Tariff::where('company_id', $validated['kompaniya_id'])
+                    ->where('is_active', true)
+                    ->latest('valid_from')
+                    ->first();
+
+                if ($tariff) {
+                    $consumption = $oxirgi - $boshlangich;
+                    $balance = -($consumption * $tariff->price_per_m3); // Manfiy qarz
+                }
+            } else {
+                // Teng bo'lsa -> boshlangichni saqla, balans 0
+                $finalReading = $boshlangich;
+                $balance = 0;
+            }
+        }
+
         // ✅ Mijoz yaratish
         $customer = Customer::create([
             'company_id' => $validated['kompaniya_id'],
@@ -731,7 +784,7 @@ class CustomerController extends Controller
             'family_members' => $validated['oila_azolari'] ?? null,
             'has_water_meter' => true,
             'is_active' => true,
-            'balance' => 0,
+            'balance' => $balance,
         ]);
 
         // ✅ WaterMeter yaratish
@@ -748,10 +801,10 @@ class CustomerController extends Controller
             'expiration_date' => $installationDate->copy()->addYears($validityPeriod)->toDateString(),
         ]);
 
-        // ✅ Boshlang'ich reading yaratish
+        // ✅ Ko'rsatkichni yaratish
         MeterReading::create([
             'water_meter_id' => $waterMeter->id,
-            'reading' => $validated['boshlangich_korsatkich'],
+            'reading' => $finalReading,
             'reading_date' => $validated['korsatkich_sanasi'],
             'confirmed' => true,
         ]);
