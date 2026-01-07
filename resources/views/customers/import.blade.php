@@ -178,7 +178,7 @@
                                                 <b>Majburiy ustunlar:</b> kompaniya_id, kocha_id, fio, hisob_raqam,
                                                 boshlangich_korsatkich, korsatkich_sanasi<br>
                                                 <b>Ixtiyoriy:</b> telefon_raqami, uy_raqami, oila_azolari,
-                                                hisoblagich_ornatilgan_sana, amal_qilish_muddati, oxirgi_korsatkich
+                                                hisoblagich_ornatilgan_sana, amal_qilish_muddati, oxirgi_korsatkich (yoki songi_korsatkich)
                                                 <br><br>
                                                 <b>Ko'rsatkichlar logikasi:</b>
                                                 <ul class="mb-0">

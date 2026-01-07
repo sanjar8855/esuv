@@ -542,16 +542,30 @@ class CustomerController extends Controller
                 throw new \Exception("Excel fayl bo'sh - hech qanday sheet topilmadi.");
             }
 
-            $rows = $collection->first();
+            // ✅ Birinchi to'liq (bo'sh bo'lmagan) sheet'ni topish
+            $rows = null;
+            $sheetIndex = 0;
 
-            // Debug log
-            Log::info('First sheet rows count: ' . $rows->count());
-            if ($rows->count() > 0) {
-                Log::info('First row data: ' . json_encode($rows->first()));
+            foreach ($collection as $index => $sheet) {
+                Log::info("Sheet {$index} rows count: " . $sheet->count());
+
+                if (!$sheet->isEmpty()) {
+                    $rows = $sheet;
+                    $sheetIndex = $index;
+                    Log::info("Using sheet {$index} with {$sheet->count()} rows");
+                    break;
+                }
             }
 
-            if ($rows->isEmpty()) {
-                throw new \Exception("Excel faylning 1-shi sheet'ida ma'lumot yo'q. Iltimos sarlavha qatori va kamida 1 ta ma'lumot qatorini tekshiring.");
+            if (!$rows || $rows->isEmpty()) {
+                throw new \Exception("Excel faylning hech bir sheet'ida ma'lumot yo'q. Iltimos sarlavha qatori va kamida 1 ta ma'lumot qatorini tekshiring.");
+            }
+
+            // Debug log - birinchi qator
+            if ($rows->count() > 0) {
+                $firstRow = $rows->first();
+                Log::info('First row keys (sarlavhalar): ' . json_encode(array_keys($firstRow->toArray())));
+                Log::info('First row sample data: ' . json_encode(array_slice($firstRow->toArray(), 0, 5)));
             }
 
             // ✅ Import log yaratish
@@ -714,6 +728,9 @@ class CustomerController extends Controller
      */
     private function importCustomerWithMeter(array $rowData, int $rowNumber)
     {
+        // ✅ Ikkala variant ham qabul qilinadi: oxirgi_korsatkich yoki songi_korsatkich
+        $oxirgiKorsatkich = $rowData['oxirgi_korsatkich'] ?? $rowData['songi_korsatkich'] ?? null;
+
         $preparedData = [
             'kompaniya_id' => $rowData['kompaniya_id'] ?? null,
             'kocha_id' => $rowData['kocha_id'] ?? null,
@@ -724,7 +741,7 @@ class CustomerController extends Controller
             'hisoblagich_ornatilgan_sana' => $this->parseExcelDate($rowData['hisoblagich_ornatilgan_sana'] ?? null),
             'amal_qilish_muddati' => $rowData['amal_qilish_muddati'] ?? 8,
             'boshlangich_korsatkich' => $rowData['boshlangich_korsatkich'] ?? null,
-            'oxirgi_korsatkich' => $rowData['oxirgi_korsatkich'] ?? null,
+            'oxirgi_korsatkich' => $oxirgiKorsatkich,
             'korsatkich_sanasi' => $this->parseExcelDate($rowData['korsatkich_sanasi'] ?? null) ?? now()->format('Y-m-d'),
             'oila_azolari' => $rowData['oila_azolari'] ?? null,
         ];
