@@ -6,6 +6,9 @@ use App\Models\ImportLog;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Yajra\DataTables\Facades\DataTables;
+use Maatwebsite\Excel\Facades\Excel;
+use PhpOffice\PhpSpreadsheet\Spreadsheet;
+use PhpOffice\PhpSpreadsheet\Writer\Xlsx;
 
 class ImportLogController extends Controller
 {
@@ -107,5 +110,73 @@ class ImportLogController extends Controller
         $importLog->load(['user', 'company']);
 
         return view('import_logs.show', compact('importLog'));
+    }
+
+    /**
+     * Xatoliklarni Excel qilib yuklash
+     */
+    public function exportErrors(ImportLog $importLog)
+    {
+        $user = Auth::user();
+
+        // Ruxsat tekshiruvi
+        if (!$user->hasRole('admin') && $importLog->company_id != $user->company_id) {
+            abort(403, 'Sizda bu logni ko\'rish uchun ruxsat yo\'q.');
+        }
+
+        // Agar xatolar bo'lmasa
+        if (empty($importLog->errors) || $importLog->failed_count == 0) {
+            return redirect()->back()->with('error', 'Bu importda xatolar yo\'q.');
+        }
+
+        // Excel yaratish
+        $spreadsheet = new Spreadsheet();
+        $sheet = $spreadsheet->getActiveSheet();
+
+        // Sarlavhalar
+        $sheet->setCellValue('A1', 'Qator');
+        $sheet->setCellValue('B1', 'Xatolar');
+        $sheet->setCellValue('C1', 'Ma\'lumotlar');
+
+        // Sarlavhalarni bold qilish
+        $sheet->getStyle('A1:C1')->getFont()->setBold(true);
+
+        // Ma'lumotlarni yozish
+        $row = 2;
+        foreach ($importLog->errors as $error) {
+            $sheet->setCellValue('A' . $row, $error['row'] ?? '-');
+            $sheet->setCellValue('B' . $row, $error['errors'] ?? 'Noma\'lum xato');
+
+            // Ma'lumotlarni JSON formatida yozish
+            if (isset($error['data']) && is_array($error['data'])) {
+                $dataStr = '';
+                foreach ($error['data'] as $key => $value) {
+                    $dataStr .= $key . ': ' . ($value ?? '-') . "\n";
+                }
+                $sheet->setCellValue('C' . $row, trim($dataStr));
+            } else {
+                $sheet->setCellValue('C' . $row, '-');
+            }
+
+            $row++;
+        }
+
+        // Ustunlar kengligini avtomatik sozlash
+        $sheet->getColumnDimension('A')->setWidth(10);
+        $sheet->getColumnDimension('B')->setWidth(50);
+        $sheet->getColumnDimension('C')->setWidth(60);
+
+        // Fayl nomini yaratish
+        $fileName = 'import_errors_' . $importLog->id . '_' . date('Y-m-d_His') . '.xlsx';
+
+        // Excel faylni yuklash
+        $writer = new Xlsx($spreadsheet);
+
+        header('Content-Type: application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');
+        header('Content-Disposition: attachment;filename="' . $fileName . '"');
+        header('Cache-Control: max-age=0');
+
+        $writer->save('php://output');
+        exit;
     }
 }

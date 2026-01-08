@@ -679,7 +679,7 @@ class CustomerController extends Controller
             'oila_azolari' => $rowData['oila_azolari'] ?? null,
         ];
 
-        // ✅ Validatsiya
+        // ✅ Validatsiya (ўзбекча хабарлар билан)
         $validator = Validator::make($preparedData, [
             'kompaniya_id' => 'required|integer|exists:companies,id',
             'kocha_id' => 'required|integer|exists:streets,id',
@@ -694,13 +694,22 @@ class CustomerController extends Controller
             'uy_raqami' => 'nullable|string|max:255',
         ], [
             'kompaniya_id.required' => 'Kompaniya ID majburiy',
+            'kompaniya_id.integer' => 'Kompaniya ID butun son bo\'lishi kerak',
             'kompaniya_id.exists' => 'Kompaniya topilmadi',
             'kocha_id.required' => 'Ko\'cha ID majburiy',
+            'kocha_id.integer' => 'Ko\'cha ID butun son bo\'lishi kerak',
             'kocha_id.exists' => 'Ko\'cha topilmadi',
             'fio.required' => 'FIO majburiy',
+            'fio.max' => 'FIO 255 belgidan oshmasligi kerak',
             'hisob_raqam.required' => 'Hisob raqam majburiy',
+            'hisob_raqam.integer' => 'Hisob raqam butun son bo\'lishi kerak',
             'hisob_raqam.unique' => 'Bu hisob raqam allaqachon mavjud',
             'oila_azolari.required' => 'Oila a\'zolari soni majburiy',
+            'oila_azolari.integer' => 'Oila a\'zolari soni butun son bo\'lishi kerak',
+            'oila_azolari.min' => 'Oila a\'zolari soni kamida 1 bo\'lishi kerak',
+            'oila_azolari.max' => 'Oila a\'zolari soni 50 dan oshmasligi kerak',
+            'telefon_raqami.max' => 'Telefon raqami 30 belgidan oshmasligi kerak',
+            'uy_raqami.max' => 'Uy raqami 255 belgidan oshmasligi kerak',
         ]);
 
         if ($validator->fails()) {
@@ -747,7 +756,7 @@ class CustomerController extends Controller
             'oila_azolari' => $rowData['oila_azolari'] ?? null,
         ];
 
-        // ✅ Validatsiya
+        // ✅ Validatsiya (ўзбекча хабарлар билан)
         $validator = Validator::make($preparedData, [
             'kompaniya_id' => 'required|integer|exists:companies,id',
             'kocha_id' => 'required|integer|exists:streets,id',
@@ -766,6 +775,34 @@ class CustomerController extends Controller
             'telefon_raqami' => 'nullable|string|max:30',
             'uy_raqami' => 'nullable|string|max:255',
             'oila_azolari' => 'nullable|integer|min:0|max:50',
+        ], [
+            'kompaniya_id.required' => 'Kompaniya ID majburiy',
+            'kompaniya_id.exists' => 'Kompaniya topilmadi',
+            'kocha_id.required' => 'Ko\'cha ID majburiy',
+            'kocha_id.exists' => 'Ko\'cha topilmadi',
+            'fio.required' => 'FIO majburiy',
+            'fio.max' => 'FIO 255 belgidan oshmasligi kerak',
+            'hisob_raqam.required' => 'Hisob raqam majburiy',
+            'hisob_raqam.integer' => 'Hisob raqam butun son bo\'lishi kerak',
+            'hisob_raqam.unique' => 'Bu hisob raqam allaqachon mavjud',
+            'boshlangich_korsatkich.required' => 'Boshlang\'ich ko\'rsatkich majburiy',
+            'boshlangich_korsatkich.numeric' => 'Boshlang\'ich ko\'rsatkich raqam bo\'lishi kerak',
+            'boshlangich_korsatkich.min' => 'Boshlang\'ich ko\'rsatkich 0 dan kichik bo\'lmasligi kerak',
+            'oxirgi_korsatkich.numeric' => 'Oxirgi ko\'rsatkich raqam bo\'lishi kerak',
+            'oxirgi_korsatkich.min' => 'Oxirgi ko\'rsatkich 0 dan kichik bo\'lmasligi kerak',
+            'amal_qilish_muddati.integer' => 'Amal qilish muddati butun son bo\'lishi kerak',
+            'amal_qilish_muddati.min' => 'Amal qilish muddati kamida 1 yil bo\'lishi kerak',
+            'amal_qilish_muddati.max' => 'Amal qilish muddati ko\'pi bilan 20 yil bo\'lishi mumkin',
+            'hisoblagich_ornatilgan_sana.date' => 'Hisoblagich o\'rnatilgan sana noto\'g\'ri formatda',
+            'hisoblagich_ornatilgan_sana.before_or_equal' => 'Hisoblagich o\'rnatilgan sana bugundan katta bo\'lmasligi kerak',
+            'korsatkich_sanasi.required' => 'Ko\'rsatkich sanasi majburiy',
+            'korsatkich_sanasi.date' => 'Ko\'rsatkich sanasi noto\'g\'ri formatda',
+            'korsatkich_sanasi.before_or_equal' => 'Ko\'rsatkich sanasi bugundan katta bo\'lmasligi kerak',
+            'telefon_raqami.max' => 'Telefon raqami 30 belgidan oshmasligi kerak',
+            'uy_raqami.max' => 'Uy raqami 255 belgidan oshmasligi kerak',
+            'oila_azolari.integer' => 'Oila a\'zolari soni butun son bo\'lishi kerak',
+            'oila_azolari.min' => 'Oila a\'zolari soni 0 dan kichik bo\'lmasligi kerak',
+            'oila_azolari.max' => 'Oila a\'zolari soni 50 dan oshmasligi kerak',
         ]);
 
         if ($validator->fails()) {

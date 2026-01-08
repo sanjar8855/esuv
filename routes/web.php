@@ -130,6 +130,7 @@ Route::middleware('auth')->group(function () {
     Route::middleware('role:admin|company_owner')->group(function () {
         Route::get('/import-logs', [ImportLogController::class, 'index'])->name('import_logs.index');
         Route::get('/import-logs/{importLog}', [ImportLogController::class, 'show'])->name('import_logs.show');
+        Route::get('/import-logs/{importLog}/export-errors', [ImportLogController::class, 'exportErrors'])->name('import_logs.export_errors');
     });
 });
 

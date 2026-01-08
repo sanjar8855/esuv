@@ -117,7 +117,19 @@
                             @if($importLog->failed_count > 0 && !empty($importLog->errors))
                                 <div class="row">
                                     <div class="col-12">
-                                        <h3 class="mb-3">Xatolar Ro'yxati ({{ $importLog->failed_count }} ta)</h3>
+                                        <div class="d-flex justify-content-between align-items-center mb-3">
+                                            <h3 class="mb-0">Xatolar Ro'yxati ({{ $importLog->failed_count }} ta)</h3>
+                                            <a href="{{ route('import_logs.export_errors', $importLog->id) }}" class="btn btn-success">
+                                                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="icon">
+                                                    <path stroke="none" d="M0 0h24v24H0z" fill="none"></path>
+                                                    <path d="M14 3v4a1 1 0 0 0 1 1h4"></path>
+                                                    <path d="M17 21h-10a2 2 0 0 1 -2 -2v-14a2 2 0 0 1 2 -2h7l5 5v11a2 2 0 0 1 -2 2z"></path>
+                                                    <line x1="12" y1="11" x2="12" y2="17"></line>
+                                                    <polyline points="9 14 12 17 15 14"></polyline>
+                                                </svg>
+                                                Xatolarni Excel qilib yuklash
+                                            </a>
+                                        </div>
                                         <div class="alert alert-info">
                                             <strong>Eslatma:</strong> Bu xatolarni ko'rib chiqing va kerakli ma'lumotlarni qo'lda kiritishingiz mumkin.
                                         </div>
