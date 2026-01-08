@@ -117,6 +117,12 @@ Route::middleware('auth')->group(function () {
 
         // Ko'rsatkichlarni import qilish
         Route::get('/meter-readings/import/form', [MeterReadingController::class, 'showImportForm'])->name('meter_readings.import.form');
+
+        // Ommaviy kiritish sahifasi
+        Route::get('/mass-entry', [App\Http\Controllers\MassEntryController::class, 'index'])->name('mass_entry.index');
+        Route::post('/mass-entry/get-streets', [App\Http\Controllers\MassEntryController::class, 'getStreets'])->name('mass_entry.get_streets');
+        Route::post('/mass-entry/load-customers', [App\Http\Controllers\MassEntryController::class, 'loadCustomers'])->name('mass_entry.load_customers');
+        Route::post('/mass-entry/save', [App\Http\Controllers\MassEntryController::class, 'save'])->name('mass_entry.save');
         Route::post('/meter-readings/import', [MeterReadingController::class, 'handleImport'])->name('meter_readings.import');
     });
     Route::middleware('can:users')->group(function () {
