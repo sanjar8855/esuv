@@ -99,7 +99,7 @@ class ImportLogController extends Controller
     {
         $user = Auth::user();
 
-        // Ruxsat tekshiruvi
+        // Ruxsat tekshiruvi: Admin va company_owner o'z kompaniyasining loglarini ko'rishi mumkin
         if (!$user->hasRole('admin') && $importLog->company_id != $user->company_id) {
             abort(403, 'Sizda bu logni ko\'rish uchun ruxsat yo\'q.');
         }

@@ -125,21 +125,21 @@
                                             <table class="table table-bordered table-striped">
                                                 <thead>
                                                 <tr>
-                                                    <th width="80">Qator</th>
-                                                    <th>Xatolar</th>
-                                                    <th>Ma'lumotlar</th>
+                                                    <th width="15%">Qator</th>
+                                                    <th width="35%">Xatolar</th>
+                                                    <th width="50%">Ma'lumotlar</th>
                                                 </tr>
                                                 </thead>
                                                 <tbody>
                                                 @foreach($importLog->errors as $error)
                                                     <tr>
-                                                        <td><span class="badge bg-red">{{ $error['row'] ?? '-' }}</span></td>
-                                                        <td>
+                                                        <td width="15%"><span class="badge bg-red">{{ $error['row'] ?? '-' }}</span></td>
+                                                        <td width="35%">
                                                             <div class="text-danger">
                                                                 {{ $error['errors'] ?? 'Noma\'lum xato' }}
                                                             </div>
                                                         </td>
-                                                        <td>
+                                                        <td width="50%">
                                                             @if(isset($error['data']))
                                                                 <details>
                                                                     <summary class="text-muted" style="cursor: pointer;">Ma'lumotlarni ko'rish</summary>
