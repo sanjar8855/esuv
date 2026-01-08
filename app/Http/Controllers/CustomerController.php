@@ -777,19 +777,17 @@ class CustomerController extends Controller
         // ✅ Ko'rsatkich va balans hisoblash logikasi
         $boshlangich = $validated['boshlangich_korsatkich'];
         $oxirgi = $validated['oxirgi_korsatkich'] ?? null;
-        $finalReading = $boshlangich; // Default
         $balance = 0; // Default
+        $shouldCreateTwoReadings = false; // Ikki korsatkich yaratish kerakmi?
 
         // Agar oxirgi ko'rsatkich berilgan bo'lsa
-        if ($oxirgi !== null) {
-            if ($boshlangich > $oxirgi) {
-                // Boshlangich katta bo'lsa -> boshlangichni saqla, balans 0
-                $finalReading = $boshlangich;
+        if ($oxirgi !== null && $oxirgi > 0) {
+            if ($boshlangich == $oxirgi) {
+                // ✅ 1-HOLAT: Boshlangich = Songi → balance = 0
                 $balance = 0;
+                $shouldCreateTwoReadings = false;
             } elseif ($oxirgi > $boshlangich) {
-                // Oxirgi katta bo'lsa -> oxirgini saqla, qarz hisobla
-                $finalReading = $oxirgi;
-
+                // ✅ 2-HOLAT: Songi > Boshlangich → balance = -(farq * tarif)
                 // Tarifni topish
                 $tariff = Tariff::where('company_id', $validated['kompaniya_id'])
                     ->where('is_active', true)
@@ -799,11 +797,14 @@ class CustomerController extends Controller
                 if ($tariff) {
                     $consumption = $oxirgi - $boshlangich;
                     $balance = -($consumption * $tariff->price_per_m3); // Manfiy qarz
+                    $shouldCreateTwoReadings = true; // Ikki korsatkich kerak
+                } else {
+                    throw new \Exception("Aktiv tarif topilmadi. Kompaniya uchun tarif yarating.");
                 }
             } else {
-                // Teng bo'lsa -> boshlangichni saqla, balans 0
-                $finalReading = $boshlangich;
+                // ✅ 3-HOLAT: Songi < Boshlangich → balance = 0, faqat boshlangichni saqla
                 $balance = 0;
+                $shouldCreateTwoReadings = false;
             }
         }
 
@@ -835,13 +836,33 @@ class CustomerController extends Controller
             'expiration_date' => $installationDate->copy()->addYears($validityPeriod)->toDateString(),
         ]);
 
-        // ✅ Ko'rsatkichni yaratish
-        MeterReading::create([
-            'water_meter_id' => $waterMeter->id,
-            'reading' => $finalReading,
-            'reading_date' => $validated['korsatkich_sanasi'],
-            'confirmed' => true,
-        ]);
+        // ✅ Ko'rsatkichlarni yaratish
+        if ($shouldCreateTwoReadings) {
+            // 2 ta korsatkich yaratish (boshlangich va oxirgi)
+            // Birinchi - boshlangich
+            MeterReading::create([
+                'water_meter_id' => $waterMeter->id,
+                'reading' => $boshlangich,
+                'reading_date' => $validated['korsatkich_sanasi'],
+                'confirmed' => true,
+            ]);
+
+            // Ikkinchi - oxirgi
+            MeterReading::create([
+                'water_meter_id' => $waterMeter->id,
+                'reading' => $oxirgi,
+                'reading_date' => $validated['korsatkich_sanasi'],
+                'confirmed' => true,
+            ]);
+        } else {
+            // Faqat boshlangich korsatkichni yaratish
+            MeterReading::create([
+                'water_meter_id' => $waterMeter->id,
+                'reading' => $boshlangich,
+                'reading_date' => $validated['korsatkich_sanasi'],
+                'confirmed' => true,
+            ]);
+        }
     }
 
     /**

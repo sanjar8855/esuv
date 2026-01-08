@@ -182,11 +182,14 @@
                                                 <br><br>
                                                 <b>Ko'rsatkichlar logikasi:</b>
                                                 <ul class="mb-0">
-                                                    <li>Agar faqat <b>boshlangich_korsatkich</b> berilsa → u saqlanadi, balans = 0</li>
-                                                    <li>Agar <b>boshlangich > oxirgi</b> → boshlangichni saqla, balans = 0</li>
-                                                    <li>Agar <b>oxirgi > boshlangich</b> → oxirgi saqlanadi, balans = -(farq × tarif) (qarz)</li>
-                                                    <li>Agar <b>boshlangich = oxirgi</b> → boshlangichni saqla, balans = 0</li>
+                                                    <li><b>1-holat:</b> boshlangich = songi → balans = 0, faqat boshlangich saqlanadi</li>
+                                                    <li><b>2-holat:</b> songi > boshlangich → balans = -(farq × tarif), ikki korsatkich ham saqlanadi</li>
+                                                    <li><b>3-holat:</b> songi < boshlangich → balans = 0, faqat boshlangich saqlanadi</li>
                                                 </ul>
+                                                <small class="text-muted">
+                                                    * Agar faqat boshlangich berilsa, balans = 0<br>
+                                                    * Tarif aktiv bo'lishi shart (2-holat uchun)
+                                                </small>
                                             </small>
                                         </div>
                                     </div>
