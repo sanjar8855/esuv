@@ -82,22 +82,22 @@ class MassEntryController extends Controller
             ->when(!$user->hasRole('admin'), function ($q) use ($user) {
                 $q->where('company_id', $user->company_id);
             })
-            ->with(['waterMeter.readings' => function ($query) {
-                // Eng oxirgi ko'rsatkich
-                $query->where('confirmed', true)
-                    ->latest('reading_date')
-                    ->latest('id')
-                    ->limit(1);
-            }])
+            ->with('waterMeter')
             ->orderBy('address')
             ->orderBy('name')
             ->get();
 
         // Ma'lumotlarni tayyorlash
         $data = $customers->map(function ($customer) {
-            $lastReading = $customer->waterMeter && $customer->waterMeter->readings->isNotEmpty()
-                ? $customer->waterMeter->readings->first()
-                : null;
+            // Eng oxirgi ko'rsatkichni to'g'ridan-to'g'ri query bilan olish
+            $lastReading = null;
+            if ($customer->waterMeter) {
+                $lastReading = MeterReading::where('water_meter_id', $customer->waterMeter->id)
+                    ->where('confirmed', true)
+                    ->latest('reading_date')
+                    ->latest('id')
+                    ->first();
+            }
 
             return [
                 'id' => $customer->id,
