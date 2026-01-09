@@ -39,7 +39,7 @@ class MassEntryController extends Controller
             ->when(!$user->hasRole('admin'), function ($q) use ($user) {
                 // Admin bo'lmasa, faqat o'z kompaniyasining MFY lari
                 if ($user->company_id) {
-                    $company = \App\Models\Company::with('region')->find($user->company_id);
+                    $company = \App\Models\Company::find($user->company_id);
                     if ($company && $company->region_id) {
                         $q->whereHas('city', function ($query) use ($company) {
                             $query->where('region_id', $company->region_id);
