@@ -42,7 +42,19 @@
 
                             {{-- Filtrlar --}}
                             <div class="row mb-3">
-                                <div class="col-md-4">
+                                @if(auth()->user()->hasRole('admin'))
+                                <div class="col-md-3">
+                                    <label for="company_id" class="form-label form-label-sm">Kompaniyani tanlang</label>
+                                    <select id="company_id" class="form-select form-select-sm">
+                                        <option value="">-- Kompaniyani tanlang --</option>
+                                        @foreach($companies as $company)
+                                            <option value="{{ $company->id }}">{{ $company->name }}</option>
+                                        @endforeach
+                                    </select>
+                                </div>
+                                @endif
+
+                                <div class="col-md-{{ auth()->user()->hasRole('admin') ? '3' : '4' }}">
                                     <label for="neighborhood_id" class="form-label form-label-sm">MFY ni tanlang</label>
                                     <select id="neighborhood_id" class="form-select form-select-sm">
                                         <option value="">-- MFY ni tanlang --</option>
@@ -55,14 +67,14 @@
                                     </select>
                                 </div>
 
-                                <div class="col-md-4">
+                                <div class="col-md-{{ auth()->user()->hasRole('admin') ? '3' : '4' }}">
                                     <label for="street_id" class="form-label form-label-sm">Ko'chani tanlang</label>
                                     <select id="street_id" class="form-select form-select-sm" disabled>
                                         <option value="">-- Avval MFY ni tanlang --</option>
                                     </select>
                                 </div>
 
-                                <div class="col-md-4">
+                                <div class="col-md-{{ auth()->user()->hasRole('admin') ? '3' : '4' }}">
                                     <label class="form-label form-label-sm">&nbsp;</label>
                                     <button type="button" id="loadBtn" class="btn btn-primary btn-sm w-100" disabled>
                                         <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="icon">
@@ -122,143 +134,156 @@
 
 @push('scripts')
 <script>
-$(document).ready(function() {
+document.addEventListener('DOMContentLoaded', function() {
     const selectedStreetId = {{ session('selected_street') ?? 'null' }};
+    const neighborhoodSelect = document.getElementById('neighborhood_id');
+    const streetSelect = document.getElementById('street_id');
+    const loadBtn = document.getElementById('loadBtn');
+    const clearBtn = document.getElementById('clearBtn');
+    const customersTableBody = document.getElementById('customersTableBody');
+    const customersTableContainer = document.getElementById('customersTableContainer');
 
     // MFY o'zgarganda
-    $('#neighborhood_id').on('change', function() {
-        const neighborhoodId = $(this).val();
+    neighborhoodSelect.addEventListener('change', function() {
+        const neighborhoodId = this.value;
 
-        $('#street_id').html('<option value="">-- Yuklanmoqda... --</option>').prop('disabled', true);
-        $('#loadBtn').prop('disabled', true);
-        $('#customersTableContainer').hide();
+        streetSelect.innerHTML = '<option value="">-- Yuklanmoqda... --</option>';
+        streetSelect.disabled = true;
+        loadBtn.disabled = true;
+        customersTableContainer.style.display = 'none';
 
         if (!neighborhoodId) {
-            $('#street_id').html('<option value="">-- Avval MFY ni tanlang --</option>');
+            streetSelect.innerHTML = '<option value="">-- Avval MFY ni tanlang --</option>';
             return;
         }
 
-        // AJAX - Ko'chalarni yuklash
-        $.ajax({
-            url: '{{ route('mass_entry.get_streets') }}',
+        // Fetch - Ko'chalarni yuklash
+        fetch('{{ route('mass_entry.get_streets') }}', {
             method: 'POST',
-            data: {
-                _token: '{{ csrf_token() }}',
-                neighborhood_id: neighborhoodId
+            headers: {
+                'Content-Type': 'application/json',
+                'X-CSRF-TOKEN': '{{ csrf_token() }}'
             },
-            success: function(streets) {
-                let options = '<option value="">-- Ko\'chani tanlang --</option>';
-                streets.forEach(function(street) {
-                    const selected = (selectedStreetId && street.id == selectedStreetId) ? 'selected' : '';
-                    options += `<option value="${street.id}" ${selected}>${street.name}</option>`;
-                });
-                $('#street_id').html(options).prop('disabled', false);
+            body: JSON.stringify({ neighborhood_id: neighborhoodId })
+        })
+        .then(response => response.json())
+        .then(streets => {
+            let options = '<option value="">-- Ko\'chani tanlang --</option>';
+            streets.forEach(street => {
+                const selected = (selectedStreetId && street.id == selectedStreetId) ? 'selected' : '';
+                options += `<option value="${street.id}" ${selected}>${street.name}</option>`;
+            });
+            streetSelect.innerHTML = options;
+            streetSelect.disabled = false;
 
-                // Agar selected street bo'lsa, avtomatik yuklash
-                if (selectedStreetId) {
-                    $('#loadBtn').prop('disabled', false);
-                    $('#loadBtn').click();
-                }
-            },
-            error: function() {
-                alert('Ko\'chalarni yuklashda xatolik yuz berdi!');
-                $('#street_id').html('<option value="">-- Xatolik --</option>');
+            // Agar selected street bo'lsa, avtomatik yuklash
+            if (selectedStreetId) {
+                loadBtn.disabled = false;
+                loadBtn.click();
             }
+        })
+        .catch(error => {
+            alert('Ko\'chalarni yuklashda xatolik yuz berdi!');
+            streetSelect.innerHTML = '<option value="">-- Xatolik --</option>';
         });
     });
 
     // Ko'cha o'zgarganda
-    $('#street_id').on('change', function() {
-        const streetId = $(this).val();
-        $('#loadBtn').prop('disabled', !streetId);
-        $('#customersTableContainer').hide();
+    streetSelect.addEventListener('change', function() {
+        const streetId = this.value;
+        loadBtn.disabled = !streetId;
+        customersTableContainer.style.display = 'none';
     });
 
     // Mijozlarni yuklash
-    $('#loadBtn').on('click', function() {
-        const streetId = $('#street_id').val();
+    loadBtn.addEventListener('click', function() {
+        const streetId = streetSelect.value;
 
         if (!streetId) {
             alert('Ko\'chani tanlang!');
             return;
         }
 
-        $(this).prop('disabled', true).html('<span class="spinner-border spinner-border-sm me-2"></span>Yuklanmoqda...');
+        this.disabled = true;
+        this.innerHTML = '<span class="spinner-border spinner-border-sm me-2"></span>Yuklanmoqda...';
 
-        // AJAX - Mijozlarni yuklash
-        $.ajax({
-            url: '{{ route('mass_entry.load_customers') }}',
+        // Fetch - Mijozlarni yuklash
+        fetch('{{ route('mass_entry.load_customers') }}', {
             method: 'POST',
-            data: {
-                _token: '{{ csrf_token() }}',
-                street_id: streetId
+            headers: {
+                'Content-Type': 'application/json',
+                'X-CSRF-TOKEN': '{{ csrf_token() }}'
             },
-            success: function(customers) {
-                $('#loadBtn').prop('disabled', false).html('<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="icon"><path stroke="none" d="M0 0h24v24H0z" fill="none"></path><path d="M12 5l0 14"></path><path d="M5 12l14 0"></path></svg> Mijozlarni yuklash');
+            body: JSON.stringify({ street_id: streetId })
+        })
+        .then(response => response.json())
+        .then(customers => {
+            loadBtn.disabled = false;
+            loadBtn.innerHTML = '<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="icon"><path stroke="none" d="M0 0h24v24H0z" fill="none"></path><path d="M12 5l0 14"></path><path d="M5 12l14 0"></path></svg> Mijozlarni yuklash';
 
-                if (customers.length === 0) {
-                    alert('Bu ko\'chada mijozlar topilmadi!');
-                    return;
-                }
-
-                // Jadvalga qo'shish
-                let rows = '';
-                customers.forEach(function(customer, index) {
-                    const balanceClass = customer.balance < 0 ? 'text-danger' : (customer.balance > 0 ? 'text-success' : 'text-muted');
-
-                    rows += `
-                        <tr>
-                            <td class="text-nowrap small">${customer.name}</td>
-                            <td class="small">${customer.address}</td>
-                            <td class="small">${customer.account_number}</td>
-                            <td class="small">${customer.last_reading}</td>
-                            <td class="small">${customer.last_reading_date}</td>
-                            <td>
-                                <input type="number"
-                                       name="entries[${index}][new_reading]"
-                                       class="form-control form-control-sm"
-                                       min="${parseFloat(customer.last_reading) + 0.01}"
-                                       step="0.01"
-                                       style="width: 100px;">
-                                <input type="hidden" name="entries[${index}][customer_id]" value="${customer.id}">
-                                <input type="hidden" name="entries[${index}][water_meter_id]" value="${customer.water_meter_id}">
-                            </td>
-                            <td>
-                                <input type="number"
-                                       name="entries[${index}][payment_amount]"
-                                       class="form-control form-control-sm"
-                                       min="0"
-                                       step="0.01"
-                                       style="width: 100px;">
-                            </td>
-                            <td class="small ${balanceClass}">
-                                ${customer.balance.toLocaleString()} so'm
-                            </td>
-                        </tr>
-                    `;
-                });
-
-                $('#customersTableBody').html(rows);
-                $('#customersTableContainer').show();
-            },
-            error: function() {
-                $('#loadBtn').prop('disabled', false).html('<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="icon"><path stroke="none" d="M0 0h24v24H0z" fill="none"></path><path d="M12 5l0 14"></path><path d="M5 12l14 0"></path></svg> Mijozlarni yuklash');
-                alert('Mijozlarni yuklashda xatolik yuz berdi!');
+            if (customers.length === 0) {
+                alert('Bu ko\'chada mijozlar topilmadi!');
+                return;
             }
+
+            // Jadvalga qo'shish
+            let rows = '';
+            customers.forEach((customer, index) => {
+                const balanceClass = customer.balance < 0 ? 'text-danger' : (customer.balance > 0 ? 'text-success' : 'text-muted');
+
+                rows += `
+                    <tr>
+                        <td class="text-nowrap small">${customer.name}</td>
+                        <td class="small">${customer.address}</td>
+                        <td class="small">${customer.account_number}</td>
+                        <td class="small">${customer.last_reading}</td>
+                        <td class="small">${customer.last_reading_date}</td>
+                        <td>
+                            <input type="number"
+                                   name="entries[${index}][new_reading]"
+                                   class="form-control form-control-sm"
+                                   min="${parseFloat(customer.last_reading) + 0.01}"
+                                   step="0.01"
+                                   style="width: 100px;">
+                            <input type="hidden" name="entries[${index}][customer_id]" value="${customer.id}">
+                            <input type="hidden" name="entries[${index}][water_meter_id]" value="${customer.water_meter_id}">
+                        </td>
+                        <td>
+                            <input type="number"
+                                   name="entries[${index}][payment_amount]"
+                                   class="form-control form-control-sm"
+                                   min="0"
+                                   step="0.01"
+                                   style="width: 100px;">
+                        </td>
+                        <td class="small ${balanceClass}">
+                            ${customer.balance.toLocaleString()} so'm
+                        </td>
+                    </tr>
+                `;
+            });
+
+            customersTableBody.innerHTML = rows;
+            customersTableContainer.style.display = 'block';
+        })
+        .catch(error => {
+            loadBtn.disabled = false;
+            loadBtn.innerHTML = '<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="icon"><path stroke="none" d="M0 0h24v24H0z" fill="none"></path><path d="M12 5l0 14"></path><path d="M5 12l14 0"></path></svg> Mijozlarni yuklash';
+            alert('Mijozlarni yuklashda xatolik yuz berdi!');
         });
     });
 
     // Tozalash
-    $('#clearBtn').on('click', function() {
+    clearBtn.addEventListener('click', function() {
         if (confirm('Barcha ma\'lumotlarni tozalashni xohlaysizmi?')) {
-            $('#customersTableBody').html('');
-            $('#customersTableContainer').hide();
+            customersTableBody.innerHTML = '';
+            customersTableContainer.style.display = 'none';
         }
     });
 
     // Agar selected neighborhood bo'lsa, avtomatik ko'chalarni yuklash
     @if(session('selected_neighborhood'))
-        $('#neighborhood_id').trigger('change');
+        neighborhoodSelect.dispatchEvent(new Event('change'));
     @endif
 });
 </script>

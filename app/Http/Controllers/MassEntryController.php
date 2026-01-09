@@ -28,18 +28,29 @@ class MassEntryController extends Controller
             abort(403, 'Sizda bu sahifaga kirish uchun ruxsat yo\'q.');
         }
 
+        // Admin uchun kompaniyalarni olish
+        $companies = collect();
+        if ($user->hasRole('admin')) {
+            $companies = \App\Models\Company::orderBy('name')->get();
+        }
+
         // MFY larni olish
         $neighborhoods = Neighborhood::query()
             ->when(!$user->hasRole('admin'), function ($q) use ($user) {
                 // Admin bo'lmasa, faqat o'z kompaniyasining MFY lari
-                $q->whereHas('city.region.companies', function ($query) use ($user) {
-                    $query->where('companies.id', $user->company_id);
-                });
+                if ($user->company_id) {
+                    $company = \App\Models\Company::with('region')->find($user->company_id);
+                    if ($company && $company->region_id) {
+                        $q->whereHas('city', function ($query) use ($company) {
+                            $query->where('region_id', $company->region_id);
+                        });
+                    }
+                }
             })
             ->orderBy('name')
             ->get();
 
-        return view('mass_entry.index', compact('neighborhoods'));
+        return view('mass_entry.index', compact('neighborhoods', 'companies'));
     }
 
     /**
