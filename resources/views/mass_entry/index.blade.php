@@ -233,7 +233,9 @@ document.addEventListener('DOMContentLoaded', function() {
 
                 rows += `
                     <tr>
-                        <td class="text-nowrap small">${customer.name}</td>
+                        <td class="text-nowrap small">
+                            <a href="/customers/${customer.id}" class="text-primary">${customer.name}</a>
+                        </td>
                         <td class="small">${customer.address}</td>
                         <td class="small">${customer.account_number}</td>
                         <td class="small">${customer.last_reading}</td>
