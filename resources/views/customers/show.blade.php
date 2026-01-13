@@ -347,7 +347,7 @@
                                             <tr class="{{ !$payment->confirmed ? 'bg-yellow-lt' : '' }}">
                                                 <td>
                                                     {{-- ✅ TO'LIQ SANA VA VAQT --}}
-                                                    <span class="text-muted">{{ $payment->created_at->format('d.m.Y H:i') }}</span>
+                                                    <span class="text-muted">{{ $payment->created_at ? $payment->created_at->format('d.m.Y H:i') : 'Ma\'lumot yo\'q' }}</span>
                                                 </td>
                                                 <td>
                                                     <strong>{{ number_format($payment->amount, 0, '.', ' ') }} UZS</strong>
@@ -367,7 +367,7 @@
                                                             {{-- ✅ TASDIQLANGAN --}}
                                                             <span class="text-success">
                                                 {{ optional($payment->confirmedBy)->name ?? 'Admin' }}<br>
-                                                <small class="text-muted">{{ $payment->confirmed_at->format('d.m.Y H:i') }}</small>
+                                                <small class="text-muted">{{ $payment->confirmed_at ? $payment->confirmed_at->format('d.m.Y H:i') : 'Ma\'lumot yo\'q' }}</small>
                                             </span>
                                                         @else
                                                             {{-- ✅ TASDIQLANMAGAN --}}
