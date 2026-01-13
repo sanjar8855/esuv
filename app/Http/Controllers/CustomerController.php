@@ -811,41 +811,37 @@ class CustomerController extends Controller
 
         $validated = $validator->validated();
 
-        // ✅ Ko'rsatkich va balans hisoblash logikasi
+        // ✅ Ko'rsatkich yaratish logikasi
         $boshlangich = $validated['boshlangich_korsatkich'];
         $oxirgi = $validated['oxirgi_korsatkich'] ?? null;
-        $balance = 0; // Default
         $shouldCreateTwoReadings = false; // Ikki korsatkich yaratish kerakmi?
 
         // Agar oxirgi ko'rsatkich berilgan bo'lsa
         if ($oxirgi !== null && $oxirgi > 0) {
             if ($boshlangich == $oxirgi) {
-                // ✅ 1-HOLAT: Boshlangich = Songi → balance = 0
-                $balance = 0;
+                // ✅ 1-HOLAT: Boshlangich = Songi → faqat boshlangich
                 $shouldCreateTwoReadings = false;
             } elseif ($oxirgi > $boshlangich) {
-                // ✅ 2-HOLAT: Songi > Boshlangich → balance = -(farq * tarif)
-                // Tarifni topish
+                // ✅ 2-HOLAT: Songi > Boshlangich → ikkala ko'rsatkich
+                // Tarifni tekshirish
                 $tariff = Tariff::where('company_id', $validated['kompaniya_id'])
                     ->where('is_active', true)
                     ->latest('valid_from')
                     ->first();
 
-                if ($tariff) {
-                    $consumption = $oxirgi - $boshlangich;
-                    $balance = -($consumption * $tariff->price_per_m3); // Manfiy qarz
-                    $shouldCreateTwoReadings = true; // Ikki korsatkich kerak
-                } else {
+                if (!$tariff) {
                     throw new \Exception("Aktiv tarif topilmadi. Kompaniya uchun tarif yarating.");
                 }
+
+                $shouldCreateTwoReadings = true; // Ikki korsatkich kerak
             } else {
-                // ✅ 3-HOLAT: Songi < Boshlangich → balance = 0, faqat boshlangichni saqla
-                $balance = 0;
+                // ✅ 3-HOLAT: Songi < Boshlangich → faqat boshlangich
                 $shouldCreateTwoReadings = false;
             }
         }
 
         // ✅ Mijoz yaratish
+        // ⚠️ Balance 0 dan boshlanadi, Observer avtomatik yangilaydi
         $customer = Customer::create([
             'company_id' => $validated['kompaniya_id'],
             'street_id' => $validated['kocha_id'],
@@ -856,7 +852,7 @@ class CustomerController extends Controller
             'family_members' => $validated['oila_azolari'] ?? null,
             'has_water_meter' => true,
             'is_active' => true,
-            'balance' => $balance,
+            'balance' => 0, // ✅ Observer avtomatik yangilaydi
         ]);
 
         // ✅ WaterMeter yaratish

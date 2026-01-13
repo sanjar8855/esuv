@@ -3,6 +3,8 @@
 namespace App\Observers;
 
 use App\Models\MeterReading;
+use App\Models\Invoice;
+use App\Models\Tariff;
 use App\Jobs\SendMeterReadingNotificationJob;
 use Illuminate\Support\Facades\Log;
 
@@ -14,6 +16,11 @@ class MeterReadingObserver
     public function created(MeterReading $meterReading): void
     {
         Log::info('Meter reading created', ['reading_id' => $meterReading->id]);
+
+        // ✅ Agar tasdiqlangan bo'lsa, invoice yaratish
+        if ($meterReading->confirmed) {
+            $this->createInvoiceIfNeeded($meterReading);
+        }
 
         $this->sendNotificationIfConfirmed($meterReading);
     }
@@ -30,8 +37,85 @@ class MeterReadingObserver
 
         // ✅ Faqat confirmed true ga o'zgarganda
         if ($meterReading->wasChanged('confirmed') && $meterReading->confirmed === true) {
+            $this->createInvoiceIfNeeded($meterReading);
             $this->sendNotificationIfConfirmed($meterReading);
         }
+    }
+
+    /**
+     * ✅ Invoice yaratish (agar kerak bo'lsa)
+     */
+    protected function createInvoiceIfNeeded(MeterReading $meterReading): void
+    {
+        $meterReading->loadMissing('waterMeter.customer');
+
+        if (!$meterReading->waterMeter || !$meterReading->waterMeter->customer) {
+            Log::warning('Cannot create invoice - water meter or customer not found', [
+                'reading_id' => $meterReading->id
+            ]);
+            return;
+        }
+
+        $customer = $meterReading->waterMeter->customer;
+
+        // Aktiv tarifni topish
+        $tariff = Tariff::where('company_id', $customer->company_id)
+            ->where('is_active', true)
+            ->latest('valid_from')
+            ->first();
+
+        if (!$tariff) {
+            Log::warning('No active tariff found for customer', [
+                'customer_id' => $customer->id,
+                'reading_id' => $meterReading->id
+            ]);
+            return;
+        }
+
+        // Oldingi tasdiqlangan ko'rsatkichni topish
+        $previousReading = MeterReading::where('water_meter_id', $meterReading->water_meter_id)
+            ->where('confirmed', true)
+            ->where('id', '<', $meterReading->id)
+            ->orderBy('reading_date', 'desc')
+            ->orderBy('id', 'desc')
+            ->first();
+
+        if (!$previousReading) {
+            Log::info('No previous reading found - this is the first reading', [
+                'reading_id' => $meterReading->id
+            ]);
+            return;
+        }
+
+        // Iste'molni hisoblash
+        $consumption = $meterReading->reading - $previousReading->reading;
+
+        if ($consumption <= 0) {
+            Log::warning('Consumption is zero or negative', [
+                'reading_id' => $meterReading->id,
+                'consumption' => $consumption
+            ]);
+            return;
+        }
+
+        // Invoice yaratish
+        $amountDue = $consumption * $tariff->price_per_m3;
+
+        Invoice::create([
+            'customer_id' => $customer->id,
+            'tariff_id' => $tariff->id,
+            'billing_period' => now()->format('Y-m'),
+            'amount_due' => $amountDue,
+            'due_date' => now()->endOfMonth(),
+            'status' => 'pending',
+        ]);
+
+        Log::info('Invoice created for meter reading', [
+            'reading_id' => $meterReading->id,
+            'customer_id' => $customer->id,
+            'consumption' => $consumption,
+            'amount_due' => $amountDue
+        ]);
     }
 
     /**

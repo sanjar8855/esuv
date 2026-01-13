@@ -195,12 +195,8 @@ class MeterReadingController extends Controller
         }
 
         // **Ko'rsatkichni saqlash**
+        // ✅ Observer avtomatik ravishda invoice yaratadi (agar confirmed = true)
         $meterReading = MeterReading::create($validated);
-
-        // **Agar avtomatik tasdiqlangan bo‘lsa (`confirmed = true`), invoice yaratish**
-        if ($meterReading->confirmed) {
-            $this->createInvoice($meterReading);
-        }
 
         return $this->redirectBack($meterReading->waterMeter->customer, $meterReading);
     }
@@ -243,16 +239,9 @@ class MeterReadingController extends Controller
             $validated['photo'] = $request->file('photo')->store('meter_readings', 'public');
         }
 
-        // **Avval tasdiqlanmaganligini tekshirish**
-        $wasUnconfirmed = !$meterReading->confirmed;
-
         // **Yangilash**
+        // ✅ Observer avtomatik ravishda invoice yaratadi (agar confirmed o'zgarsa)
         $meterReading->update($validated);
-
-        // **Agar oldin tasdiqlanmagan bo‘lsa va hozir tasdiqlansa, invoice yaratish**
-        if ($wasUnconfirmed && $meterReading->confirmed) {
-            $this->createInvoice($meterReading);
-        }
 
         return $this->redirectBack($meterReading->waterMeter->customer, $meterReading);
     }
@@ -271,16 +260,14 @@ class MeterReadingController extends Controller
     {
         $meterReading = MeterReading::findOrFail($id);
 
-        // Agar allaqachon tasdiqlangan bo‘lsa, hech narsa qilmasin
+        // Agar allaqachon tasdiqlangan bo'lsa, hech narsa qilmasin
         if ($meterReading->confirmed) {
-            return back()->with('info', 'Ko‘rsatkich allaqachon tasdiqlangan.');
+            return back()->with('info', 'Ko'rsatkich allaqachon tasdiqlangan.');
         }
 
         // **Tasdiqlash**
+        // ✅ Observer avtomatik ravishda invoice yaratadi
         $meterReading->update(['confirmed' => true]);
-
-        // **Tasdiqlangandan keyin invoice yaratish**
-        $this->createInvoice($meterReading);
 
         return $this->redirectBack($meterReading->waterMeter->customer, $meterReading);
     }

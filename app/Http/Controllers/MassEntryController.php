@@ -229,36 +229,13 @@ class MassEntryController extends Controller
         }
 
         // Ko'rsatkichni yaratish
+        // ✅ Observer avtomatik ravishda invoice yaratadi
         MeterReading::create([
             'water_meter_id' => $waterMeter->id,
             'reading' => $newReading,
             'reading_date' => now()->toDateString(),
             'confirmed' => true,
         ]);
-
-        // Invoice yaratish (agar consumption bo'lsa)
-        if ($lastReading) {
-            $consumption = $newReading - $lastReading->reading;
-
-            if ($consumption > 0) {
-                // Aktiv tarifni olish
-                $tariff = Tariff::where('company_id', $customer->company_id)
-                    ->where('is_active', true)
-                    ->latest('valid_from')
-                    ->first();
-
-                if ($tariff) {
-                    Invoice::create([
-                        'customer_id' => $customer->id,
-                        'tariff_id' => $tariff->id,
-                        'billing_period' => now()->format('Y-m'),
-                        'amount_due' => $consumption * $tariff->price_per_m3,
-                        'due_date' => now()->endOfMonth(),
-                        'status' => 'pending',
-                    ]);
-                }
-            }
-        }
     }
 
     /**
