@@ -876,19 +876,22 @@ class CustomerController extends Controller
         // ✅ Ko'rsatkichlarni yaratish
         if ($shouldCreateTwoReadings) {
             // 2 ta korsatkich yaratish (boshlangich va oxirgi)
-            // Birinchi - boshlangich
+            $oxirgiDate = Carbon::parse($validated['korsatkich_sanasi']);
+            $boshlangichDate = $oxirgiDate->copy()->subDay();
+
+            // Birinchi - boshlangich (bir kun oldin, masalan 31.12.2025)
             MeterReading::create([
                 'water_meter_id' => $waterMeter->id,
                 'reading' => $boshlangich,
-                'reading_date' => $validated['korsatkich_sanasi'],
+                'reading_date' => $boshlangichDate->toDateString(),
                 'confirmed' => true,
             ]);
 
-            // Ikkinchi - oxirgi
+            // Ikkinchi - oxirgi (berilgan sana, masalan 01.01.2026)
             MeterReading::create([
                 'water_meter_id' => $waterMeter->id,
                 'reading' => $oxirgi,
-                'reading_date' => $validated['korsatkich_sanasi'],
+                'reading_date' => $oxirgiDate->toDateString(),
                 'confirmed' => true,
             ]);
         } else {
