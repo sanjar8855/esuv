@@ -37,14 +37,13 @@ class MassEntryController extends Controller
         // MFY larni olish
         $neighborhoods = Neighborhood::query()
             ->when(!$user->hasRole('admin'), function ($q) use ($user) {
-                // Admin bo'lmasa, faqat o'z kompaniyasining MFY lari
+                // Admin bo'lmasa, faqat o'z kompaniyasining mijozlari joylashgan MFY lari
                 if ($user->company_id) {
-                    $company = \App\Models\Company::find($user->company_id);
-                    if ($company && $company->region_id) {
-                        $q->whereHas('city', function ($query) use ($company) {
-                            $query->where('region_id', $company->region_id);
+                    $q->whereHas('streets', function ($streetQuery) use ($user) {
+                        $streetQuery->whereHas('customers', function ($customerQuery) use ($user) {
+                            $customerQuery->where('company_id', $user->company_id);
                         });
-                    }
+                    });
                 }
             })
             ->orderBy('name')
