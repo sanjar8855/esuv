@@ -262,7 +262,7 @@ class MeterReadingController extends Controller
 
         // Agar allaqachon tasdiqlangan bo'lsa, hech narsa qilmasin
         if ($meterReading->confirmed) {
-            return back()->with('info', 'Ko'rsatkich allaqachon tasdiqlangan.');
+            return back()->with('info', 'Ko\'rsatkich allaqachon tasdiqlangan.');
         }
 
         // **Tasdiqlash**
