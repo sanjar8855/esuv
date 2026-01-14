@@ -159,8 +159,8 @@
 
                         <div class="mb-3">
                             <label class="form-check">
-                                <input type="checkbox" name="is_active"
-                                       class="form-check-input" {{ $customer->is_active ? 'checked' : '' }}>
+                                <input type="hidden" name="is_active" value="0">
+                                <input type="checkbox" name="is_active" value="1" class="form-check-input" {{ $customer->is_active ? 'checked' : '' }}>
                                 <span class="form-check-label">Faol mijoz</span>
                             </label>
                         </div>
