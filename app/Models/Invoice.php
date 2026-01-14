@@ -12,7 +12,16 @@ class Invoice extends Model
 {
     use HasFactory, RecordUserStamps;
 
-    protected $fillable = ['customer_id', 'tariff_id', 'invoice_number', 'billing_period', 'amount_due', 'due_date', 'status'];
+    protected $fillable = [
+        'customer_id',
+        'tariff_id',
+        'meter_reading_id', // ✅ meter reading orqali yaratilgan invoice lar uchun
+        'invoice_number',
+        'billing_period',
+        'amount_due',
+        'due_date',
+        'status',
+    ];
 
     protected static function booted()
     {

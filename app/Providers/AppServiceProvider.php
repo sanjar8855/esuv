@@ -28,9 +28,8 @@ class AppServiceProvider extends ServiceProvider
         Paginator::useBootstrap();
 
         // ✅ Observer registratsiyasi
-        \App\Models\Invoice::observe(\App\Observers\InvoiceObserver::class);
-        \App\Models\Payment::observe(\App\Observers\PaymentObserver::class);
-        \App\Models\MeterReading::observe(\App\Observers\MeterReadingObserver::class);
+        // Eslatma: Observer'lar `App\Providers\EventServiceProvider` ichidagi `$observers` orqali ro'yxatdan o'tkaziladi.
+        // Bu yerda yana observe() qilish dublikat chaqirilishga olib kelishi mumkin.
 
         // ✅ Telegram WebApp layout detection
         View::composer('*', function ($view) {
