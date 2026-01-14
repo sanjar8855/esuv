@@ -230,7 +230,7 @@
                                     @include('customers.partials.reading-status', ['reading' => $reading])
                                 </small> <br>
                                 <a href="{{ route('meter_readings.show', $reading->id) }}"
-                                   class="btn btn-sm btn-icon btn-info" title="Batafsil">
+                                   class="btn btn-icon btn-info" title="Batafsil">
                                     <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-eye" width="16" height="16" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
                                         <path stroke="none" d="M0 0h24v24H0z" fill="none"/>
                                         <path d="M10 12a2 2 0 1 0 4 0a2 2 0 0 0 -4 0" />
@@ -238,7 +238,7 @@
                                     </svg>
                                 </a>
                                 <a href="{{ route('meter_readings.edit', $reading->id) }}"
-                                   class="btn btn-sm btn-icon btn-warning" title="O'zgartirish">
+                                   class="btn btn-icon btn-warning" title="O'zgartirish">
                                     <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-pencil" width="16" height="16"
                                          viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
                                         <path stroke="none" d="M0 0h24v24H0z" fill="none"/>
@@ -251,7 +251,7 @@
                                       onsubmit="return confirm('Haqiqatan ham bu ko\'rsatkichni o\'chirmoqchimisiz?');">
                                     @csrf
                                     @method('DELETE')
-                                    <button type="submit" class="btn btn-sm btn-icon btn-danger" title="O'chirish">
+                                    <button type="submit" class="btn btn-icon btn-danger" title="O'chirish">
                                         <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24"
                                              fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
                                              stroke-linejoin="round" class="icon">
