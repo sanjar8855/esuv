@@ -275,11 +275,23 @@ class MeterReadingController extends Controller
     {
         $customer = $meterReading->waterMeter->customer;
 
-        if ($meterReading->photo) {
-            Storage::disk('public')->delete($meterReading->photo);
-        }
+        DB::transaction(function () use ($meterReading) {
+            // ✅ Agar bu ko'rsatkichdan invoice yaratilgan bo'lsa:
+            // - paid bo'lmasa: invoice'ni o'chiramiz (qarzdorlik/balance to'g'ri qolishi uchun)
+            // - paid bo'lsa: tarix uchun qoldiramiz (meter_reading_id DB FK orqali null bo'lib ketadi)
+            $invoice = $meterReading->invoice()->first();
+            if ($invoice) {
+                if ($invoice->status !== 'paid') {
+                    $invoice->delete();
+                }
+            }
 
-        $meterReading->delete();
+            if ($meterReading->photo) {
+                Storage::disk('public')->delete($meterReading->photo);
+            }
+
+            $meterReading->delete();
+        });
 
         // Agar avvalgi sahifa customer show sahifasi bo'lsa, qaytib o'sha yerga yo'naltirish
         $previousUrl = url()->previous();
