@@ -402,7 +402,7 @@ class CustomerController extends Controller
         // ✅ 3. Yangilash
         $customer->update($validated);
 
-        return redirect()->route('customers.index')
+        return redirect()->route('customers.show', $customer)
             ->with('success', 'Mijoz muvaffaqiyatli yangilandi!');
     }
 
