@@ -197,7 +197,15 @@ class MeterReadingController extends Controller
 
         // **Ko'rsatkichni saqlash**
         // ✅ Observer avtomatik ravishda invoice yaratadi (agar confirmed = true)
+        Log::info('MeterReadingController@store: Attempting to create MeterReading', [
+            'validated_data' => $validated
+        ]);
+
         $meterReading = MeterReading::create($validated);
+
+        Log::info('MeterReadingController@store: MeterReading created successfully', [
+            'meter_reading_id' => $meterReading->id
+        ]);
 
         return $this->redirectBack($meterReading->waterMeter->customer, $meterReading);
     }
@@ -283,45 +291,6 @@ class MeterReadingController extends Controller
 
         return $this->redirectBack($meterReading->waterMeter->customer, $meterReading);
     }
-
-    private function createInvoice(MeterReading $meterReading)
-    {
-        $customer = $meterReading->waterMeter->customer;
-        $tariff = Tariff::where('company_id', $customer->company_id)
-            ->where('is_active', true)
-            ->latest()
-            ->first();
-
-        if ($tariff) {
-            // **Oxirgi tasdiqlangan ko‘rsatkichni olish**
-            $previousConfirmedReading = MeterReading::where('water_meter_id', $meterReading->water_meter_id)
-                ->where('confirmed', true)
-                ->where('id', '<', $meterReading->id) // Faqat undan oldingi o'qishlarni olish
-                ->orderBy('id', 'desc') // Eng oxirgi tasdiqlanganini olish
-                ->first();
-
-            if ($previousConfirmedReading) {
-                // **Suv iste'moli farqini hisoblash (yangi - oxirgi tasdiqlangan)**
-                $consumption = $meterReading->reading - $previousConfirmedReading->reading;
-
-                // **Manfiy qiymat oldini olish (odatda bu xato bo‘lmasligi kerak)**
-                if ($consumption > 0) {
-                    $amount_due = $consumption * $tariff->price_per_m3;
-
-                    // **Yangi invoice yaratish**
-                    Invoice::create([
-                        'customer_id'    => $customer->id,
-                        'tariff_id'      => $tariff->id,
-                        'billing_period' => now()->format('Y-m'),
-                        'amount_due'     => $amount_due,
-                        'due_date'       => now()->endOfMonth(),
-                        'status'         => 'pending',
-                    ]);
-                }
-            }
-        }
-    }
-
     private function redirectBack($customer, $meterReading)
     {
         $previousUrl = url()->previous();

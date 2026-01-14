@@ -101,9 +101,25 @@ class MeterReadingObserver
         // Invoice yaratish
         $amountDue = $consumption * $tariff->price_per_m3;
 
+        // ✅ Duplicate invoice yaratilishining oldini olish
+        if (Invoice::where('meter_reading_id', $meterReading->id)->exists()) {
+            Log::warning('Invoice already exists for this meter reading, skipping creation.', [
+                'meter_reading_id' => $meterReading->id,
+                'customer_id' => $customer->id,
+            ]);
+            return;
+        }
+
+        Log::info('MeterReadingObserver: Attempting to create new Invoice', [
+            'meter_reading_id' => $meterReading->id,
+            'customer_id' => $customer->id,
+            'amount_due' => $amountDue
+        ]);
+
         Invoice::create([
             'customer_id' => $customer->id,
             'tariff_id' => $tariff->id,
+            'meter_reading_id' => $meterReading->id, // ✅ Yangi qator
             'billing_period' => now()->format('Y-m'),
             'amount_due' => $amountDue,
             'due_date' => now()->endOfMonth(),
