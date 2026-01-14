@@ -281,7 +281,7 @@
                             </ul>
                         </div>
                     @endif
-                    <form action="{{ route('meter_readings.store') }}" method="POST" enctype="multipart/form-data">
+                    <form id="meterReadingForm" action="{{ route('meter_readings.store') }}" method="POST" enctype="multipart/form-data">
                         @csrf
 
                         @if($customer->waterMeter)
@@ -623,12 +623,17 @@
         });
     </script>
     <script>
-        document.querySelector('form').addEventListener('submit', function(e) {
+        // ✅ Faqat "Yangi ko'rsatkich qo'shish" formasida double-submit oldini olish
+        document.addEventListener("DOMContentLoaded", function () {
+            var form = document.getElementById('meterReadingForm');
             var btn = document.getElementById('saveBtn');
-            if(btn) {
-                btn.disabled = true; // Tugmani o'chirib qo'yamiz
-                btn.innerHTML = 'Saqlanmoqda...'; // Matnni o'zgartiramiz
-            }
+
+            if (!form || !btn) return;
+
+            form.addEventListener('submit', function () {
+                btn.disabled = true;
+                btn.innerHTML = 'Saqlanmoqda...';
+            });
         });
     </script>
 @endpush

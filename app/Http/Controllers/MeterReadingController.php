@@ -12,6 +12,7 @@ use Illuminate\Support\Facades\Auth;    // Auth Facade
 use Illuminate\Support\Facades\Storage; // Storage Facade (rasm uchun kerak bo'lishi mumkin)
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Carbon;
 use Maatwebsite\Excel\Facades\Excel;
 use App\Imports\BasicExcelImport;
 use App\Imports\MeterReadingsImport;
@@ -180,6 +181,21 @@ class MeterReadingController extends Controller
 
         if ($request->hasFile('photo')) {
             $validated['photo'] = $request->file('photo')->store('meter_readings', 'public');
+        }
+
+        // ✅ Double-submit (bir xil forma 2 marta yuborilishi) natijasida dublikat invoice chiqmasligi uchun
+        // Agar user bir xil ko'rsatkich + sana bilan 1-2 daqiqa ichida qayta yuborsa, qaytaramiz.
+        $readingDate = Carbon::parse($validated['reading_date'])->toDateString();
+        $duplicateReadingExists = MeterReading::where('water_meter_id', $validated['water_meter_id'])
+            ->where('reading', $validated['reading'])
+            ->whereDate('reading_date', $readingDate)
+            ->where('created_at', '>=', now()->subMinutes(2))
+            ->exists();
+
+        if ($duplicateReadingExists) {
+            return redirect()->back()
+                ->with('warning', "Bu ko'rsatkich allaqachon qo'shilgan (dublikat yuborish bloklandi).")
+                ->withInput();
         }
 
         // **Oxirgi tasdiqlangan o'qishni olish**
