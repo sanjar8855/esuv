@@ -329,7 +329,7 @@
                             </select>
                         </div>
 
-                        <button type="submit" class="btn btn-primary">Saqlash</button>
+                        <button type="submit" id="saveBtn" class="btn btn-primary">Saqlash</button>
                     </form>
                     {{-- ------------- YANGI INVOYS QO'SHISH FORMASI TUGADI ------------- --}}
                 </div>
@@ -619,6 +619,15 @@
                 }
             } else {
                 console.error('Litepicker is not loaded.'); // Litepicker yuklanmagan bo'lsa xabar
+            }
+        });
+    </script>
+    <script>
+        document.querySelector('form').addEventListener('submit', function(e) {
+            var btn = document.getElementById('saveBtn');
+            if(btn) {
+                btn.disabled = true; // Tugmani o'chirib qo'yamiz
+                btn.innerHTML = 'Saqlanmoqda...'; // Matnni o'zgartiramiz
             }
         });
     </script>

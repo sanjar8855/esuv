@@ -47,6 +47,10 @@ class MeterReadingObserver
      */
     protected function createInvoiceIfNeeded(MeterReading $meterReading): void
     {
+        if ($meterReading->invoice()->exists()) {
+            return;
+        }
+
         $meterReading->loadMissing('waterMeter.customer');
 
         if (!$meterReading->waterMeter || !$meterReading->waterMeter->customer) {
