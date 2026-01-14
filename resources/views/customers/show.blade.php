@@ -235,7 +235,12 @@
                                 </a>
                                 <a href="{{ route('meter_readings.edit', $reading->id) }}"
                                    class="btn btn-warning btn-icon" title="O'zgartirish">
-                                    <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-pencil" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M4 20h4l10.5 -10.5a1.5 1.5 0 0 0 -4 -4l-10.5 10.5v4" /><line x1="13.5" y1="6.5" x2="17.5" y2="10.5" /></svg>
+                                    <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-pencil" width="16" height="16"
+                                         viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+                                        <path stroke="none" d="M0 0h24v24H0z" fill="none"/>
+                                        <path d="M4 20h4l10.5 -10.5a1.5 1.5 0 0 0 -4 -4l-10.5 10.5v4"/>
+                                        <line x1="13.5" y1="6.5" x2="17.5" y2="10.5"/>
+                                    </svg>
                                 </a>
                                 <form action="{{ route('meter_readings.destroy', $reading->id) }}" method="POST"
                                       style="display:inline;"
@@ -297,9 +302,9 @@
                                          stroke="currentColor" stroke-width="2" stroke-linecap="round"
                                          stroke-linejoin="round"
                                          class="icon icon-1"><path
-                                            d="M4 7a2 2 0 0 1 2 -2h12a2 2 0 0 1 2 2v12a2 2 0 0 1 -2 2h-12a2 2 0 0 1 -2 -2v-12z"/><path
-                                            d="M16 3v4"/><path d="M8 3v4"/><path d="M4 11h16"/><path d="M11 15h1"/><path
-                                            d="M12 15v3"/></svg>
+                                                d="M4 7a2 2 0 0 1 2 -2h12a2 2 0 0 1 2 2v12a2 2 0 0 1 -2 2h-12a2 2 0 0 1 -2 -2v-12z"/><path
+                                                d="M16 3v4"/><path d="M8 3v4"/><path d="M4 11h16"/><path d="M11 15h1"/><path
+                                                d="M12 15v3"/></svg>
                                 </span>
                                 <input name="reading_date" class="form-control" placeholder="Sanani tanlang" required
                                        value="{{ old('reading_date', now()->format('Y-m-d')) }}"
@@ -499,9 +504,10 @@
                                                        name="confirmed"
                                                        value="1"
                                                        class="form-selectgroup-input"
-                                                    {{ old('confirmed', '1') == '1' ? 'checked' : '' }}>
+                                                        {{ old('confirmed', '1') == '1' ? 'checked' : '' }}>
                                                 <span class="form-selectgroup-label">
-                                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="text-success me-1">
+                                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                                         stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="text-success me-1">
                                         <polyline points="20 6 9 17 4 12"></polyline>
                                     </svg>
                                     Ha, tasdiqlangan
@@ -512,9 +518,10 @@
                                                        name="confirmed"
                                                        value="0"
                                                        class="form-selectgroup-input"
-                                                    {{ old('confirmed') == '0' ? 'checked' : '' }}>
+                                                        {{ old('confirmed') == '0' ? 'checked' : '' }}>
                                                 <span class="form-selectgroup-label">
-                                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="text-warning me-1">
+                                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                                         stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="text-warning me-1">
                                         <circle cx="12" cy="12" r="10"></circle>
                                         <line x1="12" y1="8" x2="12" y2="12"></line>
                                         <line x1="12" y1="16" x2="12.01" y2="16"></line>
@@ -532,7 +539,8 @@
                                     {{-- ✅ ODDIY ISHCHI UCHUN: Hidden input --}}
                                     <input type="hidden" name="confirmed" value="0">
                                     <div class="alert alert-info mb-3" role="alert">
-                                        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="me-2">
+                                        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                                             stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="me-2">
                                             <circle cx="12" cy="12" r="10"></circle>
                                             <line x1="12" y1="16" x2="12" y2="12"></line>
                                             <line x1="12" y1="8" x2="12.01" y2="8"></line>
@@ -543,13 +551,15 @@
 
                                 <div class="d-flex gap-2">
                                     <button type="submit" class="btn btn-success">
-                                        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="me-1">
+                                        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                                             stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="me-1">
                                             <polyline points="20 6 9 17 4 12"></polyline>
                                         </svg>
                                         To'lovni kiritish
                                     </button>
                                     <button type="reset" class="btn btn-outline-secondary">
-                                        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="me-1">
+                                        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                                             stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="me-1">
                                             <polyline points="1 4 1 10 7 10"></polyline>
                                             <path d="M3.51 15a9 9 0 1 0 2.13-9.36L1 10"></path>
                                         </svg>
