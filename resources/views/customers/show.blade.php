@@ -225,13 +225,17 @@
                         @foreach($readings as $reading)
                             <li class="list-group-item">
                                 <small>Sana: {{ $reading->reading_date }}</small><br>
-                                <small>Ko'rsatgich: {{ $reading->reading }}</small><br>
+                                <small>Ko'rsatgich: {{ $reading->reading }}</small>
                                 <small id="reading-status-{{ $reading->id }}">
                                     @include('customers.partials.reading-status', ['reading' => $reading])
                                 </small>
                                 <a href="{{ route('meter_readings.show', $reading->id) }}"
                                    class="badge badge-outline text-blue">
                                     Batafsil
+                                </a>
+                                <a href="{{ route('meter_readings.edit', $reading->id) }}"
+                                   class="btn btn-warning btn-icon btn-sm" title="O'zgartirish">
+                                    <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-pencil" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M4 20h4l10.5 -10.5a1.5 1.5 0 0 0 -4 -4l-10.5 10.5v4" /><line x1="13.5" y1="6.5" x2="17.5" y2="10.5" /></svg>
                                 </a>
                                 <form action="{{ route('meter_readings.destroy', $reading->id) }}" method="POST"
                                       style="display:inline;"
