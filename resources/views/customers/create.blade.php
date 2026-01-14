@@ -140,6 +140,12 @@
                             <input type="number" name="family_members" id="family_members" class="form-control"
                                    value="{{ old('family_members') }}" min="1">
                         </div>
+
+                        <div class="mb-3">
+                            <label class="form-label">Balans (so`mda)</label>
+                            <input type="number" name="balance" class="form-control" value="{{ old('balance', 0) }}" step="0.01">
+                        </div>
+
                         <button type="submit" class="btn btn-primary">Saqlash</button>
                         <a href="{{ route('customers.index') }}" class="btn btn-secondary">Bekor qilish</a>
                     </form>

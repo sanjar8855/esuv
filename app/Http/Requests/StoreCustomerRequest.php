@@ -60,6 +60,7 @@ class StoreCustomerRequest extends FormRequest
                 'date',
                 'before_or_equal:today', // ✅ Kelajak sana yo'q
             ],
+            'balance' => 'nullable|numeric',
         ];
 
         // ✅ Admin bo'lsa - kompaniya tanlash majburiy

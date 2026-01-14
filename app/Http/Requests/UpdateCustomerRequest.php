@@ -54,6 +54,7 @@ class UpdateCustomerRequest extends FormRequest
             ],
             'is_active' => 'nullable|boolean',
             'has_water_meter' => 'nullable|boolean',
+            'balance' => 'nullable|numeric',
         ];
 
         // ✅ Admin bo'lsa - kompaniya o'zgartirish mumkin

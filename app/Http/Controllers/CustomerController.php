@@ -244,7 +244,7 @@ class CustomerController extends Controller
             'family_members' => $validated['family_members'] ?? null,
             'is_active' => true,
             'has_water_meter' => $hasWaterMeter,
-            'balance' => 0,
+            'balance' => $validated['balance'] ?? 0,
         ]);
 
         // ✅ Hisoblagich yaratish (agar bor bo'lsa)

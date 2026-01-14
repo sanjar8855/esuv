@@ -153,6 +153,11 @@
                         </div>
 
                         <div class="mb-3">
+                            <label class="form-label">Balans (so`mda)</label>
+                            <input type="number" name="balance" class="form-control" value="{{ old('balance', $customer->balance) }}" step="0.01">
+                        </div>
+
+                        <div class="mb-3">
                             <label class="form-check">
                                 <input type="checkbox" name="is_active"
                                        class="form-check-input" {{ $customer->is_active ? 'checked' : '' }}>

@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Company;
 use App\Models\Neighborhood;
 use App\Models\Street;
 use App\Models\Customer;
@@ -31,7 +32,7 @@ class MassEntryController extends Controller
         // Admin uchun kompaniyalarni olish
         $companies = collect();
         if ($user->hasRole('admin')) {
-            $companies = \App\Models\Company::orderBy('name')->get();
+            $companies = Company::orderBy('name')->get();
         }
 
         // MFY larni olish
