@@ -185,6 +185,7 @@ class MeterReadingController extends Controller
         // **Oxirgi tasdiqlangan o'qishni olish**
         $lastConfirmedReading = MeterReading::where('water_meter_id', $validated['water_meter_id'])
             ->where('confirmed', true)
+            ->orderBy('reading_date', 'desc')
             ->orderBy('id', 'desc')
             ->first();
 

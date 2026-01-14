@@ -30,4 +30,9 @@ class MeterReading extends Model
     {
         return $this->hasOneThrough(Customer::class, WaterMeter::class, 'id', 'id', 'water_meter_id', 'customer_id');
     }
+
+    public function invoice()
+    {
+        return $this->hasOne(Invoice::class);
+    }
 }

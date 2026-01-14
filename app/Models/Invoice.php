@@ -73,4 +73,9 @@ class Invoice extends Model
     {
         return $this->hasMany(Payment::class);
     }
+
+    public function meterReading()
+    {
+        return $this->belongsTo(MeterReading::class);
+    }
 }
