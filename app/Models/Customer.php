@@ -166,9 +166,8 @@ class Customer extends Model
      */
     public function updateBalance(): void
     {
-        $totalDue = $this->invoices()
-            ->whereIn('status', ['pending', 'unpaid', 'overdue'])
-            ->sum('amount_due');
+        // ✅ HAMMA hisoblangan qarzlar (statusidan qat'iy nazar)
+        $totalDue = $this->invoices()->sum('amount_due');
 
         // ✅ FAQAT tasdiqlangan to'lovlar
         $totalPaid = $this->payments()
