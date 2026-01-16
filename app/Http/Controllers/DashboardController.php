@@ -18,31 +18,26 @@ class DashboardController extends Controller
         $user = auth()->user();
         $companyId = $user->company_id;
 
+        // ✅ OPTIMALLASHTIRISH: balance ustunidan foydalanish (N+1 muammosini hal qiladi)
         // Shu kompaniyaga tegishli mijozlar IDlarini olish
         $customerIds = Customer::where('company_id', $companyId)->pluck('id');
         $customersCount = $customerIds->count();
 
-        $allCustomers = Customer::where('company_id', $companyId)->get();
+        // ✅ Qarzdorlar soni va summasi (balance ustunidan foydalanish - 1 query!)
+        $debtorsCount = Customer::where('company_id', $companyId)
+            ->where('balance', '<', 0)
+            ->count();
 
-        // Faqat qarzdor mijozlar va ularning qarzdorlik summasini aniqlash
-        $debtors = $allCustomers->filter(function ($customer) {
-            $totalDue = $customer->invoices()->sum('amount_due'); // barcha invoyslarni olamiz
-            $totalPaid = $customer->payments()->sum('amount');     // barcha to'lovlar
-            return ($totalPaid - $totalDue) < 0;
-        });
+        $totalDebt = abs(Customer::where('company_id', $companyId)
+            ->where('balance', '<', 0)
+            ->sum('balance'));
 
-        $debtorsCount = $debtors->count();
-
-        $totalDebt = $debtors->sum(function ($customer) {
-            $totalDue = $customer->invoices()->sum('amount_due');
-            $totalPaid = $customer->payments()->sum('amount');
-            return abs($totalPaid - $totalDue);
-        });
-
-        // Oyning boshidan oxirigacha bo'lgan sanalar oralig‘i
+        // ✅ Oyning boshidan oxirigacha bo'lgan sanalar oralig'i
         $start = Carbon::now()->startOfMonth();
         $end = Carbon::now()->endOfMonth();
         $period = CarbonPeriod::create($start, $end);
+        $currentMonth = Carbon::now()->month;
+        $currentYear = Carbon::now()->year;
 
         // Asosiy query: agar foydalanuvchi admin bo‘lmasa, faqat o‘z kompaniyasidagi mijozlar
         $baseQuery = Customer::query();
@@ -60,15 +55,11 @@ class DashboardController extends Controller
             ->where('balance', '>', 0)
             ->sum('balance');
 
-        // Tariff ma'lumotlari: faol tarifni olamiz, agar mavjud bo‘lmasa, 0 qiymatli model qaytaramiz
+        // Tariff ma'lumotlari: faol tarifni olamiz, agar mavjud bo'lmasa, 0 qiymatli model qaytaramiz
         $tariff = Tariff::where('company_id', $companyId)
                 ->where('is_active', true)
                 ->latest('created_at')
                 ->first() ?? new Tariff(['price_per_m3' => 0]);
-
-        // Hozirgi oy uchun
-        $currentMonth = Carbon::now()->month;
-        $currentYear = Carbon::now()->year;
 
         // Hozirgi oydagi invoyslar soni va summasi
         $monthlyInvoicesCount = Invoice::whereIn('customer_id', $customerIds)
@@ -128,7 +119,7 @@ class DashboardController extends Controller
             $chartPaymentData[] = $paymentRow ? (float)$paymentRow->total : 0;
         }
 
-        // Agar qo'shimcha grafiklar uchun eski so'rovlar kerak bo'lsa:
+        // ✅ Eski grafiklar uchun (agar view'da ishlatilsa)
         $labels = Payment::whereIn('customer_id', $customerIds)
             ->selectRaw('DATE(payment_date) as date')
             ->groupByRaw('DATE(payment_date)')
@@ -142,10 +133,6 @@ class DashboardController extends Controller
             ->orderByRaw('DATE(payment_date) ASC')
             ->pluck('total')
             ->toArray();
-
-        $start = Carbon::now()->startOfMonth();
-        $end = Carbon::now()->endOfMonth();
-        $period = CarbonPeriod::create($start, $end);
 
 // Tasdiqlangan o'qishlar bo'yicha kunlik hisobot, faqat aktiv kompaniya mijozlaridan
         $confirmedData = MeterReading::whereBetween('reading_date', [$start, $end])
@@ -175,35 +162,33 @@ class DashboardController extends Controller
             ->get()
             ->keyBy('date');
 
-        $chartLabels = [];
+        // ✅ Ko'rsatkichlar grafigi ma'lumotlari (chartLabels yuqorida e'lon qilingan)
         $chartConfirmedData = [];
         $chartUnconfirmedData = [];
 
         foreach ($period as $date) {
             $dayString = $date->format('Y-m-d');
-            $chartLabels[] = $dayString;
             $chartConfirmedData[] = $confirmedData->has($dayString) ? (int)$confirmedData->get($dayString)->count : 0;
             $chartUnconfirmedData[] = $unconfirmedData->has($dayString) ? (int)$unconfirmedData->get($dayString)->count : 0;
         }
 
-        // Qarzdorlik bo‘yicha top 5 ko‘chani olish
-        $topStreets = Customer::where('company_id', $companyId)
+        // ✅ OPTIMALLASHTIRISH: Qarzdorlik bo'yicha top 5 ko'chani olish (groupBy va aggregation)
+        $topStreets = Customer::select('street_id', \DB::raw('SUM(ABS(balance)) as total_debt'))
+            ->where('company_id', $companyId)
             ->where('balance', '<', 0)
-            ->whereHas('street') // faqat ko‘chasi borlar
-            ->with('street')
-            ->get()
+            ->whereNotNull('street_id')
             ->groupBy('street_id')
-            ->map(function ($customers, $streetId) {
-                $totalDebt = $customers->sum(fn($c) => abs($c->balance));
+            ->orderByDesc('total_debt')
+            ->limit(5)
+            ->with('street:id,name') // Eager loading faqat kerakli ustunlar
+            ->get()
+            ->map(function ($customer) {
                 return [
-                    'street_id' => $streetId,
-                    'street_name' => $customers->first()->street->name ?? 'Nomaʼlum',
-                    'total_debt' => $totalDebt,
+                    'street_id' => $customer->street_id,
+                    'street_name' => $customer->street->name ?? 'Nomaʼlum',
+                    'total_debt' => $customer->total_debt,
                 ];
-            })
-            ->sortByDesc('total_debt')
-            ->take(5)
-            ->values();
+            });
 
         // Maksimal qarzdorlik (foiz hisoblash uchun)
         $maxDebt = $topStreets->max('total_debt');
