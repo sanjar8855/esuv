@@ -55,6 +55,8 @@ Route::middleware('auth')->group(function () {
 
     Route::middleware('can:companies')->group(function () {
         Route::resource('companies', CompanyController::class);
+        Route::delete('/companies/{company}/clear-customers', [CompanyController::class, 'clearCustomers'])
+            ->name('companies.clear-customers');
         Route::resource('regions', RegionController::class);
         Route::resource('cities', CityController::class);
         Route::resource('neighborhoods', NeighborhoodController::class);

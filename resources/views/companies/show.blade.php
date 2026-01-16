@@ -68,9 +68,27 @@
                             </div>
                         </div>
                         <div class="card-footer">
-                            <div class="d-flex gap-2">
+                            <div class="d-flex gap-2 flex-wrap">
                                 <a href="{{ route('companies.index') }}" class="btn btn-sm btn-secondary">Orqaga</a>
                                 <a href="{{ route('companies.edit', $company->id) }}" class="btn btn-sm btn-warning">Tahrirlash</a>
+
+                                @if(auth()->user()->hasRole('admin') || (auth()->user()->hasRole('company_owner') && auth()->user()->company_id === $company->id))
+                                    {{-- Mijozlarni tozalash tugmasi --}}
+                                    <form action="{{ route('companies.clear-customers', $company->id) }}" method="POST" class="d-inline" id="clearCustomersForm">
+                                        @csrf
+                                        @method('DELETE')
+                                        <button type="button" class="btn btn-sm btn-danger" onclick="confirmClearCustomers()">
+                                            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                                <polyline points="3 6 5 6 21 6"></polyline>
+                                                <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path>
+                                                <line x1="10" y1="11" x2="10" y2="17"></line>
+                                                <line x1="14" y1="11" x2="14" y2="17"></line>
+                                            </svg>
+                                            Mijozlarni tozalash
+                                        </button>
+                                    </form>
+                                @endif
+
                                 <form action="{{ route('companies.destroy', $company->id) }}" method="POST" class="d-inline">
                                     @csrf
                                     @method('DELETE')
@@ -337,5 +355,41 @@
             </div>
         </div>
     </div>
+
+    {{-- Double confirmation JavaScript --}}
+    <script>
+        function confirmClearCustomers() {
+            // Birinchi tasdiqlash
+            const firstConfirm = confirm(
+                '⚠️ DIQQAT! Bu amal barcha mijozlar va ularga tegishli MA\'LUMOTLARNI O\'CHIRADI:\n\n' +
+                '❌ Barcha mijozlar\n' +
+                '❌ Barcha hisoblagichlar\n' +
+                '❌ Barcha ko\'rsatkichlar\n' +
+                '❌ Barcha invoyslar\n' +
+                '❌ Barcha to\'lovlar\n\n' +
+                '✅ Ko\'chalar, mahallalar va xodimlar SAQLANADI\n\n' +
+                'Davom etishni xohlaysizmi?'
+            );
+
+            if (!firstConfirm) {
+                return false;
+            }
+
+            // Ikkinchi tasdiqlash (double confirmation)
+            const secondConfirm = confirm(
+                '⚠️ OXIRGI OGOHLANTIRISH!\n\n' +
+                'Bu amalni qaytarib bo\'lmaydi!\n' +
+                'Barcha mijozlar ma\'lumotlari butunlay o\'chiriladi!\n\n' +
+                'Haqiqatan ham davom etmoqchimisiz?'
+            );
+
+            if (secondConfirm) {
+                // Ikkala tasdiqlash ham qabul qilingan bo'lsa, formani yuborish
+                document.getElementById('clearCustomersForm').submit();
+            }
+
+            return false;
+        }
+    </script>
 
 @endsection

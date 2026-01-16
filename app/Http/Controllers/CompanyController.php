@@ -199,13 +199,70 @@ class CompanyController extends Controller
     }
 
     /**
-     * Kompaniyani o‘chirish.
+     * Kompaniyani o'chirish.
      */
     public function destroy($id)
     {
         $company = Company::findOrFail($id);
         $company->delete();
 
-        return redirect()->route('companies.index')->with('success', 'Kompaniya muvaffaqiyatli o‘chirildi!');
+        return redirect()->route('companies.index')->with('success', 'Kompaniya muvaffaqiyatli o'chirildi!');
+    }
+
+    /**
+     * Kompaniya mijozlarini tozalash (barcha mijozlar va ularga bog'liq ma'lumotlar)
+     */
+    public function clearCustomers(Company $company)
+    {
+        // ✅ 1. Ruxsat tekshiruvi - faqat admin va company_owner
+        $user = auth()->user();
+        if (!$user->hasRole('admin') && !($user->hasRole('company_owner') && $user->company_id === $company->id)) {
+            return redirect()->back()->with('error', 'Sizda bu amalni bajarish uchun ruxsat yo\'q!');
+        }
+
+        try {
+            // ✅ 2. Transaction ichida o'chirish
+            DB::beginTransaction();
+
+            // Kompaniyaga tegishli mijozlarni topish
+            $customers = $company->customers()->pluck('id');
+
+            if ($customers->isEmpty()) {
+                DB::rollBack();
+                return redirect()->back()->with('info', 'Bu kompaniyada mijozlar mavjud emas.');
+            }
+
+            // ✅ 3. Mijozlarga bog'liq ma'lumotlarni o'chirish
+
+            // To'lovlarni o'chirish (payments jadvalida customer_id bo'yicha)
+            DB::table('payments')->whereIn('customer_id', $customers)->delete();
+
+            // Invoyslarni o'chirish (invoices jadvalida customer_id bo'yicha)
+            DB::table('invoices')->whereIn('customer_id', $customers)->delete();
+
+            // Hisoblagich ko'rsatkichlarini o'chirish (meter_readings jadvalida water_meter_id orqali)
+            $waterMeterIds = DB::table('water_meters')->whereIn('customer_id', $customers)->pluck('id');
+            if ($waterMeterIds->isNotEmpty()) {
+                DB::table('meter_readings')->whereIn('water_meter_id', $waterMeterIds)->delete();
+            }
+
+            // Hisoblagichlarni o'chirish (water_meters jadvalida customer_id bo'yicha)
+            DB::table('water_meters')->whereIn('customer_id', $customers)->delete();
+
+            // Telegram akkauntlar bog'lanishini o'chirish (customer_telegram_account pivot jadvali)
+            DB::table('customer_telegram_account')->whereIn('customer_id', $customers)->delete();
+
+            // Mijozlarni o'chirish
+            DB::table('customers')->whereIn('id', $customers)->delete();
+
+            DB::commit();
+
+            return redirect()->back()->with('success', count($customers) . ' ta mijoz va ularga tegishli barcha ma\'lumotlar muvaffaqiyatli tozalandi!');
+
+        } catch (\Exception $e) {
+            DB::rollBack();
+            \Log::error('Mijozlarni tozalashda xatolik: ' . $e->getMessage());
+            return redirect()->back()->with('error', 'Xatolik yuz berdi: ' . $e->getMessage());
+        }
     }
 }
