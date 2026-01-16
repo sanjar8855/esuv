@@ -203,7 +203,10 @@
                                 <tbody>
                                     @forelse($allStreets as $street)
                                         <tr>
-                                            <td>{{ $street->neighborhood->name }}, {{ $street->street_name }}</td>
+                                            <td>
+                                                <div>{{ $street->street_name }}</div>
+                                                <small class="text-muted">{{ $street->neighborhood_name }}</small>
+                                            </td>
                                             <td class="text-center">{{ number_format($street->customers_count) }} ta</td>
                                             <td class="text-end">
                                                 <span class="badge bg-red text-white">{{ number_format($street->total_debt, 0, '.', ' ') }} UZS</span>

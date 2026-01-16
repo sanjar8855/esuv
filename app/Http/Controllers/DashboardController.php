@@ -114,12 +114,14 @@ class DashboardController extends Controller
                 'street_id',
                 'streets.name as street_name',
                 'streets.neighborhood_id',
+                'neighborhoods.name as neighborhood_name',
                 \DB::raw('COUNT(customers.id) as customers_count'),
                 \DB::raw('SUM(ABS(CASE WHEN customers.balance < 0 THEN customers.balance ELSE 0 END)) as total_debt')
             )
             ->join('streets', 'customers.street_id', '=', 'streets.id')
+            ->join('neighborhoods', 'streets.neighborhood_id', '=', 'neighborhoods.id')
             ->where('customers.company_id', $companyId)
-            ->groupBy('street_id', 'streets.name', 'streets.neighborhood_id');
+            ->groupBy('street_id', 'streets.name', 'streets.neighborhood_id', 'neighborhoods.name');
 
         // Filter: MFY bo'yicha
         if ($request->filled('neighborhood_id')) {
