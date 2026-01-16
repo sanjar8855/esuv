@@ -21,6 +21,7 @@ use App\Models\ImportLog;
 use Illuminate\Http\Request;
 use App\Models\Customer;
 use App\Models\Company;
+use App\Models\Invoice;
 use Illuminate\Pagination\LengthAwarePaginator;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Validation\Rule;
