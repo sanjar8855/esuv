@@ -204,8 +204,7 @@
                                     @forelse($allStreets as $street)
                                         <tr>
                                             <td>
-                                                <div>{{ $street->street_name }}</div>
-                                                <small class="text-muted">{{ $street->neighborhood_name }}</small>
+                                                <div><small class="text-muted">{{ $street->neighborhood_name }}</small> {{ $street->street_name }}</div>
                                             </td>
                                             <td class="text-center">{{ number_format($street->customers_count) }} ta</td>
                                             <td class="text-end">
