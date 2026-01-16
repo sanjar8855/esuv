@@ -206,7 +206,7 @@ class CompanyController extends Controller
         $company = Company::findOrFail($id);
         $company->delete();
 
-        return redirect()->route('companies.index')->with('success', 'Kompaniya muvaffaqiyatli o'chirildi!');
+        return redirect()->route('companies.index')->with('success', 'Kompaniya muvaffaqiyatli o\'chirildi!');
     }
 
     /**
