@@ -8,22 +8,22 @@ use App\Models\Tariff;
 use App\Models\Invoice;
 use App\Models\WaterMeter;
 use App\Models\MeterReading;
+use App\Models\Neighborhood;
+use App\Models\Street;
 use Carbon\Carbon;
 use Carbon\CarbonPeriod;
+use Illuminate\Http\Request;
 
 class DashboardController extends Controller
 {
-    public function index()
+    public function index(Request $request)
     {
         $user = auth()->user();
         $companyId = $user->company_id;
 
-        // ✅ OPTIMALLASHTIRISH: balance ustunidan foydalanish (N+1 muammosini hal qiladi)
-        // Shu kompaniyaga tegishli mijozlar IDlarini olish
-        $customerIds = Customer::where('company_id', $companyId)->pluck('id');
-        $customersCount = $customerIds->count();
+        // ✅ Asosiy statistika
+        $customersCount = Customer::where('company_id', $companyId)->count();
 
-        // ✅ Qarzdorlar soni va summasi (balance ustunidan foydalanish - 1 query!)
         $debtorsCount = Customer::where('company_id', $companyId)
             ->where('balance', '<', 0)
             ->count();
@@ -32,78 +32,44 @@ class DashboardController extends Controller
             ->where('balance', '<', 0)
             ->sum('balance'));
 
-        // ✅ Oyning boshidan oxirigacha bo'lgan sanalar oralig'i
-        $start = Carbon::now()->startOfMonth();
-        $end = Carbon::now()->endOfMonth();
-        $period = CarbonPeriod::create($start, $end);
-        $currentMonth = Carbon::now()->month;
-        $currentYear = Carbon::now()->year;
-
-        // Asosiy query: agar foydalanuvchi admin bo‘lmasa, faqat o‘z kompaniyasidagi mijozlar
-        $baseQuery = Customer::query();
-        if (!$user->hasRole('admin') && $user->company_id) {
-            $baseQuery->where('company_id', $user->company_id);
-        }
-
-        // Foyda beruvchi mijozlar soni
-        $profitCustomersCount = (clone $baseQuery)
+        $profitCustomersCount = Customer::where('company_id', $companyId)
             ->where('balance', '>', 0)
             ->count();
 
-        // Jami foyda summasi
-        $totalProfit = (clone $baseQuery)
+        $totalProfit = Customer::where('company_id', $companyId)
             ->where('balance', '>', 0)
             ->sum('balance');
 
-        // Tariff ma'lumotlari: faol tarifni olamiz, agar mavjud bo'lmasa, 0 qiymatli model qaytaramiz
+        // ✅ Tariff
         $tariff = Tariff::where('company_id', $companyId)
                 ->where('is_active', true)
                 ->latest('created_at')
                 ->first() ?? new Tariff(['price_per_m3' => 0]);
 
-        // Hozirgi oydagi invoyslar soni va summasi
-        $monthlyInvoicesCount = Invoice::whereIn('customer_id', $customerIds)
-            ->whereMonth('created_at', $currentMonth)
-            ->whereYear('created_at', $currentYear)
-            ->count();
+        // ✅ Oyning boshidan oxirigacha
+        $start = Carbon::now()->startOfMonth();
+        $end = Carbon::now()->endOfMonth();
+        $period = CarbonPeriod::create($start, $end);
 
-        $monthlyInvoicesSum = Invoice::whereIn('customer_id', $customerIds)
-            ->whereMonth('created_at', $currentMonth)
-            ->whereYear('created_at', $currentYear)
-            ->sum('amount_due');
+        // ✅ Invoyslar/To'lovlar grafigi ma'lumotlari (ixtiyoriy - faqat kerak bo'lsa)
+        $customerIds = Customer::where('company_id', $companyId)->pluck('id');
 
-        // Hozirgi oydagi to'lovlar soni va summasi
-        $monthlyPaymentsCount = Payment::whereIn('customer_id', $customerIds)
-            ->whereMonth('payment_date', $currentMonth)
-            ->whereYear('payment_date', $currentYear)
-            ->count();
-
-        $monthlyPaymentsSum = Payment::whereIn('customer_id', $customerIds)
-            ->whereMonth('payment_date', $currentMonth)
-            ->whereYear('payment_date', $currentYear)
-            ->sum('amount');
-
-        // Hozirgi oydagi invoyslar (kunlik) – grouping by sana alias "date"
-        $monthlyData = Invoice::whereIn('customer_id', $customerIds)
-            ->whereMonth('created_at', $start->month)
-            ->whereYear('created_at', $start->year)
-            ->selectRaw('DATE(created_at) as date, SUM(amount_due) as invoice_sum')
+        $monthlyInvoicesData = Invoice::whereIn('customer_id', $customerIds)
+            ->whereBetween('created_at', [$start, $end])
+            ->selectRaw('DATE(created_at) as date, SUM(amount_due) as total')
             ->groupBy('date')
             ->orderBy('date')
             ->get()
             ->keyBy('date');
 
-        // Hozirgi oydagi to'lovlar (kunlik)
         $monthlyPaymentsData = Payment::whereIn('customer_id', $customerIds)
-            ->whereMonth('payment_date', $start->month)
-            ->whereYear('payment_date', $start->year)
+            ->whereBetween('payment_date', [$start, $end])
             ->selectRaw('DATE(payment_date) as date, SUM(amount) as total')
             ->groupBy('date')
             ->orderBy('date')
             ->get()
             ->keyBy('date');
 
-        // Grafik uchun ma'lumotlar: har bir kun uchun invoys va to'lov summalarini massivga joylaymiz
         $chartLabels = [];
         $chartInvoiceData = [];
         $chartPaymentData = [];
@@ -112,109 +78,94 @@ class DashboardController extends Controller
             $dayString = $date->format('Y-m-d');
             $chartLabels[] = $dayString;
 
-            $invoiceRow = $monthlyData->get($dayString);
+            $invoiceRow = $monthlyInvoicesData->get($dayString);
             $paymentRow = $monthlyPaymentsData->get($dayString);
 
-            $chartInvoiceData[] = $invoiceRow ? (float)$invoiceRow->invoice_sum : 0;
+            $chartInvoiceData[] = $invoiceRow ? (float)$invoiceRow->total : 0;
             $chartPaymentData[] = $paymentRow ? (float)$paymentRow->total : 0;
         }
 
-        // ✅ Eski grafiklar uchun (agar view'da ishlatilsa)
-        $labels = Payment::whereIn('customer_id', $customerIds)
-            ->selectRaw('DATE(payment_date) as date')
-            ->groupByRaw('DATE(payment_date)')
-            ->orderByRaw('DATE(payment_date) ASC')
-            ->pluck('date')
-            ->toArray();
-
-        $series = Payment::whereIn('customer_id', $customerIds)
-            ->selectRaw('SUM(amount) as total, DATE(payment_date) as date')
-            ->groupByRaw('DATE(payment_date)')
-            ->orderByRaw('DATE(payment_date) ASC')
-            ->pluck('total')
-            ->toArray();
-
-// Tasdiqlangan o'qishlar bo'yicha kunlik hisobot, faqat aktiv kompaniya mijozlaridan
-        $confirmedData = MeterReading::whereBetween('reading_date', [$start, $end])
-            ->where('confirmed', true)
-            ->whereHas('waterMeter', function ($query) use ($companyId) {
-                $query->whereHas('customer', function ($q) use ($companyId) {
-                    $q->where('company_id', $companyId);
-                });
-            })
-            ->selectRaw('DATE(reading_date) as date, SUM(reading) as count')
-            ->groupBy('date')
-            ->orderBy('date')
+        // ✅ MFY (Mahalla) statistikasi
+        $neighborhoodStats = Customer::select(
+                'streets.neighborhood_id',
+                \DB::raw('COUNT(DISTINCT streets.id) as streets_count'),
+                \DB::raw('COUNT(customers.id) as customers_count'),
+                \DB::raw('SUM(ABS(CASE WHEN customers.balance < 0 THEN customers.balance ELSE 0 END)) as total_debt')
+            )
+            ->join('streets', 'customers.street_id', '=', 'streets.id')
+            ->where('customers.company_id', $companyId)
+            ->groupBy('streets.neighborhood_id')
+            ->with('street.neighborhood:id,name')
             ->get()
-            ->keyBy('date');
-
-// Tasdiqlanmagan o'qishlar bo'yicha kunlik hisobot, faqat aktiv kompaniya mijozlaridan
-        $unconfirmedData = MeterReading::whereBetween('reading_date', [$start, $end])
-            ->where('confirmed', false)
-            ->whereHas('waterMeter', function ($query) use ($companyId) {
-                $query->whereHas('customer', function ($q) use ($companyId) {
-                    $q->where('company_id', $companyId);
-                });
+            ->map(function ($item) {
+                return [
+                    'neighborhood_id' => $item->neighborhood_id,
+                    'neighborhood_name' => $item->street?->neighborhood?->name ?? 'Noma\'lum',
+                    'streets_count' => $item->streets_count,
+                    'customers_count' => $item->customers_count,
+                    'total_debt' => $item->total_debt,
+                ];
             })
-            ->selectRaw('DATE(reading_date) as date, SUM(reading) as count')
-            ->groupBy('date')
-            ->orderBy('date')
-            ->get()
-            ->keyBy('date');
+            ->sortByDesc('total_debt');
 
-        // ✅ Ko'rsatkichlar grafigi ma'lumotlari (chartLabels yuqorida e'lon qilingan)
-        $chartConfirmedData = [];
-        $chartUnconfirmedData = [];
+        // ✅ Barcha ko'chalar ro'yxati (filter, search, pagination)
+        $streetsQuery = Customer::select(
+                'street_id',
+                'streets.name as street_name',
+                'streets.neighborhood_id',
+                \DB::raw('COUNT(customers.id) as customers_count'),
+                \DB::raw('SUM(ABS(CASE WHEN customers.balance < 0 THEN customers.balance ELSE 0 END)) as total_debt')
+            )
+            ->join('streets', 'customers.street_id', '=', 'streets.id')
+            ->where('customers.company_id', $companyId)
+            ->groupBy('street_id', 'streets.name', 'streets.neighborhood_id');
 
-        foreach ($period as $date) {
-            $dayString = $date->format('Y-m-d');
-            $chartConfirmedData[] = $confirmedData->has($dayString) ? (int)$confirmedData->get($dayString)->count : 0;
-            $chartUnconfirmedData[] = $unconfirmedData->has($dayString) ? (int)$unconfirmedData->get($dayString)->count : 0;
+        // Filter: MFY bo'yicha
+        if ($request->filled('neighborhood_id')) {
+            $streetsQuery->where('streets.neighborhood_id', $request->neighborhood_id);
         }
 
-        // ✅ OPTIMALLASHTIRISH: Qarzdorlik bo'yicha top 5 ko'chani olish (groupBy va aggregation)
-        $topStreets = Customer::select('street_id', \DB::raw('SUM(ABS(balance)) as total_debt'))
-            ->where('company_id', $companyId)
-            ->where('balance', '<', 0)
-            ->whereNotNull('street_id')
-            ->groupBy('street_id')
-            ->orderByDesc('total_debt')
-            ->limit(5)
-            ->with('street:id,name') // Eager loading faqat kerakli ustunlar
-            ->get()
-            ->map(function ($customer) {
-                return [
-                    'street_id' => $customer->street_id,
-                    'street_name' => $customer->street->name ?? 'Nomaʼlum',
-                    'total_debt' => $customer->total_debt,
-                ];
-            });
+        // Search: Ko'cha nomi bo'yicha
+        if ($request->filled('search')) {
+            $streetsQuery->where('streets.name', 'LIKE', '%' . $request->search . '%');
+        }
 
-        // Maksimal qarzdorlik (foiz hisoblash uchun)
-        $maxDebt = $topStreets->max('total_debt');
+        // Sort: Qarzdorlik bo'yicha
+        $sortBy = $request->get('sort_by', 'total_debt');
+        $sortDir = $request->get('sort_dir', 'desc');
+
+        if ($sortBy === 'total_debt') {
+            $streetsQuery->orderBy('total_debt', $sortDir);
+        } elseif ($sortBy === 'customers_count') {
+            $streetsQuery->orderBy('customers_count', $sortDir);
+        } elseif ($sortBy === 'street_name') {
+            $streetsQuery->orderBy('streets.name', $sortDir);
+        }
+
+        $allStreets = $streetsQuery->paginate(20)->appends($request->except('page'));
+
+        // MFY ro'yxati (filter uchun)
+        $neighborhoods = Neighborhood::whereHas('streets', function($q) use ($companyId) {
+                $q->whereHas('customers', function($q2) use ($companyId) {
+                    $q2->where('company_id', $companyId);
+                });
+            })
+            ->orderBy('name')
+            ->get();
 
         return view('pages.dashboard', compact(
             'debtorsCount',
             'totalDebt',
             'profitCustomersCount',
             'totalProfit',
-            'labels',
-            'series',
             'tariff',
             'customersCount',
-            'monthlyInvoicesCount',
-            'monthlyInvoicesSum',
-            'monthlyPaymentsCount',
-            'monthlyPaymentsSum',
-            'monthlyData',
-            'monthlyPaymentsData',
             'chartLabels',
             'chartInvoiceData',
             'chartPaymentData',
-            'chartConfirmedData',
-            'chartUnconfirmedData',
-            'topStreets',
-            'maxDebt'
+            'neighborhoodStats',
+            'allStreets',
+            'neighborhoods'
         ));
     }
 }
