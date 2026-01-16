@@ -143,7 +143,7 @@ class DashboardController extends Controller
             $streetsQuery->orderBy('streets.name', $sortDir);
         }
 
-        $allStreets = $streetsQuery->paginate(20)->appends($request->except('page'));
+        $allStreets = $streetsQuery->paginate(50)->appends($request->except('page'));
 
         // MFY ro'yxati (filter uchun)
         $neighborhoods = Neighborhood::whereHas('streets', function($q) use ($companyId) {

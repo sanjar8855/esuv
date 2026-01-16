@@ -192,7 +192,7 @@
 
                         {{-- Jadval --}}
                         <div class="table-responsive">
-                            <table class="table table-vcenter card-table table-striped">
+                            <table class="table table-sm table-vcenter card-table table-striped">
                                 <thead>
                                     <tr>
                                         <th>Ko'cha nomi</th>
@@ -203,7 +203,7 @@
                                 <tbody>
                                     @forelse($allStreets as $street)
                                         <tr>
-                                            <td>{{ $street->street_name }}</td>
+                                            <td>{{ $street->neighborhood->name }}, {{ $street->street_name }}</td>
                                             <td class="text-center">{{ number_format($street->customers_count) }} ta</td>
                                             <td class="text-end">
                                                 <span class="badge bg-red text-white">{{ number_format($street->total_debt, 0, '.', ' ') }} UZS</span>
