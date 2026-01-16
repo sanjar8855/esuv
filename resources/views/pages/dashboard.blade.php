@@ -132,7 +132,7 @@
                                         <td class="text-center">{{ $stat['streets_count'] }} ta</td>
                                         <td class="text-center">{{ number_format($stat['customers_count']) }} ta</td>
                                         <td class="text-end">
-                                            <span class="badge bg-red">{{ number_format($stat['total_debt'], 0, '.', ' ') }} UZS</span>
+                                            <span class="badge bg-red text-white">{{ number_format($stat['total_debt'], 0, '.', ' ') }} UZS</span>
                                         </td>
                                     </tr>
                                 @empty
@@ -206,7 +206,7 @@
                                             <td>{{ $street->street_name }}</td>
                                             <td class="text-center">{{ number_format($street->customers_count) }} ta</td>
                                             <td class="text-end">
-                                                <span class="badge bg-red">{{ number_format($street->total_debt, 0, '.', ' ') }} UZS</span>
+                                                <span class="badge bg-red text-white">{{ number_format($street->total_debt, 0, '.', ' ') }} UZS</span>
                                             </td>
                                         </tr>
                                     @empty
