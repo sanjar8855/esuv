@@ -86,27 +86,28 @@ class DashboardController extends Controller
         }
 
         // ✅ MFY (Mahalla) statistikasi
-        $neighborhoodStats = Customer::select(
-                'streets.neighborhood_id',
+        $neighborhoodStats = Neighborhood::select(
+                'neighborhoods.id',
+                'neighborhoods.name',
                 \DB::raw('COUNT(DISTINCT streets.id) as streets_count'),
                 \DB::raw('COUNT(customers.id) as customers_count'),
                 \DB::raw('SUM(ABS(CASE WHEN customers.balance < 0 THEN customers.balance ELSE 0 END)) as total_debt')
             )
-            ->join('streets', 'customers.street_id', '=', 'streets.id')
+            ->join('streets', 'neighborhoods.id', '=', 'streets.neighborhood_id')
+            ->join('customers', 'streets.id', '=', 'customers.street_id')
             ->where('customers.company_id', $companyId)
-            ->groupBy('streets.neighborhood_id')
-            ->with('street.neighborhood:id,name')
+            ->groupBy('neighborhoods.id', 'neighborhoods.name')
+            ->orderByDesc('total_debt')
             ->get()
             ->map(function ($item) {
                 return [
-                    'neighborhood_id' => $item->neighborhood_id,
-                    'neighborhood_name' => $item->street?->neighborhood?->name ?? 'Noma\'lum',
+                    'neighborhood_id' => $item->id,
+                    'neighborhood_name' => $item->name,
                     'streets_count' => $item->streets_count,
                     'customers_count' => $item->customers_count,
                     'total_debt' => $item->total_debt,
                 ];
-            })
-            ->sortByDesc('total_debt');
+            });
 
         // ✅ Barcha ko'chalar ro'yxati (filter, search, pagination)
         $streetsQuery = Customer::select(

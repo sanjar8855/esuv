@@ -128,7 +128,7 @@
                             <tbody>
                                 @forelse($neighborhoodStats as $stat)
                                     <tr>
-                                        <td>{{ $stat['name'] }}</td>
+                                        <td>{{ $stat['neighborhood_name'] }}</td>
                                         <td class="text-center">{{ $stat['streets_count'] }} ta</td>
                                         <td class="text-center">{{ number_format($stat['customers_count']) }} ta</td>
                                         <td class="text-end">
