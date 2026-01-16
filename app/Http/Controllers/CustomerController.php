@@ -884,12 +884,37 @@ class CustomerController extends Controller
             ]);
 
             // Ikkinchi - oxirgi (berilgan sana, masalan 01.01.2026)
-            MeterReading::create([
+            $secondReading = MeterReading::create([
                 'water_meter_id' => $waterMeter->id,
                 'reading' => $oxirgi,
                 'reading_date' => $oxirgiDate->toDateString(),
                 'confirmed' => true,
             ]);
+
+            // ✅ INVOICE YARATISH (Observer ishlamasa ham)
+            // Tarifni topish (yuqorida tekshirilgan)
+            $tariff = Tariff::where('company_id', $validated['kompaniya_id'])
+                ->where('is_active', true)
+                ->latest('valid_from')
+                ->first();
+
+            if ($tariff) {
+                $consumption = $oxirgi - $boshlangich;
+                $amountDue = $consumption * $tariff->price_per_m3;
+
+                // Invoice yaratish (agar mavjud bo'lmasa)
+                if (!Invoice::where('meter_reading_id', $secondReading->id)->exists()) {
+                    Invoice::create([
+                        'customer_id' => $customer->id,
+                        'tariff_id' => $tariff->id,
+                        'meter_reading_id' => $secondReading->id,
+                        'billing_period' => $oxirgiDate->format('Y-m'),
+                        'amount_due' => $amountDue,
+                        'due_date' => $oxirgiDate->copy()->endOfMonth(),
+                        'status' => 'pending',
+                    ]);
+                }
+            }
         } else {
             // Faqat boshlangich korsatkichni yaratish
             MeterReading::create([
