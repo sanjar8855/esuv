@@ -111,7 +111,7 @@
                     {data: 'phone', name: 'phone', orderable: false, searchable: false},
                     {data: 'actions', name: 'actions', orderable: false, searchable: false} // Controller'da `addColumn` bilan qo'shilgan
                 ],
-                order: [['name', 'asc']], // Boshlang'ich saralash (masalan, ID bo'yicha kamayish tartibida)
+                order: [[1, 'asc']], // Boshlang'ich saralash (masalan, ID bo'yicha kamayish tartibida)
                 pageLength: 25,
                 language: {
                     search: "Qidiruv:",
