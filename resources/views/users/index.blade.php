@@ -62,7 +62,6 @@
                                     <th>Kompaniya</th>
                                     <th>Ism</th>
                                     <th>Foydalanuvchi turi</th>
-                                    <th>Email</th>
                                     <th>Lavozim</th>
                                     <th>Telefon raqam</th>
                                     <th>Amallar</th>
@@ -108,12 +107,11 @@
                     {data: 'company_name', name: 'companies.name', orderable: true, searchable: true},
                     {data: 'name', name: 'users.name'},
                     {data: 'roles', name: 'roles', orderable: false, searchable: false}, // Controller'da `addColumn` bilan qo'shilgan
-                    {data: 'email', name: 'email'},
                     {data: 'rank', name: 'rank'}, // User modelida 'rank' maydoni borligiga ishonch hosil qiling
                     {data: 'phone', name: 'phone', orderable: false, searchable: false},
                     {data: 'actions', name: 'actions', orderable: false, searchable: false} // Controller'da `addColumn` bilan qo'shilgan
                 ],
-                order: [[0, 'desc']], // Boshlang'ich saralash (masalan, ID bo'yicha kamayish tartibida)
+                order: [[1, 'asc']], // Boshlang'ich saralash (masalan, ID bo'yicha kamayish tartibida)
                 pageLength: 25,
                 language: {
                     search: "Qidiruv:",
