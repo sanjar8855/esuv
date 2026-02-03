@@ -27,7 +27,7 @@
                                 @foreach($waterMeters as $waterMeter)
                                     <option
                                         value="{{ $waterMeter->id }}" {{ $meterReading->water_meter_id == $waterMeter->id ? 'selected' : '' }}>
-                                        {{ $waterMeter->meter_number }} - {{ $waterMeter->customer->name }}
+                                        {{ $waterMeter->meter_number }} - {{ $waterMeter->customer->name ?? 'Mijoz topilmadi' }}
                                     </option>
                                 @endforeach
                             </select>

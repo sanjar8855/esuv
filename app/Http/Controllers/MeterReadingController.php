@@ -235,11 +235,20 @@ class MeterReadingController extends Controller
     public function edit(MeterReading $meterReading)
     {
         $meterReading->load('waterMeter.customer');
-        $customer = $meterReading->waterMeter->customer;
+        $customer = $meterReading->waterMeter?->customer;
         if (!$customer) {
             abort(404, 'Ushbu ko\'rsatkichga tegishli mijoz topilmadi.');
         }
-        $waterMeters = WaterMeter::with('customer')->get();
+
+        $user = Auth::user();
+        $waterMetersQuery = WaterMeter::with('customer')->whereHas('customer');
+        if (!$user->hasRole('admin') && $user->company_id) {
+            $waterMetersQuery->whereHas('customer', function ($q) use ($user) {
+                $q->where('company_id', $user->company_id);
+            });
+        }
+        $waterMeters = $waterMetersQuery->get();
+
         return view('meter_readings.edit', compact('meterReading', 'waterMeters', 'customer'));
     }
 
