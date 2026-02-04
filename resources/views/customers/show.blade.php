@@ -406,19 +406,28 @@
                                                         @endif
                                                     </td>
                                                     <td>
-                                                        @if(!$payment->confirmed)
-                                                            {{-- ✅ TASDIQLASH TUGMASI --}}
-                                                            <form action="{{ route('payments.confirm', $payment) }}" method="POST" style="display:inline;">
+                                                        <div class="btn-group" role="group">
+                                                            @if(!$payment->confirmed)
+                                                                {{-- ✅ TASDIQLASH TUGMASI --}}
+                                                                <form action="{{ route('payments.confirm', $payment) }}" method="POST" style="display:inline;">
+                                                                    @csrf
+                                                                    @method('PATCH')
+                                                                    <button type="submit" class="btn btn-sm btn-success"
+                                                                            onclick="return confirm('To\'lovni tasdiqlaysizmi?')">
+                                                                        Tasdiqlash
+                                                                    </button>
+                                                                </form>
+                                                            @endif
+                                                            {{-- ✅ O'CHIRISH TUGMASI --}}
+                                                            <form action="{{ route('payments.destroy', $payment) }}" method="POST" style="display:inline;">
                                                                 @csrf
-                                                                @method('PATCH')
-                                                                <button type="submit" class="btn btn-sm btn-success"
-                                                                        onclick="return confirm('To\'lovni tasdiqlaysizmi?')">
-                                                                    Tasdiqlash
+                                                                @method('DELETE')
+                                                                <button type="submit" class="btn btn-sm btn-danger"
+                                                                        onclick="return confirm('Haqiqatan ham to\'lovni o\'chirmoqchimisiz?')">
+                                                                    O'chirish
                                                                 </button>
                                                             </form>
-                                                        @else
-                                                            <span class="text-muted">—</span>
-                                                        @endif
+                                                        </div>
                                                     </td>
                                                 @endif
                                             </tr>
