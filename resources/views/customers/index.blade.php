@@ -161,8 +161,10 @@
                                                 value="{{ $street->id }}" {{ request('street_id') == $street->id ? 'selected' : '' }}>
                                                 {{ $street->name }} ko'cha,
                                                 {{ $street->neighborhood->name }} MFY,
+                                                @if(auth()->user()->hasRole('admin'))
                                                 {{ $street->neighborhood->city->name }} shahar/tuman,
                                                 {{ $street->neighborhood->city->region->name }} vil.
+                                                @endif
                                             </option>
                                         @endforeach
                                     </select>
