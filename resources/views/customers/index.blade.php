@@ -302,7 +302,7 @@
                     // {data: 'family_members', name: 'family_members'},
                     {data: 'actions', name: 'actions', orderable: false, searchable: false} // Amallar
                 ],
-                pageLength: 50,
+                pageLength: 25,
                 // Boshlang'ich saralash (masalan, ID yoki Ism bo'yicha)
                 // order: [[{{ auth()->user()->hasRole('admin') ? 1 : 0 }}, 'asc']], // Birinchi ko'rinadigan ustun (N dan keyingi)
                 language: {
