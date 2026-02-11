@@ -106,7 +106,7 @@
                     {data: 'actions', name: 'actions', orderable: false, searchable: false}
                 ],
                 order: [[1, 'asc']], // Boshlang'ich saralash: Ko'cha nomi bo'yicha
-                pageLength: 25, // Yoki 50
+                pageLength: 50, // Yoki 50
                 language: { /* ... o'zbekcha tarjimalar ... */
                     search: "Qidiruv:",
                     lengthMenu: "_MENU_ ta yozuv ko'rsatish",

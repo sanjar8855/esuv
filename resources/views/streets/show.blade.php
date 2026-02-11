@@ -69,7 +69,7 @@
                     { data: 'actions',      name: 'actions', orderable:false, searchable:false },
                 ],
                 order: [[0,'asc']],
-                pageLength: 25,
+                pageLength: 50,
                 language: {
                     search: "Qidiruv:",
                     lengthMenu: "_MENU_ ta yozuv",
