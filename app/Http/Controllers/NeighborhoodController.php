@@ -21,8 +21,7 @@ class NeighborhoodController extends Controller
 {
     public function index(Request $request)
     {
-        // Bu sahifaga faqat admin kiradi deb hisoblaymiz
-        // $user = Auth::user();
+        $user = Auth::user();
 
         if ($request->ajax()) {
             $query = Neighborhood::query()
@@ -31,6 +30,11 @@ class NeighborhoodController extends Controller
                     'company'      // Mahallaning kompaniyasini yuklash
                 ])
                 ->select('neighborhoods.*'); // Asosiy jadval ustunlarini aniq tanlaymiz
+
+            // Admin bo'lmagan foydalanuvchilar faqat o'z kompaniyasi mahallalarini ko'radi
+            if (!$user->hasRole('admin')) {
+                $query->where('neighborhoods.company_id', $user->company_id);
+            }
 
             // 1. Ko'chalar sonini hisoblash (shu mahalladagi, kompaniyasidan qat'i nazar)
             // Chunki mahalla o'zi bir kompaniyaga tegishli (yoki tegishli emas)
@@ -78,16 +82,19 @@ class NeighborhoodController extends Controller
                 ->editColumn('customer_count', function(Neighborhood $neighborhood) { // Mijozlar soni
                     return $neighborhood->customer_count_val ?? 0;
                 })
-                ->addColumn('actions', function (Neighborhood $neighborhood) {
+                ->addColumn('actions', function (Neighborhood $neighborhood) use ($user) {
                     $showUrl = route('neighborhoods.show', $neighborhood->id);
-                    $editUrl = route('neighborhoods.edit', $neighborhood->id);
-                    $deleteUrl = route('neighborhoods.destroy', $neighborhood->id);
-                    $csrf = csrf_field();
-                    $method = method_field('DELETE');
-                    // Faqat admin ko'rishi va amallarni bajarishi mumkin
-                    $buttons = '<a href="'.$showUrl.'" class="btn btn-info btn-sm">Ko‘rish</a> ';
-                    $buttons .= '<a href="'.$editUrl.'" class="btn btn-warning btn-sm">Tahrirlash</a> ';
-                    $buttons .= '<form action="'.$deleteUrl.'" method="POST" style="display:inline;" onsubmit="return confirm(\'Haqiqatan ham o‘chirmoqchimisiz?\');">'.$csrf.$method.'<button type="submit" class="btn btn-danger btn-sm">O‘chirish</button></form>';
+                    $buttons = '<a href="'.$showUrl.'" class="btn btn-info btn-sm">Ko\'rish</a> ';
+
+                    if ($user->hasRole('admin')) {
+                        $editUrl = route('neighborhoods.edit', $neighborhood->id);
+                        $deleteUrl = route('neighborhoods.destroy', $neighborhood->id);
+                        $csrf = csrf_field();
+                        $method = method_field('DELETE');
+
+                        $buttons .= '<a href="'.$editUrl.'" class="btn btn-warning btn-sm">Tahrirlash</a> ';
+                        $buttons .= '<form action="'.$deleteUrl.'" method="POST" style="display:inline;" onsubmit="return confirm(\'Haqiqatan ham o\\\'chirmoqchimisiz?\');">'.$csrf.$method.'<button type="submit" class="btn btn-danger btn-sm">O\'chirish</button></form>';
+                    }
                     return $buttons;
                 })
                 ->rawColumns(['city_full_path', 'company_name_display', 'actions'])
@@ -99,8 +106,9 @@ class NeighborhoodController extends Controller
 
     public function create()
     {
-        // Bu amalni faqat admin bajarishi mumkin
-        // $this->authorize('create', Neighborhood::class);
+        if (!auth()->user()->hasRole('admin')) {
+            return redirect()->route('neighborhoods.index')->with('error', 'Sizda mahalla qo\'shish uchun ruxsat yo\'q.');
+        }
 
         $cities = City::with('region', 'company')->orderBy('name')->get(); // Shaharlarni viloyati va kompaniyasi bilan olish
         $companies = Company::orderBy('name')->get(); // Barcha kompaniyalar
@@ -110,7 +118,9 @@ class NeighborhoodController extends Controller
 
     public function store(Request $request)
     {
-        // $this->authorize('create', Neighborhood::class);
+        if (!auth()->user()->hasRole('admin')) {
+            return redirect()->route('neighborhoods.index')->with('error', 'Sizda mahalla saqlash uchun ruxsat yo\'q.');
+        }
 
         $validated = $request->validate([
             'city_id' => 'required|exists:cities,id',
@@ -159,7 +169,12 @@ class NeighborhoodController extends Controller
     {
         $user = Auth::user(); // Joriy foydalanuvchi (admin huquqlarini tekshirish uchun)
 
-        // AJAX so‘rovi bo‘lsa (DataTables uchun)
+        // Admin bo'lmagan foydalanuvchi faqat o'z kompaniyasiga tegishli mahallani ko'ra oladi
+        if (!$user->hasRole('admin') && $neighborhood->company_id !== $user->company_id) {
+            abort(403, 'Bu mahallani ko\'rish uchun ruxsatingiz yo\'q.');
+        }
+
+        // AJAX so'rovi bo'lsa (DataTables uchun)
         if ($request->ajax()) {
             // Ushbu mahallaga tegishli ko'chalarni olamiz
             $streetsQuery = $neighborhood->streets() // streets() relationini ishlatamiz
@@ -228,8 +243,9 @@ class NeighborhoodController extends Controller
 
     public function edit(Neighborhood $neighborhood) // Route model binding
     {
-        // Bu amalni faqat admin bajarishi mumkin
-        // $this->authorize('update', $neighborhood);
+        if (!auth()->user()->hasRole('admin')) {
+            return redirect()->route('neighborhoods.index')->with('error', 'Sizda mahallani tahrirlash uchun ruxsat yo\'q.');
+        }
 
         $cities = City::with('region', 'company')->orderBy('name')->get();
         $companies = Company::orderBy('name')->get();
@@ -239,7 +255,9 @@ class NeighborhoodController extends Controller
 
     public function update(Request $request, Neighborhood $neighborhood)
     {
-        // $this->authorize('update', $neighborhood);
+        if (!auth()->user()->hasRole('admin')) {
+            return redirect()->route('neighborhoods.index')->with('error', 'Sizda mahallani yangilash uchun ruxsat yo\'q.');
+        }
 
         $validated = $request->validate([
             'city_id' => 'required|exists:cities,id',
@@ -288,6 +306,10 @@ class NeighborhoodController extends Controller
 
     public function destroy(Neighborhood $neighborhood)
     {
+        if (!auth()->user()->hasRole('admin')) {
+            return redirect()->route('neighborhoods.index')->with('error', 'Sizda mahallani o\'chirish uchun ruxsat yo\'q.');
+        }
+
         $neighborhood->delete();
         return redirect()
             ->route('neighborhoods.index')

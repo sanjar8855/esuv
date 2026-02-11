@@ -23,8 +23,7 @@ class StreetController extends Controller
 {
     public function index(Request $request)
     {
-        // Bu sahifaga faqat admin kiradi
-        // $user = Auth::user(); // Endi shart emas
+        $user = Auth::user();
 
         if ($request->ajax()) {
             $query = Street::query()
@@ -47,6 +46,11 @@ class StreetController extends Controller
                     'neighborhood.city.region', // Bu display uchun hali ham kerak
                     'company' // Bu ham display uchun kerak
                 ]);
+
+            // Admin bo'lmagan foydalanuvchilar faqat o'z kompaniyasi ko'chalarini ko'radi
+            if (!$user->hasRole('admin')) {
+                $query->where('streets.company_id', $user->company_id);
+            }
 
             $query->withCount(['customers as customer_count' => function (Builder $q) {
                 $q->where('customers.is_active', true)
@@ -83,20 +87,23 @@ class StreetController extends Controller
                     return $street->customer_count ?? 0;
                 })
 
-                ->addColumn('actions', function ($street) {
+                ->addColumn('actions', function ($street) use ($user) {
                     $show = route('streets.show', $street->id);
-                    $edit = route('streets.edit', $street->id);
-                    $del  = route('streets.destroy', $street->id);
-                    $csrf   = csrf_field();
-                    $method = method_field('DELETE');
+                    $btns  = '<a href="' . $show . '" class="btn btn-info btn-sm">Ko\'rish</a> ';
 
-                    $btns  = '<a href="' . $show . '" class="btn btn-info btn-sm">Ko‘rish</a> ';
-                    $btns .= '<a href="' . $edit . '" class="btn btn-warning btn-sm">Tahrirlash</a> ';
-                    $btns .= '<form action="' . $del . '" method="POST" style="display:inline;" '
-                        . 'onsubmit="return confirm(\'Haqiqatan ham o‘chirmoqchimisiz?\');">'
-                        . $csrf . $method
-                        . '<button type="submit" class="btn btn-danger btn-sm">O‘chirish</button>'
-                        . '</form>';
+                    if ($user->hasRole('admin')) {
+                        $edit = route('streets.edit', $street->id);
+                        $del  = route('streets.destroy', $street->id);
+                        $csrf   = csrf_field();
+                        $method = method_field('DELETE');
+
+                        $btns .= '<a href="' . $edit . '" class="btn btn-warning btn-sm">Tahrirlash</a> ';
+                        $btns .= '<form action="' . $del . '" method="POST" style="display:inline;" '
+                            . 'onsubmit="return confirm(\'Haqiqatan ham o\\\'chirmoqchimisiz?\');">'
+                            . $csrf . $method
+                            . '<button type="submit" class="btn btn-danger btn-sm">O\'chirish</button>'
+                            . '</form>';
+                    }
                     return $btns;
                 })
                 ->rawColumns(['neighborhood_full_path_display', 'actions', 'company_name_display'])
@@ -151,7 +158,14 @@ class StreetController extends Controller
 
     public function show(Request $request, Street $street)
     {
-        // AJAX so‘rovi bo‘lsa, DataTables uchun mijozlarni qaytaramiz
+        $user = Auth::user();
+
+        // Admin bo'lmagan foydalanuvchi faqat o'z kompaniyasiga tegishli ko'chani ko'ra oladi
+        if (!$user->hasRole('admin') && $street->company_id !== $user->company_id) {
+            abort(403, 'Bu ko\'chani ko\'rish uchun ruxsatingiz yo\'q.');
+        }
+
+        // AJAX so'rovi bo'lsa, DataTables uchun mijozlarni qaytaramiz
         if ($request->ajax()) {
             $query = Customer::query()
                 ->with(['company', 'waterMeter'])

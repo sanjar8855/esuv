@@ -20,8 +20,10 @@
         <div class="container-xl">
             <div class="row row-cards">
                 <div class="col-12">
-                    <h1>Ko‘chalar</h1>
-                    <a href="{{ route('streets.create') }}" class="btn btn-primary mb-3">Yangi Ko‘cha Qo‘shish</a>
+                    <h1>Ko'chalar</h1>
+                    @hasrole('admin')
+                    <a href="{{ route('streets.create') }}" class="btn btn-primary mb-3">Yangi Ko'cha Qo'shish</a>
+                    @endhasrole
 
                     @if(session('success'))
                         <div class="alert alert-success">{{ session('success') }}</div>

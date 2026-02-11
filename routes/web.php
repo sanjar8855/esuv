@@ -59,12 +59,14 @@ Route::middleware('auth')->group(function () {
             ->name('companies.clear-customers');
         Route::resource('regions', RegionController::class);
         Route::resource('cities', CityController::class);
-        Route::resource('neighborhoods', NeighborhoodController::class);
-        Route::resource('streets', StreetController::class);
         Route::resource('saas-payments', SaasPaymentController::class)->names('saas.payments');
         Route::get('/saas-payments-history', [SaasPaymentController::class, 'history'])
             ->name('saas.payments.history');
     });
+
+    // Mahallalar va ko'chalar - barcha autentifikatsiya qilingan foydalanuvchilar uchun
+    Route::resource('neighborhoods', NeighborhoodController::class);
+    Route::resource('streets', StreetController::class);
 //    Route::middleware('can:locations')->group(function () {
 //    });
 

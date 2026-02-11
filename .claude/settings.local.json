@@ -30,7 +30,8 @@
       "Bash(cat:*)",
       "Bash(dir \"C:\\\\OSPanel\\\\domains\\\\suv\\\\resources\\\\views\\\\meter_readings\")",
       "Bash(dir \"C:\\\\OSPanel\\\\domains\\\\suv\\\\..\\\\mijozlar_gayrat-obi-hayot-ichimlik-suvi_2025-10-14.xlsx\")",
-      "Bash(php -l:*)"
+      "Bash(php -l:*)",
+      "Bash(grep:*)"
     ],
     "deny": [],
     "ask": []

@@ -34,8 +34,10 @@
             <div class="row row-cards">
                 <div class="col-12">
                     <h1>Mahallalar</h1>
+                    @hasrole('admin')
                     <a href="{{ route('neighborhoods.create') }}" class="btn btn-primary mb-3">Yangi Mahalla
-                        Qo‘shish</a>
+                        Qo'shish</a>
+                    @endhasrole
 
                     @if(session('success'))
                         <div class="alert alert-success">{{ session('success') }}</div>

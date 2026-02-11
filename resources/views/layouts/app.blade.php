@@ -588,6 +588,7 @@
                             </span>
                         </a>
                     </li>
+                    @hasrole('admin')
                     <li class="nav-item {{ request()->routeIs('cities*') ? 'active' : '' }}">
                         <a class="nav-link" href="{{ route('cities.index') }}">
                             <span class="nav-link-icon d-md-none d-lg-inline-block">
@@ -624,6 +625,7 @@
                             </span>
                         </a>
                     </li>
+                    @endhasrole
                 </ul>
             </div>
         </div>
