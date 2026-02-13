@@ -71,6 +71,7 @@
                                     <th>Kompaniya</th> {{-- Har bir ko'cha uchun alohida kompaniya --}}
                                     <th>Ko‘cha Nomi</th>
                                     <th>Mijozlar soni</th>
+                                    <th>Jami qarzdorlik (UZS)</th>
                                     <th>Amallar</th>
                                 </tr>
                                 </thead>
@@ -103,6 +104,7 @@
                     {data: 'company_name_display', name: 'company.name'}, // Kompaniya (saralash company.name bo'yicha)
                     {data: 'name', name: 'name'}, // Ko'cha nomi (kontrollerda editColumn('name') orqali formatlanadi)
                     {data: 'customer_count', name: 'customer_count', searchable: false},
+                    {data: 'total_debt', name: 'total_debt_val', searchable: false, orderable: true},
                     {data: 'actions', name: 'actions', orderable: false, searchable: false}
                 ],
                 order: [[1, 'asc']], // Boshlang'ich saralash: Ko'cha nomi bo'yicha

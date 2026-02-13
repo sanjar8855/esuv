@@ -57,6 +57,12 @@ class StreetController extends Controller
                     ->whereColumn('customers.company_id', 'streets.company_id');
             }]);
 
+            // Jami qarzdorlikni hisoblash
+            $query->addSelect(['total_debt_val' => Customer::select(DB::raw('COALESCE(SUM(ABS(CASE WHEN customers.balance < 0 THEN customers.balance ELSE 0 END)), 0)'))
+                ->whereColumn('customers.street_id', 'streets.id')
+                ->whereColumn('customers.company_id', 'streets.company_id')
+            ]);
+
             return DataTables::eloquent($query)
                 ->addColumn('id_display', function(Street $street){
                     return $street->id;
@@ -86,7 +92,13 @@ class StreetController extends Controller
                 ->editColumn('customer_count', function ($street) {
                     return $street->customer_count ?? 0;
                 })
-
+                ->addColumn('total_debt', function ($street) {
+                    $debt = $street->total_debt_val ?? 0;
+                    if ($debt > 0) {
+                        return '<span class="text-danger fw-bold">' . number_format($debt, 0, '', ' ') . ' UZS</span>';
+                    }
+                    return '<span class="text-muted">0 UZS</span>';
+                })
                 ->addColumn('actions', function ($street) use ($user) {
                     $show = route('streets.show', $street->id);
                     $btns  = '<a href="' . $show . '" class="btn btn-info btn-sm">Ko\'rish</a> ';
@@ -106,7 +118,7 @@ class StreetController extends Controller
                     }
                     return $btns;
                 })
-                ->rawColumns(['neighborhood_full_path_display', 'actions', 'company_name_display'])
+                ->rawColumns(['neighborhood_full_path_display', 'total_debt', 'actions', 'company_name_display'])
                 ->make(true);
         }
 

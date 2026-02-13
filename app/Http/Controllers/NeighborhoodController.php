@@ -56,6 +56,14 @@ class NeighborhoodController extends Controller
                 ->whereColumn('customers.company_id', 'neighborhoods.company_id')
             ]);
 
+            // 3. Jami qarzdorlikni hisoblash (balance < 0 bo'lgan mijozlar)
+            $query->addSelect(['total_debt_val' => Customer::select(DB::raw('COALESCE(SUM(ABS(CASE WHEN customers.balance < 0 THEN customers.balance ELSE 0 END)), 0)'))
+                ->whereHas('street', function (Builder $streetQuery) {
+                    $streetQuery->whereColumn('streets.neighborhood_id', 'neighborhoods.id');
+                })
+                ->whereColumn('customers.company_id', 'neighborhoods.company_id')
+            ]);
+
             return DataTables::eloquent($query)
                 ->addIndexColumn() // "N" ustuni uchun
                 ->addColumn('city_full_path', function (Neighborhood $neighborhood) {
@@ -82,6 +90,13 @@ class NeighborhoodController extends Controller
                 ->editColumn('customer_count', function(Neighborhood $neighborhood) { // Mijozlar soni
                     return $neighborhood->customer_count_val ?? 0;
                 })
+                ->addColumn('total_debt', function(Neighborhood $neighborhood) {
+                    $debt = $neighborhood->total_debt_val ?? 0;
+                    if ($debt > 0) {
+                        return '<span class="text-danger fw-bold">' . number_format($debt, 0, '', ' ') . ' UZS</span>';
+                    }
+                    return '<span class="text-muted">0 UZS</span>';
+                })
                 ->addColumn('actions', function (Neighborhood $neighborhood) use ($user) {
                     $showUrl = route('neighborhoods.show', $neighborhood->id);
                     $buttons = '<a href="'.$showUrl.'" class="btn btn-info btn-sm">Ko\'rish</a> ';
@@ -97,7 +112,7 @@ class NeighborhoodController extends Controller
                     }
                     return $buttons;
                 })
-                ->rawColumns(['city_full_path', 'company_name_display', 'actions'])
+                ->rawColumns(['city_full_path', 'company_name_display', 'total_debt', 'actions'])
                 ->make(true);
         }
 
@@ -193,6 +208,12 @@ class NeighborhoodController extends Controller
                     ->whereColumn('customers.company_id', 'streets.company_id');
             }]);
 
+            // Har bir ko'cha uchun jami qarzdorlikni hisoblash
+            $streetsQuery->addSelect(['total_debt_val' => Customer::select(DB::raw('COALESCE(SUM(ABS(CASE WHEN customers.balance < 0 THEN customers.balance ELSE 0 END)), 0)'))
+                ->whereColumn('customers.street_id', 'streets.id')
+                ->whereColumn('customers.company_id', 'streets.company_id')
+            ]);
+
             return DataTables::eloquent($streetsQuery)
                 ->addColumn('id_display', function (Street $street) {
                     return $street->id;
@@ -207,6 +228,13 @@ class NeighborhoodController extends Controller
                 })
                 ->editColumn('customer_count', function (Street $street) {
                     return $street->customer_count ?? 0;
+                })
+                ->addColumn('total_debt', function (Street $street) {
+                    $debt = $street->total_debt_val ?? 0;
+                    if ($debt > 0) {
+                        return '<span class="text-danger fw-bold">' . number_format($debt, 0, '', ' ') . ' UZS</span>';
+                    }
+                    return '<span class="text-muted">0 UZS</span>';
                 })
                 ->addColumn('actions', function (Street $street) {
                     $show = route('streets.show', $street->id);
@@ -228,7 +256,7 @@ class NeighborhoodController extends Controller
                     }
                     return $btns;
                 })
-                ->rawColumns(['name', 'actions', 'company_name_display'])
+                ->rawColumns(['name', 'total_debt', 'actions', 'company_name_display'])
                 ->toJson();
         }
 
